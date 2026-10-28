@@ -1,0 +1,12 @@
+target/
+Cargo.lock.bak
+target/
+build/
+
+# editors / OS
+*.swp
+.DS_Store
+.vscode/
+.idea/
+
+# NOTE: .beads/ is intentionally NOT ignored.

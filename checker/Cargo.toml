@@ -1,0 +1,8 @@
+[package]
+name = "bennett-cert-checker"
+version = "0.0.0"
+edition = "2021"
+description = "Independent certificate checker for Bennett ISA-spec certificates (skeleton)"
+license-file = "../LICENSE"
+
+[dependencies]

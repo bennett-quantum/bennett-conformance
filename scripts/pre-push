@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Local quality gate (no GitHub CI). Runs cargo test for every Cargo.toml in the
+# repo; exits 0 if there is none.
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+cd "$root"
+mapfile -t manifests < <(find . -name Cargo.toml -not -path './target/*' -not -path '*/target/*' | sort)
+if [ "${#manifests[@]}" -eq 0 ]; then
+  echo "pre-push: no Cargo.toml found, nothing to run"
+  exit 0
+fi
+for m in "${manifests[@]}"; do
+  echo "pre-push: cargo test --manifest-path $m"
+  cargo test --manifest-path "$m"
+done

@@ -1,0 +1,6 @@
+# Spec versions this repo targets (published contracts only).
+status = "skeleton"
+
+[specs]
+"bennett-dialect-spec" = "0.3"
+"bennett-isa-spec" = "0.3"
