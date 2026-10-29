@@ -16,9 +16,13 @@ any code, including code in this repo.
 
 ## Non-negotiables
 
-0. MAINTAIN THE WORKLOG. Every session, prepend a `## Session log - YYYY-MM-DD`
-   block to the highest-numbered chunk under `worklog/`. Past ~280 lines, start
-   the next `NNN_` chunk. Record gotchas and surprises not derivable from the diff.
+0. WORKLOG, KEPT BY WHOEVER COMMITS THE SESSION. Each working session that changes the repo
+   leaves one "## Session log - YYYY-MM-DD - ..." block at the top of the highest-numbered
+   chunk under worklog/ (ls worklog | sort -r | head -1; past ~280 lines start the next NNN_
+   chunk): what changed, gotchas, surprises, failures and root causes not derivable from the
+   diff. When an orchestrator runs subagents, the orchestrator writes it; subagents keep their
+   job's progress file and put surprises in bd (bd note / bd create) and never need to write
+   outside their owned paths. A session that changes nothing writes nothing.
 1. FAIL FAST, FAIL LOUD. Assertions and clear errors, never silent returns or
    quiet fallbacks. Unsupported means a crash with context.
 2. ONE IMPLEMENTER PER CHANGE. Independent review is batched over several landed
@@ -31,6 +35,17 @@ any code, including code in this repo.
    implementation of the same spec without the rest noticing.
 6. NO GITHUB CI. Local gates only: `scripts/pre-push` (install with
    `scripts/install-hooks.sh`). No workflows, no remote automation.
-7. Use beads (`bd`) for tasks if initialised in this repo. No TODO.md files.
+7. TRACK TASKS WITH BEADS (bd): bd ready / bd show / bd create; bd init when work starts in a
+   repo that has no .beads/ yet. No TODO.md files. Never gitignore .beads/. No Dolt remote sync.
 8. SKEPTICISM. Verify subagent output, earlier work, and your own assumptions.
    Reproduce before believing.
+9. GIT POLICY (maintainer, 2026-10-29). Any agent commits its own paths regularly
+   (git commit -- <paths>; retry on index.lock); the orchestrator pushes after verified
+   milestones and at least every couple of hours. This opts the repo into the Beads
+   "team-maintainer" profile for commits only, not for pushes or Dolt sync.
+10. NO NARROWING OF NORTH-STAR SCOPE (maintainer, 2026-10-29). Nothing may reject, refuse,
+   fault, declare inert or omit a capability that bennett/docs/Bennett-NorthStar.md promises
+   (thesis, sections 3-5, every rung of the section 8 demo ladder; Grover over unmodified
+   SQLite is the core). A deferral may postpone mechanics only. If a contract truly lacks
+   something, raise it as a blocker naming the exact change; never shrink scope to fit.
+   See bennett/docs/plan/2026-10-29-path-to-north-star.md.
