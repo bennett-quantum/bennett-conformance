@@ -421,7 +421,7 @@ Other text.
 
 ## 2. Mid
 
-Uses borrow frames here.
+Uses borrow frames here, giving **frame slack**.
 
 See §1.
 
@@ -430,6 +430,8 @@ See §1.
 See §2 and stuff.
 
 Independent text.
+
+Has frame slack.
 
 ## 4. Iso
 
@@ -453,25 +455,37 @@ class TestQueries(unittest.TestCase):
         with self.assertRaises(cg.UsageError):
             self.m.resolve("ISA-9-P1")
 
-    def test_impact_depths(self):
-        lv = self.m.impact("ISA-1-P1")
-        self.assertEqual(lv[0], ["ISA-2-P1", "ISA-2-P2"])
-        self.assertEqual(lv[1], ["ISA-3-P1"])
-        self.assertEqual(len(lv), 2)
+    def test_impact_depths_anchored(self):
+        # section refs count at the query end only; name-level edges chain
+        self.assertEqual(self.m.impact("ISA-1-P1"),
+                         [["ISA-2-P1", "ISA-2-P2"], ["ISA-3-P3"]])
+
+    def test_impact_depths_full(self):
+        self.assertEqual(self.m.impact("ISA-1-P1", closure="full"),
+                         [["ISA-2-P1", "ISA-2-P2"], ["ISA-3-P1", "ISA-3-P3"]])
+
+    def test_impact_max_depth(self):
+        self.assertEqual(self.m.impact("ISA-1-P1", max_depth=1), [["ISA-2-P1", "ISA-2-P2"]])
 
     def test_impact_via_section_ref_only(self):
-        lv = self.m.impact("ISA-1-P2")
-        self.assertEqual(lv, [["ISA-2-P2"], ["ISA-3-P1"]])
+        self.assertEqual(self.m.impact("ISA-1-P2"), [["ISA-2-P2"]])
+        self.assertEqual(self.m.impact("ISA-1-P2", closure="full"),
+                         [["ISA-2-P2"], ["ISA-3-P1"]])
+
+    def test_bad_closure(self):
+        with self.assertRaises(cg.UsageError):
+            self.m.impact("ISA-1-P1", closure="bogus")
 
     def test_impact_of_section(self):
-        lv = self.m.impact("ISA-2")
-        self.assertEqual(lv, [["ISA-3-P1"]])
+        self.assertEqual(self.m.impact("ISA-2"), [["ISA-3-P1", "ISA-3-P3"]])
 
     def test_independent(self):
         ok, fwd, rev = self.m.independent("ISA-3-P2", "ISA-4-P1")
         self.assertTrue(ok)
         ok, fwd, rev = self.m.independent("ISA-1-P1", "ISA-1-P2")
         self.assertFalse(ok)
+        self.assertEqual(rev, ["ISA-2-P2"])
+        ok, fwd, rev = self.m.independent("ISA-1-P1", "ISA-1-P2", closure="full")
         self.assertEqual(rev, ["ISA-2-P2", "ISA-3-P1"])
         ok, fwd, rev = self.m.independent("ISA-2-P1", "ISA-2-P2")
         self.assertFalse(ok)
@@ -481,6 +495,7 @@ class TestQueries(unittest.TestCase):
         top = self.m.top("ISA", 2)
         self.assertEqual(top[0][0], "ISA-1-P1")
         self.assertEqual(top[0][1], 3)
+        self.assertEqual(top[0][2], 2)
 
     def test_coverage(self):
         g = qgraph()
@@ -490,9 +505,9 @@ class TestQueries(unittest.TestCase):
         self.assertEqual(sec["ISA-1"]["strong"], ["ISA-1-P1", "ISA-1-P3"])
         self.assertEqual(sec["ISA-1"]["uncovered"], ["ISA-1-P2"])
         self.assertEqual(sec["ISA-2"]["weak"], ["ISA-2-P1", "ISA-2-P2"])
-        self.assertEqual(sec["ISA-3"]["uncovered"], ["ISA-3-P1", "ISA-3-P2"])
+        self.assertEqual(sec["ISA-3"]["uncovered"], ["ISA-3-P1", "ISA-3-P2", "ISA-3-P3"])
         self.assertEqual(rep["foreign"], ["DLT-5-P1"])
-        self.assertEqual(rep["totals"]["uncovered"], 4)
+        self.assertEqual(rep["totals"]["uncovered"], 5)
         with self.assertRaises(cg.UsageError):
             cg.coverage(g, {"t": ["ISA-7-P1"]})
         with self.assertRaises(cg.UsageError):
@@ -505,7 +520,9 @@ class TestXspecMerged(unittest.TestCase):
         dlt = build("## 1. D\n\nPer ISA §1 (borrow).\n\nAnd DLT-local.\n", spec="DLT",
                     version="0.2.10", xspec=isa)
         m = cg.Merged([isa, dlt])
-        self.assertEqual(m.impact("ISA-1-P2"), [["DLT-1-P1", "ISA-2-P2"], ["ISA-3-P1"]])
+        self.assertEqual(m.impact("ISA-1-P2"), [["DLT-1-P1", "ISA-2-P2"]])
+        self.assertEqual(m.impact("ISA-1-P2", closure="full"),
+                         [["DLT-1-P1", "ISA-2-P2"], ["ISA-3-P1"]])
         stale = build(QSPEC + "\nextra\n")
         with self.assertRaises(cg.UsageError):
             cg.Merged([stale, dlt])
@@ -595,15 +612,19 @@ class TestCli(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "ISA-0.8.dot")))
         with open(gj, encoding="utf-8") as f:
             g = json.load(f)
-        self.assertEqual(g["stats"]["clauses"], 8)
+        self.assertEqual(g["stats"]["clauses"], 9)
         r = run_cli("impact", gj, "ISA-1-P1")
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("depth 1", r.stdout)
+        self.assertNotIn("ISA-3-P1", r.stdout)
+        r = run_cli("impact", gj, "ISA-1-P1", "--closure", "full")
         self.assertIn("ISA-3-P1", r.stdout)
         r = run_cli("independent", gj, "ISA-3-P2", "ISA-4-P1")
         self.assertEqual((r.returncode, r.stdout.strip()), (0, "independent"))
         r = run_cli("independent", gj, "ISA-1-P1", "ISA-1-P2")
         self.assertEqual(r.returncode, 1)
+        self.assertIn("shared reverse cone (1): ISA-2-P2", r.stdout)
+        r = run_cli("independent", gj, "ISA-1-P1", "ISA-1-P2", "--closure", "full")
         self.assertIn("ISA-3-P1", r.stdout)
         tags = os.path.join(self.tmp, "tags.json")
         with open(tags, "w") as f:

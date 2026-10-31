@@ -96,6 +96,7 @@ EXTERNAL_PREFIX = {"NS": "NS", "star": "north-star", "Bennett-NorthStar.md": "no
 RE_VERSION = re.compile(r"^\d+\.\d+(?:\.\d+)?$")
 
 EDGE_DEP_KINDS = ("refs", "uses", "xspec")
+CLOSURES = ("anchored", "full")
 
 
 def norm_ws(s):
@@ -883,11 +884,25 @@ class Merged:
             n = p
         return out
 
-    def _reverse(self, nid):
+    # Closure modes (docs/design/clause-graph.md, "Dependency semantics"):
+    #   anchored: a reference to a section cites every clause in it, but section references
+    #             are followed only at the query end; name-level edges (uses, item refs,
+    #             xspec to clauses) chain transitively.
+    #   full:     every reached clause is lifted to its enclosing sections at every step
+    #             (the transitive closure of "cites X or a section containing X").
+    @staticmethod
+    def _check(closure, max_depth):
+        if closure not in CLOSURES:
+            raise UsageError("closure must be one of %s, got %r" % ("/".join(CLOSURES), closure))
+        if max_depth is not None and max_depth < 1:
+            raise UsageError("max depth must be >= 1, got %r" % max_depth)
+
+    def _reverse(self, nid, closure="anchored", max_depth=None):
+        self._check(closure, max_depth)
         start = set(self.descendants(nid)) | set(self.ancestors(nid))
         visited = set(start)
         levels, frontier = [], start
-        while frontier:
+        while frontier and (max_depth is None or len(levels) < max_depth):
             nxt = set()
             for x in frontier:
                 for m in self.inn.get(x, ()):
@@ -895,56 +910,62 @@ class Merged:
                         continue
                     visited.add(m)
                     nxt.add(m)
-                    for a in self.ancestors(m):
-                        if a not in visited:
-                            visited.add(a)
-                            nxt.add(a)
+                    if closure == "full":
+                        for a in self.ancestors(m):
+                            if a not in visited:
+                                visited.add(a)
+                                nxt.add(a)
             if not nxt:
                 break
             levels.append(nxt)
             frontier = nxt
         return start, levels
 
-    def impact(self, nid):
+    def impact(self, nid, closure="anchored", max_depth=None):
         """Transitive dependents (clauses), grouped by depth (index 0 = depth 1)."""
-        _, levels = self._reverse(nid)
+        _, levels = self._reverse(nid, closure, max_depth)
         out = [sorted([x for x in lv if self.kind(x) == "clause"], key=natural_key)
                for lv in levels]
         return [lv for lv in out if lv]
 
-    def reverse_cone(self, nid):
-        start, levels = self._reverse(nid)
+    def reverse_cone(self, nid, closure="anchored", max_depth=None):
+        start, levels = self._reverse(nid, closure, max_depth)
         allx = set(start).union(*levels) if levels else set(start)
-        return {x for x in allx if self.kind(x) != "section"}
+        return {x for x in allx if self.kind(x) not in ("section", "root")}
 
-    def forward_cone(self, nid):
+    def forward_cone(self, nid, closure="anchored", max_depth=None):
+        self._check(closure, max_depth)
         visited = set(self.descendants(nid))
-        frontier = list(visited)
-        while frontier:
+        frontier, depth = list(visited), 0
+        while frontier and (max_depth is None or depth < max_depth):
             nxt = []
             for x in frontier:
                 for m in self.out.get(x, ()):
+                    if self.kind(m) == "section" and closure == "anchored" and depth > 0:
+                        continue
                     for k in self.descendants(m):
                         if k not in visited:
                             visited.add(k)
                             nxt.append(k)
-            frontier = nxt
+            frontier, depth = nxt, depth + 1
         return {x for x in visited if self.kind(x) not in ("section", "root")}
 
-    def independent(self, a, b):
-        fa, fb = self.forward_cone(a), self.forward_cone(b)
-        ra, rb = self.reverse_cone(a), self.reverse_cone(b)
+    def independent(self, a, b, closure="anchored", max_depth=None):
+        fa = self.forward_cone(a, closure, max_depth)
+        fb = self.forward_cone(b, closure, max_depth)
+        ra = self.reverse_cone(a, closure, max_depth)
+        rb = self.reverse_cone(b, closure, max_depth)
         fwd = sorted(fa & fb, key=natural_key)
         rev = sorted(ra & rb, key=natural_key)
         return (not fwd and not rev), fwd, rev
 
-    def top(self, spec, n):
+    def top(self, spec, n, closure="anchored", max_depth=None):
+        """[(clause, transitive dependents, direct dependents)], most dependents first."""
         rows = []
         for nid, nd in self.nodes.items():
             if nd["kind"] == "clause" and nid.startswith(spec + "-"):
-                cnt = sum(len(lv) for lv in self.impact(nid))
-                direct = len({m for m in self.inn.get(nid, ())})
-                rows.append((nid, cnt, direct))
+                lv = self.impact(nid, closure, max_depth)
+                rows.append((nid, sum(len(x) for x in lv), len(lv[0]) if lv else 0))
         rows.sort(key=lambda r: (-r[1], -r[2], natural_key(r[0])))
         return rows[:n]
 
@@ -1257,12 +1278,15 @@ def describe(m, nid):
 def cmd_impact(args):
     m = merged_from(args)
     nid = m.resolve(args.id)
-    levels = m.impact(nid)
+    levels = m.impact(nid, args.closure, args.max_depth)
     total = sum(len(x) for x in levels)
     if args.json:
-        print(json.dumps({"id": nid, "total": total, "levels": levels}, indent=1))
+        print(json.dumps({"id": nid, "closure": args.closure, "max_depth": args.max_depth,
+                          "total": total, "levels": levels}, indent=1))
         return 0
-    print("impact of %s: %d dependent clauses" % (describe(m, nid), total))
+    print("impact of %s (closure %s%s): %d dependent clauses"
+          % (describe(m, nid), args.closure,
+             ", max depth %d" % args.max_depth if args.max_depth else "", total))
     for d, lv in enumerate(levels, 1):
         print("depth %d (%d): %s" % (d, len(lv), ", ".join(describe(m, x) for x in lv)))
     return 0
@@ -1271,7 +1295,7 @@ def cmd_impact(args):
 def cmd_independent(args):
     m = merged_from(args)
     a, b = m.resolve(args.a), m.resolve(args.b)
-    ok, fwd, rev = m.independent(a, b)
+    ok, fwd, rev = m.independent(a, b, args.closure, args.max_depth)
     if ok:
         print("independent")
         return 0
@@ -1346,10 +1370,17 @@ def cmd_top(args):
     spec = args.spec or m.graphs[0]["spec"]
     print("| clause | transitive dependents | direct dependents | aliases |")
     print("|---|---|---|---|")
-    for nid, cnt, direct in m.top(spec, args.n):
+    for nid, cnt, direct in m.top(spec, args.n, args.closure, args.max_depth):
         print("| %s | %d | %d | %s |" % (nid, cnt, direct,
                                         ", ".join(m.nodes[nid].get("aliases", [])[:4])))
     return 0
+
+
+def add_closure_args(p):
+    p.add_argument("--closure", choices=CLOSURES, default="anchored",
+                   help="anchored (default): section refs count at the query end only; "
+                        "full: lift every reached clause to its sections (conservative)")
+    p.add_argument("--max-depth", type=int, default=None, help="stop after this many hops")
 
 
 def make_parser():
@@ -1382,6 +1413,7 @@ def make_parser():
             q.add_argument("b")
         q.add_argument("--with", dest="with_", action="append",
                        help="also load this graph (e.g. the ISA graph for a DLT query)")
+        add_closure_args(q)
         q.set_defaults(fn=fn)
     c = sub.add_parser("coverage", help="clauses with zero witnesses per section")
     c.add_argument("graph")
@@ -1393,6 +1425,7 @@ def make_parser():
     t.add_argument("-n", type=int, default=10)
     t.add_argument("--spec", help="rank clauses of this spec (default: the first graph's)")
     t.add_argument("--with", dest="with_", action="append")
+    add_closure_args(t)
     t.set_defaults(fn=cmd_top)
     return p
 
