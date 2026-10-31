@@ -192,3 +192,7 @@ compares envelopes within one object.
 4. (whole envelope, next to `ISA-9.2-P1`) OPEN. Needed: either a lemma that
    canonical function lines (`ISA-16.2`) never begin with `data `, `layout `,
    `device ` and are never 64 hex digits, or a length prefix per part.
+5. (1.5.4, next to `ISA-9.2-P2`) OPEN. Not a missing sentence but an unfinished
+   analysis: whether a CC/R function's semantics can depend on an interface
+   region's `base` without a part-(6) reference to the oracle. Gap 3 makes the
+   question moot.
