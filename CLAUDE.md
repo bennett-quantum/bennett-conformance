@@ -64,7 +64,7 @@ The specs live in `../bennett-isa-spec/spec/Bennett-ISA-Spec.md` and
    unset and TMPDIR set to a project-local or job directory (2026-10-28: ~80,000 .dot files reached
    the maintainer's editor via xdg-open).
 12. EVERY SUITE CASE CARRIES CLAUSE TAGS (`clauses` in expect.json, IDs from clauses/); suite/run.py
-   rejects a case without them. Defects are beads with labels `defect`, `isa`|`dialect`, and one of
+   rejects a case without them. Defects are beads in the owning spec repo (bennett-isa-spec or bennett-dialect-spec) with labels `defect`, `isa`|`dialect`, and one of
    `open|ready|resolved|errata|editorial|not-a-defect`; a proposal for new semantics is not a defect.
 
 
