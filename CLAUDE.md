@@ -9,10 +9,19 @@ Part of the Bennett reboot: many small repositories, two published contracts
 
 ## Where the spec is
 
-The published specs, at the versions in `SPEC_VERSIONS.toml`. Source documents
-currently live in the Bennett.jl repo (`Bennett-NorthStar.md`,
-`Bennett-ISA-Spec.md`) until the spec repos are split out. The spec wins over
-any code, including code in this repo.
+The specs live in `../bennett-isa-spec/spec/Bennett-ISA-Spec.md` and
+`../bennett-dialect-spec/spec/Bennett-Dialect-Spec.md`, at the versions in
+`SPEC_VERSIONS.toml`. The spec wins over any code, including code in this repo.
+
+## Layout
+
+- `clauses/`: clause dependency graph of both specs; IDs like `ISA-5.2-P3`; tool `clauses/clausegraph.py`.
+- `suite/`: implementation-neutral conformance cases; runner `suite/run.py`.
+- `proofs/`: Lamport-style structured proofs of the invariants the specs lean on; statements first, af ledgers later.
+- `defects/`: defect-report conventions.
+- `ladder/`: the demo ladder as executable gates.
+- `checker/`: the certificate checker.
+- `harness/`: the differential harness against native execution.
 
 ## Non-negotiables
 
@@ -54,3 +63,4 @@ any code, including code in this repo.
    Batch and agent commands run with DISPLAY, WAYLAND_DISPLAY, DBUS_SESSION_BUS_ADDRESS and BROWSER
    unset and TMPDIR set to a project-local or job directory (2026-10-28: ~80,000 .dot files reached
    the maintainer's editor via xdg-open).
+12. EVERY TEST, PROOF AND DEFECT NAMES THE CLAUSES IT WITNESSES (clause IDs from clauses/); a case or proof without clause tags fails the suite runner.
