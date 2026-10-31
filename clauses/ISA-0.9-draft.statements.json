@@ -7719,8 +7719,28 @@
    "rule": "K8",
    "modal": [],
    "defines": [],
-   "text": "After the inverse step every frame field is clean. *(non-normative)* The forward step is a permutation Π_t; the inverse step is Π_t⁻¹ written out; T2 relies on nothing else.",
-   "hash": "a2e7923ab68c",
+   "text": "After the inverse step every frame field is clean.",
+   "hash": "5abce6567abb",
+   "line": 573,
+   "marker": null,
+   "deps": {
+    "declared": [],
+    "inferred": []
+   }
+  },
+  {
+   "id": "ISA-3.6-P18.S2",
+   "clause": "ISA-3.6-P18",
+   "section": "ISA-3.6",
+   "n": "<1>2",
+   "level": 1,
+   "parent": null,
+   "kind": "non-normative",
+   "rule": "K3",
+   "modal": [],
+   "defines": [],
+   "text": "*(non-normative)* The forward step is a permutation Π_t; the inverse step is Π_t⁻¹ written out; T2 relies on nothing else.",
+   "hash": "907482b4f469",
    "line": 573,
    "marker": null,
    "deps": {
@@ -7736,14 +7756,14 @@
    }
   },
   {
-   "id": "ISA-3.6-P18.S2",
+   "id": "ISA-3.6-P18.S3",
    "clause": "ISA-3.6-P18",
    "section": "ISA-3.6",
-   "n": "<1>2",
+   "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K8",
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [],
    "text": "B = 0 is legal: the oracle commits `FAULT_BUDGET_STEPS` on every input.",
@@ -14279,9 +14299,29 @@
    "rule": "K8",
    "modal": [],
    "defines": [],
-   "text": "B is enforced by running exactly B steps; heap, stack and depth are wire counters. *(non-normative, used by §4.5)* If the reference interpreter succeeds on x under a tuple β₀, it succeeds with the same result under every tuple β ≥ β₀ componentwise: its only limit-dependent decisions are the flags of `lift.alloc` and `lift.call`, false on that trajectory and still false with larger limits, and the step bound, not reached.",
-   "hash": "66cb7fdd8e0b",
+   "text": "B is enforced by running exactly B steps; heap, stack and depth are wire counters.",
+   "hash": "e82af284c6da",
    "line": 1130,
+   "marker": null,
+   "deps": {
+    "declared": [],
+    "inferred": []
+   }
+  },
+  {
+   "id": "ISA-5.4-P2.S4",
+   "clause": "ISA-5.4-P2",
+   "section": "ISA-5.4",
+   "n": "<1>4",
+   "level": 1,
+   "parent": null,
+   "kind": "non-normative",
+   "rule": "K3",
+   "modal": [],
+   "defines": [],
+   "text": "*(non-normative, used by §4.5)* If the reference interpreter succeeds on x under a tuple β₀, it succeeds with the same result under every tuple β ≥ β₀ componentwise: its only limit-dependent decisions are the flags of `lift.alloc` and `lift.call`, false on that trajectory and still false with larger limits, and the step bound, not reached.",
+   "hash": "b9795c35e15f",
+   "line": 1132,
    "marker": null,
    "deps": {
     "declared": [],
@@ -14295,14 +14335,14 @@
    }
   },
   {
-   "id": "ISA-5.4-P2.S4",
+   "id": "ISA-5.4-P2.S5",
    "clause": "ISA-5.4-P2",
    "section": "ISA-5.4",
-   "n": "<1>4",
+   "n": "<1>5",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K8",
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [],
    "text": "A nested `lift.oracle_call` row uses the tuple of its own token, not β, which is why §4.5 fixes those tuples exactly.",
@@ -15648,8 +15688,8 @@
     "MUST"
    ],
    "defines": [],
-   "text": "**Measurement-based cleanup is not admitted in sched/ cert 0.9**: a schedule naming any other realisation is invalid, the target capability `mbu` is reserved and MUST be `false`, and no cleanup produces a `channel` claim. *(non-normative)* The fixup after an X-basis measurement of g with outcome m is the phase (−1)^{m·g(x)}, a function of g's computing sequence and not of the target; its normative form, its controlled variant and its certificate kind are deferred (§17 item 6; default: unitary cleanup).",
-   "hash": "17ba6a176d7d",
+   "text": "**Measurement-based cleanup is not admitted in sched/ cert 0.9**: a schedule naming any other realisation is invalid, the target capability `mbu` is reserved and MUST be `false`, and no cleanup produces a `channel` claim.",
+   "hash": "2e6f153a67dc",
    "line": 1302,
    "marker": null,
    "deps": {
@@ -15659,11 +15699,6 @@
       "dst": "ISA-17-P7.S1",
       "via": "term",
       "name": "Measurement-based cleanup",
-      "status": "inferred"
-     },
-     {
-      "dst": "ISA-17-P7",
-      "via": "refs",
       "status": "inferred"
      }
     ]
@@ -15676,8 +15711,34 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K4",
+   "kind": "non-normative",
+   "rule": "K3",
+   "modal": [],
+   "defines": [],
+   "text": "*(non-normative)* The fixup after an X-basis measurement of g with outcome m is the phase (−1)^{m·g(x)}, a function of g's computing sequence and not of the target; its normative form, its controlled variant and its certificate kind are deferred (§17 item 6; default: unitary cleanup).",
+   "hash": "63feb92f66d2",
+   "line": 1305,
+   "marker": null,
+   "deps": {
+    "declared": [],
+    "inferred": [
+     {
+      "dst": "ISA-17-P7",
+      "via": "refs",
+      "status": "inferred"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ISA-6.4-P1.S4",
+   "clause": "ISA-6.4-P1",
+   "section": "ISA-6.4",
+   "n": "<1>4",
+   "level": 1,
+   "parent": null,
+   "kind": "uncertain",
+   "rule": "K3",
    "modal": [
     "MUST"
    ],
@@ -15686,6 +15747,7 @@
    "hash": "84fc98fb5d62",
    "line": 1309,
    "marker": null,
+   "uncertain": "RFC 2119 keyword inside a *(non-normative)* passage",
    "deps": {
     "declared": [],
     "inferred": []
@@ -17203,11 +17265,11 @@
    "level": 1,
    "parent": null,
    "kind": "requirement",
-   "rule": "K7",
+   "rule": "K8",
    "modal": [],
    "defines": [],
-   "text": "T4 is stated over these frames. *(non-normative)* S is never re-executed and never redone; the compute–copy–`uncall` idiom derives what it keeps through pure instructions before the `uncall`.",
-   "hash": "5bd7ec74b41f",
+   "text": "T4 is stated over these frames.",
+   "hash": "0263a7b61375",
    "line": 1475,
    "marker": null,
    "deps": {
@@ -17229,8 +17291,28 @@
    "n": "<1>8",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K8",
+   "kind": "non-normative",
+   "rule": "K3",
+   "modal": [],
+   "defines": [],
+   "text": "*(non-normative)* S is never re-executed and never redone; the compute–copy–`uncall` idiom derives what it keeps through pure instructions before the `uncall`.",
+   "hash": "c28429373681",
+   "line": 1476,
+   "marker": null,
+   "deps": {
+    "declared": [],
+    "inferred": []
+   }
+  },
+  {
+   "id": "ISA-7.4-P19.S9",
+   "clause": "ISA-7.4-P19",
+   "section": "ISA-7.4",
+   "n": "<1>9",
+   "level": 1,
+   "parent": null,
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [],
    "text": "Suite A contains: `f` calls `g`, uncalls `g`, returns; `g` performs one `clock.read`; `call f; uncall f` leaves the clock at its entry value; and `uncall` of a segment that measured is a trap.",
@@ -29845,8 +29927,8 @@
    "rule": "K8",
    "modal": [],
    "defines": [],
-   "text": "The checker accepts iff, with every matrix entry an interval and every test rigorous (an inconclusive test rejects): Y − J(Φ) ⪰ 0, Y + J(Φ) ⪰ 0, mu·I − Tr_out(Y) ⪰ 0 (partial trace over the output factor), and mu ≤ `bound`; then ‖Φ‖◇ ≤ mu (the dual of Watrous's SDP with Y₀ = Y₁ = Y; this is the diamond norm itself, not half of it). *(non-normative)* With this input-first Choi convention Tr_out traces the second factor, Tr[(ρ ⊗ I)Y] = Tr[ρ Tr_out(Y)]; a primal formulation that labels the input factor ρᵀ ranges over the same set of density matrices, so the bound is unchanged.",
-   "hash": "6aba360b77ba",
+   "text": "The checker accepts iff, with every matrix entry an interval and every test rigorous (an inconclusive test rejects): Y − J(Φ) ⪰ 0, Y + J(Φ) ⪰ 0, mu·I − Tr_out(Y) ⪰ 0 (partial trace over the output factor), and mu ≤ `bound`; then ‖Φ‖◇ ≤ mu (the dual of Watrous's SDP with Y₀ = Y₁ = Y; this is the diamond norm itself, not half of it).",
+   "hash": "5eb8a9d28134",
    "line": 2830,
    "marker": null,
    "deps": {
@@ -29861,13 +29943,13 @@
    "n": "<1>6",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K8",
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [],
-   "text": "Encoding: `Y` is a row-major array of entries `[re_lo, re_ hi, im_lo, im_hi]` (decimal strings).",
-   "hash": "0288ac044a87",
-   "line": 2838,
+   "text": "*(non-normative)* With this input-first Choi convention Tr_out traces the second factor, Tr[(ρ ⊗ I)Y] = Tr[ρ Tr_out(Y)]; a primal formulation that labels the input factor ρᵀ ranges over the same set of density matrices, so the bound is unchanged.",
+   "hash": "d82e23de068d",
+   "line": 2835,
    "marker": null,
    "deps": {
     "declared": [],
@@ -29881,8 +29963,28 @@
    "n": "<1>7",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "non-normative",
+   "rule": "K3",
+   "modal": [],
+   "defines": [],
+   "text": "Encoding: `Y` is a row-major array of entries `[re_lo, re_ hi, im_lo, im_hi]` (decimal strings).",
+   "hash": "0288ac044a87",
+   "line": 2838,
+   "marker": null,
+   "deps": {
+    "declared": [],
+    "inferred": []
+   }
+  },
+  {
+   "id": "ISA-12.1-P12.S8",
+   "clause": "ISA-12.1-P12",
+   "section": "ISA-12.1",
+   "n": "<1>8",
+   "level": 1,
+   "parent": null,
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [
     "Positivity test",
@@ -29898,14 +30000,14 @@
    }
   },
   {
-   "id": "ISA-12.1-P12.S8",
+   "id": "ISA-12.1-P12.S9",
    "clause": "ISA-12.1-P12",
    "section": "ISA-12.1",
-   "n": "<1>8",
+   "n": "<1>9",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K4",
+   "kind": "uncertain",
+   "rule": "K3",
    "modal": [
     "MUST"
    ],
@@ -29914,27 +30016,7 @@
    "hash": "d9edd1fa1dd9",
    "line": 2844,
    "marker": null,
-   "deps": {
-    "declared": [],
-    "inferred": []
-   }
-  },
-  {
-   "id": "ISA-12.1-P12.S9",
-   "clause": "ISA-12.1-P12",
-   "section": "ISA-12.1",
-   "n": "<1>9",
-   "level": 1,
-   "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
-   "modal": [],
-   "defines": [],
-   "text": "That recipe assumes an exactly feasible witness.",
-   "hash": "b86270464c37",
-   "line": 2848,
-   "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
+   "uncertain": "RFC 2119 keyword inside a *(non-normative)* passage",
    "deps": {
     "declared": [],
     "inferred": []
@@ -29947,13 +30029,13 @@
    "n": "<1>10",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K8",
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [],
-   "text": "For a numerically obtained witness the producer first certifies lower bounds −η₊, −η₋, −η_s on the smallest eigenvalues of Y − J(Φ), Y + J(Φ) and mu·I − Tr_out(Y), chooses δ > max(η₊, η₋, η_s) and publishes Y′ = Y + δI and mu′ = mu + (d + 1)·δ: then Y′ ± J(Φ) ⪰ (δ − η±)I ≻ 0 and mu′·I − Tr_out(Y′) ⪰ (δ − η_s)I ≻ 0.",
-   "hash": "259ddb0c2edc",
-   "line": 2849,
+   "text": "That recipe assumes an exactly feasible witness.",
+   "hash": "b86270464c37",
+   "line": 2848,
    "marker": null,
    "deps": {
     "declared": [],
@@ -29967,26 +30049,17 @@
    "n": "<1>11",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K4",
-   "modal": [
-    "MUST"
-   ],
+   "kind": "non-normative",
+   "rule": "K3",
+   "modal": [],
    "defines": [],
-   "text": "These margins make the matrices positive definite; they do not make the interval test conclusive: every pivot enclosure the checker computes at `precision_bits` MUST still have a strictly positive lower endpoint, else the checker rejects (no fixed allowance such as 2^−`precision_bits` bounds the interval error, which depends on d and conditioning).",
-   "hash": "f2ca23f319c4",
-   "line": 2854,
+   "text": "For a numerically obtained witness the producer first certifies lower bounds −η₊, −η₋, −η_s on the smallest eigenvalues of Y − J(Φ), Y + J(Φ) and mu·I − Tr_out(Y), chooses δ > max(η₊, η₋, η_s) and publishes Y′ = Y + δI and mu′ = mu + (d + 1)·δ: then Y′ ± J(Φ) ⪰ (δ − η±)I ≻ 0 and mu′·I − Tr_out(Y′) ⪰ (δ − η_s)I ≻ 0.",
+   "hash": "259ddb0c2edc",
+   "line": 2849,
    "marker": null,
    "deps": {
     "declared": [],
-    "inferred": [
-     {
-      "dst": "ISA-12.1-P12.S7",
-      "via": "term",
-      "name": "positive definite",
-      "status": "inferred"
-     }
-    ]
+    "inferred": []
    }
   },
   {
@@ -29996,8 +30069,38 @@
    "n": "<1>12",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "uncertain",
+   "rule": "K3",
+   "modal": [
+    "MUST"
+   ],
+   "defines": [],
+   "text": "These margins make the matrices positive definite; they do not make the interval test conclusive: every pivot enclosure the checker computes at `precision_bits` MUST still have a strictly positive lower endpoint, else the checker rejects (no fixed allowance such as 2^−`precision_bits` bounds the interval error, which depends on d and conditioning).",
+   "hash": "f2ca23f319c4",
+   "line": 2854,
+   "marker": null,
+   "uncertain": "RFC 2119 keyword inside a *(non-normative)* passage",
+   "deps": {
+    "declared": [],
+    "inferred": [
+     {
+      "dst": "ISA-12.1-P12.S8",
+      "via": "term",
+      "name": "positive definite",
+      "status": "inferred"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ISA-12.1-P12.S13",
+   "clause": "ISA-12.1-P12",
+   "section": "ISA-12.1",
+   "n": "<1>13",
+   "level": 1,
+   "parent": null,
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [
     "Interval arithmetic"
@@ -30018,14 +30121,14 @@
    }
   },
   {
-   "id": "ISA-12.1-P12.S13",
+   "id": "ISA-12.1-P12.S14",
    "clause": "ISA-12.1-P12",
    "section": "ISA-12.1",
-   "n": "<1>13",
+   "n": "<1>14",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K8",
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [],
    "text": "A `numerical` or `channel` subject's `schedule_hash` is required: it names the realisation the claim is about.",
@@ -30038,14 +30141,14 @@
    }
   },
   {
-   "id": "ISA-12.1-P12.S14",
+   "id": "ISA-12.1-P12.S15",
    "clause": "ISA-12.1-P12",
    "section": "ISA-12.1",
-   "n": "<1>14",
+   "n": "<1>15",
    "level": 1,
    "parent": null,
-   "kind": "requirement",
-   "rule": "K8",
+   "kind": "non-normative",
+   "rule": "K3",
    "modal": [],
    "defines": [],
    "text": "K13 also requires it for `expected: \"oracle\"`; standalone reference relations use the explicit invocation binding instead.",
@@ -34800,8 +34903,8 @@
     "MUST"
    ],
    "defines": [],
-   "text": "Hook: an expansion library MAY realise §5.2 by checkpoints and replay or by pebbling; it MUST list every generated allocation, copy, forward evaluation, inverse evaluation and release, every repeated evaluation included, with distinct ordinals and scratch identities, and carry a full-domain argument that the final interface tuple of §5.2 is produced with private scratch clean and borrowed correlations restored; a schedule binds its name, version and hash; every replay is executed and charged (§8.2); the frame descriptor reports the realised history (§9.4); the reference body, F_B and the budget unit are unchanged, and T2 remains stated for the reference expansion. *(non-normative)* Binary pebbling P_{j+1}(a, b) = P_j(a, c); P_j(c, b); P_j(a, c) uses 3^⌈log₂ B⌉ base evaluations and at most ⌈log₂ B⌉ intermediate configurations; no polylogarithmic-time bound is claimed.",
-   "hash": "1b0897b365e7",
+   "text": "Hook: an expansion library MAY realise §5.2 by checkpoints and replay or by pebbling; it MUST list every generated allocation, copy, forward evaluation, inverse evaluation and release, every repeated evaluation included, with distinct ordinals and scratch identities, and carry a full-domain argument that the final interface tuple of §5.2 is produced with private scratch clean and borrowed correlations restored; a schedule binds its name, version and hash; every replay is executed and charged (§8.2); the frame descriptor reports the realised history (§9.4); the reference body, F_B and the budget unit are unchanged, and T2 remains stated for the reference expansion.",
+   "hash": "8eb905c01657",
    "line": 3729,
    "marker": null,
    "deps": {
@@ -34842,31 +34945,52 @@
      }
     ]
    }
+  },
+  {
+   "id": "ISA-17-P19.S3",
+   "clause": "ISA-17-P19",
+   "section": "ISA-17",
+   "n": "<1>3",
+   "level": 1,
+   "parent": null,
+   "kind": "non-normative",
+   "rule": "K3",
+   "modal": [],
+   "defines": [],
+   "text": "*(non-normative)* Binary pebbling P_{j+1}(a, b) = P_j(a, c); P_j(c, b); P_j(a, c) uses 3^⌈log₂ B⌉ base evaluations and at most ⌈log₂ B⌉ intermediate configurations; no polylogarithmic-time bound is claimed.",
+   "hash": "d9abea64bf32",
+   "line": 3739,
+   "marker": null,
+   "deps": {
+    "declared": [],
+    "inferred": []
+   }
   }
  ],
  "unresolved": [],
  "stats": {
-  "statements": 1390,
-  "top_level": 1382,
+  "statements": 1396,
+  "top_level": 1388,
   "sub_statements": 8,
   "clauses": 556,
   "by_kind": {
-   "requirement": 982,
-   "definition": 144,
-   "non-normative": 130,
+   "requirement": 972,
+   "definition": 142,
+   "non-normative": 146,
    "example": 42,
-   "uncertain": 92
+   "uncertain": 94
   },
   "by_rule": {
    "K1": 40,
    "K2": 130,
-   "K4": 72,
-   "K5": 143,
+   "K3": 19,
+   "K4": 69,
+   "K5": 141,
    "K6": 2,
-   "K7": 64,
-   "K8": 740,
+   "K7": 63,
+   "K8": 734,
    "K9": 106,
-   "K10": 92,
+   "K10": 91,
    "K11": 1
   },
   "markers": 8,
@@ -34974,9 +35098,9 @@
     "uncertain": 0
    },
    "ISA-3.6": {
-    "requirement": 19,
+    "requirement": 18,
     "definition": 12,
-    "non-normative": 0,
+    "non-normative": 2,
     "example": 0,
     "uncertain": 7
    },
@@ -35072,9 +35196,9 @@
     "uncertain": 2
    },
    "ISA-5.4": {
-    "requirement": 15,
+    "requirement": 14,
     "definition": 0,
-    "non-normative": 0,
+    "non-normative": 2,
     "example": 1,
     "uncertain": 3
    },
@@ -35121,11 +35245,11 @@
     "uncertain": 0
    },
    "ISA-6.4": {
-    "requirement": 3,
+    "requirement": 2,
     "definition": 0,
-    "non-normative": 0,
+    "non-normative": 1,
     "example": 0,
-    "uncertain": 0
+    "uncertain": 1
    },
    "ISA-7.1": {
     "requirement": 1,
@@ -35149,9 +35273,9 @@
     "uncertain": 2
    },
    "ISA-7.4": {
-    "requirement": 28,
+    "requirement": 27,
     "definition": 5,
-    "non-normative": 0,
+    "non-normative": 2,
     "example": 0,
     "uncertain": 2
    },
@@ -35240,11 +35364,11 @@
     "uncertain": 16
    },
    "ISA-12.1": {
-    "requirement": 43,
-    "definition": 7,
-    "non-normative": 0,
+    "requirement": 37,
+    "definition": 5,
+    "non-normative": 8,
     "example": 1,
-    "uncertain": 3
+    "uncertain": 4
    },
    "ISA-12.2": {
     "requirement": 2,
@@ -35319,7 +35443,7 @@
    "ISA-17": {
     "requirement": 25,
     "definition": 6,
-    "non-normative": 0,
+    "non-normative": 1,
     "example": 0,
     "uncertain": 8
    }

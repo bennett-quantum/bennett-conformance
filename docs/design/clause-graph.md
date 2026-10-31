@@ -1,6 +1,7 @@
 # Clause dependency graph for the Bennett specs
 
-Status: implemented (`clauses/clausegraph.py`, tests in `clauses/tests/`), 2026-10-31.
+Status: implemented (`clauses/clausegraph.py`, tests in `clauses/tests/`), 2026-10-31;
+statement layer ("Statement layer" below) added the same day.
 Usage and tagging conventions: [`clauses/README.md`](../../clauses/README.md).
 
 ## Purpose
@@ -204,7 +205,8 @@ Two closures are implemented:
 The full closure is sound but useless on these specs, because they are densely
 cross-referenced and the terminology clauses cite whole sections (dialect §2: "Abstract
 object, slot, value set: §5"; "Tier … L (lifted …, ISA §3.7)"). Measured on the
-committed graphs (300 random clause pairs per spec, seed 7):
+committed graphs (300 random clause pairs per spec, seed 7; ISA 0.9 at draft revision
+329ac8a8dcc6, before its rebuild for the statement layer):
 
 | Graph | mean reverse cone, full | mean reverse cone, anchored | independent pairs, full | independent pairs, anchored |
 |---|---|---|---|---|
@@ -246,16 +248,16 @@ through `diff --list` where they do not.
 ### ISA 0.8 → 0.9-draft
 
 Built from `Bennett-ISA-Spec.md` (sha256 90e61d9c377c…) and `Bennett-ISA-Spec-0.9-draft.md`
-(sha256 329ac8a8dcc6…; the draft is being edited concurrently, so these numbers describe
-that revision only):
+(sha256 e98efc52c9be…, rebuilt 2026-10-31 for the statement layer; the draft is being
+edited concurrently, so these numbers describe that revision only):
 
 ```
-diff ISA-0.8 -> ISA-0.9-draft: 314 -> 542 clauses; matched 289 {"alias": 30, "hash": 209, "similar": 50}; unchanged 162; moved 79 (renumbered only 47); changed 80 (in place 48); added 253; removed 25
+diff ISA-0.8 -> ISA-0.9-draft: 314 -> 556 clauses; matched 289 {"alias": 30, "hash": 209, "similar": 50}; unchanged 162; moved 79 (renumbered only 47); changed 80 (in place 48); added 267; removed 25
 ```
 
 | § | unchanged | moved | changed | moved+changed | added | removed |
 |---|---|---|---|---|---|---|
-| 0 | 0 | 0 | 0 | 0 | 91 | 0 |
+| 0 | 0 | 0 | 0 | 0 | 95 | 0 |
 | 1 | 5 | 0 | 1 | 0 | 1 | 1 |
 | 2 | 7 | 1 | 1 | 0 | 1 | 0 |
 | 3 | 12 | 29 | 6 | 16 | 22 | 2 |
@@ -266,7 +268,7 @@ diff ISA-0.8 -> ISA-0.9-draft: 314 -> 542 clauses; matched 289 {"alias": 30, "ha
 | 8 | 5 | 8 | 2 | 0 | 6 | 0 |
 | 9 | 3 | 0 | 2 | 2 | 7 | 1 |
 | 10 | 1 | 0 | 6 | 0 | 8 | 0 |
-| 11 | 2 | 1 | 1 | 0 | 33 | 0 |
+| 11 | 2 | 1 | 1 | 0 | 43 | 0 |
 | 12 | 3 | 1 | 2 | 3 | 12 | 2 |
 | 13 | 0 | 0 | 1 | 0 | 0 | 0 |
 | 14 | 6 | 0 | 2 | 0 | 1 | 0 |
@@ -274,10 +276,10 @@ diff ISA-0.8 -> ISA-0.9-draft: 314 -> 542 clauses; matched 289 {"alias": 30, "ha
 | 16 | 0 | 0 | 1 | 5 | 21 | 2 |
 | 17 | 13 | 0 | 1 | 0 | 5 | 1 |
 | front | 0 | 0 | 2 | 0 | 0 | 0 |
-| total | 162 | 47 | 48 | 32 | 253 | 25 |
+| total | 162 | 47 | 48 | 32 | 267 | 25 |
 
-Reading: §0 (91 clauses) is the new change log; §11 gains §11.1 (reference-library
-contract; §11 as a whole gains 33 clauses), §10 gains §10.1 (launch estimate); §3 is
+Reading: §0 (95 clauses) is the new change log; §11 gains §11.1 (reference-library
+contract; §11 as a whole gains 43 clauses), §10 gains §10.1 (launch estimate); §3 is
 mostly renumbering (29 hash-identical clauses moved because paragraphs were inserted
 earlier in §3.2, §3.3, §3.6 and §3.7). The 6 removed and 6 added clauses of §15 are the
 suite table rows A, B, C, F, G, H, each rewritten beyond the similarity threshold.
@@ -287,7 +289,7 @@ suite table rows A, B, C, F, G, H, each rewritten beyond the similarity threshol
 | Graph | nodes | sections | clauses | edges | contains | refs | uses | xspec | aliases (labels + terms) | unresolved |
 |---|---|---|---|---|---|---|---|---|---|---|
 | ISA-0.8 | 384 | 69 | 314 | 649 | 383 | 161 | 105 | 0 | 116 (16 + 100) | 3 |
-| ISA-0.9-draft | 619 | 76 | 542 | 1559 | 618 | 603 | 338 | 0 | 237 (94 + 143) | 14 |
+| ISA-0.9-draft | 633 | 76 | 556 | 1609 | 632 | 619 | 358 | 0 | 241 (98 + 143) | 14 |
 | DLT-0.2.10 | 1413 | 169 | 1243 | 4092 | 1412 | 1071 | 1404 | 205 | 337 (179 + 158) | 129 |
 
 Unresolved references by reason (all are references outside the spec being parsed;
@@ -389,16 +391,16 @@ ISA 0.9-draft:
 
 | clause | transitive dependents | direct dependents | aliases |
 |---|---|---|---|
-| ISA-3.7-P13 | 100 | 35 | C2 |
-| ISA-3.7-P14 | 99 | 34 | C3 |
-| ISA-3.7-P16 | 98 | 34 | C5 |
-| ISA-3.7-P15 | 98 | 33 | C4 |
-| ISA-3.7-P19 | 98 | 33 | R1 |
-| ISA-3.7-P21 | 98 | 33 | R3 |
-| ISA-3.7-P22 | 98 | 33 | R4 |
-| ISA-3.7-P23 | 98 | 33 | R5 |
-| ISA-3.7-P3 | 98 | 31 |  |
-| ISA-3.7-P7 | 98 | 31 |  |
+| ISA-3.7-P13 | 103 | 37 | C2 |
+| ISA-3.7-P14 | 102 | 36 | C3 |
+| ISA-3.7-P16 | 101 | 36 | C5 |
+| ISA-3.7-P15 | 101 | 35 | C4 |
+| ISA-3.7-P19 | 101 | 35 | R1 |
+| ISA-3.7-P21 | 101 | 35 | R3 |
+| ISA-3.7-P22 | 101 | 35 | R4 |
+| ISA-3.7-P23 | 101 | 35 | R5 |
+| ISA-3.7-P3 | 101 | 33 |  |
+| ISA-3.7-P7 | 101 | 33 |  |
 
 Dialect 0.2.10 (with ISA 0.8 loaded):
 
@@ -414,6 +416,240 @@ Dialect 0.2.10 (with ISA 0.8 loaded):
 | DLT-12.6-P3 | 205 | 16 |  |
 | DLT-12.6-P4 | 205 | 16 |  |
 | DLT-12.6-P7 | 205 | 16 |  |
+
+## Statement layer
+
+The graph's nodes are paragraphs, list items and table rows. Proofs, council findings and
+tests want to cite a single normative sentence, and two edits of one paragraph may be
+independent. `statements` derives a statement layer from a graph JSON (never from or into
+spec bytes): every clause is split into atomic, Lamport-numbered statements with an id, a
+kind, a hash and dependencies.
+
+```sh
+python3 -I clauses/clausegraph.py statements clauses/ISA-0.8.json          # writes clauses/ISA-0.8.statements.{json,md}
+python3 -I clauses/clausegraph.py statements clauses/DLT-0.2.10.json       # --xspec defaults to the sibling ISA-0.8.json
+```
+
+### Ids, numbering, hash
+
+- **Statement** `<clause-id>.S<k>`: k-th statement of the clause in text order
+  (`ISA-5.1-P1.S3`); Lamport number `<1>k`.
+- **Sub-statement** `<clause-id>.S<k>.<j>`: j-th item of an enumeration `(1)…(n)`,
+  `(a)…`, `(i)…` inside statement k; Lamport number `<2>j`. The parent keeps the whole
+  sentence (citing it cites every item); each item is also its own statement.
+- **Hash**: first 12 hex digits of sha256 over the statement text with whitespace
+  collapsed, the list marker (`- `, `3. `) and the outer table pipes removed, and any
+  `[deps: …]` marker removed: adding a marker changes the clause hash but not the
+  statement hash.
+- Ids are positional like clause ids; `diff --statements` bridges versions (below).
+
+JSON (`bennett-statements/1`): `spec`, `version`, `graph` (source file and sha256 of the
+graph it was derived from; queries refuse a stale layer), `xspec`, `rules` (the
+classifier rules below, verbatim), `statements`, `unresolved` (declared markers that did
+not resolve) and `stats` (`by_kind`, `by_rule`, `by_section`). Each statement carries `id`,
+`clause`, `section`, `n`, `level`, `parent`, `kind`, `rule`, `modal` (RFC keywords found),
+`defines`, `text`, `hash`, `line` (first source line), `marker` (the raw `[deps:]` bodies
+or null), `deps.declared` and `deps.inferred`, and `uncertain` (the reason) for that
+kind. The `.md` file is a per-section Lamport listing with per-section kind counts.
+
+### Splitting rules
+
+1. **Blocks.** A clause's text splits into prose paragraphs (blank lines) and fenced code
+   blocks; each code block is one statement. Paragraph breaks always end a statement.
+2. **Sentence ends** are `.`, `!`, `?` (optionally followed by `*`, `_`, quotes) followed
+   by whitespace and a sentence start: an upper-case letter, digit, `` ` ``, `§` or `[`,
+   possibly behind `*`, `_`, `(` or a quote. A lower-case continuation is never a
+   boundary.
+3. **No split** inside inline code spans (backtick runs of equal length), inside matched
+   `( )` and `[ ]`, at `..` / `...`, or after the abbreviations `e.g.`, `i.e.`, `cf.`,
+   `vs.`, `viz.`, `incl.`, `esp.`, `approx.`, `resp.`, `et al.`, `Fig.`, `Eq.`. Decimals
+   (`0.8`), section numbers (`§4.5.2`) and dotted ids never split because no space follows
+   the dot.
+4. **Captions.** A sentence that is only a bold span (`**Requirement.**`,
+   `**Hardware handling of …** (§3.3).`) joins the next sentence.
+5. **Markers.** A `[deps: …]` marker ends its sentence (with any `.` right after it).
+6. **Enumerations.** Inside a sentence, a run of at least two consecutive enumerators
+   starting at `(1)`, `(a)` or `(i)` yields sub-statements. An enumerator preceded by a
+   `§` reference or by *part, item, step, rule, case, in, of, see, by, from, per* is a
+   reference (`§9.2 (5b)`, `replaced in part (4)`), not an item.
+
+### Classification rules
+
+First match wins. The rule that fired is stored per statement (`rule`), so every count
+below can be traced to a rule.
+
+| Rule | Kind | Condition |
+|---|---|---|
+| K1 | example | the statement is a fenced code block |
+| K2 | non-normative | its section or an enclosing one is front matter, a change log (title `Changes from …`), or titled `(non-normative)` / `(deferred)` |
+| K3 | non-normative | it starts with `*(non-normative…)*` / `*(deferred…)*` or follows such a sentence in the same paragraph (the spec convention: the marker explains to the end of the paragraph); **uncertain** if it contains an RFC 2119 keyword |
+| K4 | requirement | an upper-case RFC 2119 keyword outside code spans and inline `*(non-normative: …)*` asides: MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, SHALL, REQUIRED, RECOMMENDED, OPTIONAL |
+| K5 | definition | it introduces a defined term or rule label of its clause: the first statement whose bold span is one of the clause's term aliases (or ambiguous terms), or that names one of its labels; `defines` records them |
+| K6 | example | starts with *e.g.* / *For example* / *For instance* / *Example*, contains *e.g.*, or lies in an examples section (title `Example…`, `… Examples`, `Worked examples`, unless marked `(normative …)`) |
+| K7 | requirement | a lower-case normative word: *must, must not, cannot, shall, may only, may not, never* |
+| K8 | requirement | a declarative verb from a fixed list (*is, are, has, returns, rejects, traps, faults, holds, produces, …*; about 250 forms, `DECL_VERBS`) |
+| K9 | requirement | a table row in a normative section (instruction, default and error-code rows state their content in columns) |
+| K10 | uncertain | none of the above: verbless fragments (`Predicate stack empty at entry and exit.`, `Default: 1.`), colon introductions (`Frames:`), list items continuing a stem from the previous clause |
+| K11 | (parent's) | a sub-statement that would be K10 inherits its enumerating sentence's kind |
+
+K4 precedes K5: a sentence that introduces a term *and* states a MUST is a requirement
+(its `defines` still records the term, so term uses resolve to it).
+
+### Dependencies
+
+**Inferred** (`deps.inferred`, `via` = `term` | `label` | `refs` | `xspec`): the same
+scanners as the clause graph, run on each statement's own text. A term or label mention
+points at the *defining statement* (the K5 placement above; a label whose defining clause
+has no statement naming it falls back to `.S1`); a `§` reference points at the section or,
+for item references (`§9.2 (5b)`), the clause; `ISA §…` in the dialect is resolved against
+the `--xspec` graph. A statement never depends on itself or its enumerating parent.
+
+**Declared** (`deps.declared`): the 0.9 draft editor writes an optional marker at the end
+of a sentence, after or before its final period:
+
+```
+… and its recipe MUST reproduce it exactly. [deps: ISA-4.5-P5, ISA-11.1-P21]
+```
+
+Entries are comma-separated statement ids (`ISA-3.3-P2.S1`), clause ids, section ids
+(`ISA-5.6`), aliases (`PT3`, `ISA:lproc`), or ids of the cross-spec graph; `[deps: none]`
+declares that the sentence has no dependencies. Declared edges take precedence: once a
+sentence carries a marker, each inferred edge is `confirmed` (its target is, or lies
+inside, a declared target) or `superseded` (not followed by queries, shown with `~` in the
+`.md`); without a marker inferred edges have status `inferred`. A marker entry that does
+not resolve is listed in `unresolved` with a reason (`no-such-id`, `no-such-statement`,
+`unknown-alias`, `xspec-not-loaded`, `self`) and printed as a warning; it never fails the
+build. The marker text is excluded from inference (its ids are not "mentions").
+
+The current 0.9 draft (sha256 e98efc52c9be) already carries 8 markers (§0 change K28 and
+§11.1's instruction-release paragraphs): 19 declared edges, all resolved, 2 inferred edges
+superseded (a `§4.5` reference where the marker names `ISA-4.5-P5`; a `K28` mention).
+
+### Results
+
+| Graph | statements | top-level | sub | requirement | definition | non-normative | example | uncertain | inferred edges | declared markers (edges) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ISA-0.8 | 540 | 532 | 8 | 359 | 101 | 13 | 21 | 46 | 286 | 0 |
+| ISA-0.9-draft | 1396 | 1388 | 8 | 972 | 142 | 146 | 42 | 94 | 1050 | 8 (19) |
+| DLT-0.2.10 | 2840 | 2834 | 6 | 1557 | 290 | 113 | 709 | 171 | 2881 | 0 |
+
+By rule (counts include sub-statements):
+
+| Rule | K1 | K2 | K3 | K4 | K5 | K6 | K7 | K8 | K9 | K10 | K11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ISA-0.8 | 20 | 8 | 6 | 22 | 100 | 1 | 9 | 226 | 102 | 45 | 1 |
+| ISA-0.9-draft | 40 | 130 | 19 | 69 | 141 | 2 | 63 | 734 | 106 | 91 | 1 |
+| DLT-0.2.10 | 501 | 39 | 75 | 41 | 288 | 208 | 95 | 1207 | 214 | 170 | 2 |
+
+Uncertain: 46 (8.5 %), 94 (6.7 %), 171 (6.0 %). Before rule K9 existed, bare table rows
+were the largest uncertain group (124 of 190 in ISA 0.8); they are counted separately
+under K9 so that the choice stays visible. K3 covers 6 / 19 / 75 statements, of which
+1 / 3 / 1 are uncertain because an RFC keyword follows the marker in the same paragraph
+(e.g. `ISA-6.4-P1.S4`).
+
+Kinds per top-level section, ISA 0.8 (per (sub)section counts for all three specs are at
+the top of each `.statements.md`):
+
+| § | front | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| requirement | 0 | 9 | 0 | 66 | 88 | 30 | 24 | 31 | 21 | 13 | 17 | 11 | 17 | 0 | 4 | 8 | 10 | 10 |
+| definition | 0 | 0 | 12 | 30 | 3 | 11 | 1 | 7 | 3 | 11 | 2 | 4 | 5 | 0 | 6 | 0 | 2 | 4 |
+| non-normative | 8 | 0 | 0 | 2 | 0 | 0 | 1 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| example | 0 | 0 | 0 | 2 | 1 | 2 | 0 | 1 | 3 | 2 | 1 | 2 | 1 | 0 | 0 | 0 | 6 | 0 |
+| uncertain | 0 | 1 | 2 | 14 | 2 | 5 | 1 | 3 | 1 | 4 | 0 | 1 | 2 | 1 | 0 | 0 | 3 | 6 |
+
+ISA §5.1's single paragraph `ISA-5.1-P1` becomes seven statements:
+
+```
+ISA-5.1-P1
+  <1>1 [req] Signatures list roles: `oracle @o (in a: wire[8]) ... (args n: i64)`.
+  <1>2 [def] **Interface regions** are caller-owned, passed by name, role `in` (...) or `mut` (actions only).
+  <1>3 [req] A region MUST NOT contain `measure effect br call uncall trap hostcall qreg.*` or classical memory instructions, nor lifted rows outside oracle bodies.
+  <1>4 [unc] Predicate stack empty at entry and exit.
+  <1>5 [def] Every `qalloc` matched by a `qfree` of a clean bundle, ..., by **explicit cleanup instructions**; the schedule chooses only realisations.   deps: ISA-2-P1.S2 (bundle)
+  <1>6 [def] **`in` wires in actions** appear only as controls, ...
+  <1>7 [req] Action call graphs are acyclic; recursion exists only through `lift.call`.
+```
+
+### Queries on statements
+
+`impact`, `independent`, `coverage` and `diff` take `--statements`, which loads the
+sibling `<graph>.statements.json` of every loaded graph (required for the first, optional
+for `--with` graphs); a statement id argument (or tag) implies it. With the layer loaded,
+a spec's statement edges *replace* its clause edges (they are a refinement of them);
+statement nodes are children of their clause (sub-statements of their parent), so the
+semantics of "Dependency semantics" carry over unchanged: citing a clause or section cites
+every statement in it. A clause id therefore falls back to the union of its statements.
+
+```
+impact clauses/ISA-0.8.json ISA-5.1-P1.S3 --with clauses/DLT-0.2.10.json
+impact of ISA-5.1-P1.S3 [req] (closure anchored): 14 dependents (14 statements, 0 clauses without a statement layer; 13 clauses in all)
+depth 1 (8): DLT-1.3-P1.S2 [req], DLT-6.8-P1.S2 [req], DLT-8.2-P3.S1 [req], DLT-8.2-P4.S1 [req], ISA-1.2-P1.S1 [req], ISA-1.2-P2.S1 [req], ISA-3.2-P6.S1 [req], ISA-14.3-P6.S1 [def]
+depth 2 (5): ISA-4.2-P29.S2 [req], ISA-5.7-P1.S1 [req], ISA-11-P2.S3 [def], ISA-12.3-P2.S1 [req], ISA-15-P3.S1 [req]
+depth 3 (1): ISA-11-P2.S1 [def]
+```
+
+`independent` keeps the strict definition by default: two statements of `ISA-5.1-P1` share
+the ten statements that cite `§5.1` or `§5` and are reported dependent. `--containers
+ignore` discounts citations of a section or clause that encloses *both* arguments (such a
+citation cannot tell them apart); with it, `ISA-5.1-P1.S3` and `ISA-5.1-P1.S7` are
+independent, which is the statement-granularity answer the layer exists for.
+
+`coverage --statements` reports, besides the clause table, each statement as **strong**
+(the statement or its enumerating parent is tagged), **weak** (only its clause or a
+section is tagged: a clause tag is weak coverage of its statements) or **uncovered**, in
+total and per kind. A statement tag also counts as a strong witness of its clause in the
+clause-level report.
+
+**Proof coverage** (`coverage clauses/ISA-0.8.json --tags proofs/tags.json --statements`,
+2026-10-31): clauses strong 75, weak 10, uncovered 229 of 314; **statements of ISA-0.8:
+540; strong 0, weak 159, uncovered 381**; requirements 359 (weak 110, uncovered 249),
+definitions 101 (weak 29, uncovered 72). Strong is 0 because every proof cites clause ids;
+re-citing the steps' `BY` leaves at statement ids (proofs/FORMAT.md) turns the weak 159
+into a precise strong set.
+
+`diff --statements` matches statements by hash (repeats in document order), then by
+`difflib` ratio ≥ 0.6 between the remaining statements of clause pairs that the clause
+diff matched; the rest are added or removed. ISA 0.8 → 0.9-draft (e98efc52c9be):
+
+```
+statements ISA-0.8 -> ISA-0.9-draft: 540 -> 1396; matched 506 {"hash": 423, "similar": 83}; unchanged 276; moved 185 (renumbered only 147); changed 83; added 890; removed 34
+by kind: added {"definition": 44, "example": 23, "non-normative": 130, "requirement": 645, "uncertain": 48}; removed {"definition": 3, "example": 2, "non-normative": 1, "requirement": 28}; changed {"definition": 11, "example": 13, "non-normative": 5, "requirement": 48, "uncertain": 6}
+```
+
+The 80 clauses the clause diff calls changed hold 214 statements in 0.8: 120 of them are
+hash-identical in 0.9, 83 changed, 11 removed, and 56 new statements were added into those
+clauses. A council finding or proof citing one of the 120 is unaffected by the revision of
+its paragraph.
+
+### Limits of the statement layer
+
+- **Lower-case sentence starts are not boundaries.** `… location arguments. flag := …`,
+  `… dematerialised first. len=0 changes nothing` stay one statement (a rough scan finds 2
+  such statements in 0.9 and 8 in the dialect); writing the identifier in backticks fixes it.
+- **Table rows are not split into cells.** A row is one statement unless a cell holds
+  several sentences; the dialect's Appendix C rows (`DLT-C-P14.S1`, 3247 characters)
+  remain single statements, as do 9 dialect and 5 ISA 0.9 rows over 700 characters.
+- **Definitions inherit the clause graph's term detector.** A bold run-in caption without a
+  period (`**Lifted width rules**`, `**Meaning in brief**`) is a term alias there, so its
+  sentence becomes K5 `definition` even when it states requirements without an RFC
+  keyword (18 / 27 / 17 statements define a term of three or more words in ISA 0.8 / 0.9 /
+  dialect; most are such captions).
+- **Fragments.** List items that continue a stem from the previous clause (`budgets (§9);`,
+  `a marker (§3.2) or a primitive (§3.1);`) and colon introductions (`It fixes:`,
+  `Frames:`) are K10 uncertain: 93 of the dialect's 171 uncertain statements are list
+  items, 34 of them starting in lower case; 15 end in `:`.
+- **K8 and K9 are heuristics.** The verb list contains noun-ambiguous forms (*uses, names,
+  lists, maps, records*), and K9 calls every normative table row a requirement. Both are
+  separate rules so that consumers can treat them as weaker than K4.
+- **Scope of `*(non-normative)*`** is assumed to be the rest of its paragraph (K3). Where
+  the spec returns to rules inside that paragraph without an RFC keyword, K3 is wrong:
+  `ISA-3.6-P17.S3` (`B = 0 is legal: the oracle commits FAULT_BUDGET_STEPS …`) follows a
+  non-normative note and is classed non-normative. With a keyword it is flagged uncertain.
+- **One level of enumeration**; enumerations spread over list items are already separate
+  clauses. Enumerations restarting at `(1)` inside an item are not nested further.
+- **Positional ids** (as for clauses): inserting a sentence renumbers the clause's later
+  statements; use aliases, statement hashes and `diff --statements --list` to re-target.
 
 ## Limits
 

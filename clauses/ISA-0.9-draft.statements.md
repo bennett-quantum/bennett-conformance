@@ -6,7 +6,7 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 
 ## Counts
 
-1390 statements (1382 top-level, 8 enumerated sub-statements) in 556 clauses; requirement 982, definition 144, non-normative 130, example 42, uncertain 92; 8 declared markers, 0 unresolved.
+1396 statements (1388 top-level, 8 enumerated sub-statements) in 556 clauses; requirement 972, definition 142, non-normative 146, example 42, uncertain 94; 8 declared markers, 0 unresolved.
 
 | section | req | def | non | ex | unc | total |
 |---|---|---|---|---|---|---|
@@ -24,7 +24,7 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 | ISA-3.3 | 36 | 6 | 0 | 1 | 1 | 44 |
 | ISA-3.4 | 5 | 0 | 0 | 0 | 0 | 5 |
 | ISA-3.5 | 3 | 0 | 0 | 0 | 0 | 3 |
-| ISA-3.6 | 19 | 12 | 0 | 0 | 7 | 38 |
+| ISA-3.6 | 18 | 12 | 2 | 0 | 7 | 39 |
 | ISA-3.7 | 47 | 14 | 0 | 1 | 8 | 70 |
 | ISA-4.1 | 30 | 3 | 0 | 1 | 1 | 35 |
 | ISA-4.2 | 37 | 3 | 0 | 0 | 0 | 40 |
@@ -38,18 +38,18 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 | ISA-5.1 | 4 | 4 | 0 | 0 | 1 | 9 |
 | ISA-5.2 | 7 | 4 | 0 | 0 | 0 | 11 |
 | ISA-5.3 | 6 | 2 | 0 | 1 | 2 | 11 |
-| ISA-5.4 | 15 | 0 | 0 | 1 | 3 | 19 |
+| ISA-5.4 | 14 | 0 | 2 | 1 | 3 | 20 |
 | ISA-5.5 | 6 | 1 | 0 | 0 | 0 | 7 |
 | ISA-5.6 | 8 | 2 | 0 | 0 | 0 | 10 |
 | ISA-5.7 | 1 | 0 | 0 | 0 | 1 | 2 |
 | ISA-6.1 | 17 | 1 | 0 | 0 | 0 | 18 |
 | ISA-6.2 | 4 | 0 | 0 | 0 | 0 | 4 |
 | ISA-6.3 | 1 | 0 | 0 | 0 | 0 | 1 |
-| ISA-6.4 | 3 | 0 | 0 | 0 | 0 | 3 |
+| ISA-6.4 | 2 | 0 | 1 | 0 | 1 | 4 |
 | ISA-7.1 | 1 | 2 | 0 | 0 | 1 | 4 |
 | ISA-7.2 | 3 | 1 | 0 | 1 | 1 | 6 |
 | ISA-7.3 | 18 | 1 | 0 | 1 | 2 | 22 |
-| ISA-7.4 | 28 | 5 | 0 | 0 | 2 | 35 |
+| ISA-7.4 | 27 | 5 | 2 | 0 | 2 | 36 |
 | ISA-8.1 | 22 | 2 | 0 | 2 | 1 | 27 |
 | ISA-8.2 | 4 | 1 | 0 | 1 | 1 | 7 |
 | ISA-8.3 | 14 | 2 | 0 | 2 | 5 | 23 |
@@ -62,7 +62,7 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 | ISA-10.1 | 33 | 3 | 0 | 1 | 2 | 39 |
 | ISA-11 | 17 | 4 | 0 | 2 | 3 | 26 |
 | ISA-11.1 | 249 | 3 | 0 | 2 | 16 | 270 |
-| ISA-12.1 | 43 | 7 | 0 | 1 | 3 | 54 |
+| ISA-12.1 | 37 | 5 | 8 | 1 | 4 | 55 |
 | ISA-12.2 | 2 | 0 | 0 | 0 | 1 | 3 |
 | ISA-12.3 | 21 | 3 | 0 | 2 | 2 | 28 |
 | ISA-13 | 1 | 0 | 0 | 0 | 1 | 2 |
@@ -73,7 +73,7 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 | ISA-16.1 | 5 | 0 | 0 | 0 | 2 | 7 |
 | ISA-16.2 | 5 | 0 | 0 | 1 | 0 | 6 |
 | ISA-16.3 | 54 | 10 | 0 | 14 | 4 | 82 |
-| ISA-17 | 25 | 6 | 0 | 0 | 8 | 39 |
+| ISA-17 | 25 | 6 | 1 | 0 | 8 | 40 |
 
 ## Listing
 
@@ -589,8 +589,9 @@ ISA-3.6-P16
 ISA-3.6-P17
   <1>1 [req] Uncompute every `at_k` from `pc` (which now equals the old index).
 ISA-3.6-P18
-  <1>1 [req] After the inverse step every frame field is clean. *(non-normative)* The forward step is a permutation Π_t; the inverse step is Π_t⁻¹ written out; T2 relies on nothing else.   deps: ISA-14.3-P2.S1 (T2)
-  <1>2 [req] B = 0 is legal: the oracle commits `FAULT_BUDGET_STEPS` on every input.
+  <1>1 [req] After the inverse step every frame field is clean.
+  <1>2 [non] *(non-normative)* The forward step is a permutation Π_t; the inverse step is Π_t⁻¹ written out; T2 relies on nothing else.   deps: ISA-14.3-P2.S1 (T2)
+  <1>3 [non] B = 0 is legal: the oracle commits `FAULT_BUDGET_STEPS` on every input.
 ````
 
 ### §3.7 Register files, procedures, counters, stack   [ISA-3.7]
@@ -1061,8 +1062,9 @@ ISA-5.4-P1
 ISA-5.4-P2
   <1>1 [unc] Budget = (B, heap_limit, stack_limit, depth_limit), classical.   deps: ISA-2-P5.S1 (Budget)
   <1>2 [req] `bennett_ budget` validates: `heap_limit ≤ layout.heap_limit_max`, `stack_limit ≤ 2^S_cells`, `depth_limit < 2^Dc − 1`; for a memoryless object (§7.2) `heap_limit = stack_limit = depth_limit = 0`.   deps: ISA-7.2
-  <1>3 [req] B is enforced by running exactly B steps; heap, stack and depth are wire counters. *(non-normative, used by §4.5)* If the reference interpreter succeeds on x under a tuple β₀, it succeeds with the same result under every tuple β ≥ β₀ componentwise: its only limit-dependent decisions are the flags of `lift.alloc` and `lift.call`, false on that trajectory and still false with larger limits, and the step bound, not reached.   deps: ISA-4.5
-  <1>4 [req] A nested `lift.oracle_call` row uses the tuple of its own token, not β, which is why §4.5 fixes those tuples exactly.   deps: ISA-4.5
+  <1>3 [req] B is enforced by running exactly B steps; heap, stack and depth are wire counters.
+  <1>4 [non] *(non-normative, used by §4.5)* If the reference interpreter succeeds on x under a tuple β₀, it succeeds with the same result under every tuple β ≥ β₀ componentwise: its only limit-dependent decisions are the flags of `lift.alloc` and `lift.call`, false on that trajectory and still false with larger limits, and the step bound, not reached.   deps: ISA-4.5
+  <1>5 [non] A nested `lift.oracle_call` row uses the tuple of its own token, not β, which is why §4.5 fixes those tuples exactly.   deps: ISA-4.5
 ISA-5.4-P3
   <1>1 [req] **Tokens.** A token denotes a validated tuple (B, heap_limit, stack_limit, depth_limit) and the oracle it was validated for; a region call uses the tuple of the token it is given, and a token MAY be supplied to any region call of the program (the checks above depend only on the object's layout).
   <1>2 [req] Tokens come from `bennett_budget` (§10; valid until the program is unloaded) or from **`tk = budget.mint @o s h st d`** (CC and R): `@o` names an oracle of the program (a symbol reference, §9.2) whose object's layout the checks use, and is recorded with the token for diagnostics only; s, h, st, d are `i64` values read as unsigned 64-bit; the instruction applies exactly `bennett_budget`'s checks to (s, h, st, d) before any mutation; failure is a fault record `FAULT_UB_TRAP` (§4.9) and no token; success produces a fresh token for that tuple, valid until its frame is reversed or its run is CLOSED, and never constructible from an integer.   deps: ISA-10, ISA-9.2, ISA-4.9
@@ -1184,8 +1186,9 @@ ISA-6.3-P1
 ````text
 ISA-6.4-P1
   <1>1 [req] Every cleanup in this version is **unitary**: realisation `reverse` (the adjoint of g's exact computing sequence, §6.2) or `recompute` (legal for `perm` values only: recompute g into a fresh clean bundle by the same sequence, `qxor` it into g's wires, uncompute the fresh bundle by the adjoint).   deps: ISA-2-P1.S2 (bundle), ISA-6.2
-  <1>2 [req] **Measurement-based cleanup is not admitted in sched/ cert 0.9**: a schedule naming any other realisation is invalid, the target capability `mbu` is reserved and MUST be `false`, and no cleanup produces a `channel` claim. *(non-normative)* The fixup after an X-basis measurement of g with outcome m is the phase (−1)^{m·g(x)}, a function of g's computing sequence and not of the target; its normative form, its controlled variant and its certificate kind are deferred (§17 item 6; default: unitary cleanup).   deps: ISA-17-P7.S1 (Measurement-based cleanup), ISA-17-P7
-  <1>3 [req] Schedules and certificate cleanup entries are keyed by `(region hash, variant, inherited control count)`; a region reachable under a non-empty control context MUST have a cleanup schedule for that key.
+  <1>2 [req] **Measurement-based cleanup is not admitted in sched/ cert 0.9**: a schedule naming any other realisation is invalid, the target capability `mbu` is reserved and MUST be `false`, and no cleanup produces a `channel` claim.   deps: ISA-17-P7.S1 (Measurement-based cleanup)
+  <1>3 [non] *(non-normative)* The fixup after an X-basis measurement of g with outcome m is the phase (−1)^{m·g(x)}, a function of g's computing sequence and not of the target; its normative form, its controlled variant and its certificate kind are deferred (§17 item 6; default: unitary cleanup).   deps: ISA-17-P7
+  <1>4 [unc] Schedules and certificate cleanup entries are keyed by `(region hash, variant, inherited control count)`; a region reachable under a non-empty control context MUST have a cleanup schedule for that key.
 ````
 
 ### §7.1 Classical memory (CC, R)   [ISA-7.1]
@@ -1302,8 +1305,9 @@ ISA-7.4-P19
   <1>4 [req] Execution reverses S by the history traversal (nested segments are undone; nested segments already cancelled by an inner `uncall`, and that inner `uncall` frame, are skipped), and pushes an `uncall` frame naming S.
   <1>5 [req] The instances defined inside S no longer exist; using such a name before it is redefined is a CC trap / R fault `FAULT_UB_TRAP`.   deps: ISA-4.9-P1.S1 (CC trap)
   <1>6 [def] **Whole-run reversal** (§10) is the history traversal over the whole history: S's effects on memory, the allocation table, devices, the register ledger and tokens were undone by the `uncall`, and the frames between S and the `uncall` are pure, so at the `uncall` frame every component except the retained instances already equals its value before S.   deps: ISA-3.3-P7.S1 (register ledger), ISA-10
-  <1>7 [req] T4 is stated over these frames. *(non-normative)* S is never re-executed and never redone; the compute–copy–`uncall` idiom derives what it keeps through pure instructions before the `uncall`.   deps: ISA-14.3-P4.S1 (T4)
-  <1>8 [req] Suite A contains: `f` calls `g`, uncalls `g`, returns; `g` performs one `clock.read`; `call f; uncall f` leaves the clock at its entry value; and `uncall` of a segment that measured is a trap.
+  <1>7 [req] T4 is stated over these frames.   deps: ISA-14.3-P4.S1 (T4)
+  <1>8 [non] *(non-normative)* S is never re-executed and never redone; the compute–copy–`uncall` idiom derives what it keeps through pure instructions before the `uncall`.
+  <1>9 [non] Suite A contains: `f` calls `g`, uncalls `g`, returns; `g` performs one `clock.read`; `call f; uncall f` leaves the clock at its entry value; and `uncall` of a segment that measured is a trap.
 ````
 
 ### §8.1 Format and expressions   [ISA-8.1]
@@ -2013,16 +2017,17 @@ ISA-12.1-P12
   <1>2 [req] Let Φ = Φ_real − Φ_ref be the difference of the subject's realised channel and the reference channel (both on the subject's interface, controls included), d_in = d_out = d the dimension.
   <1>3 [def] The **Choi matrix** is J(Φ) = Σ_{i,j} |i⟩⟨j| ⊗ Φ(|i⟩⟨j|) (input factor first, output factor second, computational basis in allocation order, **unnormalised**).
   <1>4 [req] The witness is a Hermitian Y of dimension d² and a decimal mu.
-  <1>5 [req] The checker accepts iff, with every matrix entry an interval and every test rigorous (an inconclusive test rejects): Y − J(Φ) ⪰ 0, Y + J(Φ) ⪰ 0, mu·I − Tr_out(Y) ⪰ 0 (partial trace over the output factor), and mu ≤ `bound`; then ‖Φ‖◇ ≤ mu (the dual of Watrous's SDP with Y₀ = Y₁ = Y; this is the diamond norm itself, not half of it). *(non-normative)* With this input-first Choi convention Tr_out traces the second factor, Tr[(ρ ⊗ I)Y] = Tr[ρ Tr_out(Y)]; a primal formulation that labels the input factor ρᵀ ranges over the same set of density matrices, so the bound is unchanged.
-  <1>6 [req] Encoding: `Y` is a row-major array of entries `[re_lo, re_ hi, im_lo, im_hi]` (decimal strings).
-  <1>7 [def] **Positivity test.** The checker proves each of the three matrices **positive definite** by an interval Cholesky (or Hermitian LDL†) factorisation in which the interval lower bound of every pivot is strictly positive, and rejects otherwise; no other test is admitted (nonnegative leading principal minors do not imply positive semidefiniteness: diag(0, −1)).
-  <1>8 [req] Producers make witnesses strictly feasible by replacing Y with Y + δI and mu with mu′ = mu + δ·(d + 1) for a small rational δ > 0 (any mu′ > mu + δ·d suffices): then Y ± J(Φ) ⪰ δI ≻ 0 and, since Tr_out(Y + δI) = Tr_out(Y) + δ·d·I, mu′·I − Tr_out(Y + δI) ⪰ δI ≻ 0; ‖Φ‖◇ ≤ mu′, which MUST be ≤ `bound`.
-  <1>9 [unc] That recipe assumes an exactly feasible witness.
-  <1>10 [req] For a numerically obtained witness the producer first certifies lower bounds −η₊, −η₋, −η_s on the smallest eigenvalues of Y − J(Φ), Y + J(Φ) and mu·I − Tr_out(Y), chooses δ > max(η₊, η₋, η_s) and publishes Y′ = Y + δI and mu′ = mu + (d + 1)·δ: then Y′ ± J(Φ) ⪰ (δ − η±)I ≻ 0 and mu′·I − Tr_out(Y′) ⪰ (δ − η_s)I ≻ 0.
-  <1>11 [req] These margins make the matrices positive definite; they do not make the interval test conclusive: every pivot enclosure the checker computes at `precision_bits` MUST still have a strictly positive lower endpoint, else the checker rejects (no fixed allowance such as 2^−`precision_bits` bounds the interval error, which depends on d and conditioning).   deps: ISA-12.1-P12.S7 (positive definite)
-  <1>12 [def] **Interval arithmetic** at `precision_bits` means every operation rounds outward to `precision_bits`-bit binary rationals; transcendental entries (`rx ry rz`) are enclosed by a Taylor series with the Lagrange remainder bound (§17 item 8 fixes the term count).   deps: ISA-17-P9
-  <1>13 [req] A `numerical` or `channel` subject's `schedule_hash` is required: it names the realisation the claim is about.
-  <1>14 [req] K13 also requires it for `expected: "oracle"`; standalone reference relations use the explicit invocation binding instead.   deps: ISA-0.2-P13.S1 (K13)
+  <1>5 [req] The checker accepts iff, with every matrix entry an interval and every test rigorous (an inconclusive test rejects): Y − J(Φ) ⪰ 0, Y + J(Φ) ⪰ 0, mu·I − Tr_out(Y) ⪰ 0 (partial trace over the output factor), and mu ≤ `bound`; then ‖Φ‖◇ ≤ mu (the dual of Watrous's SDP with Y₀ = Y₁ = Y; this is the diamond norm itself, not half of it).
+  <1>6 [non] *(non-normative)* With this input-first Choi convention Tr_out traces the second factor, Tr[(ρ ⊗ I)Y] = Tr[ρ Tr_out(Y)]; a primal formulation that labels the input factor ρᵀ ranges over the same set of density matrices, so the bound is unchanged.
+  <1>7 [non] Encoding: `Y` is a row-major array of entries `[re_lo, re_ hi, im_lo, im_hi]` (decimal strings).
+  <1>8 [non] **Positivity test.** The checker proves each of the three matrices **positive definite** by an interval Cholesky (or Hermitian LDL†) factorisation in which the interval lower bound of every pivot is strictly positive, and rejects otherwise; no other test is admitted (nonnegative leading principal minors do not imply positive semidefiniteness: diag(0, −1)).
+  <1>9 [unc] Producers make witnesses strictly feasible by replacing Y with Y + δI and mu with mu′ = mu + δ·(d + 1) for a small rational δ > 0 (any mu′ > mu + δ·d suffices): then Y ± J(Φ) ⪰ δI ≻ 0 and, since Tr_out(Y + δI) = Tr_out(Y) + δ·d·I, mu′·I − Tr_out(Y + δI) ⪰ δI ≻ 0; ‖Φ‖◇ ≤ mu′, which MUST be ≤ `bound`.
+  <1>10 [non] That recipe assumes an exactly feasible witness.
+  <1>11 [non] For a numerically obtained witness the producer first certifies lower bounds −η₊, −η₋, −η_s on the smallest eigenvalues of Y − J(Φ), Y + J(Φ) and mu·I − Tr_out(Y), chooses δ > max(η₊, η₋, η_s) and publishes Y′ = Y + δI and mu′ = mu + (d + 1)·δ: then Y′ ± J(Φ) ⪰ (δ − η±)I ≻ 0 and mu′·I − Tr_out(Y′) ⪰ (δ − η_s)I ≻ 0.
+  <1>12 [unc] These margins make the matrices positive definite; they do not make the interval test conclusive: every pivot enclosure the checker computes at `precision_bits` MUST still have a strictly positive lower endpoint, else the checker rejects (no fixed allowance such as 2^−`precision_bits` bounds the interval error, which depends on d and conditioning).   deps: ISA-12.1-P12.S8 (positive definite)
+  <1>13 [non] **Interval arithmetic** at `precision_bits` means every operation rounds outward to `precision_bits`-bit binary rationals; transcendental entries (`rx ry rz`) are enclosed by a Taylor series with the Lagrange remainder bound (§17 item 8 fixes the term count).   deps: ISA-17-P9
+  <1>14 [non] A `numerical` or `channel` subject's `schedule_hash` is required: it names the realisation the claim is about.
+  <1>15 [non] K13 also requires it for `expected: "oracle"`; standalone reference relations use the explicit invocation binding instead.   deps: ISA-0.2-P13.S1 (K13)
 ISA-12.1-P13
   <1>1 [req] **Sampling.** For each domain component with range size R = hi − lo + 1, assemble m = ⌈⌈log₂ R⌉/64⌉ consecutive generator words (least-significant word first) into an integer, reduce modulo 2^⌈log₂ R⌉, reject and redraw if ≥ R, add `lo`; components are consumed in enumeration order.
 ````
@@ -2340,6 +2345,7 @@ ISA-17-P18
   <1>5 [req] Hook: an expansion library (§11) MAY name this variant as its realisation of §3.6, and a schedule binding that library executes and charges it; making it the reference changes §3.6 and adds T7.   deps: ISA-11-P2.S3 (expansion library), ISA-11, ISA-3.6
 ISA-17-P19
   <1>1 [unc] **Checkpointed or pebbled oracle realisations** (§5.2, §5.7, §9.4, §11). Default: the full-history reference expansion (B frames, the library `ref`).   deps: ISA-5.2, ISA-5.7, ISA-9.4, ISA-11
-  <1>2 [req] Hook: an expansion library MAY realise §5.2 by checkpoints and replay or by pebbling; it MUST list every generated allocation, copy, forward evaluation, inverse evaluation and release, every repeated evaluation included, with distinct ordinals and scratch identities, and carry a full-domain argument that the final interface tuple of §5.2 is produced with private scratch clean and borrowed correlations restored; a schedule binds its name, version and hash; every replay is executed and charged (§8.2); the frame descriptor reports the realised history (§9.4); the reference body, F_B and the budget unit are unchanged, and T2 remains stated for the reference expansion. *(non-normative)* Binary pebbling P_{j+1}(a, b) = P_j(a, c); P_j(c, b); P_j(a, c) uses 3^⌈log₂ B⌉ base evaluations and at most ⌈log₂ B⌉ intermediate configurations; no polylogarithmic-time bound is claimed.   deps: ISA-14.3-P2.S1 (T2), ISA-11-P2.S3 (expansion library), ISA-4.2-P29.S1 (reference body), ISA-5.2, ISA-8.2, ISA-9.4
+  <1>2 [req] Hook: an expansion library MAY realise §5.2 by checkpoints and replay or by pebbling; it MUST list every generated allocation, copy, forward evaluation, inverse evaluation and release, every repeated evaluation included, with distinct ordinals and scratch identities, and carry a full-domain argument that the final interface tuple of §5.2 is produced with private scratch clean and borrowed correlations restored; a schedule binds its name, version and hash; every replay is executed and charged (§8.2); the frame descriptor reports the realised history (§9.4); the reference body, F_B and the budget unit are unchanged, and T2 remains stated for the reference expansion.   deps: ISA-14.3-P2.S1 (T2), ISA-11-P2.S3 (expansion library), ISA-4.2-P29.S1 (reference body), ISA-5.2, ISA-8.2, ISA-9.4
+  <1>3 [non] *(non-normative)* Binary pebbling P_{j+1}(a, b) = P_j(a, c); P_j(c, b); P_j(a, c) uses 3^⌈log₂ B⌉ base evaluations and at most ⌈log₂ B⌉ intermediate configurations; no polylogarithmic-time bound is claimed.
 ````
 

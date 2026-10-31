@@ -6,7 +6,7 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 
 ## Counts
 
-537 statements (529 top-level, 8 enumerated sub-statements) in 314 clauses; requirement 362, definition 101, non-normative 8, example 21, uncertain 45; 0 declared markers, 0 unresolved.
+540 statements (532 top-level, 8 enumerated sub-statements) in 314 clauses; requirement 359, definition 101, non-normative 13, example 21, uncertain 46; 0 declared markers, 0 unresolved.
 
 | section | req | def | non | ex | unc | total |
 |---|---|---|---|---|---|---|
@@ -20,7 +20,7 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 | ISA-3.3 | 17 | 4 | 0 | 1 | 1 | 23 |
 | ISA-3.4 | 1 | 0 | 0 | 0 | 0 | 1 |
 | ISA-3.5 | 3 | 0 | 0 | 0 | 0 | 3 |
-| ISA-3.6 | 17 | 11 | 0 | 0 | 7 | 35 |
+| ISA-3.6 | 16 | 11 | 2 | 0 | 7 | 36 |
 | ISA-3.7 | 17 | 14 | 0 | 0 | 6 | 37 |
 | ISA-4.1 | 18 | 0 | 0 | 0 | 0 | 18 |
 | ISA-4.2 | 33 | 3 | 0 | 0 | 0 | 36 |
@@ -40,11 +40,11 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 | ISA-6.1 | 17 | 1 | 0 | 0 | 0 | 18 |
 | ISA-6.2 | 4 | 0 | 0 | 0 | 0 | 4 |
 | ISA-6.3 | 1 | 0 | 0 | 0 | 0 | 1 |
-| ISA-6.4 | 3 | 0 | 0 | 0 | 0 | 3 |
+| ISA-6.4 | 2 | 0 | 1 | 0 | 1 | 4 |
 | ISA-7.1 | 1 | 2 | 0 | 0 | 1 | 4 |
 | ISA-7.2 | 3 | 1 | 0 | 1 | 1 | 6 |
 | ISA-7.3 | 6 | 0 | 0 | 0 | 0 | 6 |
-| ISA-7.4 | 22 | 4 | 0 | 0 | 1 | 27 |
+| ISA-7.4 | 21 | 4 | 2 | 0 | 1 | 28 |
 | ISA-8.1 | 13 | 1 | 0 | 1 | 0 | 15 |
 | ISA-8.2 | 3 | 1 | 0 | 1 | 1 | 6 |
 | ISA-8.3 | 4 | 1 | 0 | 1 | 0 | 6 |
@@ -292,8 +292,9 @@ ISA-3.6-P15
 ISA-3.6-P16
   <1>1 [req] Uncompute every `at_k` from `pc` (which now equals the old index).
 ISA-3.6-P17
-  <1>1 [req] After the inverse step every frame field is clean. *(non-normative)* The forward step is a permutation Π_t; the inverse step is Π_t⁻¹ written out; T2 relies on nothing else.   deps: ISA-14.3-P2.S1 (T2)
-  <1>2 [req] B = 0 is legal: the oracle commits `FAULT_BUDGET_STEPS` on every input.
+  <1>1 [req] After the inverse step every frame field is clean.
+  <1>2 [non] *(non-normative)* The forward step is a permutation Π_t; the inverse step is Π_t⁻¹ written out; T2 relies on nothing else.   deps: ISA-14.3-P2.S1 (T2)
+  <1>3 [non] B = 0 is legal: the oracle commits `FAULT_BUDGET_STEPS` on every input.
 ````
 
 ### §3.7 Register files, procedures, counters, stack   [ISA-3.7]
@@ -737,8 +738,9 @@ ISA-6.3-P1
 ````text
 ISA-6.4-P1
   <1>1 [req] Every cleanup in this version is **unitary**: realisation `reverse` (the adjoint of g's exact computing sequence, §6.2) or `recompute` (legal for `perm` values only: recompute g into a fresh clean bundle by the same sequence, `qxor` it into g's wires, uncompute the fresh bundle by the adjoint).   deps: ISA-2-P1.S2 (bundle), ISA-6.2
-  <1>2 [req] **Measurement-based cleanup is not admitted in sched/ cert 0.8**: a schedule naming any other realisation is invalid, the target capability `mbu` is reserved and MUST be `false`, and no cleanup produces a `channel` claim. *(non-normative)* The fixup after an X-basis measurement of g with outcome m is the phase (−1)^{m·g(x)}, a function of g's computing sequence and not of the target; its normative form, its controlled variant and its certificate kind are deferred (§17 item 6; default: unitary cleanup).   deps: ISA-17-P7.S1 (Measurement-based cleanup), ISA-17-P7
-  <1>3 [req] Schedules and certificate cleanup entries are keyed by `(region hash, variant, inherited control count)`; a region reachable under a non-empty control context MUST have a cleanup schedule for that key.
+  <1>2 [req] **Measurement-based cleanup is not admitted in sched/ cert 0.8**: a schedule naming any other realisation is invalid, the target capability `mbu` is reserved and MUST be `false`, and no cleanup produces a `channel` claim.   deps: ISA-17-P7.S1 (Measurement-based cleanup)
+  <1>3 [non] *(non-normative)* The fixup after an X-basis measurement of g with outcome m is the phase (−1)^{m·g(x)}, a function of g's computing sequence and not of the target; its normative form, its controlled variant and its certificate kind are deferred (§17 item 6; default: unitary cleanup).   deps: ISA-17-P7
+  <1>4 [unc] Schedules and certificate cleanup entries are keyed by `(region hash, variant, inherited control count)`; a region reachable under a non-empty control context MUST have a cleanup schedule for that key.
 ````
 
 ### §7.1 Classical memory (CC, R)   [ISA-7.1]
@@ -826,8 +828,9 @@ ISA-7.4-P17
   <1>4 [req] Execution reverses S by the history traversal (nested segments are undone; nested segments already cancelled by an inner `uncall`, and that inner `uncall` frame, are skipped), and pushes an `uncall` frame naming S.
   <1>5 [req] The instances defined inside S no longer exist; using such a name before it is redefined is a CC trap / R fault `FAULT_UB_TRAP`.
   <1>6 [def] **Whole-run reversal** (§10) is the history traversal over the whole history: S's effects on memory, the allocation table, devices and handles were undone by the `uncall`, and the frames between S and the `uncall` are pure, so at the `uncall` frame every component except the retained instances already equals its value before S.   deps: ISA-10
-  <1>7 [req] T4 is stated over these frames. *(non-normative)* S is never re-executed and never redone; the compute–copy–`uncall` idiom derives what it keeps through pure instructions before the `uncall`.   deps: ISA-14.3-P4.S1 (T4)
-  <1>8 [req] Suite A contains: `f` calls `g`, uncalls `g`, returns; `g` performs one `clock.read`; `call f; uncall f` leaves the clock at its entry value; and `uncall` of a segment that measured is a trap.
+  <1>7 [req] T4 is stated over these frames.   deps: ISA-14.3-P4.S1 (T4)
+  <1>8 [non] *(non-normative)* S is never re-executed and never redone; the compute–copy–`uncall` idiom derives what it keeps through pure instructions before the `uncall`.
+  <1>9 [non] Suite A contains: `f` calls `g`, uncalls `g`, returns; `g` performs one `clock.read`; `call f; uncall f` leaves the clock at its entry value; and `uncall` of a segment that measured is a trap.
 ````
 
 ### §8.1 Format and expressions   [ISA-8.1]

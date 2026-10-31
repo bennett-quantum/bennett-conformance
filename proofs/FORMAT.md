@@ -40,7 +40,12 @@ set algebra) over objects the cited clauses define; it never imports spec conten
 ## Citation rule
 
 Cite only clause IDs from `clauses/ISA-0.8.json` (`ISA-5.6-P3`), or a section id
-(`ISA-6.2`) when the whole section is meant. No page numbers, no section-sign
+(`ISA-6.2`) when the whole section is meant. Citations may also be statement IDs from
+`clauses/ISA-0.8.statements.json` (`ISA-5.1-P1.S3`: the third sentence-level statement of
+clause `ISA-5.1-P1`; `ISA-3.6-P6.S1.2` for an enumerated item); new proofs should prefer
+them, because a statement ID names the sentence the step relies on, survives edits to the
+rest of its paragraph (`diff --statements`), and counts as strong rather than weak
+coverage in `coverage --statements`. No page numbers, no section-sign
 references, no code. Quote the clause in the step when its exact wording carries
 the argument. The interpreter and the council reports are evidence (Witnesses),
 never justification.

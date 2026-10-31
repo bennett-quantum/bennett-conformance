@@ -1409,7 +1409,7 @@ def split_sentences(p):
         q = k
         while q < n and p[q] in SENT_OPENERS:
             q += 1
-        if q < n and (p[q].isupper() or p[q].isdigit() or p[q] in "`§["):
+        if (q < n and (p[q].isupper() or p[q].isdigit() or p[q] in "`§["))                 or RE_NN_MARK.match(p[k:k + 48]):
             cuts.append(j)
     spans, a = [], 0
     for c in sorted(set(c for c in cuts if 0 < c < n)) + [n]:

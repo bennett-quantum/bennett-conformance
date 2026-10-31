@@ -66,6 +66,11 @@ class TestSplitter(unittest.TestCase):
         self.assertEqual(sents("| K | A is x. [deps: ISA-1] | ticket |"),
                          ["| K | A is x. [deps: ISA-1]", "| ticket |"])
 
+    def test_non_normative_marker_starts_a_sentence(self):
+        self.assertEqual(sents("Every field is clean. *(non-normative)* The fixup is x."),
+                         ["Every field is clean.", "*(non-normative)* The fixup is x."])
+        self.assertEqual(sents("It holds. (deferred) later."), ["It holds.", "(deferred) later."])
+
     def test_ellipsis_and_closers(self):
         self.assertEqual(sents("Lists a, b, ... and c. *Italic end.* Next."),
                          ["Lists a, b, ... and c.", "*Italic end.*", "Next."])
