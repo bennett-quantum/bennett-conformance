@@ -35,9 +35,8 @@ that every numbered step can become one `af` node.
 | `ASSUMED: <why>` | the spec is silent; we adopt the stated reading. Every ASSUMED leaf is listed under "Spec gaps" with the sentence the spec would need. |
 | `OPEN: <what>` | not proved; either the spec lacks what is needed or a counterexample to the literal text is known (then the leaf says `OPEN (refuted)` and gives it). Also listed under "Spec gaps". |
 
-A `BY` leaf may end in `; algebra` when the rest of the inference is pure
-mathematics (linear, Boolean or set algebra) over objects the cited clauses
-define. `; algebra` never imports spec content.
+A `BY` leaf may end in `; algebra`: the rest is pure mathematics (linear, Boolean,
+set algebra) over objects the cited clauses define; it never imports spec content.
 
 ## Citation rule
 
@@ -49,10 +48,8 @@ never justification.
 
 ## File layout
 
-Informal statement; Precise statement; Hypotheses (clause ids); Proof; Witnesses;
-Spec gaps; Council blockers as instances. `proofs/tags.json` maps `INV-n` to the
-clause ids the proof cites, so `clausegraph.py coverage --tags proofs/tags.json`
-counts proofs as (strong) witnesses.
+Statement (informal, precise); Hypotheses; Proof; Witnesses; Spec gaps; Council
+blockers as instances. `proofs/tags.json` maps `INV-n` to its cited clause ids.
 
 ## Mapping to af
 
