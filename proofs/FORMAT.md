@@ -1,7 +1,6 @@
 # Proof format
 
-Lamport-style hierarchical proofs ("How to Write a 21st Century Proof"), written so
-that every numbered step can become one `af` node.
+Lamport-style hierarchical proofs ("How to Write a 21st Century Proof"); one step, one `af` node.
 
 ## Steps
 
@@ -56,5 +55,5 @@ blockers as instances. `proofs/tags.json` maps `INV-n` to its cited clause ids.
 One step = one af node, id = dotted path; the claim is the node statement; `BY`
 clause ids become the node's external references; `BY` steps become dependency
 edges; `ASSUMED` becomes an assumption node; `OPEN` a node left unvalidated for a
-prover. A `PROOF:` step's children are its subgoals; `QED` is the closing node.
-The exact af command vocabulary is fixed at migration time, not here.
+prover. A `PROOF:` step's children are its subgoals; `QED` is the closing node
+(exact af command vocabulary to be fixed at migration time).
