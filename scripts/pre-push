@@ -1,15 +1,28 @@
 #!/usr/bin/env bash
-# Local quality gate (no GitHub CI). Runs cargo test for every Cargo.toml in the
-# repo; exits 0 if there is none.
+# Local quality gate (no GitHub CI). Layers of quick checks, each loud:
+#  1. cargo test for every Cargo.toml in the repo;
+#  2. clause-graph unit tests (clauses/tests);
+#  3. suite runner unit tests (suite/tests, fake binary);
+#  4. the neutral suite against a real implementation binary when one is known
+#     (BENNETT_ISA_BINARY, else the detached review worktree's build).
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
+export TMPDIR="$root/.tmp"; mkdir -p "$TMPDIR"
+unset DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
 mapfile -t manifests < <(find . -name Cargo.toml -not -path './target/*' -not -path '*/target/*' | sort)
-if [ "${#manifests[@]}" -eq 0 ]; then
-  echo "pre-push: no Cargo.toml found, nothing to run"
-  exit 0
-fi
 for m in "${manifests[@]}"; do
   echo "pre-push: cargo test --manifest-path $m"
   cargo test --manifest-path "$m"
 done
+echo "pre-push: clause-graph tests"
+python3 -I -m unittest discover -s clauses/tests
+bin="${BENNETT_ISA_BINARY:-$root/../bennett-isa-spec-review/reference-interpreter/target/debug/bennett-isa-ref}"
+if [ -x "$bin" ]; then
+  echo "pre-push: suite tests and neutral suite against $bin"
+  BENNETT_ISA_BINARY="$bin" python3 -I -m unittest discover -s suite/tests
+  python3 -I suite/run.py --binary "$bin" --cases suite/cases
+else
+  echo "pre-push: FAIL: no implementation binary (set BENNETT_ISA_BINARY or build ../bennett-isa-spec-review); the neutral suite must run before a push" >&2
+  exit 1
+fi
