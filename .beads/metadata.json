@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "bennett_conformance",
+  "project_id": "b9bf1c54-0276-48f9-87af-85749bf5a723"
+}
