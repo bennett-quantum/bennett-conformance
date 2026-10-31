@@ -11,3 +11,10 @@ build/
 .idea/
 
 # NOTE: .beads/ is intentionally NOT ignored.
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*
