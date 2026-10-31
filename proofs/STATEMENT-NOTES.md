@@ -20,6 +20,7 @@ Only the rows below are still open. Rules K1-K16 as in the statements JSON `rule
 | `ISA-4.4-P1.S1` | `requirement` (K12) | `definition`: the gate unitaries | As above: normative now, but the fence follows the §4.4 heading directly, so its kind defaults to `requirement`. |
 | `ISA-5.4-P1.S4` | `requirement` (K12) | `definition`: the fault-code numbering | Normative now; its introducing statement ("B is enforced by running exactly B steps; ...") is a requirement, so K12 gives `requirement`. |
 | `ISA-5.3-P2.S1` | `requirement` (K15) | `definition`: the instruction set admitted in an action body | No longer `uncertain`. `**Body**` is not a defined term of the clause (no alias), so K5 cannot fire; K15 treats colon-labelled stems as requirements. Both kinds are defensible (it constrains action bodies). |
+| `ISA-12.2-P1.S1` | `uncertain` | `definition`: the domain schema (`bundles`, `borrowed`, `regions`, inclusive bounds, enumeration order) | Met in INV-6 (2026-10-31). A verbless schema line that opens its clause, like `ISA-16.1-P1.S1`; its neighbour `ISA-12.2-P1.S2` is a requirement. Cited as is. |
 
 ## Not a classifier issue
 
