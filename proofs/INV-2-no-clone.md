@@ -43,7 +43,7 @@ THEOREM INV-2.
 
 ## Hypotheses
 
-ISA-2-P2.S1, ISA-2-P9.S1, ISA-3.2-P1.S1, ISA-3.3-P1.S1, ISA-3.3-P2.S1, ISA-3.3-P2.S2,
+ISA-2-P2.S1, ISA-2-P9.S1, ISA-3.2-P1.S1, ISA-3.3-P1.S1, ISA-3.3-P2.S1, ISA-3.3-P2.S3,
 ISA-3.3-P3.S1, ISA-3.3-P3.S2, ISA-3.3-P6.S2, ISA-3.3-P7.S1, ISA-3.3-P8.S1,
 ISA-3.3-P9.S1, ISA-3.3-P10.S1, ISA-3.3-P11.S1, ISA-3.3-P12.S1, ISA-3.3-P13.S1,
 ISA-3.3-P13.S2, ISA-3.3-P14.S2, ISA-3.5-P1.S1, ISA-3.7-P2.S1, ISA-4.3-P1.S1,
@@ -77,7 +77,7 @@ ISA-5.3-P1.S1, ISA-6.1-P3.S1, ISA-6.2-P1.S3, ISA-10-P3.S2, ISA-14.2-P1.S2.
         SOL-R11-B01).
   <2>5. An indexed operand `w[i]` "borrows wire i for one instruction" and
         creates no new live value.
-        BY ISA-3.3-P2.S2
+        BY ISA-3.3-P2.S3
   <2>6. QED
         BY <2>1, <2>2, <2>3, <2>4, <2>5; induction over program points
 <1>2. (B) holds for every instruction of a well-formed body.

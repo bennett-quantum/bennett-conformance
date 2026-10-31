@@ -466,7 +466,12 @@ kind. The `.md` file is a per-section Lamport listing with per-section kind coun
    (`0.8`), section numbers (`§4.5.2`) and dotted ids never split because no space follows
    the dot.
 4. **Captions.** A sentence that is only a bold span (`**Requirement.**`,
-   `**Hardware handling of …** (§3.3).`) joins the next sentence.
+   `**Hardware handling of …** (§3.3).`) joins the next sentence, unless the bold span
+   holds a finite verb or modal (*is, are, was, were, has, have, does, do, must, may, shall,
+   cannot, should*, either case): `**Regions are threaded the same way.** **Indexed
+   operand** …` is two sentences (a sentence that ends inside bold, `.**` followed by space
+   and a capital or a bold opener, is a boundary like any other). Only the bold span is
+   tested, so `**Lifted width rules** (… a mismatch is ill-formed …).` stays a caption.
 5. **Markers.** A `[deps: …]` marker ends its sentence (with any `.` right after it).
 6. **Enumerations.** Inside a sentence, a run of at least two consecutive enumerators
    starting at `(1)`, `(a)` or `(i)` yields sub-statements. An enumerator preceded by a
@@ -478,22 +483,75 @@ kind. The `.md` file is a per-section Lamport listing with per-section kind coun
 First match wins. The rule that fired is stored per statement (`rule`), so every count
 below can be traced to a rule.
 
+Evaluation order: K1/K12, K2, K3, K4, K5/K13, K6, K7, K8, K9, K14, K16, K15, K10 (K11 for
+sub-statements). Rules K12–K16 were added on 2026-10-31 for the proof retag's
+`proofs/STATEMENT-NOTES.md`; K10 and K11 keep their numbers so that earlier references
+stay valid (the normative-fence rule is therefore K12, not K10).
+
 | Rule | Kind | Condition |
 |---|---|---|
-| K1 | example | the statement is a fenced code block |
+| K1 | example | a fenced code block for which the K12 predicate is false (below): it is an example or witness |
+| K12 | requirement, or definition when its introducing statement is a definition | a fenced code block that is normative: see the predicate below |
 | K2 | non-normative | its section or an enclosing one is front matter, a change log (title `Changes from …`), or titled `(non-normative)` / `(deferred)` |
-| K3 | non-normative | it starts with `*(non-normative…)*` / `*(deferred…)*` or follows such a sentence in the same paragraph (the spec convention: the marker explains to the end of the paragraph); **uncertain** if it contains an RFC 2119 keyword |
+| K3 | non-normative | it starts with `*(non-normative…)*` / `*(deferred…)*`; the marker scopes its own sentence only (before 2026-10-31 it ran to the paragraph end and swallowed rules such as `ISA-6.4-P1.S4` and the §12.1 positivity test of the 0.9 draft); **uncertain** if it contains an RFC 2119 keyword |
 | K4 | requirement | an upper-case RFC 2119 keyword outside code spans and inline `*(non-normative: …)*` asides: MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, SHALL, REQUIRED, RECOMMENDED, OPTIONAL |
-| K5 | definition | it introduces a defined term or rule label of its clause: the first statement whose bold span is one of the clause's term aliases (or ambiguous terms), or that names one of its labels; `defines` records them |
+| K5 | definition | it carries a defined term or rule label of its clause (the first statement whose bold span is one of the clause's term aliases or ambiguous terms, or that names one of its labels; `defines` records them) **and** introduces it as the subject being defined: `**X** is/are/denotes/means/refers to/stands for/consists of …`, `**X** = / := / ≡ …`, `**X**: <noun phrase>` (the part after the colon starts with an article or has no declarative verb), `**X** (…):` closing the sentence (it introduces a table or list), or `… is/are/called/named the **X**`; an article (*a, an, the, its, each, every*) may precede X and up to eight verbless words, code spans or parentheticals may follow it. Also: a term (not a label) whose sentence is otherwise verbless (`**Tier.** CC, R, Q.`), and a verbless row of an id table (`DP | Platform | the platform profile`) |
+| K13 | requirement | it carries a term or label (as for K5) that it does not introduce, i.e. a run-in caption `**X.** <rule>`, an inline bold term (`… only inside **borrow frames**: …`) or a label row, and the rest states a rule (the K7 or K8 test); or a label caption outside a table heads a verbless remainder (`**T5.** As §6.3.`). `defines` still records the term, so term uses resolve to it |
 | K6 | example | starts with *e.g.* / *For example* / *For instance* / *Example*, contains *e.g.*, or lies in an examples section (title `Example…`, `… Examples`, `Worked examples`, unless marked `(normative …)`) |
 | K7 | requirement | a lower-case normative word: *must, must not, cannot, shall, may only, may not, never* |
 | K8 | requirement | a declarative verb from a fixed list (*is, are, has, returns, rejects, traps, faults, holds, produces, …*; about 250 forms, `DECL_VERBS`) |
 | K9 | requirement | a table row in a normative section (instruction, default and error-code rows state their content in columns) |
-| K10 | uncertain | none of the above: verbless fragments (`Predicate stack empty at entry and exit.`, `Default: 1.`), colon introductions (`Frames:`), list items continuing a stem from the previous clause |
+| K14 | definition | a verbless equation: `X = …`, `X := …`, `X ::= …` with X a code span or up to three words, a code span opening with such an equation (`` `NAME := …` ``), or any ` ≡ ` |
+| K16 | (previous) | a verbless fragment that follows a requirement or definition of its clause (`Predicate stack empty at entry and exit.`, `No fault outcome.`), or opens a list item whose previous clause in the section ends in one (items continuing a stem): it takes that statement's kind |
+| K15 | requirement | a verbless colon-labelled fragment (`Forms: …`, `**Body**: …`, `Default: 1.`, `Successor: …`; at most four words before the colon, after an optional bold caption) or a bare colon introduction (`Frames:`): field and list stems of a normative text |
+| K10 | uncertain | none of the above: verbless fragments with no normative neighbour (`Byte-addressed, little-endian, sparse.` opening `ISA-7.1-P1`, `F ≥ 4.`), inline JSON schemas, the §16.1 lexical rules |
 | K11 | (parent's) | a sub-statement that would be K10 inherits its enumerating sentence's kind |
 
+**K12 predicate.** A fenced code block of a clause in section S is an example (K1) if and
+only if one of:
+
+1. S or an enclosing section is non-normative (K2 titles) or an examples section (K6 titles);
+2. the fence's info string carries a `key=value` attribute (regex `(^|\s)[A-Za-z][\w.-]*=`):
+   the machine-checked witnesses of the dialect spec (`llvm example=…`, `text state=…`,
+   `text run=…`, `isa object=…`, …);
+3. S is not inside an examples section titled `(normative …)` (ISA §16.3 *Example objects
+   (normative test vectors, suite C and F)*), and some preceding top-level statement of the
+   same clause is a `*(non-normative)*` sentence, is classified `example`, or contains
+   *e.g., for example, for instance, example(s), witness(es), sample(s), illustrat…*
+   (case-insensitive, code spans and inline asides removed).
+
+Otherwise it is normative (K12): a `definition` when the nearest preceding prose statement of
+its clause is a definition (`**Adjoint table** (…):`, `**Semantic envelope** of a symbol
+(…):`, `**Schedule document** (JCS):`), else a `requirement` (including fences that open their
+clause straight after a heading, which have no introducing statement).
+
+Fences reclassified from `example` to normative by K12 (old id = new id in every case):
+
+- ISA 0.8 (20 of 20): requirement `ISA-3.1-P1.S1`, `ISA-3.3-P1.S1` (type list),
+  `ISA-4.4-P1.S1` (gate unitaries), `ISA-5.4-P1.S4` (fault codes), `ISA-8.1-P1.S3`,
+  `ISA-8.2-P1.S1`, `ISA-8.3-P1.S1`, `ISA-9.1-P1.S3` (section schemas), `ISA-10-P7.S2`,
+  `ISA-11-P1.S1`, `ISA-12.3-P1.S1`, `ISA-16.2-P1.S1` (object grammar), `ISA-16.3-P1.S3`,
+  `ISA-16.3-P2.S2`, `ISA-16.3-P4.S2`, `ISA-16.3-P5.S7`, `ISA-16.3-P6.S2`; definition
+  `ISA-5.3-P4.S2` (Adjoint table), `ISA-9.2-P1.S3` (envelope parts), `ISA-11-P3.S2`
+  (schedule document).
+- ISA 0.9 draft (31 of 40): requirement `ISA-3.1-P1.S1`, `ISA-3.3-P1.S1`, `ISA-3.7-P2.S2`,
+  `ISA-4.4-P1.S1`, `ISA-5.4-P3.S7`, `ISA-8.1-P1.S3`, `ISA-8.2-P1.S1`, `ISA-8.3-P1.S1`,
+  `ISA-9.1-P1.S3`, `ISA-9.4-P4.S4`, `ISA-10-P7.S2`, `ISA-11-P1.S1`, `ISA-11.1-P3.S2`,
+  `ISA-12.3-P1.S1`, `ISA-16.2-P1.S1`, `ISA-16.3-P2.S3`, `ISA-16.3-P3.S2`, `ISA-16.3-P6.S7`,
+  `ISA-16.3-P7.S2`, `ISA-16.3-P22.S4`; definition `ISA-5.3-P4.S2`, `ISA-9.2-P2.S3`,
+  `ISA-11-P3.S2`, `ISA-16.3-P5.S2`, `ISA-16.3-P8.S2`, `ISA-16.3-P10.S2`, `ISA-16.3-P12.S2`,
+  `ISA-16.3-P14.S2`, `ISA-16.3-P16.S2`, `ISA-16.3-P18.S2`, `ISA-16.3-P20.S2`. The 9 that
+  stay examples have example wording in their clause outside §16.3.
+- DLT 0.2.10 (6 of 501): requirement `DLT-3.1-P6.S2`, `DLT-3.2-P1.S2` (`markers-ir`),
+  `DLT-3.3-P1.S3` (`markers-c`), `DLT-8.6-P4.S2`, `DLT-19.1-P1.S4`; definition
+  `DLT-9.2-P2.S2`. The other 495 carry a witness attribute.
+
 K4 precedes K5: a sentence that introduces a term *and* states a MUST is a requirement
-(its `defines` still records the term, so term uses resolve to it).
+(its `defines` still records the term, so term uses resolve to it). K5/K13 split the old K5
+(which made every statement carrying a bold term a definition): `ISA-5.1-P1.S5`/`.S6`,
+`ISA-5.6-P2.S1`, the theorems T1–T6 of §14.3 and the closure-set cases of `ISA-9.2-P2` are
+requirements that carry their term or label; `**Interface regions** are caller-owned …` and
+`**Budget**: classical (…)` stay definitions.
 
 ### Dependencies
 
@@ -529,34 +587,44 @@ superseded (a `§4.5` reference where the marker names `ISA-4.5-P5`; a `K28` men
 
 | Graph | statements | top-level | sub | requirement | definition | non-normative | example | uncertain | inferred edges | declared markers (edges) |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ISA-0.8 | 540 | 532 | 8 | 359 | 101 | 13 | 21 | 46 | 286 | 0 |
-| ISA-0.9-draft | 1396 | 1388 | 8 | 972 | 142 | 146 | 42 | 94 | 1050 | 8 (19) |
-| DLT-0.2.10 | 2840 | 2834 | 6 | 1557 | 290 | 113 | 709 | 171 | 2881 | 0 |
+| ISA-0.8 | 541 | 533 | 8 | 450 | 73 | 11 | 1 | 6 | 286 | 0 |
+| ISA-0.9-draft | 1397 | 1389 | 8 | 1140 | 93 | 136 | 11 | 17 | 1050 | 8 (19) |
+| DLT-0.2.10 | 2841 | 2835 | 6 | 1859 | 135 | 82 | 725 | 40 | 2881 | 0 |
+
+Before the 2026-10-31 fixes (K12–K16, caption verbs, K3 scope) the same graphs gave
+ISA-0.8 540: requirement 359, definition 101, non-normative 13, example 21, uncertain 46;
+ISA-0.9-draft 1396: 972 / 142 / 146 / 42 / 94; DLT-0.2.10 2840: 1557 / 290 / 113 / 709 /
+171. A sentence ending inside bold now splits once per graph: `ISA-3.3-P2.S2` in 0.8 (its second
+sentence is now `ISA-3.3-P2.S3`), `ISA-3.3-P3.S2` in the 0.9 draft (now `.S3`), and
+`DLT-4.3-P1.S3` (now `.S4`; `.S4`/`.S5` renumber to `.S5`/`.S6`). No other id moved.
 
 By rule (counts include sub-statements):
 
-| Rule | K1 | K2 | K3 | K4 | K5 | K6 | K7 | K8 | K9 | K10 | K11 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| ISA-0.8 | 20 | 8 | 6 | 22 | 100 | 1 | 9 | 226 | 102 | 45 | 1 |
-| ISA-0.9-draft | 40 | 130 | 19 | 69 | 141 | 2 | 63 | 734 | 106 | 91 | 1 |
-| DLT-0.2.10 | 501 | 39 | 75 | 41 | 288 | 208 | 95 | 1207 | 214 | 170 | 2 |
+| Rule | K1 | K2 | K3 | K4 | K5 | K6 | K7 | K8 | K9 | K10 | K11 | K12 | K13 | K14 | K15 | K16 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ISA-0.8 | 0 | 8 | 3 | 23 | 54 | 1 | 9 | 229 | 102 | 6 | 1 | 20 | 46 | 8 | 8 | 23 |
+| ISA-0.9-draft | 9 | 130 | 6 | 72 | 67 | 2 | 63 | 742 | 106 | 17 | 1 | 31 | 76 | 8 | 10 | 57 |
+| DLT-0.2.10 | 495 | 39 | 43 | 42 | 129 | 230 | 95 | 1218 | 214 | 40 | 2 | 6 | 158 | 1 | 0 | 129 |
 
-Uncertain: 46 (8.5 %), 94 (6.7 %), 171 (6.0 %). Before rule K9 existed, bare table rows
-were the largest uncertain group (124 of 190 in ISA 0.8); they are counted separately
-under K9 so that the choice stays visible. K3 covers 6 / 19 / 75 statements, of which
-1 / 3 / 1 are uncertain because an RFC keyword follows the marker in the same paragraph
-(e.g. `ISA-6.4-P1.S4`).
+Uncertain: 6 (1.1 %), 17 (1.2 %), 40 (1.4 %), down from 46 (8.5 %), 94 (6.7 %), 171 (6.0 %):
+K14–K16 decide equations, colon stems and fragments next to a normative sentence; what is
+left has no normative neighbour (ISA 0.8: `ISA-1.1-P1.S1`, `ISA-5.4-P2.S1` `F ≥ 4.`,
+`ISA-7.1-P1.S1`, the inline JSON schemas `ISA-12.2-P1.S1` and `ISA-13-P1.S1`, the §16.1
+lexical rules `ISA-16.1-P1.S1`). Before rule K9 existed, bare table rows were the largest
+uncertain group (124 of 190 in ISA 0.8); they are counted separately under K9 so that the
+choice stays visible. K3 covers 3 / 6 / 43 statements (the marker sentences themselves),
+none uncertain.
 
 Kinds per top-level section, ISA 0.8 (per (sub)section counts for all three specs are at
 the top of each `.statements.md`):
 
 | § | front | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| requirement | 0 | 9 | 0 | 66 | 88 | 30 | 24 | 31 | 21 | 13 | 17 | 11 | 17 | 0 | 4 | 8 | 10 | 10 |
-| definition | 0 | 0 | 12 | 30 | 3 | 11 | 1 | 7 | 3 | 11 | 2 | 4 | 5 | 0 | 6 | 0 | 2 | 4 |
-| non-normative | 8 | 0 | 0 | 2 | 0 | 0 | 1 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| example | 0 | 0 | 0 | 2 | 1 | 2 | 0 | 1 | 3 | 2 | 1 | 2 | 1 | 0 | 0 | 0 | 6 | 0 |
-| uncertain | 0 | 1 | 2 | 14 | 2 | 5 | 1 | 3 | 1 | 4 | 0 | 1 | 2 | 1 | 0 | 0 | 3 | 6 |
+| requirement | 0 | 9 | 0 | 92 | 92 | 40 | 26 | 39 | 28 | 21 | 19 | 16 | 21 | 0 | 10 | 8 | 16 | 13 |
+| definition | 0 | 0 | 14 | 22 | 2 | 7 | 0 | 2 | 0 | 9 | 1 | 2 | 3 | 0 | 0 | 0 | 4 | 7 |
+| non-normative | 8 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| example | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| uncertain | 0 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 |
 
 ISA §5.1's single paragraph `ISA-5.1-P1` becomes seven statements:
 
@@ -565,9 +633,9 @@ ISA-5.1-P1
   <1>1 [req] Signatures list roles: `oracle @o (in a: wire[8]) ... (args n: i64)`.
   <1>2 [def] **Interface regions** are caller-owned, passed by name, role `in` (...) or `mut` (actions only).
   <1>3 [req] A region MUST NOT contain `measure effect br call uncall trap hostcall qreg.*` or classical memory instructions, nor lifted rows outside oracle bodies.
-  <1>4 [unc] Predicate stack empty at entry and exit.
-  <1>5 [def] Every `qalloc` matched by a `qfree` of a clean bundle, ..., by **explicit cleanup instructions**; the schedule chooses only realisations.   deps: ISA-2-P1.S2 (bundle)
-  <1>6 [def] **`in` wires in actions** appear only as controls, ...
+  <1>4 [req] Predicate stack empty at entry and exit.                       (K16)
+  <1>5 [req] Every `qalloc` matched by a `qfree` of a clean bundle, ..., by **explicit cleanup instructions**; the schedule chooses only realisations.   deps: ISA-2-P1.S2 (bundle)
+  <1>6 [req] **`in` wires in actions** appear only as controls, ...          (K13)
   <1>7 [req] Action call graphs are acyclic; recursion exists only through `lift.call`.
 ```
 
@@ -602,11 +670,11 @@ total and per kind. A statement tag also counts as a strong witness of its claus
 clause-level report.
 
 **Proof coverage** (`coverage clauses/ISA-0.8.json --tags proofs/tags.json --statements`,
-2026-10-31): clauses strong 75, weak 10, uncovered 229 of 314; **statements of ISA-0.8:
-540; strong 0, weak 159, uncovered 381**; requirements 359 (weak 110, uncovered 249),
-definitions 101 (weak 29, uncovered 72). Strong is 0 because every proof cites clause ids;
-re-citing the steps' `BY` leaves at statement ids (proofs/FORMAT.md) turns the weak 159
-into a precise strong set.
+2026-10-31, proofs citing statement ids, after K12–K16): clauses strong 76, weak 9,
+uncovered 229 of 314; **statements of ISA-0.8: 541; strong 109, weak 11, uncovered 421**;
+requirements 450 (strong 98, weak 10, uncovered 342), definitions 73 (strong 11, weak 1,
+uncovered 61), non-normative 11, example 1 and uncertain 6 all uncovered. (With clause-id
+tags the same proofs gave strong 0, weak 159.)
 
 `diff --statements` matches statements by hash (repeats in document order), then by
 `difflib` ratio ≥ 0.6 between the remaining statements of clause pairs that the clause

@@ -6,162 +6,162 @@ Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` ex
 
 ## Counts
 
-2840 statements (2834 top-level, 6 enumerated sub-statements) in 1243 clauses; requirement 1557, definition 290, non-normative 113, example 709, uncertain 171; 0 declared markers, 0 unresolved.
+2841 statements (2835 top-level, 6 enumerated sub-statements) in 1243 clauses; requirement 1859, definition 135, non-normative 82, example 725, uncertain 40; 0 declared markers, 0 unresolved.
 
 | section | req | def | non | ex | unc | total |
 |---|---|---|---|---|---|---|
 | DLT-front | 0 | 0 | 14 | 0 | 0 | 14 |
-| DLT-1.1 | 7 | 1 | 0 | 0 | 11 | 19 |
+| DLT-1.1 | 19 | 0 | 0 | 0 | 0 | 19 |
 | DLT-1.2 | 8 | 0 | 0 | 0 | 0 | 8 |
-| DLT-1.3 | 4 | 3 | 0 | 0 | 0 | 7 |
+| DLT-1.3 | 7 | 0 | 0 | 0 | 0 | 7 |
 | DLT-1.4 | 8 | 0 | 0 | 0 | 0 | 8 |
-| DLT-1.5 | 33 | 6 | 0 | 0 | 0 | 39 |
-| DLT-1.6 | 9 | 0 | 0 | 0 | 1 | 10 |
-| DLT-2 | 0 | 38 | 0 | 0 | 0 | 38 |
-| DLT-3.1 | 13 | 1 | 1 | 1 | 1 | 17 |
-| DLT-3.2 | 31 | 1 | 0 | 1 | 2 | 35 |
-| DLT-3.3 | 7 | 0 | 0 | 1 | 2 | 10 |
-| DLT-3.4 | 37 | 3 | 0 | 8 | 1 | 49 |
+| DLT-1.5 | 37 | 2 | 0 | 0 | 0 | 39 |
+| DLT-1.6 | 10 | 0 | 0 | 0 | 0 | 10 |
+| DLT-2 | 2 | 36 | 0 | 0 | 0 | 38 |
+| DLT-3.1 | 14 | 2 | 1 | 0 | 0 | 17 |
+| DLT-3.2 | 33 | 2 | 0 | 0 | 0 | 35 |
+| DLT-3.3 | 10 | 0 | 0 | 0 | 0 | 10 |
+| DLT-3.4 | 39 | 1 | 0 | 8 | 1 | 49 |
 | DLT-3.5 | 10 | 1 | 0 | 8 | 0 | 19 |
-| DLT-3.6 | 12 | 0 | 1 | 4 | 1 | 18 |
-| DLT-3.7 | 2 | 0 | 2 | 1 | 1 | 6 |
-| DLT-3.8 | 8 | 3 | 1 | 2 | 0 | 14 |
-| DLT-4.1 | 5 | 10 | 0 | 0 | 0 | 15 |
-| DLT-4.2 | 4 | 1 | 1 | 0 | 3 | 9 |
-| DLT-4.3 | 5 | 0 | 0 | 0 | 0 | 5 |
-| DLT-4.4 | 5 | 1 | 0 | 0 | 4 | 10 |
-| DLT-4.5 | 4 | 2 | 1 | 0 | 1 | 8 |
+| DLT-3.6 | 13 | 0 | 1 | 4 | 0 | 18 |
+| DLT-3.7 | 4 | 0 | 1 | 1 | 0 | 6 |
+| DLT-3.8 | 9 | 2 | 1 | 2 | 0 | 14 |
+| DLT-4.1 | 11 | 4 | 0 | 0 | 0 | 15 |
+| DLT-4.2 | 7 | 1 | 1 | 0 | 0 | 9 |
+| DLT-4.3 | 6 | 0 | 0 | 0 | 0 | 6 |
+| DLT-4.4 | 9 | 0 | 0 | 0 | 1 | 10 |
+| DLT-4.5 | 5 | 2 | 1 | 0 | 0 | 8 |
 | DLT-5 | 3 | 0 | 0 | 0 | 0 | 3 |
-| DLT-5.1 | 7 | 4 | 0 | 0 | 6 | 17 |
-| DLT-5.2 | 85 | 12 | 0 | 26 | 2 | 125 |
+| DLT-5.1 | 13 | 4 | 0 | 0 | 0 | 17 |
+| DLT-5.2 | 94 | 3 | 0 | 26 | 2 | 125 |
 | DLT-5.3 | 5 | 0 | 0 | 0 | 0 | 5 |
-| DLT-5.4 | 11 | 0 | 2 | 7 | 0 | 20 |
-| DLT-6.1 | 8 | 1 | 0 | 0 | 0 | 9 |
-| DLT-6.2 | 5 | 1 | 1 | 0 | 3 | 10 |
+| DLT-5.4 | 12 | 0 | 1 | 7 | 0 | 20 |
+| DLT-6.1 | 9 | 0 | 0 | 0 | 0 | 9 |
+| DLT-6.2 | 9 | 0 | 1 | 0 | 0 | 10 |
 | DLT-6.3 | 4 | 0 | 1 | 0 | 0 | 5 |
 | DLT-6.4 | 5 | 0 | 0 | 0 | 0 | 5 |
-| DLT-6.5 | 49 | 3 | 0 | 11 | 7 | 70 |
+| DLT-6.5 | 55 | 4 | 0 | 11 | 0 | 70 |
 | DLT-6.6 | 2 | 1 | 1 | 0 | 1 | 5 |
-| DLT-6.7 | 4 | 1 | 0 | 0 | 4 | 9 |
+| DLT-6.7 | 7 | 0 | 0 | 0 | 2 | 9 |
 | DLT-6.8 | 3 | 0 | 0 | 0 | 0 | 3 |
 | DLT-6.9 | 0 | 0 | 1 | 37 | 0 | 38 |
 | DLT-7.1 | 8 | 1 | 0 | 0 | 0 | 9 |
-| DLT-7.2 | 10 | 2 | 0 | 0 | 1 | 13 |
-| DLT-7.3 | 6 | 2 | 0 | 0 | 0 | 8 |
-| DLT-7.4 | 5 | 0 | 0 | 0 | 1 | 6 |
-| DLT-7.5 | 14 | 1 | 0 | 0 | 0 | 15 |
+| DLT-7.2 | 13 | 0 | 0 | 0 | 0 | 13 |
+| DLT-7.3 | 7 | 1 | 0 | 0 | 0 | 8 |
+| DLT-7.4 | 6 | 0 | 0 | 0 | 0 | 6 |
+| DLT-7.5 | 15 | 0 | 0 | 0 | 0 | 15 |
 | DLT-7.6 | 9 | 0 | 0 | 0 | 0 | 9 |
 | DLT-7.7 | 0 | 0 | 1 | 31 | 0 | 32 |
 | DLT-8 | 3 | 0 | 0 | 0 | 0 | 3 |
 | DLT-8.1 | 8 | 0 | 0 | 0 | 0 | 8 |
-| DLT-8.2 | 17 | 0 | 0 | 0 | 4 | 21 |
+| DLT-8.2 | 21 | 0 | 0 | 0 | 0 | 21 |
 | DLT-8.3 | 5 | 0 | 0 | 0 | 2 | 7 |
-| DLT-8.4 | 5 | 1 | 2 | 0 | 0 | 8 |
-| DLT-8.5 | 29 | 3 | 0 | 0 | 2 | 34 |
-| DLT-8.6 | 17 | 1 | 0 | 1 | 2 | 21 |
-| DLT-8.7 | 19 | 1 | 2 | 0 | 2 | 24 |
+| DLT-8.4 | 7 | 0 | 1 | 0 | 0 | 8 |
+| DLT-8.5 | 34 | 0 | 0 | 0 | 0 | 34 |
+| DLT-8.6 | 20 | 0 | 0 | 0 | 1 | 21 |
+| DLT-8.7 | 23 | 0 | 1 | 0 | 0 | 24 |
 | DLT-8.8 | 0 | 0 | 0 | 43 | 0 | 43 |
 | DLT-9 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-9.1 | 8 | 1 | 0 | 0 | 0 | 9 |
-| DLT-9.2 | 22 | 3 | 2 | 7 | 5 | 39 |
+| DLT-9.1 | 9 | 0 | 0 | 0 | 0 | 9 |
+| DLT-9.2 | 29 | 2 | 1 | 6 | 1 | 39 |
 | DLT-9.3 | 4 | 0 | 0 | 0 | 0 | 4 |
 | DLT-9.4 | 5 | 0 | 0 | 0 | 0 | 5 |
-| DLT-9.5 | 7 | 2 | 3 | 3 | 1 | 16 |
-| DLT-10 | 131 | 24 | 1 | 0 | 10 | 166 |
+| DLT-9.5 | 10 | 2 | 1 | 3 | 0 | 16 |
+| DLT-10 | 160 | 4 | 1 | 0 | 1 | 166 |
 | DLT-11.1 | 7 | 0 | 0 | 0 | 1 | 8 |
 | DLT-11.2 | 10 | 0 | 0 | 0 | 0 | 10 |
-| DLT-11.3 | 8 | 1 | 0 | 0 | 1 | 10 |
+| DLT-11.3 | 10 | 0 | 0 | 0 | 0 | 10 |
 | DLT-11.4 | 4 | 0 | 0 | 0 | 0 | 4 |
 | DLT-11.5 | 12 | 0 | 0 | 0 | 0 | 12 |
 | DLT-11.6 | 0 | 0 | 0 | 8 | 0 | 8 |
 | DLT-12.1 | 11 | 1 | 0 | 0 | 0 | 12 |
-| DLT-12.2 | 39 | 37 | 2 | 34 | 6 | 118 |
+| DLT-12.2 | 61 | 17 | 2 | 34 | 4 | 118 |
 | DLT-12.3 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-12.4 | 29 | 16 | 0 | 32 | 0 | 77 |
+| DLT-12.4 | 37 | 8 | 0 | 32 | 0 | 77 |
 | DLT-12.5 | 3 | 0 | 1 | 0 | 0 | 4 |
-| DLT-12.6 | 26 | 1 | 0 | 18 | 14 | 59 |
-| DLT-12.7 | 15 | 0 | 0 | 4 | 3 | 22 |
+| DLT-12.6 | 36 | 0 | 0 | 18 | 5 | 59 |
+| DLT-12.7 | 18 | 0 | 0 | 4 | 0 | 22 |
 | DLT-12.8 | 40 | 0 | 0 | 6 | 0 | 46 |
-| DLT-12.9 | 0 | 0 | 4 | 47 | 0 | 51 |
+| DLT-12.9 | 0 | 0 | 3 | 48 | 0 | 51 |
 | DLT-13 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-13.1 | 34 | 1 | 1 | 0 | 2 | 38 |
+| DLT-13.1 | 36 | 1 | 1 | 0 | 0 | 38 |
 | DLT-13.2 | 1 | 0 | 0 | 0 | 0 | 1 |
 | DLT-13.3 | 1 | 0 | 0 | 0 | 0 | 1 |
-| DLT-13.4 | 18 | 1 | 0 | 0 | 1 | 20 |
+| DLT-13.4 | 20 | 0 | 0 | 0 | 0 | 20 |
 | DLT-13.5 | 4 | 0 | 0 | 0 | 0 | 4 |
-| DLT-13.6 | 0 | 0 | 5 | 38 | 0 | 43 |
+| DLT-13.6 | 0 | 0 | 2 | 41 | 0 | 43 |
 | DLT-14.1 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-14.2 | 8 | 1 | 0 | 2 | 2 | 13 |
-| DLT-14.3 | 9 | 1 | 2 | 3 | 0 | 15 |
-| DLT-14.4 | 12 | 2 | 0 | 3 | 2 | 19 |
-| DLT-14.5 | 7 | 1 | 0 | 4 | 0 | 12 |
+| DLT-14.2 | 10 | 1 | 0 | 2 | 0 | 13 |
+| DLT-14.3 | 11 | 0 | 1 | 3 | 0 | 15 |
+| DLT-14.4 | 16 | 0 | 0 | 3 | 0 | 19 |
+| DLT-14.5 | 8 | 0 | 0 | 4 | 0 | 12 |
 | DLT-14.6 | 6 | 1 | 0 | 4 | 0 | 11 |
-| DLT-14.7 | 3 | 1 | 0 | 3 | 1 | 8 |
+| DLT-14.7 | 4 | 0 | 0 | 3 | 1 | 8 |
 | DLT-14.8 | 1 | 0 | 0 | 0 | 0 | 1 |
 | DLT-14.9 | 3 | 0 | 1 | 0 | 0 | 4 |
 | DLT-15 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-15.1 | 6 | 0 | 0 | 0 | 1 | 7 |
-| DLT-15.2 | 6 | 0 | 0 | 0 | 5 | 11 |
+| DLT-15.1 | 7 | 0 | 0 | 0 | 0 | 7 |
+| DLT-15.2 | 8 | 0 | 0 | 0 | 3 | 11 |
 | DLT-15.3 | 1 | 0 | 0 | 0 | 0 | 1 |
 | DLT-15.4 | 1 | 0 | 0 | 0 | 0 | 1 |
-| DLT-15.5 | 4 | 0 | 2 | 3 | 1 | 10 |
-| DLT-16 | 3 | 1 | 0 | 0 | 0 | 4 |
+| DLT-15.5 | 5 | 0 | 1 | 3 | 1 | 10 |
+| DLT-16 | 4 | 0 | 0 | 0 | 0 | 4 |
 | DLT-16.1 | 4 | 0 | 0 | 0 | 0 | 4 |
-| DLT-16.2 | 21 | 2 | 0 | 1 | 7 | 31 |
-| DLT-16.3 | 16 | 0 | 0 | 0 | 1 | 17 |
-| DLT-16.4 | 92 | 4 | 0 | 40 | 10 | 146 |
-| DLT-16.5 | 4 | 0 | 0 | 0 | 3 | 7 |
-| DLT-16.6 | 0 | 0 | 3 | 14 | 0 | 17 |
-| DLT-16.7 | 0 | 0 | 6 | 17 | 0 | 23 |
-| DLT-16.8 | 0 | 0 | 2 | 11 | 0 | 13 |
-| DLT-16.9 | 0 | 0 | 2 | 7 | 0 | 9 |
-| DLT-16.10 | 0 | 0 | 2 | 7 | 0 | 9 |
+| DLT-16.2 | 29 | 1 | 0 | 1 | 0 | 31 |
+| DLT-16.3 | 17 | 0 | 0 | 0 | 0 | 17 |
+| DLT-16.4 | 103 | 1 | 0 | 40 | 2 | 146 |
+| DLT-16.5 | 7 | 0 | 0 | 0 | 0 | 7 |
+| DLT-16.6 | 0 | 0 | 1 | 16 | 0 | 17 |
+| DLT-16.7 | 0 | 0 | 2 | 21 | 0 | 23 |
+| DLT-16.8 | 0 | 0 | 1 | 12 | 0 | 13 |
+| DLT-16.9 | 0 | 0 | 1 | 8 | 0 | 9 |
+| DLT-16.10 | 0 | 0 | 1 | 8 | 0 | 9 |
 | DLT-16.11 | 11 | 0 | 0 | 14 | 1 | 26 |
-| DLT-17.1 | 6 | 3 | 0 | 0 | 0 | 9 |
+| DLT-17.1 | 8 | 1 | 0 | 0 | 0 | 9 |
 | DLT-17.2 | 1 | 0 | 0 | 0 | 1 | 2 |
-| DLT-17.3 | 21 | 0 | 0 | 0 | 2 | 23 |
-| DLT-17.4 | 5 | 0 | 0 | 0 | 1 | 6 |
+| DLT-17.3 | 23 | 0 | 0 | 0 | 0 | 23 |
+| DLT-17.4 | 6 | 0 | 0 | 0 | 0 | 6 |
 | DLT-17.5 | 15 | 0 | 0 | 0 | 0 | 15 |
-| DLT-17.6 | 15 | 1 | 0 | 6 | 1 | 23 |
-| DLT-17.7 | 2 | 1 | 0 | 0 | 1 | 4 |
-| DLT-18.1 | 8 | 0 | 0 | 0 | 1 | 9 |
-| DLT-18.2 | 33 | 1 | 0 | 0 | 4 | 38 |
+| DLT-17.6 | 16 | 1 | 0 | 6 | 0 | 23 |
+| DLT-17.7 | 4 | 0 | 0 | 0 | 0 | 4 |
+| DLT-18.1 | 9 | 0 | 0 | 0 | 0 | 9 |
+| DLT-18.2 | 38 | 0 | 0 | 0 | 0 | 38 |
 | DLT-18.3 | 25 | 0 | 0 | 0 | 0 | 25 |
-| DLT-18.4 | 4 | 0 | 2 | 0 | 0 | 6 |
+| DLT-18.4 | 5 | 0 | 1 | 0 | 0 | 6 |
 | DLT-18.5 | 2 | 0 | 0 | 0 | 0 | 2 |
 | DLT-18.6 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-18.7 | 6 | 1 | 0 | 0 | 0 | 7 |
-| DLT-18.8 | 0 | 0 | 14 | 111 | 0 | 125 |
-| DLT-19.1 | 4 | 1 | 0 | 1 | 1 | 7 |
-| DLT-19.2 | 4 | 1 | 0 | 0 | 0 | 5 |
+| DLT-18.7 | 7 | 0 | 0 | 0 | 0 | 7 |
+| DLT-18.8 | 0 | 0 | 6 | 119 | 0 | 125 |
+| DLT-19.1 | 7 | 0 | 0 | 0 | 0 | 7 |
+| DLT-19.2 | 5 | 0 | 0 | 0 | 0 | 5 |
 | DLT-19.3 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-19.4 | 2 | 1 | 0 | 0 | 0 | 3 |
-| DLT-19.5 | 5 | 0 | 1 | 0 | 3 | 9 |
+| DLT-19.4 | 3 | 0 | 0 | 0 | 0 | 3 |
+| DLT-19.5 | 8 | 0 | 1 | 0 | 0 | 9 |
 | DLT-19.6 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-19.7 | 3 | 1 | 0 | 0 | 0 | 4 |
+| DLT-19.7 | 4 | 0 | 0 | 0 | 0 | 4 |
 | DLT-19.8 | 4 | 0 | 0 | 0 | 0 | 4 |
-| DLT-19.9 | 19 | 1 | 0 | 1 | 1 | 22 |
+| DLT-19.9 | 20 | 0 | 0 | 2 | 0 | 22 |
 | DLT-20 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-20.1 | 1 | 0 | 0 | 0 | 3 | 4 |
+| DLT-20.1 | 3 | 0 | 0 | 0 | 1 | 4 |
 | DLT-20.2 | 2 | 0 | 0 | 0 | 0 | 2 |
 | DLT-20.3 | 2 | 0 | 0 | 0 | 0 | 2 |
 | DLT-20.4 | 2 | 0 | 0 | 0 | 0 | 2 |
 | DLT-20.5 | 1 | 0 | 0 | 0 | 0 | 1 |
-| DLT-20.6 | 9 | 1 | 0 | 1 | 2 | 13 |
+| DLT-20.6 | 11 | 0 | 0 | 1 | 1 | 13 |
 | DLT-20.7 | 29 | 0 | 0 | 16 | 3 | 48 |
-| DLT-21.1 | 6 | 7 | 0 | 0 | 0 | 13 |
+| DLT-21.1 | 13 | 0 | 0 | 0 | 0 | 13 |
 | DLT-21.2 | 2 | 0 | 0 | 0 | 0 | 2 |
-| DLT-21.3 | 0 | 15 | 0 | 0 | 0 | 15 |
+| DLT-21.3 | 7 | 8 | 0 | 0 | 0 | 15 |
 | DLT-21.4 | 4 | 0 | 0 | 0 | 0 | 4 |
-| DLT-22.1 | 2 | 19 | 0 | 0 | 0 | 21 |
+| DLT-22.1 | 15 | 6 | 0 | 0 | 0 | 21 |
 | DLT-22.2 | 1 | 0 | 0 | 0 | 1 | 2 |
 | DLT-22.3 | 1 | 0 | 0 | 0 | 1 | 2 |
 | DLT-22.4 | 1 | 0 | 0 | 0 | 1 | 2 |
 | DLT-23 | 6 | 1 | 0 | 0 | 0 | 7 |
-| DLT-24 | 2 | 15 | 0 | 0 | 0 | 17 |
+| DLT-24 | 13 | 4 | 0 | 0 | 0 | 17 |
 | DLT-25.1 | 20 | 5 | 0 | 0 | 0 | 25 |
-| DLT-25.2 | 4 | 6 | 0 | 0 | 0 | 10 |
-| DLT-25.3 | 13 | 1 | 0 | 0 | 1 | 15 |
+| DLT-25.2 | 7 | 3 | 0 | 0 | 0 | 10 |
+| DLT-25.3 | 14 | 0 | 0 | 0 | 1 | 15 |
 | DLT-A | 0 | 0 | 25 | 0 | 0 | 25 |
 | DLT-B | 0 | 0 | 0 | 61 | 0 | 61 |
 | DLT-C | 32 | 0 | 0 | 0 | 0 | 32 |
@@ -195,40 +195,40 @@ DLT-front-P4
 
 ````text
 DLT-1.1-P1
-  <1>1 [def] The dialect is the contract between **front ends** that emit LLVM IR containing calls to `__bennett_*` marker functions and the **plugin** that, at the final link of a whole program, recognises those calls, analyses and normalises the code they reach, and maps it onto the ISA (ISA §1.1).   deps: ISA-1.1
+  <1>1 [req] The dialect is the contract between **front ends** that emit LLVM IR containing calls to `__bennett_*` marker functions and the **plugin** that, at the final link of a whole program, recognises those calls, analyses and normalises the code they reach, and maps it onto the ISA (ISA §1.1).   deps: ISA-1.1
   <1>2 [req] It fixes:
 DLT-1.1-P2
-  <1>1 [unc] the marker ABI, operand encodings and C header (§3);   deps: DLT-3
+  <1>1 [req] the marker ABI, operand encodings and C header (§3);   deps: DLT-3
 DLT-1.1-P3
-  <1>1 [unc] the processing order, execution tiers, polyvariant variants and function addresses (§4);   deps: DLT-2-P7.S2 (variant), DLT-4.4-P1.S1 (function address), DLT-4
+  <1>1 [req] the processing order, execution tiers, polyvariant variants and function addresses (§4);   deps: DLT-2-P7.S2 (variant), DLT-4.4-P1.S1 (function address), DLT-4
 DLT-1.1-P4
   <1>1 [req] the device analysis: points-to, value sets and every question answered from them (§5);   deps: DLT-2-P10.S1 (value set), DLT-5
 DLT-1.1-P5
-  <1>1 [unc] the handle convention, provenance, comparison and collections of handles (§6);   deps: DLT-6
+  <1>1 [req] the handle convention, provenance, comparison and collections of handles (§6);   deps: DLT-6
 DLT-1.1-P6
   <1>1 [req] regions: kinds, candidate sets, dispatch, identity, well-formedness (§7);   deps: DLT-7
 DLT-1.1-P7
   <1>1 [req] the oracle interface: the descriptor, parameter and device bindings, entry state, wide outputs and in-place updates (§8);   deps: DLT-8
 DLT-1.1-P8
-  <1>1 [unc] budgets (§9);   deps: DLT-9
+  <1>1 [req] budgets (§9);   deps: DLT-9
 DLT-1.1-P9
-  <1>1 [unc] taint-driven lifting of classical code under control (§10);   deps: DLT-10
+  <1>1 [req] taint-driven lifting of classical code under control (§10);   deps: DLT-10
 DLT-1.1-P10
-  <1>1 [unc] effects and device models per tier (§11);   deps: DLT-11
+  <1>1 [req] effects and device models per tier (§11);   deps: DLT-11
 DLT-1.1-P11
   <1>1 [req] the materialised normalisation and the residual-poison validator (§12), floating point (§13), calls and control transfer (§14), inline asm and target intrinsics (§15);   deps: DLT-12.2-P34.S1 (floating point), DLT-12, DLT-13, DLT-14, DLT-15
 DLT-1.1-P12
   <1>1 [req] the lifting map from materialised LLVM to ISA objects (§16);   deps: DLT-16
 DLT-1.1-P13
-  <1>1 [unc] the device classical memory model, CC and R lowering rules and fault outcomes (§17);   deps: DLT-2-P7.S1 (CC), DLT-17
+  <1>1 [req] the device classical memory model, CC and R lowering rules and fault outcomes (§17);   deps: DLT-2-P7.S1 (CC), DLT-17
 DLT-1.1-P14
-  <1>1 [unc] a reference semantics from marker programs to the ISA formal model (§18);   deps: DLT-18
+  <1>1 [req] a reference semantics from marker programs to the ISA formal model (§18);   deps: DLT-18
 DLT-1.1-P15
-  <1>1 [unc] the driver's modes and plugin-invocation interface (§19);   deps: DLT-19
+  <1>1 [req] the driver's modes and plugin-invocation interface (§19);   deps: DLT-19
 DLT-1.1-P16
-  <1>1 [unc] the platform profile `riscv64-bennett-virt` (§20);   deps: DLT-20
+  <1>1 [req] the platform profile `riscv64-bennett-virt` (§20);   deps: DLT-20
 DLT-1.1-P17
-  <1>1 [unc] the legality corpus and conformance suites (§21); diagnostics (§22); versioning (§23); deferred mechanics (§24); blockers and ISA items (§25).   deps: DLT-21, DLT-22, DLT-23, DLT-24, DLT-25
+  <1>1 [req] the legality corpus and conformance suites (§21); diagnostics (§22); versioning (§23); deferred mechanics (§24); blockers and ISA items (§25).   deps: DLT-21, DLT-22, DLT-23, DLT-24, DLT-25
 DLT-1.1-P18
   <1>1 [req] It does not fix the plugin's optimisation pipeline after normalisation, the plugin's device objects beyond the constraints of §18.7, or any format the ISA owns.   deps: DLT-18.7
 ````
@@ -259,10 +259,10 @@ DLT-1.2-P7
 DLT-1.3-P1
   <1>1 [req] The ISA is settled; this document never redefines it.
   <1>2 [req] Every ISA notion used here (tiers, wires, `qreg` handles, oracles, actions, permutation actions, lprocs, F_B, budgets, tokens, fault codes, the reference interpreter, interface and closure hashes, layouts, the launch ABI) has exactly the meaning ISA §2–§17 give it.   deps: DLT-2-P3.S2 (wire), ISA-2, ISA-3, ISA-4, ISA-5, ISA-6, ISA-7, ISA-8, ISA-9, ISA-10, ISA-11, ISA-12, ISA-13, ISA-14, ISA-15, ISA-16, ISA-17
-  <1>3 [def] Where the dialect needs a construct ISA 0.8 lacks, this document states (a) the full dialect mechanism, (b) its realisation on ISA 0.8 where one exists, which may be a longer construction (an **efficiency item**, §25.3), and (c) otherwise a **blocker** (§25.1) naming the exact ISA change.   deps: DLT-25.3, DLT-25.1
-    <2>1 [def] (a) the full dialect mechanism
+  <1>3 [req] Where the dialect needs a construct ISA 0.8 lacks, this document states (a) the full dialect mechanism, (b) its realisation on ISA 0.8 where one exists, which may be a longer construction (an **efficiency item**, §25.3), and (c) otherwise a **blocker** (§25.1) naming the exact ISA change.   deps: DLT-25.3, DLT-25.1
+    <2>1 [req] (a) the full dialect mechanism
     <2>2 [req] (b) its realisation on ISA 0.8 where one exists, which may be a longer construction (an **efficiency item**, §25.3)   deps: DLT-25.3
-    <2>3 [def] (c) otherwise a **blocker** (§25.1) naming the exact ISA change.   deps: DLT-25.1
+    <2>3 [req] (c) otherwise a **blocker** (§25.1) naming the exact ISA change.   deps: DLT-25.1
   <1>4 [req] The dialect never shrinks to fit the ISA and never extends the ISA unilaterally.
 ````
 
@@ -299,14 +299,14 @@ DLT-1.5-P1
 DLT-1.5-P2
   <1>1 [def] **Process rules** (also in `spec/README.md`):
 DLT-1.5-P3
-  <1>1 [def] **P-1.** Every mechanism rule id (the steps S1–S9, rules N1–N35, V1–V16, TDL-1–TDL-12, the points-to rules PT1–PT12, the binding kinds of §8.2, the transforms of §14, the map rows of §16.4) has at least one checked `accept` example; every compile-time rejection of §22.1 has one `reject` example; every blocker of §25.1 has one `blocked` example.   deps: DLT-4.1-P2.S1 (S1), DLT-4.1-P3.S1 (S2), DLT-4.1-P4.S1 (S3), DLT-4.1-P5.S1 (S4), DLT-4.1-P6.S1 (S5), DLT-4.1-P7.S1 (S6), DLT-4.1-P8.S1 (S7), DLT-4.1-P9.S1 (S8), DLT-4.1-P10.S1 (S9), DLT-12.2-P3.S1 (N1), DLT-12.2-P4.S1 (N2), DLT-12.2-P5.S1 (N3), DLT-12.2-P6.S1 (N4), DLT-12.2-P7.S1 (N5), DLT-12.2-P8.S1 (N6), DLT-12.2-P9.S1 (N7), DLT-12.2-P10.S1 (N8), DLT-12.2-P11.S1 (N9), DLT-12.2-P12.S1 (N10), DLT-12.2-P13.S1 (N11), DLT-12.2-P14.S1 (N12), DLT-12.2-P15.S1 (N13), DLT-12.2-P16.S1 (N14), DLT-12.2-P17.S1 (N15), DLT-12.2-P18.S1 (N16), DLT-12.2-P19.S1 (N17), DLT-12.2-P20.S1 (N18), DLT-12.2-P21.S1 (N19), DLT-12.2-P22.S1 (N20), DLT-12.2-P23.S1 (N21), DLT-12.2-P24.S1 (N22), DLT-12.2-P25.S1 (N23), DLT-12.2-P26.S1 (N24), DLT-12.2-P27.S1 (N25), DLT-12.2-P28.S1 (N26), DLT-12.2-P29.S1 (N27), DLT-12.2-P30.S1 (N28), DLT-12.2-P31.S1 (N29), DLT-12.2-P32.S1 (N30), DLT-12.2-P33.S1 (N31), DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33), DLT-12.2-P36.S1 (N34), DLT-12.2-P37.S1 (N35), DLT-12.4-P2.S1 (V1), DLT-12.4-P3.S1 (V2), DLT-12.4-P4.S1 (V3), DLT-12.4-P5.S1 (V4), DLT-12.4-P6.S1 (V5), DLT-12.4-P7.S1 (V6), DLT-12.4-P8.S1 (V7), DLT-12.4-P9.S1 (V8), DLT-12.4-P10.S1 (V9), DLT-12.4-P11.S1 (V10), DLT-12.4-P12.S1 (V11), DLT-12.4-P13.S1 (V12), DLT-12.4-P14.S1 (V13), DLT-12.4-P15.S1 (V14), DLT-12.4-P16.S1 (V15), DLT-12.4-P17.S1 (V16), DLT-10-P2.S1 (TDL-1), DLT-10-P3.S1 (TDL-2), DLT-10-P14.S1 (TDL-3), DLT-10-P19.S1 (TDL-4), DLT-10-P25.S1 (TDL-5), DLT-10-P34.S1 (TDL-6), DLT-10-P35.S1 (TDL-7), DLT-10-P36.S1 (TDL-8), DLT-10-P37.S1 (TDL-9), DLT-10-P38.S1 (TDL-10), DLT-10-P43.S1 (TDL-11), DLT-10-P47.S1 (TDL-12), DLT-5.2-P2.S1 (PT1), DLT-5.2-P3.S1 (PT2), DLT-5.2-P4.S1 (PT3), DLT-5.2-P5.S1 (PT4), DLT-5.2-P6.S1 (PT5), DLT-5.2-P7.S1 (PT6), DLT-5.2-P8.S1 (PT7), DLT-5.2-P9.S1 (PT8), DLT-5.2-P10.S1 (PT9), DLT-5.2-P11.S1 (PT10), DLT-5.2-P12.S1 (PT11), DLT-5.2-P13.S1 (PT12), DLT-8.2, DLT-14, DLT-16.4, DLT-22.1, DLT-25.1
+  <1>1 [req] **P-1.** Every mechanism rule id (the steps S1–S9, rules N1–N35, V1–V16, TDL-1–TDL-12, the points-to rules PT1–PT12, the binding kinds of §8.2, the transforms of §14, the map rows of §16.4) has at least one checked `accept` example; every compile-time rejection of §22.1 has one `reject` example; every blocker of §25.1 has one `blocked` example.   deps: DLT-4.1-P2.S1 (S1), DLT-4.1-P3.S1 (S2), DLT-4.1-P4.S1 (S3), DLT-4.1-P5.S1 (S4), DLT-4.1-P6.S1 (S5), DLT-4.1-P7.S1 (S6), DLT-4.1-P8.S1 (S7), DLT-4.1-P9.S1 (S8), DLT-4.1-P10.S1 (S9), DLT-12.2-P3.S1 (N1), DLT-12.2-P4.S1 (N2), DLT-12.2-P5.S1 (N3), DLT-12.2-P6.S1 (N4), DLT-12.2-P7.S1 (N5), DLT-12.2-P8.S1 (N6), DLT-12.2-P9.S1 (N7), DLT-12.2-P10.S1 (N8), DLT-12.2-P11.S1 (N9), DLT-12.2-P12.S1 (N10), DLT-12.2-P13.S1 (N11), DLT-12.2-P14.S1 (N12), DLT-12.2-P15.S1 (N13), DLT-12.2-P16.S1 (N14), DLT-12.2-P17.S1 (N15), DLT-12.2-P18.S1 (N16), DLT-12.2-P19.S1 (N17), DLT-12.2-P20.S1 (N18), DLT-12.2-P21.S1 (N19), DLT-12.2-P22.S1 (N20), DLT-12.2-P23.S1 (N21), DLT-12.2-P24.S1 (N22), DLT-12.2-P25.S1 (N23), DLT-12.2-P26.S1 (N24), DLT-12.2-P27.S1 (N25), DLT-12.2-P28.S1 (N26), DLT-12.2-P29.S1 (N27), DLT-12.2-P30.S1 (N28), DLT-12.2-P31.S1 (N29), DLT-12.2-P32.S1 (N30), DLT-12.2-P33.S1 (N31), DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33), DLT-12.2-P36.S1 (N34), DLT-12.2-P37.S1 (N35), DLT-12.4-P2.S1 (V1), DLT-12.4-P3.S1 (V2), DLT-12.4-P4.S1 (V3), DLT-12.4-P5.S1 (V4), DLT-12.4-P6.S1 (V5), DLT-12.4-P7.S1 (V6), DLT-12.4-P8.S1 (V7), DLT-12.4-P9.S1 (V8), DLT-12.4-P10.S1 (V9), DLT-12.4-P11.S1 (V10), DLT-12.4-P12.S1 (V11), DLT-12.4-P13.S1 (V12), DLT-12.4-P14.S1 (V13), DLT-12.4-P15.S1 (V14), DLT-12.4-P16.S1 (V15), DLT-12.4-P17.S1 (V16), DLT-10-P2.S1 (TDL-1), DLT-10-P3.S1 (TDL-2), DLT-10-P14.S1 (TDL-3), DLT-10-P19.S1 (TDL-4), DLT-10-P25.S1 (TDL-5), DLT-10-P34.S1 (TDL-6), DLT-10-P35.S1 (TDL-7), DLT-10-P36.S1 (TDL-8), DLT-10-P37.S1 (TDL-9), DLT-10-P38.S1 (TDL-10), DLT-10-P43.S1 (TDL-11), DLT-10-P47.S1 (TDL-12), DLT-5.2-P2.S1 (PT1), DLT-5.2-P3.S1 (PT2), DLT-5.2-P4.S1 (PT3), DLT-5.2-P5.S1 (PT4), DLT-5.2-P6.S1 (PT5), DLT-5.2-P7.S1 (PT6), DLT-5.2-P8.S1 (PT7), DLT-5.2-P9.S1 (PT8), DLT-5.2-P10.S1 (PT9), DLT-5.2-P11.S1 (PT10), DLT-5.2-P12.S1 (PT11), DLT-5.2-P13.S1 (PT12), DLT-8.2, DLT-14, DLT-16.4, DLT-22.1, DLT-25.1
   <1>2 [req] Appendix B is the index, and the checker derives it from the text: a rule id with no example fails the check.
 DLT-1.5-P4
-  <1>1 [def] **P-2.** An example that the checker cannot yet execute **fails** the check with `checker-unimplemented: <capability>`.
+  <1>1 [req] **P-2.** An example that the checker cannot yet execute **fails** the check with `checker-unimplemented: <capability>`.
   <1>2 [req] It is never skipped, and this document never removes or weakens an example to make the checker pass.
   <1>3 [req] The freeze gate is an all-green check.
 DLT-1.5-P5
-  <1>1 [def] **P-3.** Every executed result comes from an independent executor: LLVM tools, natively built binaries, or the Rust ISA reference interpreter `bennett-isa-ref`.
+  <1>1 [req] **P-3.** Every executed result comes from an independent executor: LLVM tools, natively built binaries, or the Rust ISA reference interpreter `bennett-isa-ref`.
   <1>2 [req] Python computes only *expected* artefacts (recogniser verdicts, normaliser output, map output, TDL events), and is never both producer and judge of one example.
 DLT-1.5-P6
   <1>1 [def] Every fenced block whose info string starts with `llvm`, `isa`, `c`, `rust`, `julia`, `json` or `text` followed by a tag below is a **checked example**.
@@ -351,7 +351,7 @@ DLT-1.5-P24
   <1>1 [req] `c example=ID`, `rust example=ID`, `julia example=ID` | a source file compiled by the toolchains of `corpus/legality/toolchains.toml` (`clang -O2 -flto` on 18, 20, 23, with `-I spec`; with `rmode=` against the `bennett-runtimes` musl sysroot, for which the checker's seeds stand in; `rustc --emit=llvm-bc`; Julia `code_llvm`) and then `lto<O3>`; the result is recognised with verdict `verdict=V` | `frontend`, `recognise`
 DLT-1.5-P25
   <1>1 [req] A module example that calls a marker or a primitive without declaring it implicitly contains its declaration (§3.2, §3.1).   deps: DLT-3.2, DLT-3.1
-  <1>2 [def] **Section references**: `§n` is a section of this document, `ISA §n` of the ISA specification, `NS §n` of `Bennett-NorthStar.md`; a reference that continues a list (`ISA §4.7, §5.3`) names the same document as the reference before it.   deps: ISA-4.7, ISA-5.3
+  <1>2 [req] **Section references**: `§n` is a section of this document, `ISA §n` of the ISA specification, `NS §n` of `Bennett-NorthStar.md`; a reference that continues a list (`ISA §4.7, §5.3`) names the same document as the reference before it.   deps: ISA-4.7, ISA-5.3
   <1>3 [req] Fenced blocks without a tag are illustrations and are non-normative; an `llvm` or `isa` block without a tag is an error of this document.
 ````
 
@@ -363,7 +363,7 @@ DLT-1.6-P1
 DLT-1.6-P2
   <1>1 [req] `accept`: the plugin produces its objects;
 DLT-1.6-P3
-  <1>1 [unc] `reject:<code>`: a compile-time rejection of §22.1.   deps: DLT-22.1
+  <1>1 [req] `reject:<code>`: a compile-time rejection of §22.1.   deps: DLT-22.1
   <1>2 [req] The plugin MUST fail the compilation (nonzero exit, no output object) and report at least the first diagnostic in the processing order of §4.1;   deps: DLT-4.1
 DLT-1.6-P4
   <1>1 [req] `blocked:<code>`: the module is accepted by the dialect, but at least one program point needs a capability that ISA 0.8 cannot express (§25.1).   deps: DLT-25.1
@@ -410,7 +410,7 @@ DLT-2-P8
 DLT-2-P9
   <1>1 [def] **Function address** A(F): the address of F in the driver's comparison link (§4.4).   deps: DLT-4.4-P1.S1 (comparison link), DLT-4.4
 DLT-2-P10
-  <1>1 [def] **Abstract object**, **slot**, **value set**: §5. ⊤ is the unbounded value set.   deps: DLT-5
+  <1>1 [req] **Abstract object**, **slot**, **value set**: §5. ⊤ is the unbounded value set.   deps: DLT-5
 DLT-2-P11
   <1>1 [def] **Descriptor**: the in-memory oracle interface record of §8.1.   deps: DLT-8.1
   <1>2 [def] **Binding**: one parameter or device entry of a descriptor.
@@ -426,7 +426,7 @@ DLT-2-P13
 DLT-2-P14
   <1>1 [def] **Device model**: one of `console`, `clock`, `entropy`, `block` (ISA §7.3), realised per tier by §11.   deps: ISA-7.3, DLT-11
 DLT-2-P15
-  <1>1 [def] **Coverage classes** (ISA §13): **lowered** (the construct has an ISA realisation), **shimmed** (it is replaced by a runtime or platform shim with a recorded `shim_hash`), **trapped** (it faults with code 8, `FAULT_EFFECT_UNMODELLED`, on the executions that reach it, and has a coverage line).   deps: ISA-13
+  <1>1 [req] **Coverage classes** (ISA §13): **lowered** (the construct has an ISA realisation), **shimmed** (it is replaced by a runtime or platform shim with a recorded `shim_hash`), **trapped** (it faults with code 8, `FAULT_EFFECT_UNMODELLED`, on the executions that reach it, and has a coverage line).   deps: ISA-13
 DLT-2-P16
   <1>1 [def] **Driver mode**: one of the invocation modes of §19.2–§19.7.   deps: DLT-19.2, DLT-19.3, DLT-19.4, DLT-19.5, DLT-19.6, DLT-19.7
   <1>2 [def] **Platform profile**: §20.   deps: DLT-20
@@ -453,10 +453,10 @@ DLT-3.1-P5
   <1>1 [req] `__bennett_dev_` | `bennett-runtimes` bitcode: device-model entry points and device state (§11.3) | the plugin's L lowering of effect markers and runtimes bitcode   deps: DLT-11.3-P1.S2 (device state), DLT-11.3
 DLT-3.1-P6
   <1>1 [req] The primitives are exactly:
-  <1>2 [ex] (code block, 5 lines) declare void @__bennett_nz_fault(i64 %code) ; fault with code C (§12.3)   deps: DLT-12.3, DLT-17.1
+  <1>2 [req] (code block, 5 lines) declare void @__bennett_nz_fault(i64 %code) ; fault with code C (§12.3)   deps: DLT-12.3, DLT-17.1
 DLT-3.1-P7
   <1>1 [def] A **producer input** is a bitcode file given to the driver other than `bennett-runtimes` and `bennett-arith` bitcode.
-  <1>2 [unc] A producer input:   deps: DLT-3.1-P7.S1 (producer input)
+  <1>2 [def] A producer input:   deps: DLT-3.1-P7.S1 (producer input)
 DLT-3.1-P8
   <1>1 [req] MUST NOT define (`define`) a function whose name is a marker or a reserved name (`BD-E-MARKER-DEFINED`);   deps: DLT-22.1-P3.S1 (BD-E-MARKER-DEFINED)
 DLT-3.1-P9
@@ -475,7 +475,7 @@ DLT-3.1-P11
 ````text
 DLT-3.2-P1
   <1>1 [req] The normative IR signatures (return type, name, parameter types; parameter names are documentation):
-  <1>2 [ex] (code block, 25 lines) declare ptr @__bennett_qalloc(i64 %cls, i64 %n)
+  <1>2 [req] (code block, 25 lines) declare ptr @__bennett_qalloc(i64 %cls, i64 %n)
 DLT-3.2-P2
   <1>1 [req] Operand roles, by marker (positions are 0-based).
   <1>2 [req] "Dispatched" operands are classical values whose value set (§5.3) selects among compiled alternatives (§3.4); "memory" operands point into classical memory.   deps: DLT-2-P10.S1 (value set), DLT-5.3, DLT-3.4
@@ -525,7 +525,7 @@ DLT-3.2-P23
 DLT-3.2-P24
   <1>1 [def] **Meaning in brief** (the rules are in the sections named):
 DLT-3.2-P25
-  <1>1 [unc] `qprep(h, src, n)`: for every k < n and j < 8, wire 8k + j of h ⊕= bit j of byte `src[k]`; n ≤ n(h)/8 (else `T-SIZE`).   deps: DLT-2-P3.S2 (wire)
+  <1>1 [def] `qprep(h, src, n)`: for every k < n and j < 8, wire 8k + j of h ⊕= bit j of byte `src[k]`; n ≤ n(h)/8 (else `T-SIZE`).   deps: DLT-2-P3.S2 (wire)
   <1>2 [req] A copy when h is clean; self-inverse.
   <1>3 [req] It is how data "fixed classically before entry" (NS §4.2, §8 rung 4) reaches a register (§8.5, §17.4); one `gate` per set bit would need about 1.3·10^8 marker calls for the rung-4 image.   deps: DLT-2-P3.S1 (register), DLT-10-P18.S1 (marker calls), DLT-8.5, DLT-17.4
 DLT-3.2-P26
@@ -533,7 +533,7 @@ DLT-3.2-P26
   <1>2 [req] It is the only way superposed classical memory reaches classical code (NS §4.2: "outputs leave through measurement after exit").
   <1>3 [req] On Cl bytes it does nothing.
 DLT-3.2-P27
-  <1>1 [unc] the effect markers: one per ISA device-model operation (ISA §7.3), realised per tier by §11.   deps: ISA-7.3, DLT-11
+  <1>1 [req] the effect markers: one per ISA device-model operation (ISA §7.3), realised per tier by §11.   deps: ISA-7.3, DLT-11
   <1>2 [req] `bennett-runtimes` calls them from its musl, Julia and platform shims; ordinary programs may call them directly.
 ````
 
@@ -543,17 +543,17 @@ DLT-3.2-P27
 DLT-3.3-P1
   <1>1 [req] `spec/bennett_markers.h` is the normative C and C++ header.
   <1>2 [req] Its prototypes (in C++ each carries `noexcept`, which makes clang add `nounwind`, a permitted attribute, and emit `call` rather than `invoke`):
-  <1>3 [ex] (code block, 25 lines) bennett_q __bennett_qalloc(uint64_t cls, uint64_t n) BENNETT_NOEXCEPT;
+  <1>3 [req] (code block, 25 lines) bennett_q __bennett_qalloc(uint64_t cls, uint64_t n) BENNETT_NOEXCEPT;
 DLT-3.3-P2
   <1>1 [req] The header also defines:
 DLT-3.3-P3
-  <1>1 [unc] `typedef struct bennett_q_opaque *bennett_q;` and `typedef void (*bennett_region)(void *env);`;
+  <1>1 [req] `typedef struct bennett_q_opaque *bennett_q;` and `typedef void (*bennett_region)(void *env);`;
 DLT-3.3-P4
   <1>1 [req] `bennett_budget` (§9.1), `bennett_bind`, `bennett_devbind` and `bennett_oracle_desc` (§8.1), and the macros `BENNETT_ORACLE_DESC(NP, ND)`, `BENNETT_ORACLE_DESC_P(NP)` and `BENNETT_ORACLE_DESC_D(ND)` that declare a descriptor with NP ≥ 1 parameter bindings and ND ≥ 1 device bindings, parameters only, or devices only;   deps: DLT-9.1, DLT-8.1
 DLT-3.3-P5
   <1>1 [req] `bennett_oracle_desc_init(d, np, nd, tgt, fault)` and `bennett_bind_set(b, kind, mode, q, value, size)`, macros that set the fields by plain stores, so that producers build descriptors by constant stores (§8.1);   deps: DLT-8.1
 DLT-3.3-P6
-  <1>1 [unc] the operation codes of §3.4 and the constants of §8 and §9.   deps: DLT-3.4, DLT-8, DLT-9
+  <1>1 [req] the operation codes of §3.4 and the constants of §8 and §9.   deps: DLT-3.4, DLT-8, DLT-9
 DLT-3.3-P7
   <1>1 [req] Clang lowers C `bool` to `zeroext i1`, which §3.6 admits.   deps: DLT-3.6
   <1>2 [req] The checker compiles the header with clang 18, 20 and 23 and compares every prototype's IR signature with §3.2.   deps: DLT-3.2
@@ -599,7 +599,7 @@ DLT-3.4-P17
   <1>2 [req] The realisations are exact including global phase, so Z and Y stay exact under control.
 DLT-3.4-P18
   <1>1 [req] **Classes** (`cls`). `cls` = 0 denotes the ISA class `any` (ISA §4.3).   deps: ISA-4.3
-  <1>2 [def] `cls` = k ≥ 1 denotes entry k (1-based) of the link's **class-name table**: the names of the module flags `!"bennett.classes"` (behaviour `AppendUnique`, a list of strings) of every input, in order of first appearance in the driver's link order, followed by the names given with `--bennett-class=<name>` (§19.9) that are not already present.   deps: DLT-19.9
+  <1>2 [req] `cls` = k ≥ 1 denotes entry k (1-based) of the link's **class-name table**: the names of the module flags `!"bennett.classes"` (behaviour `AppendUnique`, a list of strings) of every input, in order of first appearance in the driver's link order, followed by the names given with `--bennett-class=<name>` (§19.9) that are not already present.   deps: DLT-19.9
   <1>3 [req] The driver writes the table into the object's class references (ISA §4.3 `qalloc cls n`, §3.3 `qreg.new cls n`); a name the target does not declare is an ISA load error (ISA §8.3 `classes`), not a dialect error.   deps: ISA-4.3, DLT-3.3, ISA-8.3
 DLT-3.4-P19
   <1>1 [unc] **Width** (`n`): the number of qubits, ≥ 1.
@@ -608,7 +608,7 @@ DLT-3.4-P19
 DLT-3.4-P20
   <1>1 [req] **Constant and run-time operands.** A dispatched operand (role table, §3.2) is classical data.   deps: DLT-3.2
   <1>2 [req] Its value set VS(v) is computed by §5.3.   deps: DLT-2-P10.S1 (value set), DLT-5.3
-  <1>3 [def] The plugin compiles one alternative per member of the **dispatch domain** and selects among them at run time with the compare tree of §14.2:   deps: DLT-14.2
+  <1>3 [req] The plugin compiles one alternative per member of the **dispatch domain** and selects among them at run time with the compare tree of §14.2:   deps: DLT-14.2
 DLT-3.4-P21
   <1>1 [req] `op`: the dispatch domain is VS(op) when it is finite, else the marker's whole code table.   deps: DLT-3.4-P20.S3 (dispatch domain)
   <1>2 [req] A run-time value outside the table traps (`T-OP`).
@@ -684,7 +684,7 @@ DLT-3.6-P1
 DLT-3.6-P2
   <1>1 [req] Every attribute, keyword and calling convention on a marker declaration or marker call site is in exactly one of three lists:   deps: DLT-3.5-P1.S1 (marker call)
 DLT-3.6-P3
-  <1>1 [unc] **Forbidden** (`BD-E-MARKER-ATTRIBUTE`): attributes that license motion or elimination: `memory(...)` in any form, `readnone`, `readonly`, `writeonly`, `argmemonly`, `inaccessiblememonly`, `inaccessiblemem_or_argmemonly`, `willreturn`, `speculatable`, `noreturn`, `returned`, `nocapture`, `captures(...)`, `dereferenceable(...)`, `dereferenceable_or_null(...)`, `align`, `nofpclass(...)`, `byval`, `sret`, `writable`, `initializes(...)`, `dead_on_unwind`, `nosync`, `nofree`, `norecurse`, `mustprogress`, `musttail`, any non-default calling convention, `extern_weak` linkage.   deps: DLT-22.1-P7.S1 (BD-E-MARKER-ATTRIBUTE)
+  <1>1 [req] **Forbidden** (`BD-E-MARKER-ATTRIBUTE`): attributes that license motion or elimination: `memory(...)` in any form, `readnone`, `readonly`, `writeonly`, `argmemonly`, `inaccessiblememonly`, `inaccessiblemem_or_argmemonly`, `willreturn`, `speculatable`, `noreturn`, `returned`, `nocapture`, `captures(...)`, `dereferenceable(...)`, `dereferenceable_or_null(...)`, `align`, `nofpclass(...)`, `byval`, `sret`, `writable`, `initializes(...)`, `dead_on_unwind`, `nosync`, `nofree`, `norecurse`, `mustprogress`, `musttail`, any non-default calling convention, `extern_weak` linkage.   deps: DLT-22.1-P7.S1 (BD-E-MARKER-ATTRIBUTE)
   <1>2 [non] *(non-normative)* The first eight are the spike's L2 forbidden set; `noreturn` would delete the code after a marker; `returned` would replace a marker result by an argument; the parameter-effect attributes would let LLVM move stores to an environment across a region call; `dereferenceable` would let it speculate loads through a handle.   deps: DLT-21.1-P3.S1 (L2)
 DLT-3.6-P4
   <1>1 [req] **Benign** (ignored): function position `nounwind`, `nonlazybind`, `uwtable` (any form), `strictfp`, `cold`, `hot`, `nomerge`, `noinline`, `convergent`, `builtin`, `nobuiltin`, `optsize`, `minsize`, `optnone`, and every string attribute; return and parameter position `noundef`, `nonnull`, `range(...)`, `zeroext`, `signext`; declaration linkage and keywords external linkage, `dso_local`, `dso_preemptable`, `unnamed_addr`, `local_unnamed_addr`, any visibility; call-site keywords `tail`, `notail`; instruction metadata of any kind.
@@ -711,8 +711,8 @@ DLT-3.7-P1
   <1>1 [req] Markers never unwind.   deps: DLT-2-P1.S1 (Marker)
   <1>2 [req] Before any other analysis (§4.1 step S1) the plugin rewrites every `invoke` of a marker into a `call` with the same operands followed by `br label %normal`, removes the invoking block from the phi nodes of the unwind destination, and then deletes every block not reachable from the function's entry.   deps: DLT-4.1-P2.S1 (S1), DLT-4.1
   <1>3 [non] *(non-normative)* This is Enzyme's practice (enzyme survey §1.1); C++ with `-fexceptions` and Rust `extern "C-unwind"` produce such invokes (emission summary item 3).   deps: DLT-1.1
-  <1>4 [unc] Front ends SHOULD declare markers non-unwinding (`noexcept`, Rust `extern "C"`).
-  <1>5 [non] Unwinding through every other call of device code is the explicit-propagation transform of §14.4; 0.1's `BD-E-EH` is deleted.   deps: DLT-14.4
+  <1>4 [req] Front ends SHOULD declare markers non-unwinding (`noexcept`, Rust `extern "C"`).
+  <1>5 [req] Unwinding through every other call of device code is the explicit-propagation transform of §14.4; 0.1's `BD-E-EH` is deleted.   deps: DLT-14.4
   <1>6 [ex] (code block, 18 lines) declare i32 @__gxx_personality_v0(...)
 ````
 
@@ -734,7 +734,7 @@ DLT-3.8-P3
 DLT-3.8-P4
   <1>1 [def] **Descriptors and budget records** are built by plain stores into an `alloca` or global (C: the header macros; Rust: `#[repr(C)]` structs; Julia: `Ref` of an `isbits` struct), which survive `default<O3>` as constant stores that §5.3 reads (corpus cases, §21.2).   deps: DLT-5.3, DLT-21.2
 DLT-3.8-P5
-  <1>1 [def] **Source effect lies** (spike F5). A device function definition carrying any of `memory(none)`, `memory(read)` (any `memory(...)` whose effects exclude a write to any location), `readnone`, `readonly`, `willreturn` or `speculatable`, from which a marker call is reachable through the call graph of §4.1 (the function itself included), is `BD-E-EFFECT-LIE`.   deps: DLT-22.1-P9.S1 (BD-E-EFFECT-LIE), DLT-3.5-P1.S1 (marker call), DLT-4.1-P12.S1 (call graph), DLT-4.1
+  <1>1 [req] **Source effect lies** (spike F5). A device function definition carrying any of `memory(none)`, `memory(read)` (any `memory(...)` whose effects exclude a write to any location), `readnone`, `readonly`, `willreturn` or `speculatable`, from which a marker call is reachable through the call graph of §4.1 (the function itself included), is `BD-E-EFFECT-LIE`.   deps: DLT-22.1-P9.S1 (BD-E-EFFECT-LIE), DLT-3.5-P1.S1 (marker call), DLT-4.1-P12.S1 (call graph), DLT-4.1
   <1>2 [non] *(non-normative)* LLVM cannot infer these attributes for a function that reaches an unknown external call, so they come from the source; the front end's own optimiser may already have deleted marker calls on their strength, which is why this is a diagnostic and not a guarantee (definedness assumption, NS §3.2).   deps: DLT-10-P18.S1 (marker calls)
   <1>3 [ex] (code block, 11 lines) @jlplt___bennett_gate_528_got = external global ptr #0   deps: DLT-22.1-P8.S1 (BD-E-JULIA-CCALL)
   <1>4 [ex] (code block, 15 lines) define internal void @kick(ptr %h) #0 {   deps: DLT-22.1-P9.S1 (BD-E-EFFECT-LIE)
@@ -746,28 +746,28 @@ DLT-3.8-P5
 DLT-4.1-P1
   <1>1 [req] A plugin processes the whole-program module (after the driver's link and post-link pipeline, §19.1) in this order; the first failing rule gives the verdict (§1.6):   deps: DLT-19.1, DLT-1.6
 DLT-4.1-P2
-  <1>1 [def] S1 | §3.1 reserved names; §3.5 recognition; §3.6 attributes; §3.8 Julia check; §3.7 marker invokes; §3.8 effect lies; §19.9 version checks   deps: DLT-3.1, DLT-3.5, DLT-3.6, DLT-3.8, DLT-3.7, DLT-19.9
+  <1>1 [req] S1 | §3.1 reserved names; §3.5 recognition; §3.6 attributes; §3.8 Julia check; §3.7 marker invokes; §3.8 effect lies; §19.9 version checks   deps: DLT-3.1, DLT-3.5, DLT-3.6, DLT-3.8, DLT-3.7, DLT-19.9
 DLT-4.1-P3
-  <1>1 [def] S2 | the device analysis (§5): one fixpoint for points-to, value sets, region candidates (§7.2), indirect-call candidates (§14.2), handle provenance (§6.2) and descriptor kinds (§8.4)   deps: DLT-2-P10.S1 (value set), DLT-5, DLT-7.2, DLT-14.2, DLT-6.2, DLT-8.4
+  <1>1 [req] S2 | the device analysis (§5): one fixpoint for points-to, value sets, region candidates (§7.2), indirect-call candidates (§14.2), handle provenance (§6.2) and descriptor kinds (§8.4)   deps: DLT-2-P10.S1 (value set), DLT-5, DLT-7.2, DLT-14.2, DLT-6.2, DLT-8.4
 DLT-4.1-P4
-  <1>1 [def] S3 | tier assignment and variants (§4.2–§4.4); calls out of the device program (§4.5)   deps: DLT-2-P7.S2 (variant), DLT-4.2, DLT-4.3, DLT-4.4, DLT-4.5
+  <1>1 [req] S3 | tier assignment and variants (§4.2–§4.4); calls out of the device program (§4.5)   deps: DLT-2-P7.S2 (variant), DLT-4.2, DLT-4.3, DLT-4.4, DLT-4.5
 DLT-4.1-P5
   <1>1 [def] S4 | handle rules (§6)   deps: DLT-6
 DLT-4.1-P6
   <1>1 [def] S5 | region well-formedness (§7.5)   deps: DLT-7.5
 DLT-4.1-P7
-  <1>1 [def] S6 | the TDL partition and the may-Co analysis (§10)   deps: DLT-10
+  <1>1 [req] S6 | the TDL partition and the may-Co analysis (§10)   deps: DLT-10
 DLT-4.1-P8
   <1>1 [def] S7 | normalisation of every device variant (§12) and the residual-poison validator (§12.4); dispatch domains (§3.4)   deps: DLT-2-P7.S2 (variant), DLT-3.4-P20.S3 (dispatch domain), DLT-12, DLT-12.4, DLT-3.4
 DLT-4.1-P9
   <1>1 [def] S8 | lifting (§16) of every oracle shape and coherent slice; in-place verification (§8.7)   deps: DLT-16, DLT-8.7
 DLT-4.1-P10
-  <1>1 [def] S9 | lowering to ISA objects (§17; plugin-defined, constrained by §18.7); blocker reports (§25.1)   deps: DLT-17, DLT-18.7, DLT-25.1
+  <1>1 [req] S9 | lowering to ISA objects (§17; plugin-defined, constrained by §18.7); blocker reports (§25.1)   deps: DLT-17, DLT-18.7, DLT-25.1
 DLT-4.1-P11
   <1>1 [req] Within a step, rules apply in the order listed; within a rule, to instructions in module text order.
   <1>2 [req] Blocker reports are collected during S2–S8 and issued in S9 in that order.   deps: DLT-4.1-P3.S1 (S2), DLT-4.1-P4.S1 (S3), DLT-4.1-P5.S1 (S4), DLT-4.1-P6.S1 (S5), DLT-4.1-P7.S1 (S6), DLT-4.1-P8.S1 (S7), DLT-4.1-P9.S1 (S8), DLT-4.1-P10.S1 (S9), DLT-25.1-P8.S1 (Blocker report)
 DLT-4.1-P12
-  <1>1 [def] The **call graph** has an edge F → G when F contains a direct `call` or `invoke` of G (after resolving aliases), an edge F → R for every candidate R of every region operand of a marker call in F (a **region edge**), and an edge F → C for every candidate C of every indirect call in F (§14.2).   deps: DLT-14.2
+  <1>1 [req] The **call graph** has an edge F → G when F contains a direct `call` or `invoke` of G (after resolving aliases), an edge F → R for every candidate R of every region operand of a marker call in F (a **region edge**), and an edge F → C for every candidate C of every indirect call in F (§14.2).   deps: DLT-14.2
   <1>2 [req] Only functions with a definition are nodes.
   <1>3 [req] The **closure** of a function is the set of functions reachable from it by direct and indirect-candidate edges (region edges start a new region and are not followed).   deps: DLT-4.1-P12.S1 (region edge)
 ````
@@ -781,11 +781,11 @@ DLT-4.2-P1
 DLT-4.2-P2
   <1>1 [req] **CC**: a function that contains a marker call, receives a handle (a parameter or a loaded value whose provenance contains a root, §6.2), is a candidate of an action region operand (its classical part is the generation, §18.4), is a device entry, is in the CC closure of one of these, or is promoted by §19.4.   deps: DLT-2-P7.S1 (CC), DLT-3.5-P1.S1 (marker call), DLT-7.1-P7.S3 (action region), DLT-6.2, DLT-18.4, DLT-19.4
 DLT-4.2-P3
-  <1>1 [unc] **R**: a function in the closure of a `reversible` region operand, or every function under `--bennett-tier=reversible` (§19.2).   deps: DLT-19.2
+  <1>1 [req] **R**: a function in the closure of a `reversible` region operand, or every function under `--bennett-tier=reversible` (§19.2).   deps: DLT-19.2
 DLT-4.2-P4
-  <1>1 [unc] **L**: a function in the closure of an oracle or in-place region operand, or of a coherent slice (§10, TDL-3).   deps: DLT-10-P14.S1 (TDL-3), DLT-10
+  <1>1 [req] **L**: a function in the closure of an oracle or in-place region operand, or of a coherent slice (§10, TDL-3).   deps: DLT-10-P14.S1 (TDL-3), DLT-10
 DLT-4.2-P5
-  <1>1 [unc] **H**: every other function reachable from a host root, and every function reachable from a host root through host code only.
+  <1>1 [req] **H**: every other function reachable from a host root, and every function reachable from a host root through host code only.
   <1>2 [req] A function in no device tier stays H only.
 DLT-4.2-P6
   <1>1 [req] A function may get several tiers; it then has one variant per tier (§4.3).   deps: DLT-2-P7.S2 (variant), DLT-4.3
@@ -798,25 +798,26 @@ DLT-4.2-P6
 DLT-4.3-P1
   <1>1 [req] A **variant** is a (function, tier, coherence signature) triple, where the coherence signature is the tuple of coherence states of the function's parameters and of the may-Co objects it reads (§10, TDL-2) and is empty outside TDL.   deps: DLT-10-P3.S1 (TDL-2), DLT-2-P7.S2 (variant), DLT-10
   <1>2 [req] The H variant is the original function; every device variant is a clone.   deps: DLT-2-P7.S2 (variant)
-  <1>3 [req] **Clones share every global: data is never cloned.** There is one classical memory (NS §3.2), shared by H, CC, R and the entry state of every L invocation (§8.5).   deps: DLT-2-P7.S1 (CC), DLT-8.5
-  <1>4 [req] Calls inside a variant call the variant of the callee with the caller's tier and the coherence signature at the call.   deps: DLT-2-P7.S2 (variant)
-  <1>5 [req] 0.1's `BD-E-DEVICE-ADDRESS` is deleted: a host function may take the address of any function (audit B-16).
+  <1>3 [req] **Clones share every global: data is never cloned.**
+  <1>4 [req] There is one classical memory (NS §3.2), shared by H, CC, R and the entry state of every L invocation (§8.5).   deps: DLT-2-P7.S1 (CC), DLT-8.5
+  <1>5 [req] Calls inside a variant call the variant of the callee with the caller's tier and the coherence signature at the call.   deps: DLT-2-P7.S2 (variant)
+  <1>6 [req] 0.1's `BD-E-DEVICE-ADDRESS` is deleted: a host function may take the address of any function (audit B-16).
 ````
 
 ### §4.4 Function addresses   [DLT-4.4]
 
 ````text
 DLT-4.4-P1
-  <1>1 [def] Every function whose address is used has the **function address** A(F): its address in the driver's **comparison link** (§19.5: non-PIE, fixed section addresses, identical-code folding and constant merging off; NS §3.2, SQLite §5.2(ii)).   deps: DLT-19.5
+  <1>1 [req] Every function whose address is used has the **function address** A(F): its address in the driver's **comparison link** (§19.5: non-PIE, fixed section addresses, identical-code folding and constant merging off; NS §3.2, SQLite §5.2(ii)).   deps: DLT-19.5
   <1>2 [req] A(F) is the value of `ptr @F` in every tier:
 DLT-4.4-P2
   <1>1 [req] in host code, by linking the production host image with the comparison layout whenever an address may cross the host–device boundary (§19.5);   deps: DLT-19.5
 DLT-4.4-P3
-  <1>1 [unc] in CC and R code, as `const` plus `inttoptr` (ISA §4.1);   deps: DLT-2-P7.S1 (CC), ISA-4.1
+  <1>1 [req] in CC and R code, as `const` plus `inttoptr` (ISA §4.1);   deps: DLT-2-P7.S1 (CC), ISA-4.1
 DLT-4.4-P4
-  <1>1 [unc] in lifted code, as `lift.const` (ISA §4.2);   deps: ISA-4.2
+  <1>1 [req] in lifted code, as `lift.const` (ISA §4.2);   deps: ISA-4.2
 DLT-4.4-P5
-  <1>1 [unc] in every data image: global initialisers, vtables, function tables (SQLite's `aBuiltinFunc`, VFS and pcache method tables).
+  <1>1 [req] in every data image: global initialisers, vtables, function tables (SQLite's `aBuiltinFunc`, VFS and pcache method tables).
 DLT-4.4-P6
   <1>1 [unc] So `ptrtoint`, comparison, hashing and storage of function pointers equal native execution.
   <1>2 [req] Each tier maps A(F) to its own variant of F by the dispatch of §14.2.   deps: DLT-2-P7.S2 (variant), DLT-14.2
@@ -830,7 +831,7 @@ DLT-4.4-P6
 DLT-4.5-P1
   <1>1 [req] A call in a device variant of a function with no definition resolves, in this order:   deps: DLT-2-P7.S2 (variant)
 DLT-4.5-P2
-  <1>1 [unc] a marker (§3.2) or a primitive (§3.1);   deps: DLT-3.2, DLT-3.1
+  <1>1 [req] a marker (§3.2) or a primitive (§3.1);   deps: DLT-3.2, DLT-3.1
 DLT-4.5-P3
   <1>1 [def] a **runtime shim**: a definition of the symbol in `bennett-runtimes` or `bennett-arith` bitcode, which the driver links before S2 (§19.1): libc and libm (musl-derived), libpthread with one thread, the Julia shim runtime, Rust's `core::panicking::*` targets and the platform shims of §20.   deps: DLT-4.1-P3.S1 (S2), DLT-19.1, DLT-20
   <1>2 [req] The shim is an ordinary device function (coverage class `shimmed`, with its `shim_hash`, ISA §13);   deps: DLT-2-P15.S1 (shimmed), ISA-13
@@ -858,9 +859,9 @@ DLT-5-P1
 DLT-5.1-P1
   <1>1 [def] The **abstract objects** are:
 DLT-5.1-P2
-  <1>1 [unc] each `alloca` instruction;
+  <1>1 [def] each `alloca` instruction;
 DLT-5.1-P3
-  <1>1 [unc] each global variable;
+  <1>1 [def] each global variable;
 DLT-5.1-P4
   <1>1 [def] each **allocation site**: a call of a function that carries `allockind("alloc")` or `allocsize(...)`, or whose name is one of `malloc`, `calloc`, `realloc`, `aligned_alloc`, `posix_memalign` (the object is the one written through its first argument), `memalign`, `strdup`, `strndup`, `_Znwm`, `_Znam`, `_ZnwmRKSt9nothrow_t`, `_ZnamRKSt9nothrow_t`, `_ZnwmSt11align_val_t`, `_ZnamSt11align_val_t`, `__rust_alloc`, `__rust_alloc_zeroed`, `__rust_realloc`, `julia.gc_alloc_obj`, `ijl_gc_alloc_typed`, `jl_gc_alloc`, `ijl_gc_small_alloc`, `ijl_gc_big_alloc`, or `__bennett_nz_alloc`;
 DLT-5.1-P5
@@ -869,18 +870,18 @@ DLT-5.1-P6
   <1>1 [req] Heap objects are context-insensitive: one object per allocation-site instruction of the variant in which it occurs.   deps: DLT-2-P7.S2 (variant)
   <1>2 [req] The list above is the reference list; `bennett-runtimes` declares its allocator entry points with `allockind("alloc")` so that they are covered by the first rule.
 DLT-5.1-P7
-  <1>1 [def] An **offset** is an integer byte offset, a **residue class** (r mod s)[lo, hi) with s ≥ 2 (every offset o with o ≡ r (mod s) and lo ≤ o < hi), or `*` (any offset).
+  <1>1 [req] An **offset** is an integer byte offset, a **residue class** (r mod s)[lo, hi) with s ≥ 2 (every offset o with o ≡ r (mod s) and lo ≤ o < hi), or `*` (any offset).
   <1>2 [req] An **atom** is one of:
 DLT-5.1-P8
-  <1>1 [unc] `(X, o)`: a pointer into object X at offset o;
+  <1>1 [req] `(X, o)`: a pointer into object X at offset o;
 DLT-5.1-P9
-  <1>1 [unc] `FN(F)`: the address A(F) of a defined function F;
+  <1>1 [req] `FN(F)`: the address A(F) of a defined function F;
 DLT-5.1-P10
-  <1>1 [unc] `ROOT(r)`: a handle with root r (the allocation site of a `qalloc`/`qborrow` call, §6.5);   deps: DLT-5.1-P4.S1 (allocation site), DLT-6.5
+  <1>1 [req] `ROOT(r)`: a handle with root r (the allocation site of a `qalloc`/`qborrow` call, §6.5);   deps: DLT-5.1-P4.S1 (allocation site), DLT-6.5
 DLT-5.1-P11
-  <1>1 [unc] `INT(c)`: the integer constant c (of the value's width).
+  <1>1 [req] `INT(c)`: the integer constant c (of the value's width).
 DLT-5.1-P12
-  <1>1 [def] Every SSA value v (per lane for vectors, per index path for aggregates) has an **abstract value** AV(v) = (A, t): a finite set A of atoms and a flag t; t = ⊤ means "and any other integer or address". ⊤ never stands for a `ROOT` atom (handle provenance is always explicit); for a function-pointer operand it stands for "any function of the operand's type whose address is used" (§7.2, §14.2).   deps: DLT-7.2, DLT-14.2
+  <1>1 [req] Every SSA value v (per lane for vectors, per index path for aggregates) has an **abstract value** AV(v) = (A, t): a finite set A of atoms and a flag t; t = ⊤ means "and any other integer or address". ⊤ never stands for a `ROOT` atom (handle provenance is always explicit); for a function-pointer operand it stands for "any function of the operand's type whose address is used" (§7.2, §14.2).   deps: DLT-7.2, DLT-14.2
   <1>2 [req] Every slot (X, o) of memory has a content AV(X, o) of the same form.   deps: DLT-2-P10.S1 (slot)
   <1>3 [req] When A holds more than **K = 4096** `INT` atoms they are dropped and t is set (a normative constant: it decides dispatch and blocker verdicts, so §24 does not defer it).   deps: DLT-24
   <1>4 [req] "AV(v) = ⊤" below means t is set; unions and inclusions are taken component-wise.
@@ -898,9 +899,9 @@ DLT-5.2-P1
   <1>6 [req] "Copies" means AV(result) ⊇ AV(operand) lane by lane; ⊤ absorbs.
   <1>7 [req] S2 models the value effects of the specified normalisation before verdicts and dispatch domains freeze; pre-normalisation syntax does not permit omitting a value produced by the materialised execution.   deps: DLT-4.1-P3.S1 (S2), DLT-3.4-P20.S3 (dispatch domain)
 DLT-5.2-P2
-  <1>1 [def] PT1 | `alloca`, global `@G`, allocation-site call | AV ∋ (X, 0); zero-filled initial extents are seeded as above
+  <1>1 [req] PT1 | `alloca`, global `@G`, allocation-site call | AV ∋ (X, 0); zero-filled initial extents are seeded as above
 DLT-5.2-P3
-  <1>1 [def] PT2 | `getelementptr T, ptr p, idx…` | uses P(a), I(a) and the complete finite-width computation of §16.4, also for constant expressions: sequential indices are sign-extended/truncated to I(a), scaling and offset accumulation wrap modulo 2^I(a), and addition preserves pointer bits above I(a).   deps: DLT-16.4
+  <1>1 [req] PT2 | `getelementptr T, ptr p, idx…` | uses P(a), I(a) and the complete finite-width computation of §16.4, also for constant expressions: sequential indices are sign-extended/truncated to I(a), scaling and offset accumulation wrap modulo 2^I(a), and addition preserves pointer bits above I(a).   deps: DLT-16.4
   <1>2 [req] Zero accumulated offset copies AV(p).
   <1>3 [req] For every (X,o), include the image of all represented base addresses and index values (unknown base bits range over patterns consistent with DataLayout and X's alignment), using integer/residue-class/`*` offset unions.
   <1>4 [req] Unbounded mathematical addition is not a substitute.
@@ -925,7 +926,7 @@ DLT-5.2-P5
   <1>4 [req] A narrowed representation that cannot be reassociated with its original object adds (EXT, `*`) and non-handle ⊤; numerical uncertainty is not host escape.
   <1>5 [req] Apply also to constant expressions
 DLT-5.2-P6
-  <1>1 [def] PT5 | `add`/`sub` of a value with pointer atoms and an `INT` set | computes address bits modulo 2^W at the integer operation’s width W, never unbounded offset addition.
+  <1>1 [req] PT5 | `add`/`sub` of a value with pointer atoms and an `INT` set | computes address bits modulo 2^W at the integer operation’s width W, never unbounded offset addition.
   <1>2 [req] Relative displacements from the originating base are modular too: zero net displacement represents that base again, including after an inttoptr truncation to P(a).
   <1>3 [req] Use PT2’s represented-address image construction at W bits (full-width arithmetic, no preserved high GEP bits), retaining original object and ROOT provenance.   deps: DLT-5.2-P3.S1 (PT2)
   <1>4 [req] Keep modular displacement alternatives even outside the allocation, and additionally include (EXT, `*`) and non-handle ⊤ when an image may leave it.
@@ -936,7 +937,7 @@ DLT-5.2-P6
   <1>9 [req] The rules apply also to constant expressions, before candidate/dispatch domains freeze; on finite `INT` sets, every LLVM integer operation, cast and `icmp` is evaluated elementwise; with x ⊤ and a constant m, `and x, m` gives the submasks of m and `urem x, m` gives {0, …, m−1} (each still subject to K); a range attribute or `!range` metadata removed by N3/N4 is not a bound on materialised execution and MUST NOT restrict any verdict, candidate set, descriptor shape or dispatch domain.   deps: DLT-12.2-P5.S1 (N3), DLT-12.2-P6.S1 (N4), DLT-3.4-P20.S3 (dispatch domain)
   <1>10 [req] Only bounds independently established by materialised instructions restrict the set; otherwise retain ⊤ and apply the ordinary operation rules, including finite masks/remainders
 DLT-5.2-P7
-  <1>1 [def] PT6 | `load T, ptr p` | for each (X,o) ∈ AV(p): memory atoms carry their storage interval and representation width; copy a whole-value atom only for that identical interval with a compatible representation.
+  <1>1 [req] PT6 | `load T, ptr p` | for each (X,o) ∈ AV(p): memory atoms carry their storage interval and representation width; copy a whole-value atom only for that identical interval with a compatible representation.
   <1>2 [req] A known immutable byte image decodes exactly the accessed bytes using DataLayout and T (including initialisers).
   <1>3 [req] For a partial, spanning or overlapping access whose result bits are not represented exactly, the non-handle value is ⊤, never the union of component INT values.
   <1>4 [req] X=EXT gives ⊤.
@@ -947,16 +948,16 @@ DLT-5.2-P7
   <1>9 [req] Zero contributes no ROOT.
   <1>10 [req] Region inputs, replayed caller bytes and other nonzero-initialised contents retain their specified sources; this rule does not replace them with zeros
 DLT-5.2-P8
-  <1>1 [def] PT7 | `store v, ptr p` | retain each written interval and representation width; partial writes overlapping a larger load participate in PT6's conservative fallback.   deps: DLT-5.2-P7.S1 (PT6)
+  <1>1 [req] PT7 | `store v, ptr p` | retain each written interval and representation width; partial writes overlapping a larger load participate in PT6's conservative fallback.   deps: DLT-5.2-P7.S1 (PT6)
   <1>2 [req] AV(X, o + d_k) ⊇ AV(v_k) for each (X, o) ∈ AV(p) and each lane or field k at byte offset d_k
 DLT-5.2-P9
-  <1>1 [def] PT8 | memory copy (`llvm.memcpy`/`memmove`/`memcpy.inline`, `__bennett_rt_memmove`) of (dst, src, len); memory fill (`llvm.memset`, `__bennett_rt_memset`) of (dst, v, len) | copy: propagate zero-byte initial images over the copied byte ranges, including their symbolic extents; for each slot (Y, s) of each (Y, o_s) ∈ AV(src) and (Z, o_d) ∈ AV(dst): when offsets and len are constants and the atom's entire storage interval [s, s + size(atom)) lies in the copied range, copy its atom and representation width to (Z, o_d + s − o_s).   deps: DLT-2-P10.S1 (slot)
+  <1>1 [req] PT8 | memory copy (`llvm.memcpy`/`memmove`/`memcpy.inline`, `__bennett_rt_memmove`) of (dst, src, len); memory fill (`llvm.memset`, `__bennett_rt_memset`) of (dst, v, len) | copy: propagate zero-byte initial images over the copied byte ranges, including their symbolic extents; for each slot (Y, s) of each (Y, o_s) ∈ AV(src) and (Z, o_d) ∈ AV(dst): when offsets and len are constants and the atom's entire storage interval [s, s + size(atom)) lies in the copied range, copy its atom and representation width to (Z, o_d + s − o_s).   deps: DLT-2-P10.S1 (slot)
   <1>2 [req] Every partially overlapping atom instead contributes non-handle ⊤ and explicit ROOT provenance to the affected destination interval (unknown offsets/len use `*`); do not copy the whole component INT.
   <1>3 [req] Fill: every slot in [o_d, o_d + len) of each (Z, o_d) ∈ AV(dst) (all of Z when an offset or len is not constant) gets the `INT` atoms of the byte v repeated to the slot's width (⊤ when v is not constant)   deps: DLT-2-P10.S1 (slot)
 DLT-5.2-P10
   <1>1 [def] PT9 | direct call of G, or indirect call with candidate G (§14.2) | AV(parameter i of G) ⊇ AV(argument i); AV(result) ⊇ the union of AV over G's `ret` operands; `byval` arguments copy the pointee's slots into the callee's copy object   deps: DLT-2-P10.S1 (slot), DLT-14.2
 DLT-5.2-P11
-  <1>1 [def] PT10 | `insertelement`/`extractelement`/`shufflevector`/`insertvalue`/`extractvalue` | extraction/insertion use N15’s total unsigned index semantics.   deps: DLT-12.2-P17.S1 (N15)
+  <1>1 [req] PT10 | `insertelement`/`extractelement`/`shufflevector`/`insertvalue`/`extractvalue` | extraction/insertion use N15’s total unsigned index semantics.   deps: DLT-12.2-P17.S1 (N15)
   <1>2 [req] Constant in-range extraction copies its lane; constant out-of-range extraction gives the element type’s zero.
   <1>3 [req] Dynamic extraction unions every source lane selected by a represented index, plus zero iff the index set includes an unsigned value >= L (including top when 2^K > L).
   <1>4 [req] No zero is added if every represented index is in range; zero adds no ROOT.
@@ -964,9 +965,9 @@ DLT-5.2-P11
   <1>6 [req] Dynamic insertion includes each old lane unless it is certainly replaced, and the inserted value whenever that lane can be selected.
   <1>7 [req] Valid shuffle indices and aggregate paths move atoms unchanged (handle-table reads, audit B-23)
 DLT-5.2-P12
-  <1>1 [def] PT11 | a parameter of a function with a host caller, a device entry, or a function whose address host code uses | AV ⊇ {(EXT, `*`)} for `ptr` parameters, ⊤ for integer parameters, plus the atoms of the device-side arguments by PT9; for a pointer parameter i of a device entry E, also the candidate atom ROOT(E, i) of §6.6   deps: DLT-5.2-P10.S1 (PT9), DLT-6.6
+  <1>1 [req] PT11 | a parameter of a function with a host caller, a device entry, or a function whose address host code uses | AV ⊇ {(EXT, `*`)} for `ptr` parameters, ⊤ for integer parameters, plus the atoms of the device-side arguments by PT9; for a pointer parameter i of a device entry E, also the candidate atom ROOT(E, i) of §6.6   deps: DLT-5.2-P10.S1 (PT9), DLT-6.6
 DLT-5.2-P13
-  <1>1 [def] PT12 | a `qalloc`/`qborrow` call; a call of a function with no definition that resolves to a host call (§4.5) or is trapped; an `atomicrmw`/`cmpxchg` (before N9) | `qalloc`/`qborrow`: AV ∋ ROOT(site) (§6.5).   deps: DLT-12.2-P11.S1 (N9), DLT-4.5-P4.S1 (host call), DLT-2-P15.S1 (trapped), DLT-4.5, DLT-6.5
+  <1>1 [req] PT12 | a `qalloc`/`qborrow` call; a call of a function with no definition that resolves to a host call (§4.5) or is trapped; an `atomicrmw`/`cmpxchg` (before N9) | `qalloc`/`qborrow`: AV ∋ ROOT(site) (§6.5).   deps: DLT-12.2-P11.S1 (N9), DLT-4.5-P4.S1 (host call), DLT-2-P15.S1 (trapped), DLT-4.5, DLT-6.5
   <1>2 [req] An undefined callee: the result is ⊤ and every slot reachable from its pointer arguments gets ⊤.   deps: DLT-2-P10.S1 (slot)
   <1>3 [req] `atomicrmw`/`cmpxchg`: a load plus a store (PT6, PT7)   deps: DLT-5.2-P7.S1 (PT6), DLT-5.2-P8.S1 (PT7)
 DLT-5.2-P14
@@ -1071,7 +1072,7 @@ DLT-5.4-P7
   <1>2 [ex] (code block, 20 lines) %struct.tab = type { [4 x ptr], i64 }
 DLT-5.4-P8
   <1>1 [non] *(non-normative)* In `pt-variable-index`, `%pk` has the offset class (0 mod 8)[0, 32) in `%s` (the `[4 x ptr]` array), so the load `%hk` reads the slots 0, 8, 16, 24: AV(`%hk`) = {ROOT(`%h0`)}.   deps: DLT-2-P10.S1 (slot)
-  <1>2 [non] The count field is at the exact offset 32, outside the class, so AV(`%n`) holds INT(3) and, through the store of `%n2`, INT(4), INT(5), … until it exceeds K and becomes ⊤; it holds no `ROOT` atom, and the arithmetic on it is legal (audit B-27: 0.1 gave the load offset `*` and rejected this program).
+  <1>2 [req] The count field is at the exact offset 32, outside the class, so AV(`%n`) holds INT(3) and, through the store of `%n2`, INT(4), INT(5), … until it exceeds K and becomes ⊤; it holds no `ROOT` atom, and the arithmetic on it is legal (audit B-27: 0.1 gave the load offset `*` and rejected this program).
 DLT-5.4-P9
   <1>1 [req] **Finite-width and materialised-domain witnesses (round 6).** Under I=32, 2^32 truncates to zero, so the table load yields FN(body) and dispatch succeeds.
   <1>2 [req] For the ranged inputs, N3/N4 erase the annotations: `n & 3` gives {0,1,2,3} and `| 1` gives {1,3}.   deps: DLT-12.2-P5.S1 (N3), DLT-12.2-P6.S1 (N4)
@@ -1090,7 +1091,7 @@ DLT-5.4-P9
 ````text
 DLT-6.1-P1
   <1>1 [req] A handle is an ordinary `ptr` in address space 0.
-  <1>2 [def] In device memory and in integers a handle is its **register tag**: an opaque value below 2^pw assigned to an allocation generation (§6.5), nonzero and distinct from every identity still observable through live or stale copies.   deps: DLT-6.5
+  <1>2 [req] In device memory and in integers a handle is its **register tag**: an opaque value below 2^pw assigned to an allocation generation (§6.5), nonzero and distinct from every identity still observable through live or stale copies.   deps: DLT-6.5
   <1>3 [req] Physical slots are reusable storage, never allocation identity.   deps: DLT-2-P10.S1 (slot)
   <1>4 [req] A tag MUST NOT be recycled while an observable stale copy can remain; integer wrap is not permission to alias generations.
   <1>5 [req] Copies continue to denote their original generation after free.
@@ -1105,14 +1106,14 @@ DLT-6.1-P1
 ````text
 DLT-6.2-P1
   <1>1 [req] The **provenance** of a value is the set of `ROOT` atoms of its abstract value (§5).   deps: DLT-5.1-P12.S1 (abstract value), DLT-5
-  <1>2 [def] Provenance flows through **bitwise copies** only: `ptrtoint`/`inttoptr` at width pw, integer loads and stores of width pw, vector lanes (including dynamic lanes, PT10: a dynamically indexed vector of handles is a handle table), aggregate fields, memory copies, `phi`, `select`, `freeze`, call arguments and returns (PT3–PT10).   deps: DLT-5.2-P11.S1 (PT10), DLT-5.2-P4.S1 (PT3), DLT-5.2-P5.S1 (PT4), DLT-5.2-P6.S1 (PT5), DLT-5.2-P7.S1 (PT6), DLT-5.2-P8.S1 (PT7), DLT-5.2-P9.S1 (PT8), DLT-5.2-P10.S1 (PT9)
+  <1>2 [req] Provenance flows through **bitwise copies** only: `ptrtoint`/`inttoptr` at width pw, integer loads and stores of width pw, vector lanes (including dynamic lanes, PT10: a dynamically indexed vector of handles is a handle table), aggregate fields, memory copies, `phi`, `select`, `freeze`, call arguments and returns (PT3–PT10).   deps: DLT-5.2-P11.S1 (PT10), DLT-5.2-P4.S1 (PT3), DLT-5.2-P5.S1 (PT4), DLT-5.2-P6.S1 (PT5), DLT-5.2-P7.S1 (PT6), DLT-5.2-P8.S1 (PT7), DLT-5.2-P9.S1 (PT8), DLT-5.2-P10.S1 (PT9)
   <1>3 [req] A handle-derived value (any lane or field) MAY be:
 DLT-6.2-P2
-  <1>1 [unc] a handle operand of a marker (§3.2);   deps: DLT-3.2
+  <1>1 [req] a handle operand of a marker (§3.2);   deps: DLT-3.2
 DLT-6.2-P3
-  <1>1 [unc] copied by the rules above, including storage in any slot the analysis tracks (§6.4);   deps: DLT-2-P10.S1 (slot), DLT-6.4
+  <1>1 [req] copied by the rules above, including storage in any slot the analysis tracks (§6.4);   deps: DLT-2-P10.S1 (slot), DLT-6.4
 DLT-6.2-P4
-  <1>1 [unc] an operand of `icmp eq` or `icmp ne` (§6.3);   deps: DLT-6.3
+  <1>1 [req] an operand of `icmp eq` or `icmp ne` (§6.3);   deps: DLT-6.3
 DLT-6.2-P5
   <1>1 [req] an argument of a direct or indirect call of a defined function, or a return value.
 DLT-6.2-P6
@@ -1152,7 +1153,7 @@ DLT-6.4-P3
 DLT-6.5-P1
   <1>1 [req] ISA 0.8 has no instruction that stores, loads or converts a `qreg` (ISA §3.2, §3.3, §4.1), and `qreg[n]` types have literal widths.   deps: ISA-3.2, ISA-3.3, ISA-4.1
   <1>2 [req] CC code holds `qreg` values in its classical environment (dynamic SSA instances, block parameters, call arguments and results; ISA §3.2, §7.4).   deps: DLT-2-P7.S1 (CC), ISA-3.2, ISA-7.4
-  <1>3 [unc] The plugin realises each allocation site s (a `qalloc` or `qborrow` call) in one of two ways:   deps: DLT-5.1-P4.S1 (allocation site)
+  <1>3 [req] The plugin realises each allocation site s (a `qalloc` or `qborrow` call) in one of two ways:   deps: DLT-5.1-P4.S1 (allocation site)
 DLT-6.5-P2
   <1>1 [req] **Direct.** If no `ROOT(s)` atom reaches a memory slot (PT7, PT8), the handle is a CC `qreg` value threaded through SSA values, block parameters, call arguments and results ("register- environment passing"; §25.2 records that ISA §3.3's transition table should name CC `call`, `ret` and `br` operands of `qreg` type).   deps: DLT-5.2-P8.S1 (PT7), DLT-5.2-P9.S1 (PT8), DLT-2-P10.S1 (slot), DLT-2-P7.S1 (CC), DLT-25.2, ISA-3.3
   <1>2 [req] Every execution of s creates a new dynamic instance, so loops and recursion need no bound.
@@ -1164,18 +1165,18 @@ DLT-6.5-P3
   <1>5 [req] Free retires the identity even if the slot is immediately reused.   deps: DLT-2-P10.S1 (slot)
   <1>6 [req] Recycle tags only after old copies are proven unobservable, never by slot reuse alone.   deps: DLT-2-P10.S1 (slot)
   <1>7 [req] This table and allocator use ordinary classical operations, without qreg.id.
-  <1>8 [unc] N(s) bounds simultaneous physical slots, not the number of historical identities.   deps: DLT-2-P10.S1 (slot)
+  <1>8 [req] N(s) bounds simultaneous physical slots, not the number of historical identities.   deps: DLT-2-P10.S1 (slot)
   <1>9 [req] A direct handle that is converted to an integer (`ptrtoint`, a store) gets a tag in the same way.
 DLT-6.5-P4
   <1>1 [def] **Reference instance bound** of a site s in function F with a static register file:   deps: DLT-2-P3.S1 (register)
 DLT-6.5-P5
   <1>1 [req] Before rules 1–2, augment each function's CFG with N29 continuation edges: from every call whose closure may longjmp, add an edge to each setjmp continuation in every function that may be an ancestor of that call (including the same function).   deps: DLT-12.2-P31.S1 (N29)
-  <1>2 [unc] Include the materialised __bennett_rt_setjmp continuations, candidate callees and interprocedural call edges.
+  <1>2 [req] Include the materialised __bennett_rt_setjmp continuations, candidate callees and interprocedural call edges.
   <1>3 [req] The reference default remains conservative: if a setjmp continuation in any may-ancestor A of F (A=F included) can reach s through these CFG and call edges, s is not self-disjoint and E(s)=∞.   deps: DLT-6.5-P8.S1 (self-disjoint)
   <1>4 [req] Apply this rule to §7.5(b) R hoisting as well.   deps: DLT-7.5-P3
   <1>5 [req] Such a site uses BLK-1 (R hoisting: BLK-4), with the bounded static-file fallback, never rejection.   deps: DLT-25.1-P2.S1 (BLK-1), DLT-25.1-P5.S1 (BLK-4)
   <1>6 [req] The read-only ISA 0.9 draft's K1 supplies the exact missing dynamic qreg.width/id/from_id and run-time-width register capability; K2 supplies R allocation for BLK-4.   deps: DLT-25.1-P5.S1 (BLK-4), DLT-2-P3.S1 (register)
-  <1>7 [unc] Neither witness claims a finite reference bound.
+  <1>7 [req] Neither witness claims a finite reference bound.
 DLT-6.5-P6
   <1>1 [req] **Entry-boundary liveness (before rules 1–2).** If an instance of s may be live at the return of any device entry that may reach s — memory live at that return (a global, heap object, or memory reachable from a result or env) may hold ROOT(s), and not every path from s through the augmented CFGs and call edges to that return passes a qfree with provenance exactly {s} — then s is not self-disjoint and E(s)=∞.   deps: DLT-6.5-P8.S1 (self-disjoint)
   <1>2 [req] Use BLK-1, with the bounded static-file fallback, never rejection.   deps: DLT-25.1-P2.S1 (BLK-1)
@@ -1185,15 +1186,15 @@ DLT-6.5-P6
 DLT-6.5-P7
   <1>1 [req] **Parameter and result roots.** Apply the same boundary test to candidate handle parameter ROOT(E,i) (§6.6), and to a qalloc instance returned as an entry QREG result.   deps: DLT-6.6
   <1>2 [req] Persistent memory (a global, heap object, or memory reachable from result or env) or the entry's QREG result may retain it.
-  <1>3 [unc] Include every reusable exit, including unwind/resume edges, in the augmented interprocedural graph; an exact-root qfree on every path from receipt/allocation discharges liveness.
+  <1>3 [req] Include every reusable exit, including unwind/resume edges, in the augmented interprocedural graph; an exact-root qfree on every path from receipt/allocation discharges liveness.
   <1>4 [req] Otherwise E=∞: the host may supply or retain unboundedly many distinct live registers across calls.   deps: DLT-2-P3.S1 (register)
   <1>5 [req] Marker uses of such roots loaded from persistent memory are BLK-1 blocker points (`blocked:BD-B-ISA4`), with §25.1's bounded static-file fallback and blocker trap, never rejection.   deps: DLT-25.1-P2.S1 (BLK-1), DLT-2-P1.S1 (Marker), DLT-6.5-P10.S1 (blocker point), DLT-1.6-P4.S2 (blocker trap), DLT-25.1
   <1>6 [req] A handle parameter used directly only within its receiving entry keeps the direct realisation, as does a returned QREG never stored in memory.   deps: DLT-6.6-P1.S2 (handle parameter)
   <1>7 [req] The infinite bound on a returned root is relevant to its static-file realisation when it reaches memory; it does not impose a finite bound on direct QREG transport.
-  <1>8 [unc] Under §7.5(b), substitute reversible-invocation exit and BLK-4 (`blocked:BD-B-ISA12`) for receipt through env.   deps: DLT-25.1-P5.S1 (BLK-4), DLT-7.5-P3
+  <1>8 [req] Under §7.5(b), substitute reversible-invocation exit and BLK-4 (`blocked:BD-B-ISA12`) for receipt through env.   deps: DLT-25.1-P5.S1 (BLK-4), DLT-7.5-P3
 DLT-6.5-P8
   <1>1 [def] s is **self-disjoint** iff the only memory its `ROOT(s)` atom reaches is allocas of F whose address does not escape F (it is not stored, returned, or passed to a call other than a marker call, which includes the `env` of a region-entry marker), and every CFG path of F from s to a `ret`, to s again, or to a call whose callee may reach F through the call graph passes through a `qfree` whose operand's provenance is exactly {s}.   deps: DLT-4.1-P12.S1 (call graph)
-  <1>2 [unc] Then N(s) = 1.
+  <1>2 [def] Then N(s) = 1.
 DLT-6.5-P9
   <1>1 [req] Otherwise N(s) = E(s), the bound on executions of s per device-entry call: E(s) = TC(s) × Σ_c E(c) over the device call sites c of F (E = 1 for a device entry), where TC(s) is the product of the constant maximum trip counts of the loops of F's augmented CFG that contain s (LLVM's `ScalarEvolution::getSmallConstantMaxTripCount` on the materialised module of the major in use), and E(s) = ∞ when a containing loop has no constant maximum trip count or F is in a cycle of the call graph.   deps: DLT-12.1-P1.S6 (materialised module), DLT-4.1-P12.S1 (call graph)
   <1>2 [req] E(c), for a call site c in function C, uses the same recurrence: TC(c) in C's augmented CFG times the sum of E over C's device call sites (entry multiplicity 1).
@@ -1258,13 +1259,13 @@ DLT-6.7-P2
 DLT-6.7-P3
   <1>1 [req] `qstore(mem, addr, val)`: XOR of `val` into cell `addr` of `mem` (ISA `qstore`), whatever `mem` holds;
 DLT-6.7-P4
-  <1>1 [unc] `qprep(h, src, n)`: XOR of classical bytes into `h` (§3.2);   deps: DLT-3.2
+  <1>1 [req] `qprep(h, src, n)`: XOR of classical bytes into `h` (§3.2);   deps: DLT-3.2
 DLT-6.7-P5
   <1>1 [req] `inplace(g, ginv, budget, desc)`: x ← g(x), admitted only under §8.7;   deps: DLT-8.7
 DLT-6.7-P6
-  <1>1 [unc] `oracle(f, budget, desc)`: targets ⊕= outputs, fault ⊕= code, inputs preserved (§8).   deps: DLT-8
+  <1>1 [req] `oracle(f, budget, desc)`: targets ⊕= outputs, fault ⊕= code, inputs preserved (§8).   deps: DLT-8
 DLT-6.7-P7
-  <1>1 [def] The north star's compile-time rule "a store into a register not known to be clean is an error" (NS §3.1) is the optional warning **`BD-W-QSTORE-UNCLEAN`**: under `-bennett-warn-qstore`, the plugin warns at every `qstore` whose target is not provably clean (no event since its `qalloc` other than a `qstore` of the same `addr` and `val`).   deps: DLT-2-P3.S1 (register)
+  <1>1 [req] The north star's compile-time rule "a store into a register not known to be clean is an error" (NS §3.1) is the optional warning **`BD-W-QSTORE-UNCLEAN`**: under `-bennett-warn-qstore`, the plugin warns at every `qstore` whose target is not provably clean (no event since its `qalloc` other than a `qstore` of the same `addr` and `val`).   deps: DLT-2-P3.S1 (register)
   <1>2 [req] The warning never changes the verdict, so the uncomputing second store stays legal (§1.4).   deps: DLT-1.4
 ````
 
@@ -1359,12 +1360,12 @@ DLT-7.1-P7
 DLT-7.2-P1
   <1>1 [req] The candidate set RR(v) of a region operand v is computed from its abstract value (§5):   deps: DLT-5.1-P12.S1 (abstract value), DLT-5
 DLT-7.2-P2
-  <1>1 [unc] every `FN(F)` atom of AV(v), resolved by `resolve` below;
+  <1>1 [req] every `FN(F)` atom of AV(v), resolved by `resolve` below;
 DLT-7.2-P3
   <1>1 [req] if AV(v) has the ⊤ flag: in addition every function of the required type of §7.1 (for `oracle`/`inplace`: every function) whose address is used anywhere in the linked program, resolved (decision 3 read literally: "every function whose address can reach a region marker"; audit B-33).   deps: DLT-7.1
   <1>2 [req] The set is therefore always bounded by the program.
 DLT-7.2-P4
-  <1>1 [def] `resolve(F)` follows aliases to their aliasee and **forwarding thunks** to their target: F is a forwarding thunk of G iff F's body is one block holding exactly a call of G (optionally `tail`/`musttail`/`notail`, default calling convention, no operand bundles) whose arguments are F's parameters in order and whose function type equals F's, followed by `ret void` or `ret` of that call's result; then `resolve(F) = resolve(G)`, except that a thunk on a cycle of thunks resolves to itself (it is an ordinary defined function whose execution recurses until a budget or the host stops it; 0.1's `BD-E-REGION-THUNK` is deleted).
+  <1>1 [req] `resolve(F)` follows aliases to their aliasee and **forwarding thunks** to their target: F is a forwarding thunk of G iff F's body is one block holding exactly a call of G (optionally `tail`/`musttail`/`notail`, default calling convention, no operand bundles) whose arguments are F's parameters in order and whose function type equals F's, followed by `ret void` or `ret` of that call's result; then `resolve(F) = resolve(G)`, except that a thunk on a cycle of thunks resolves to itself (it is an ordinary defined function whose execution recurses until a budget or the host stops it; 0.1's `BD-E-REGION-THUNK` is deleted).
 DLT-7.2-P5
   <1>1 [req] **Dispatch.** The region operand is classical data.
   <1>2 [req] The plugin compiles a body for every candidate.
@@ -1372,7 +1373,7 @@ DLT-7.2-P5
   <1>4 [req] No match is the run-time trap `T-REGION` (fault code 4).
   <1>5 [req] A candidate with no definition (an external declaration, a function without bitcode) is entered as a trapped call: F(8) with a coverage line (§4.5 item 4).   deps: DLT-2-P15.S1 (trapped), DLT-4.5-P5
 DLT-7.2-P6
-  <1>1 [def] **Ill-formed candidates.** A candidate that is not well-formed for the marker's kind (a type other than §7.1's, or a violation of §7.5) is compiled as a **trap body** (`T-REGION-INVALID`, fault code 4) with a coverage line: it may never be dispatched, so it is not a compile-time error.   deps: DLT-7.1, DLT-7.5
+  <1>1 [req] **Ill-formed candidates.** A candidate that is not well-formed for the marker's kind (a type other than §7.1's, or a violation of §7.5) is compiled as a **trap body** (`T-REGION-INVALID`, fault code 4) with a coverage line: it may never be dispatched, so it is not a compile-time error.   deps: DLT-7.1, DLT-7.5
   <1>2 [req] It is rejected (`BD-E-REGION-TYPE`, `BD-E-REGION-MEASURE`, `BD-E-REVERSIBLE-MEASURE`) only when it is the **unique** candidate, because then every execution of the marker fails (outline E14).   deps: DLT-22.1-P14.S1 (BD-E-REGION-TYPE), DLT-22.1-P15.S1 (BD-E-REGION-MEASURE), DLT-22.1-P16.S1 (BD-E-REVERSIBLE-MEASURE)
 DLT-7.2-P7
   <1>1 [req] 0.1's `BD-E-REGION-UNBOUNDED` and `BD-E-REGION-EXTERNAL` are deleted.
@@ -1384,7 +1385,7 @@ DLT-7.2-P7
 DLT-7.3-P1
   <1>1 [req] A region is identified by its content, never by its symbol.
   <1>2 [req] Candidates that resolve to the same function are one region.
-  <1>3 [def] The semantic identity of an **oracle region** in a shape (§8.4) is the interface hash (ISA §9.2) of `@ref` in its reference object (§16.2): every lproc, data image and layout leaf of the closure is part of it, and `@ref`, `@L<n>`, `@G<n>` are fixed names, so two functions with equal materialised bodies have equal identity whatever their source names.   deps: DLT-16-P1.S1 (reference object), DLT-8.4, ISA-9.2, DLT-16.2
+  <1>3 [req] The semantic identity of an **oracle region** in a shape (§8.4) is the interface hash (ISA §9.2) of `@ref` in its reference object (§16.2): every lproc, data image and layout leaf of the closure is part of it, and `@ref`, `@L<n>`, `@G<n>` are fixed names, so two functions with equal materialised bodies have equal identity whatever their source names.   deps: DLT-16-P1.S1 (reference object), DLT-8.4, ISA-9.2, DLT-16.2
   <1>4 [req] Symbol names, linkage, aliases and thunks are non-normative: diagnostics and coverage entries MAY print them.
   <1>5 [req] Budget lookup uses the separate provisional `selection_identity` and the once-only staging of §9.2, never a fixed point in this final semantic identity.   deps: DLT-9.2-P3.S2 (selection_identity), DLT-9.2
 DLT-7.3-P2
@@ -1398,7 +1399,7 @@ DLT-7.3-P2
 ````text
 DLT-7.4-P1
   <1>1 [req] NS §4.2: "the plugin classifies each outlined region by its contents and the verifier checks the declared interface".
-  <1>2 [unc] After the TDL partition (§10):   deps: DLT-10
+  <1>2 [req] After the TDL partition (§10):   deps: DLT-10
 DLT-7.4-P2
   <1>1 [req] an action region whose generated events are all permutation events (X-family gates, `qload`, `qstore`, `qexch`, oracle calls, permutation actions) is emitted as an ISA `perm_action` (ISA §5.3), which certificates can verify by T3; otherwise as an `action`;   deps: DLT-7.1-P7.S3 (action region), ISA-5.3
 DLT-7.4-P3
@@ -1414,7 +1415,7 @@ DLT-7.4-P4
 DLT-7.5-P1
   <1>1 [req] Only the rules the north star requires:
 DLT-7.5-P2
-  <1>1 [def] **(a) Measurement in a unitary region.** A `measure` call in the closure of an action region is `BD-E-REGION-MEASURE` (NS §3.1: "user measurement inside it is refused"), unless the module requests **deferred measurement** with the module flag `!{i32 1, !"bennett.measure_in_unitary", !"defer"}` (NS §3.1: "or, when the front end asks for it, deferred by the deferred-measurement principle, which the certificate states").   deps: DLT-22.1-P15.S1 (BD-E-REGION-MEASURE), DLT-7.1-P7.S3 (action region)
+  <1>1 [req] **(a) Measurement in a unitary region.** A `measure` call in the closure of an action region is `BD-E-REGION-MEASURE` (NS §3.1: "user measurement inside it is refused"), unless the module requests **deferred measurement** with the module flag `!{i32 1, !"bennett.measure_in_unitary", !"defer"}` (NS §3.1: "or, when the front end asks for it, deferred by the deferred-measurement principle, which the certificate states").   deps: DLT-22.1-P15.S1 (BD-E-REGION-MEASURE), DLT-7.1-P7.S3 (action region)
   <1>2 [req] Then a `measure(h, i)` inside a generation becomes a `qcopy` of `h.i` onto a fresh wire w (ISA §4.5), the call's `i1` result is a Co value whose wire is w (§10, TDL-2 seed).   deps: DLT-10-P3.S1 (TDL-2), DLT-2-P3.S2 (wire), ISA-4.5, DLT-10
   <1>3 [req] Retain this intentional outcome record until the first permitted CC measurement boundary after the outermost action returns, and measure it there before the next source operation.   deps: DLT-2-P7.S1 (CC)
   <1>4 [req] Earlier removal requires the complete instrument (outcomes and correlations included) to be unchanged; an open window alone never justifies quncopy.
@@ -1532,12 +1533,12 @@ DLT-8.1-P5
 ````text
 DLT-8.2-P1
   <1>1 [req] Let the dispatched region function have IR parameters p_0 … p_{m−1} and return type R (`void` or a first-class type of at most 128 payload bits after N25, §12.2).   deps: DLT-12.2-P27.S1 (N25), DLT-12.2
-  <1>2 [unc] Before binding, represent each floating-point scalar by its §13.1 integer carrier (half/bfloat i16, float i32, double i64, x86_fp80 i80, fp128/ppc_fp128 i128).   deps: DLT-13.1
-  <1>3 [unc] IN and ARG bind carrier bits.
+  <1>2 [req] Before binding, represent each floating-point scalar by its §13.1 integer carrier (half/bfloat i16, float i32, double i64, x86_fp80 i80, fp128/ppc_fp128 i128).   deps: DLT-13.1
+  <1>3 [req] IN and ARG bind carrier bits.
   <1>4 [req] Flatten aggregate/vector parameters depth-first in field/lane order, one Bind per scalar field; apply N21/N22 first.   deps: DLT-12.2-P23.S1 (N21), DLT-12.2-P24.S1 (N22)
-  <1>5 [unc] `param[i]` binds flattened field i.
+  <1>5 [req] `param[i]` binds flattened field i.
   <1>6 [req] Results concatenate fields in the same order, field 0 in the lowest bits, no padding; width is the sum of scalar carrier widths.
-  <1>7 [unc] N25 demotes results whose packed width exceeds 128 bits.   deps: DLT-12.2-P27.S1 (N25)
+  <1>7 [req] N25 demotes results whose packed width exceeds 128 bits.   deps: DLT-12.2-P27.S1 (N25)
   <1>8 [req] Memory accesses retain datalayout padding; this padding is never part of the packed return payload:
 DLT-8.2-P2
   <1>1 [req] `IN` | 1 | `iW` or `ptr addrspace(a)` (W = P(a)) | q with n(q) ≤ W | the parameter's value is the basis value of q, zero-extended (`mode` = ZEXT 0) or sign-extended (`mode` = SEXT 1) to W; a `ptr` parameter may be `IN` (a superposed pointer) | an `ins` bundle `x<k>:wire[n(q)]` (a pseudo-location, ISA §3.7), extended by `lift.zext`/`lift.sext` in the wrapper   deps: DLT-2-P3.S2 (wire), ISA-3.7
@@ -1588,9 +1589,9 @@ DLT-8.4-P1
   <1>4 [req] At run time the caller's tier reads the descriptor and selects the compiled shape with the compare tree of §14.2; a descriptor that matches no compiled shape traps (`T-IFACE`), which happens only for a field outside its table.   deps: DLT-14.2
   <1>5 [req] `value` and `size` of `ARG` bindings are the oracle's classical arguments and are not part of the shape.
   <1>6 [non] *(non-normative)* With one valid value per shape field there is one shape per candidate.
-  <1>7 [non] Initial zero possibilities still participate in §5; kind 0 is outside the five-kind table and takes T-IFACE rather than creating an additional valid shape.   deps: DLT-5
+  <1>7 [req] Initial zero possibilities still participate in §5; kind 0 is outside the five-kind table and takes T-IFACE rather than creating an additional valid shape.   deps: DLT-5
 DLT-8.4-P2
-  <1>1 [def] The marker then issues, in the caller's tier, one **oracle invocation** (§8.6) whose operands are the static registers the descriptor's handles denote (§6.5), the budget token (§9.5) and the classical arguments.   deps: DLT-2-P3.S1 (register), DLT-8.6, DLT-6.5, DLT-9.5
+  <1>1 [req] The marker then issues, in the caller's tier, one **oracle invocation** (§8.6) whose operands are the static registers the descriptor's handles denote (§6.5), the budget token (§9.5) and the classical arguments.   deps: DLT-2-P3.S1 (register), DLT-8.6, DLT-6.5, DLT-9.5
 ````
 
 ### §8.5 Entry state   [DLT-8.5]
@@ -1613,19 +1614,19 @@ DLT-8.5-P2
   <1>11 [req] Bytes are included only for byte dependencies; the sound default is the complete table, with a smaller proven dependency optional.
   <1>12 [req] Only when both byte and allocator-state dependencies are absent may transfer be omitted and globals start at their images (ISA §3.7), as in rung 4 route A (SQLite §5.2(i)).   deps: ISA-3.7
   <1>13 [req] After replay heap_used, atop and stack-state values equal the caller's call-entry values.
-  <1>14 [def] Otherwise the plugin emits an **entry-state transfer**:
+  <1>14 [req] Otherwise the plugin emits an **entry-state transfer**:
 DLT-8.5-P3
   <1>1 [req] **Snapshot.** At the call the caller's tier forms the byte string S = k ‖ (size_i ‖ live_i)_{i<k} ‖ G ‖ Hb, where k is an 8-byte little-endian count of heap allocations in the caller's allocation table (in allocation order, ISA §7.1), `size_i` and `live_i` are 8-byte little-endian fields (`live_i` is 0 or 1), G is the bytes of the mutable globals in R in `layout.globals` order, and Hb is the bytes of every live heap allocation in allocation order if R contains a heap object or shadow-stack backing allocation (else empty); each live Hb segment has exactly size_i bytes, even for size_i=0.   deps: ISA-7.1
   <1>2 [req] S is zero-padded to 2^A_s bytes, where A_s is the smallest exponent with 2^A_s ≥ 8 + 16·N_alloc + Σ|G| + `heap_limit_max` (N_alloc the allocation-table capacity of the layout, §19.5); A_s is static.   deps: DLT-19.5
   <1>3 [req] The snapshot bytes S are assembled in a plugin-added unnamed CC global of 2^A_s bytes, zero-filled before every build; thus all 16-byte leaf loads, including padding, are valid.   deps: DLT-2-P7.S1 (CC)
 DLT-8.5-P4
-  <1>1 [def] **Register.** The CC tier builds a register of 8·2^A_s wires holding S with a **concat tree** of A_s − 3 static-width CC functions `B_j` (j = 4, …, A_s): `B_4(p)` executes `qreg.new any 128`, loads the 16 bytes at p as two `i64` values and makes the `oracle_call` of the runtime oracle `@xor128` (§16.5) that XORs them into the register (with a token minted at launch for budget (6, 0, 0, 0) and a fresh 4-wire fault register, which stays clean and is freed); `B_j(p)` (j > 4) returns `qreg.concat B_{j−1}(p) B_{j−1}(p + 2^{j−1})`.   deps: DLT-2-P7.S1 (CC), DLT-2-P3.S1 (register), DLT-2-P3.S2 (wire), DLT-8.2-P7.S3 (fault register), DLT-16.5
+  <1>1 [req] **Register.** The CC tier builds a register of 8·2^A_s wires holding S with a **concat tree** of A_s − 3 static-width CC functions `B_j` (j = 4, …, A_s): `B_4(p)` executes `qreg.new any 128`, loads the 16 bytes at p as two `i64` values and makes the `oracle_call` of the runtime oracle `@xor128` (§16.5) that XORs them into the register (with a token minted at launch for budget (6, 0, 0, 0) and a fresh 4-wire fault register, which stays clean and is freed); `B_j(p)` (j > 4) returns `qreg.concat B_{j−1}(p) B_{j−1}(p + 2^{j−1})`.   deps: DLT-2-P7.S1 (CC), DLT-2-P3.S1 (register), DLT-2-P3.S2 (wire), DLT-8.2-P7.S3 (fault register), DLT-16.5
   <1>2 [req] Every type is static and the cost is 2^(A_s−4) region calls.
   <1>3 [req] The register is bound as an extra `in` region `s0:region[A_s,8]`.   deps: DLT-2-P3.S1 (register)
 DLT-8.5-P5
   <1>1 [req] **Replay.** The wrapper prologue (§16.2) calls the runtimes function `__bennett_rt_entry_replay(s0)`, which for i < k executes `__bennett_nz_alloc(size_i)` (ISA `lift.alloc`) and, if `live_i` = 0, `__bennett_nz_free` of the result.   deps: DLT-16.2
   <1>2 [req] ISA §4.2 `lift.alloc` and ISA §7.1 `alloc` share the rule "bump + max(n, 1) from `heap_base`", so the replay reproduces the caller's heap addresses exactly (audit O-07).   deps: ISA-4.2, ISA-7.1
-  <1>3 [unc] It then copies G into the globals (by the driver-generated table `__bennett_rt_entry_table` of their addresses and sizes) and Hb into the replayed live allocations.
+  <1>3 [req] It then copies G into the globals (by the driver-generated table `__bennett_rt_entry_table` of their addresses and sizes) and Hb into the replayed live allocations.
 DLT-8.5-P6
   <1>1 [req] **Release.** The snapshot register holds the basis state |S⟩ and is unentangled after every oracle call (an `in` region is unchanged on every basis configuration, ISA §5.2).   deps: DLT-2-P3.S1 (register), ISA-5.2
   <1>2 [req] The caller keeps it for later calls only while its dependent bytes and allocator metadata are unchanged.
@@ -1635,8 +1636,8 @@ DLT-8.5-P6
 DLT-8.5-P7
   <1>1 [req] The replay's rows, allocations and calls are part of the reference body and count against the budget (§9.4).   deps: DLT-9.4
   <1>2 [req] Entry-state transfer from R-tier code needs registers allocated in R (BLK-4, §25.1); no rung uses it.   deps: DLT-25.1-P5.S1 (BLK-4), DLT-2-P3.S1 (register), DLT-25.1
-  <1>3 [def] **Build-time snapshots** (rung 7, §19.6) rewrite the initialisers of the mutable globals to snapshot values at link time, so byte transfer may be empty; allocator dependencies still require replay.   deps: DLT-19.6
-  <1>4 [unc] Efficiency: G-12 (§25.3).   deps: DLT-25.3
+  <1>3 [req] **Build-time snapshots** (rung 7, §19.6) rewrite the initialisers of the mutable globals to snapshot values at link time, so byte transfer may be empty; allocator dependencies still require replay.   deps: DLT-19.6
+  <1>4 [req] Efficiency: G-12 (§25.3).   deps: DLT-25.3
 ````
 
 ### §8.6 Oracle invocations and wide outputs   [DLT-8.6]
@@ -1650,7 +1651,7 @@ DLT-8.6-P1
   <1>5 [req] Thus all variants compute the same fault code, even when budget expires in delivery, and all copy-outs are zero on any common failure.   deps: DLT-2-P7.S2 (variant)
   <1>6 [req] For a single slice, retain its existing rows and return directly without an extra projection move.
 DLT-8.6-P2
-  <1>1 [def] **k = 0** (no payload outputs): there is one synthetic variant **W_empty**, with T = 1.   deps: DLT-2-P7.S2 (variant)
+  <1>1 [req] **k = 0** (no payload outputs): there is one synthetic variant **W_empty**, with T = 1.   deps: DLT-2-P7.S2 (variant)
   <1>2 [req] It executes the same prologue, region body and unwind check as other variants; on success its terminal rows are `p0 = lift.const.i1 0` and `lift.retval p0` (§16.2), charged normally.   deps: DLT-2-P7.S2 (variant), DLT-16.2
   <1>3 [req] The caller allocates one clean hidden target bit, invokes `oracle_call @W_empty tk (ins..) hidden fault (mem..) (args..)` exactly once using the caller's required four-wire fault register, then frees the hidden target.   deps: DLT-8.6-P2.S1 (W_empty), DLT-8.2-P7.S3 (fault register)
   <1>4 [req] The hidden bit remains zero on success and fault; it is workspace, not a payload output.
@@ -1659,8 +1660,8 @@ DLT-8.6-P2
 DLT-8.6-P3
   <1>1 [req] **k = 1** (every output fits 128 bits in one register): the invocation is `oracle_call @W_0 tk (ins..) tgt fault (mem..) (args..)`.   deps: DLT-2-P3.S1 (register)
 DLT-8.6-P4
-  <1>1 [unc] **k > 1** (the `wide` event, §18.2): the caller's tier issues, for j = k − 1, …, 1, with slice j at bits [lo_j, lo_j + w_j) of output register o_j:   deps: DLT-2-P3.S1 (register), DLT-18.2
-  <1>2 [ex] (code block, 8 lines) t_j = qreg.new any w_j ; f_j = qreg.new any 4
+  <1>1 [req] **k > 1** (the `wide` event, §18.2): the caller's tier issues, for j = k − 1, …, 1, with slice j at bits [lo_j, lo_j + w_j) of output register o_j:   deps: DLT-2-P3.S1 (register), DLT-18.2
+  <1>2 [req] (code block, 8 lines) t_j = qreg.new any w_j ; f_j = qreg.new any 4
 DLT-8.6-P5
   <1>1 [unc] followed by `s_0 = qreg.slice o_0 lo_0 w_0` and `oracle_call @W_0 tk (ins..) s_0 fault (mem..) (args..)`.
   <1>2 [req] `@xor<w>` is the permutation action `(mut s:wire[w]) (in t:wire[w]) () ()` with body `qxor t s`; each slice view is the operand of exactly one region call (ISA §3.3).   deps: DLT-2-P3.S2 (wire), ISA-3.3
@@ -1682,11 +1683,11 @@ DLT-8.7-P2
 DLT-8.7-P3
   <1>1 [req] **Classical `ARG`s with finite value sets**: one `qinplace` per tuple of argument values, each with the pair specialised to those constants (the arguments become `lift.const` in the reference bodies), dispatched by §14.2.   deps: DLT-2-P10.S1 (value set), DLT-14.2
 DLT-8.7-P4
-  <1>1 [def] **Library bijections**: when the pair is a `bennett-arith` library bijection (add or subtract a value, xor, rotate, negate, byte swap, modular addition, modular multiplication by a unit, each with its stated conditions and its g∘ginv = id certificate, NS §3.1), the call lowers to the library's permutation action with `IN`, `MEM_IN` and `ARG` bindings as its `in`, `mem` and `args` operands, which ISA 0.8 expresses directly (ISA §4.7 `action_call`).   deps: ISA-4.7
+  <1>1 [req] **Library bijections**: when the pair is a `bennett-arith` library bijection (add or subtract a value, xor, rotate, negate, byte swap, modular addition, modular multiplication by a unit, each with its stated conditions and its g∘ginv = id certificate, NS §3.1), the call lowers to the library's permutation action with `IN`, `MEM_IN` and `ARG` bindings as its `in`, `mem` and `args` operands, which ISA 0.8 expresses directly (ISA §4.7 `action_call`).   deps: ISA-4.7
   <1>2 [req] This is also the TDL-5(b) mechanism (§10).   deps: DLT-10-P25.S1 (TDL-5), DLT-10
 DLT-8.7-P5
   <1>1 [req] **User pairs with `IN`, `MEM_IN` or arbitrary `ARG`s**: allocate clean n(x)-wire t and 4-wire f at the CC boundary.   deps: DLT-2-P7.S1 (CC)
-  <1>2 [unc] Issue oracle_call @g tk (x, ins..) t f (mem..) (args..), exchange x and t by a swap action, then oracle_call @ginv tk (x, ins..) t f (mem..) (args..), and qreg.free t and f.
+  <1>2 [req] Issue oracle_call @g tk (x, ins..) t f (mem..) (args..), exchange x and t by a swap action, then oracle_call @ginv tk (x, ins..) t f (mem..) (args..), and qreg.free t and f.
   <1>3 [req] Preserved parameter bindings are identical in both calls.
   <1>4 [req] Under control, predicate every region call including the swap; allocation/free remain unconditional.
   <1>5 [req] This is a CC-level expansion like §8.6, not an assertion that a static action passes ISA §6's coarse provenance windows.   deps: DLT-8.6, ISA-6
@@ -1697,13 +1698,13 @@ DLT-8.7-P6
   <1>2 [req] Above that width it MUST record a `sampled` evidence claim (ISA §12.1) of the same check and B_sample over the sample as an observed lower bound only, and the dynamic net applies: a wrong inverse leaves the scratch register of the `qinplace` expansion non-clean, which `T-CLEAN` catches (NS §3.1).   deps: DLT-2-P3.S1 (register), ISA-12.1
   <1>3 [req] F_B is monotone in the budget (a run that completes within B completes identically within every B′ ≥ B), so the pair is valid for exactly B ≥ B_min only when the check is exhaustive over the full input/parameter domain.
   <1>4 [req] Sampling cannot establish B_min or universal invertibility.
-  <1>5 [unc] In all sampled cases validity assumes mutually inverse total functions and a sound bound B_bound covering every input and parameter value.
+  <1>5 [req] In all sampled cases validity assumes mutually inverse total functions and a sound bound B_bound covering every input and parameter value.
   <1>6 [req] A library or producer-supplied bound is permitted with an explicit correctness obligation recorded in the certificate; no mechanised proof format is required.
   <1>7 [req] B_sample never substitutes for B_bound, and T-CLEAN is not a universal budget guarantee.
   <1>8 [req] Use B_bound in the following budget checks for sampled pairs.
   <1>9 [req] A pair that fails the check, or whose budget is static and below B_min in some component, is `BD-E-INPLACE-NOT-INVERSE` (NS §3.1: "an in-place update with no inverse fails loud at compile time"; "a fallible or budget-limited computation cannot be in-place"); a run-time budget (§9.5) below B_min traps at the marker (`T-BUDGET`).   deps: DLT-22.1-P18.S1 (BD-E-INPLACE-NOT-INVERSE), DLT-9.5
   <1>10 [non] *(non-normative)* On a finite set, ginv∘g = id makes g injective, hence a bijection, so g∘ginv = id and ginv is fault-free on every input, as ISA `qinplace` requires.
-  <1>11 [non] 0.1's `BD-E-INPLACE-UNVERIFIED` is deleted.
+  <1>11 [req] 0.1's `BD-E-INPLACE-UNVERIFIED` is deleted.
 ````
 
 ### §8.8 Examples   [DLT-8.8]
@@ -1774,7 +1775,7 @@ DLT-9-P1
 
 ````text
 DLT-9.1-P1
-  <1>1 [def] Every region-entry marker takes a `ptr` to a **budget record** (outline E1, E12), the LLVM struct `{ i64, i64, i64, i64, ptr }` under the datalayout (C `bennett_budget`, §3.3):   deps: DLT-3.3
+  <1>1 [req] Every region-entry marker takes a `ptr` to a **budget record** (outline E1, E12), the LLVM struct `{ i64, i64, i64, i64, ptr }` under the datalayout (C `bennett_budget`, §3.3):   deps: DLT-3.3
 DLT-9.1-P2
   <1>1 [req] `steps` | B: reference-interpreter rows (§9.4)   deps: DLT-9.4
 DLT-9.1-P3
@@ -1798,10 +1799,10 @@ DLT-9.2-P1
   <1>1 [req] The budget-table JSON schema version remains 0.2; it is separate from full dialect 0.2.10.
 DLT-9.2-P2
   <1>1 [def] The **budget table** is a driver input (`--bennett-budgets=<file>`), one JSON document in RFC 8785 canonical form:
-  <1>2 [ex] (code block, 6 lines) { "version": "0.2",
+  <1>2 [def] (code block, 6 lines) { "version": "0.2",
 DLT-9.2-P3
   <1>1 [unc] with D a decimal string.
-  <1>2 [def] Selectors are `identity` (a provisional shape interface hash, **selection_identity**, defined below), `region_key` (§7.3), or a source-symbol glob (`*` and `?`).   deps: DLT-7.3
+  <1>2 [req] Selectors are `identity` (a provisional shape interface hash, **selection_identity**, defined below), `region_key` (§7.3), or a source-symbol glob (`*` and `?`).   deps: DLT-7.3
   <1>3 [req] Resolution is staged and MUST NOT seek a fixed point:
 DLT-9.2-P4
   <1>1 [req] Resolve baseline values per region, shape and component, ignoring identity entries: the first matching region-key entry naming that component, else the first matching symbol entry naming it, else the default.
@@ -1809,26 +1810,26 @@ DLT-9.2-P4
   <1>3 [req] `sstack` is shadow-stack bytes (§17.3), part of the heap budget.   deps: DLT-17.3
 DLT-9.2-P5
   <1>1 [req] Freeze the link's layout capacities (§16.3) using componentwise maxima of all effective defaults, every raw table entry (including unmatched identity entries), and non-sentinel statically supplied budget fields (the all-ones sentinel is a lookup request, not a capacity).   deps: DLT-16.3
-  <1>2 [unc] Neither lookup nor final-object generation shrinks or recomputes these capacities.
+  <1>2 [req] Neither lookup nor final-object generation shrinks or recomputes these capacities.
 DLT-9.2-P6
-  <1>1 [unc] Construct each shape's provisional reference object under that frozen layout, with baseline `sstack` and other baseline wrapper inputs.   deps: DLT-16-P1.S1 (reference object)
+  <1>1 [req] Construct each shape's provisional reference object under that frozen layout, with baseline `sstack` and other baseline wrapper inputs.   deps: DLT-16-P1.S1 (reference object)
   <1>2 [req] Its interface hash is `selection_identity`.   deps: DLT-9.2-P3.S2 (selection_identity)
 DLT-9.2-P7
   <1>1 [req] For each component overlay the first identity entry naming that component whose selector equals `selection_identity`, else keep its baseline value.   deps: DLT-9.2-P3.S2 (selection_identity)
-  <1>2 [def] Apply this overlay **once only**.
+  <1>2 [req] Apply this overlay **once only**.
   <1>3 [req] Generate the final object using the resolved values; its hash is the semantic identity of §7.3.   deps: DLT-7.3
-  <1>4 [unc] Never rematch against this final hash.
+  <1>4 [req] Never rematch against this final hash.
 DLT-9.2-P8
   <1>1 [req] Explicit marker-record fields and table sentinels retain §9.1/§9.5 precedence: only table-sourced components use this lookup; non-sentinel explicit fields stay explicit.   deps: DLT-9.1, DLT-9.5
   <1>2 [req] Provisionally and finally, the same explicit fields are applied after table lookup.
   <1>3 [req] The resolved table and build record (§19.9) record per shape both `selection_identity` and final `identity`, the resolved components, frozen capacities and the resolved-table SHA-256.   deps: DLT-19.9-P16.S1 (build record), DLT-9.2-P3.S2 (selection_identity), DLT-19.9
   <1>4 [req] Launch tokens bind the **final** object identity and resolved budget tuple, never the provisional hash.
-  <1>5 [unc] A steps-only overlay leaves the object hash unchanged but changes its token.
+  <1>5 [req] A steps-only overlay leaves the object hash unchanged but changes its token.
   <1>6 [req] Multiple shapes resolve separately.
   <1>7 [ex] (code block, 3 lines) {"defaults":{"depth":"64","heap":"0","sstack":"0","stack":"1024","steps":"100000…
 DLT-9.2-P9
   <1>1 [non] *(non-normative)* This is the budget table of the reduced rung-4 link of §16.7: the entry names the region function `q` by symbol; the defaults govern every other region of that link.   deps: DLT-9.2-P2.S1 (budget table), DLT-16.7
-  <1>2 [non] Its largest heap (0) and stack (1024) fix that link's `heap_limit_max` and `S_cells` (§16.3); the entry's 400 steps, 512 cells and depth 8 cover the 112 steps, 126 cells and depth 4 that the runs of §16.7 need.   deps: DLT-16.3, DLT-16.7
+  <1>2 [req] Its largest heap (0) and stack (1024) fix that link's `heap_limit_max` and `S_cells` (§16.3); the entry's 400 steps, 512 cells and depth 8 cover the 112 steps, 126 cells and depth 4 that the runs of §16.7 need.   deps: DLT-16.3, DLT-16.7
 DLT-9.2-P10
   <1>1 [req] **Staged identity witness (`budget-stage`).** At O0 the 24-byte alloca survives on LLVM 18 and 23.
   <1>2 [req] N24 emits one 24-byte frame; with its 8-byte saved-sp header, the linked runtime below needs 32 bytes.   deps: DLT-12.2-P26.S1 (N24)
@@ -1876,7 +1877,7 @@ DLT-9.4-P2
 DLT-9.5-P1
   <1>1 [req] A budget field of a record is resolved, in this order:
 DLT-9.5-P2
-  <1>1 [unc] **Static**: a constant, `BENNETT_BUDGET_TABLE`, or a finite value set (§5.3).   deps: DLT-2-P10.S1 (value set), DLT-5.3
+  <1>1 [req] **Static**: a constant, `BENNETT_BUDGET_TABLE`, or a finite value set (§5.3).   deps: DLT-2-P10.S1 (value set), DLT-5.3
   <1>2 [req] The driver's launch stub mints one token per (reference object, budget tuple) with `bennett_budget` (ISA §10) at launch and passes them to the CC entry as `TOKEN` arguments; the CC code selects one by the compare tree of §14.2.   deps: DLT-19.2-P2.S1 (launch stub), DLT-16-P1.S1 (reference object), DLT-2-P7.S1 (CC), ISA-10, DLT-14.2
 DLT-9.5-P3
   <1>1 [def] **Launch-supplied**: a field whose abstract value is a bitwise copy of an integer parameter of the device entry (its atoms come only from PT11 for that parameter).   deps: DLT-5.2-P12.S1 (PT11), DLT-5.1-P12.S1 (abstract value)
@@ -1893,8 +1894,8 @@ DLT-9.5-P5
   <1>5 [ex] (code block, 3 lines) BD-B-ISA1 @run call @__bennett_oracle(@inc8): budget field steps = 5 + a 64-bit …   deps: DLT-25.1-P3.S1 (BLK-2)
 DLT-9.5-P6
   <1>1 [non] *(non-normative)* In `budget-device-computed` the oracle's budget depends on measurement outcomes: NS §4.2 "run-time budgets come from the host or from measurement results".
-  <1>2 [non] `%acc2` is a loop phi over 64 measured bits, so its value set is ⊤ (it has 2^64 possible values, beyond K = 4096 atoms); it is neither static nor a bitwise copy of a launch argument, and no launch-time set of tokens covers it.   deps: DLT-2-P10.S1 (value set)
-  <1>3 [non] Each wire of `%c` measured 1 is reset by an `x`, so `%c` is clean at its `qfree` (ISA §3.3).   deps: DLT-2-P3.S2 (wire), ISA-3.3
+  <1>2 [req] `%acc2` is a loop phi over 64 measured bits, so its value set is ⊤ (it has 2^64 possible values, beyond K = 4096 atoms); it is neither static nor a bitwise copy of a launch argument, and no launch-time set of tokens covers it.   deps: DLT-2-P10.S1 (value set)
+  <1>3 [req] Each wire of `%c` measured 1 is reset by an `x`, so `%c` is clean at its `qfree` (ISA §3.3).   deps: DLT-2-P3.S2 (wire), ISA-3.3
 ````
 
 ### §10 Taint-driven lifting under control (tdl 0.2.4)   [DLT-10]
@@ -1907,10 +1908,10 @@ DLT-10-P1
   <1>4 [req] Rule ids TDL-1 to TDL-12 are normative anchors.   deps: DLT-10-P2.S1 (TDL-1), DLT-10-P47.S1 (TDL-12)
   <1>5 [req] ISA 0.8 expresses every construct below: actions call oracles (ISA §5.3, §4.7) and CC issues controlled region calls (ISA §4.7 `ctl w <call>`).   deps: DLT-2-P7.S1 (CC), ISA-5.3, ISA-4.7
 DLT-10-P2
-  <1>1 [def] **TDL-1 Interface vs body.** The marker fixes the interface: `ctrl`, `adj` and `compute` give an action; `oracle` and `inplace` give an oracle.
+  <1>1 [req] **TDL-1 Interface vs body.** The marker fixes the interface: `ctrl`, `adj` and `compute` give an action; `oracle` and `inplace` give an oracle.
   <1>2 [req] The body of an action region is partitioned by content (TDL-3) and is never rejected for containing classical code.   deps: DLT-10-P14.S1 (TDL-3), DLT-7.1-P7.S3 (action region)
 DLT-10-P3
-  <1>1 [def] **TDL-2 Coherence states.**   deps: DLT-2-P13.S1 (Coherence state)
+  <1>1 [req] **TDL-2 Coherence states.**   deps: DLT-2-P13.S1 (Coherence state)
 DLT-10-P4
   <1>1 [req] **Object state.** Every instance of an abstract object X has a dynamic state K(X) ∈ {Cl, M, Co}, kept by the CC tier (a runtimes table for globals, the coherent allocator's bookkeeping for heap objects; §11, §17): Cl (the CC **shadow** holds X's bytes; X's arena cells are |0⟩), M (materialised: the arena cells hold the same bytes as a basis state; both are valid), Co (the arena is the truth and may be superposed; the shadow is invalid).   deps: DLT-2-P7.S1 (CC), DLT-10-P20.S2 (coherent allocator), DLT-11, DLT-17
   <1>2 [req] Every instance starts Cl.
@@ -1934,30 +1935,30 @@ DLT-10-P7
 DLT-10-P8
   <1>1 [def] MC1: the state at a program point is the set of abstract objects that may have K = Co there;   deps: DLT-5.1-P1.S1 (abstract objects)
 DLT-10-P9
-  <1>1 [def] MC2: after an action region invocation (`ctrl`, `adj`, `compute`, or a `reversible` call reached from a generation, §7.4), add every outliving object (TDL-5) that a store in the closure of a candidate may write, if the invocation is `ctrl` or the store may be under an inner control, may store a may-Co value, or may be control-dependent on a may-Co branch;   deps: DLT-10-P25.S1 (TDL-5), DLT-7.1-P7.S3 (action region), DLT-7.4
+  <1>1 [req] MC2: after an action region invocation (`ctrl`, `adj`, `compute`, or a `reversible` call reached from a generation, §7.4), add every outliving object (TDL-5) that a store in the closure of a candidate may write, if the invocation is `ctrl` or the store may be under an inner control, may store a may-Co value, or may be control-dependent on a may-Co branch;   deps: DLT-10-P25.S1 (TDL-5), DLT-7.1-P7.S3 (action region), DLT-7.4
 DLT-10-P10
-  <1>1 [def] MC3: `__bennett_observe(p, len)` removes an object X when AV(p) = {(X, 0)} and len is a constant ≥ size(X); otherwise no change;
+  <1>1 [req] MC3: `__bennett_observe(p, len)` removes an object X when AV(p) = {(X, 0)} and len is a constant ≥ size(X); otherwise no change;
 DLT-10-P11
   <1>1 [def] MC4: an instruction is may-Co if an operand may be Co, it is a load whose AV(p) contains a may-Co object, or it is control-dependent on a may-Co branch (stores and calls included).
   <1>2 [req] A value is may-Co if its instruction is; an object written by a may-Co store is may-Co after the store;
 DLT-10-P12
-  <1>1 [def] MC5: calls bind the coherence signature of the callee (which parameters may be Co, and the may-Co set at entry); every distinct signature is a variant (§4.3).   deps: DLT-2-P7.S2 (variant), DLT-4.3
+  <1>1 [req] MC5: calls bind the coherence signature of the callee (which parameters may be Co, and the may-Co set at entry); every distinct signature is a variant (§4.3).   deps: DLT-2-P7.S2 (variant), DLT-4.3
 DLT-10-P13
   <1>1 [def] **Interprocedural and context-sensitive** by coherence signature (MC5; NS §3.1).   deps: DLT-10-P12.S1 (MC5)
 DLT-10-P14
-  <1>1 [def] **TDL-3 Partition.** For each variant of an action region and of its CC callees:   deps: DLT-2-P7.S2 (variant), DLT-7.1-P7.S3 (action region), DLT-2-P7.S1 (CC)
+  <1>1 [req] **TDL-3 Partition.** For each variant of an action region and of its CC callees:   deps: DLT-2-P7.S2 (variant), DLT-7.1-P7.S3 (action region), DLT-2-P7.S1 (CC)
 DLT-10-P15
   <1>1 [req] **G (generation)**: the instructions MC does not mark may-Co.
   <1>2 [req] G runs in CC, once per invocation (§18.4).   deps: DLT-2-P7.S1 (CC), DLT-18.4
 DLT-10-P16
-  <1>1 [def] **Slices**: every maximal single-entry single-exit region of may-Co instructions other than stores to outliving objects and marker calls is outlined (LLVM `CodeExtractor`) into a **slice function** S_k, with: classical live-ins → `ARG` parameters; Co live-ins → `IN` parameters; may-Co objects it loads → the arena, bound as a `MEM_IN` region `coh`; Co live-outs → outputs (§8.6).   deps: DLT-10-P18.S1 (marker calls), DLT-8.6
+  <1>1 [req] **Slices**: every maximal single-entry single-exit region of may-Co instructions other than stores to outliving objects and marker calls is outlined (LLVM `CodeExtractor`) into a **slice function** S_k, with: classical live-ins → `ARG` parameters; Co live-ins → `IN` parameters; may-Co objects it loads → the arena, bound as a `MEM_IN` region `coh`; Co live-outs → outputs (§8.6).   deps: DLT-10-P18.S1 (marker calls), DLT-8.6
   <1>2 [req] An irreducible may-Co region is outlined as a whole function.
   <1>3 [req] S_k is normalised (§12) and lifted (§16) like any oracle region; its entry state is the generation's view (§8.5: the arena for may-Co objects, the shadow for the rest).   deps: DLT-12, DLT-16, DLT-8.5
-  <1>4 [def] Each slice also keeps its original instructions as a **classical twin** in G.
+  <1>4 [req] Each slice also keeps its original instructions as a **classical twin** in G.
 DLT-10-P17
-  <1>1 [def] At run time the generation runs the classical twin when every live-in of the slice is Cl and every object it may load has view Cl; otherwise it records a **slice invocation**: before it, every live instance of a may-Co object the slice may load whose state is Cl is materialised (Cl → M); the invocation computes the Co live-outs into fresh registers (`compute` events, §18.2).   deps: DLT-10-P16.S4 (classical twin), DLT-2-P3.S1 (register), DLT-18.2
+  <1>1 [req] At run time the generation runs the classical twin when every live-in of the slice is Cl and every object it may load has view Cl; otherwise it records a **slice invocation**: before it, every live instance of a may-Co object the slice may load whose state is Cl is materialised (Cl → M); the invocation computes the Co live-outs into fresh registers (`compute` events, §18.2).   deps: DLT-10-P16.S4 (classical twin), DLT-2-P3.S1 (register), DLT-18.2
 DLT-10-P18
-  <1>1 [def] **Stores to outliving objects** and **marker calls** are never inside slices: they become events (TDL-5, TDL-10).   deps: DLT-10-P25.S1 (TDL-5), DLT-10-P38.S1 (TDL-10)
+  <1>1 [req] **Stores to outliving objects** and **marker calls** are never inside slices: they become events (TDL-5, TDL-10).   deps: DLT-10-P25.S1 (TDL-5), DLT-10-P38.S1 (TDL-10)
   <1>2 [req] A store or marker call that is control-dependent on a Co branch is recorded under the branch's condition wire (TDL-10).   deps: DLT-10-P38.S1 (TDL-10), DLT-3.5-P1.S1 (marker call), DLT-2-P3.S2 (wire)
   <1>3 [req] A Co branch is if-converted: the generation constructs both arms from separate copies of the pre-branch view.
   <1>4 [req] Within each arm its own classical updates are interpreted conditional on that arm being taken; the other arm's recorder is invisible.
@@ -1965,10 +1966,10 @@ DLT-10-P18
   <1>6 [req] Views merge only at the join, whose `phi`s become slice-computed selects.
   <1>7 [req] May-Co stores to non-outliving workspace and subsequent dependent reads stay together inside the slice's private memory through the join.
 DLT-10-P19
-  <1>1 [def] **TDL-4 Coherent arena.**
+  <1>1 [req] **TDL-4 Coherent arena.**
 DLT-10-P20
   <1>1 [req] The objects in any may-Co set of MC are placed in the **arena**: a static address range [A_coh, A_coh + 2^A) of the layout, disjoint from CC globals and heap (ISA §7.1, §7.2; G-13 would lift the restriction).   deps: DLT-2-P7.S1 (CC), ISA-7.1, ISA-7.2
-  <1>2 [def] Globals in the set are relocated into the arena by the layout (§19.5) in both builds, so their addresses stay native-equal; heap objects of may-Co allocation sites are allocated by the runtimes' **coherent allocator** in the arena range in both builds.   deps: DLT-19.5
+  <1>2 [req] Globals in the set are relocated into the arena by the layout (§19.5) in both builds, so their addresses stay native-equal; heap objects of may-Co allocation sites are allocated by the runtimes' **coherent allocator** in the arena range in both builds.   deps: DLT-19.5
 DLT-10-P21
   <1>1 [req] The arena's contents are a CC-held register of 8·2^A wires, bound to every slice and arena action as `region[A,8]` (ISA §3.3 binding); cell i is the byte at address A_coh + i.   deps: DLT-2-P3.S1 (register), DLT-2-P3.S2 (wire), ISA-3.3
 DLT-10-P22
@@ -1978,34 +1979,34 @@ DLT-10-P23
   <1>2 [req] Objects at static offsets MAY use a static slice (`qreg.slice` with a literal `lo`) and X gates instead.   deps: DLT-25.2-P5.S1 (`qreg.slice`)
 DLT-10-P24
   <1>1 [req] The physical `coh` interface range is storage, not a logical allocation.
-  <1>2 [unc] Maintain (base, size, live) for every arena global and coherent heap object.
+  <1>2 [req] Maintain (base, size, live) for every arena global and coherent heap object.
   <1>3 [req] Before every program memory access of n bytes at p, require the entire nonwrapping [p,p+n) to lie in one live logical allocation.
   <1>4 [req] Otherwise produce fault 7 before access, including event-producing stores, whose mutation is gated on success.
   <1>5 [req] The pinned ISA interface entry never satisfies this additional check.
   <1>6 [req] The default is an ordinary materialised runtime helper `__bennett_rt_coh_check(p,n,table)` over the metadata: visit entries in allocation order, OR their live-and-contained predicates, fault 7 when false, then access.
   <1>7 [req] All helper rows are charged.
   <1>8 [req] A statically proven contained access may omit the helper.
-  <1>9 [unc] Coherent alloc/free update the same table before subsequent access; snapshot/slice entry transfers metadata along with the corresponding arena view, using preserved `in` metadata for a slice.
+  <1>9 [req] Coherent alloc/free update the same table before subsequent access; snapshot/slice entry transfers metadata along with the corresponding arena view, using preserved `in` metadata for a slice.
   <1>10 [req] Superposed addresses use this same lifted helper, without classical inspection.
 DLT-10-P25
-  <1>1 [def] **TDL-5 Stores to outliving objects (the store rule).** An object **outlives** an invocation if it is live after it: a global, an object reachable from `env`, or a heap object not freed in the invocation.   deps: DLT-10-P18.S1 (Stores to outliving objects)
+  <1>1 [req] **TDL-5 Stores to outliving objects (the store rule).** An object **outlives** an invocation if it is live after it: a global, an object reachable from `env`, or a heap object not freed in the invocation.   deps: DLT-10-P18.S1 (Stores to outliving objects)
   <1>2 [req] A store `store v, ptr p` executed during a generation to an outliving object X is realised by cases on the view of the bytes it writes:
 DLT-10-P26
   <1>1 [req] **(a) View Cl** (the old bytes c are known to CC).   deps: DLT-2-P7.S1 (CC)
 DLT-10-P27
-  <1>1 [unc] v and p Cl: the event `xmask X+o, c ⊕ v` (o = p − X's base).
+  <1>1 [req] v and p Cl: the event `xmask X+o, c ⊕ v` (o = p − X's base).
 DLT-10-P28
   <1>1 [req] v or p Co: a slice invocation O computes the address and the mask c ⊕ v into fresh registers (c is a classical argument of O); the event `xstore coh a_w m_w` XORs the mask into the addressed cells (`qstore`); a second identical invocation of O uncomputes the registers.   deps: DLT-10-P17.S1 (slice invocation), DLT-2-P3.S1 (register)
   <1>2 [req] O never loads X's written bytes from the arena (their view is Cl, so O receives them as arguments), and no instruction between the two invocations writes anything O reads, so the second invocation cleans them exactly (ISA §5.2 involution).   deps: ISA-5.2
 DLT-10-P29
-  <1>1 [unc] Exact; no history.
+  <1>1 [req] Exact; no history.
 DLT-10-P30
   <1>1 [req] **(b) View Co, and the update is a library bijection** in the old value: the materialised IR is `x = load X+o; y = op(x, k…); store y, X+o` with no intervening store to X, where op is one of: add or sub of k (wrapping at the access width), xor with k, rotate by a constant, negate, `bswap`, add of k modulo a constant m (with x < m), multiply by a constant k modulo m with gcd(k, m) = 1 (with x < m); or a declared `inplace` pair (§8.7). k may be Cl or Co (an `IN` binding of a slice output); k MUST NOT depend on X's written bytes.   deps: DLT-8.7
   <1>2 [req] The event is the `bennett-arith` permutation action for op on the arena cells X+o with k as `in` or `args` (ISA §4.7), preceded by the slice invocation that computes a Co k and followed by its uncomputation.   deps: DLT-10-P17.S1 (slice invocation), ISA-4.7
   <1>3 [req] The complete predicated update MUST be a total bijection on the declared mutable interface, with bounded inverse and clean non-fault workspace.
   <1>4 [req] A bijective op alone is insufficient when its condition depends on the changed bytes.
 DLT-10-P31
-  <1>1 [unc] **(c) View Co, inside the `f` part of `compute(f, use, budget, env)`**: history.
+  <1>1 [req] **(c) View Co, inside the `f` part of `compute(f, use, budget, env)`**: history.
   <1>2 [req] A slice invocation computes the new bytes into a fresh register t; the event `xchg coh a t` exchanges t with the cells (`qexchm`); t now holds the displaced bytes and is kept until adjoint(E_f) replays the events in reverse (`xchg` again, then the slice invocation again), which cleans it (NS §3.1 compute-with-uncompute; Bennett).   deps: DLT-2-P3.S1 (register), DLT-10-P17.S1 (slice invocation)
   <1>3 [req] `use` MUST NOT write bytes that f wrote by case (c) (`BD-E-COHERENT-OVERWRITE` otherwise: the replay would not restore them).   deps: DLT-22.1-P19.S1 (BD-E-COHERENT-OVERWRITE)
 DLT-10-P32
@@ -2016,7 +2017,7 @@ DLT-10-P33
   <1>1 [req] Stores to objects that do not outlive the invocation are workspace: G runs them on the generation's view only when Cl; may-Co workspace stores and dependent reads run in slices in their private memory (§8.5); at exit the objects are released.   deps: DLT-8.5
   <1>2 [req] Allocation in a generation is unconditional, like every allocation in the ISA (ISA §3.5); the release of an object that outlives the invocation is TDL-12.   deps: DLT-10-P47.S1 (TDL-12), ISA-3.5
 DLT-10-P34
-  <1>1 [def] **TDL-6 Control and adjoint.** `ctrl(q, qi, …)` adds wire q.qi to every event's control set (ISA §4.7 `ctl w`).   deps: DLT-2-P3.S2 (wire), DLT-18.2-P1.S1 (control set), ISA-4.7
+  <1>1 [req] **TDL-6 Control and adjoint.** `ctrl(q, qi, …)` adds wire q.qi to every event's control set (ISA §4.7 `ctl w`).   deps: DLT-2-P3.S2 (wire), DLT-18.2-P1.S1 (control set), ISA-4.7
   <1>2 [req] `oracle_call`, `qexch`, `qexchm`, `qstore`, X and `xmask` are self-adjoint (ISA §5.3 adjoint table); `adj(f)` generates f from the current classical state and applies the adjoint of the event list; `compute` reuses the recording E_f for its uncompute, so masks and history match exactly.   deps: ISA-5.3
 DLT-10-P35
   <1>1 [req] **TDL-7 Workspace and declared outcomes.** Non-fault workspace, including temporary Co conditions and slice data, MUST be cleaned by the adjoint of its exact computing sequence before the invocation returns; `compute` f may retain it only until adjoint(E_f).
@@ -2027,9 +2028,9 @@ DLT-10-P35
   <1>6 [req] Continuation flags, per-iteration conditions and preserved trajectory records are control workspace, including in a standalone adjoint; declaring compiler outputs does not exempt them.
   <1>7 [req] Intentional deferred-measurement records (§7.5a) are separate channel outputs retained until their declared observation boundary, never a cleanup substitute.   deps: DLT-7.5-P2
 DLT-10-P36
-  <1>1 [def] **TDL-8 Faults.** NS §4.2: "a quantum action has no fault outcome of its own: any fallible computation it needs is a lifted oracle it calls, whose fault register it declares among its outputs".   deps: DLT-8.2-P7.S3 (fault register)
+  <1>1 [req] **TDL-8 Faults.** NS §4.2: "a quantum action has no fault outcome of its own: any fallible computation it needs is a lifted oracle it calls, whose fault register it declares among its outputs".   deps: DLT-8.2-P7.S3 (fault register)
   <1>2 [req] Every slice invocation k gets a fresh 4-wire fault register f_k; the uncomputing invocation uses a second fresh register f′_k, which is then cleaned by `qxor f_k f′_k` (both hold the same code) and freed, so f_k holds the slice's code and is retained (TDL-7).   deps: DLT-10-P35.S1 (TDL-7), DLT-10-P17.S1 (slice invocation), DLT-8.2-P7.S3 (fault register), DLT-2-P3.S1 (register)
-  <1>3 [def] At the end of the invocation a runtime combine oracle `@firstfault` (§16.5) XORs the first nonzero code of f_1, …, f_K in event order (including generation-budget and virtual-device fault registers, not just slice codes) into the action's **declared fault register** Φ: the budget record's `fault` field (§9.1), or, when that is null, a register the plugin allocates and retains (TDL-7); f_k, compute copies g_k and a plugin-allocated Φ are declared fault outputs owned by CC.   deps: DLT-10-P35.S1 (TDL-7), DLT-2-P3.S1 (register), DLT-2-P7.S1 (CC), DLT-16.5, DLT-9.1
+  <1>3 [req] At the end of the invocation a runtime combine oracle `@firstfault` (§16.5) XORs the first nonzero code of f_1, …, f_K in event order (including generation-budget and virtual-device fault registers, not just slice codes) into the action's **declared fault register** Φ: the budget record's `fault` field (§9.1), or, when that is null, a register the plugin allocates and retains (TDL-7); f_k, compute copies g_k and a plugin-allocated Φ are declared fault outputs owned by CC.   deps: DLT-10-P35.S1 (TDL-7), DLT-2-P3.S1 (register), DLT-2-P7.S1 (CC), DLT-16.5, DLT-9.1
   <1>4 [req] They are exempt from invocation T-LEAK and are neither measured nor freed at invocation return or device-entry return.
   <1>5 [req] No f_k is freed by firstfault. adjoint(E_f) reuses the same f_k wires (f9 in tdl-d); a cleaned f_k may be freed after that reuse.   deps: DLT-2-P3.S2 (wire)
   <1>6 [req] The CC epilogue means program end: copy successive chunks of at most 128 bits of each remaining declared output into fresh non-view registers and measure those copies (ISA measure consumes the copies).   deps: DLT-2-P7.S1 (CC), DLT-2-P3.S1 (register)
@@ -2045,7 +2046,7 @@ DLT-10-P36
   <1>16 [req] Thus failed results leave dependent arena writes and gates unchanged.
   <1>17 [req] A nonzero rate is a reported quantity (NS §4.2), not an error.
 DLT-10-P37
-  <1>1 [def] **TDL-9 Budget.** Generation G receives its own full region budget.   deps: DLT-2-P13.S4 (Generation)
+  <1>1 [req] **TDL-9 Budget.** Generation G receives its own full region budget.   deps: DLT-2-P13.S4 (Generation)
   <1>2 [req] Before each executed materialised LLVM instruction other than phi/debug/mark it checks and consumes one step; heap and depth are checked before mutation.
   <1>3 [req] Exhaustion is invocation failure, not a source leak.
   <1>4 [req] No further source instruction executes.
@@ -2053,12 +2054,12 @@ DLT-10-P37
   <1>6 [req] Failed gen(f) does not run use; failure of either compute part cancels the still-unapplied composite.
   <1>7 [req] Normal T-LEAK checks apply only to successfully completed source generation.
   <1>8 [req] Nested G execution consumes the enclosing remaining generation limits as well as its own limits, so nesting cannot evade a finite bound.
-  <1>9 [unc] Classical twins charge their executed instructions.
+  <1>9 [req] Classical twins charge their executed instructions.
   <1>10 [req] Compilation never runs G to completion to discover an event list: G is a bounded CC routine executed at invocation.   deps: DLT-2-P7.S1 (CC)
   <1>11 [req] Every slice invocation's token comes from the region-entry marker's budget record, each field completed from the budget table (§9); each slice gets the full record (outline E2).   deps: DLT-10-P17.S1 (slice invocation), DLT-9.2-P2.S1 (budget table), DLT-9
   <1>12 [req] Exhaustion is that slice's `FAULT_BUDGET_*` and reaches TDL-8.   deps: DLT-10-P36.S1 (TDL-8)
 DLT-10-P38
-  <1>1 [def] **TDL-10 Co control of quantum operations and stores.**
+  <1>1 [req] **TDL-10 Co control of quantum operations and stores.**
 DLT-10-P39
   <1>1 [req] A marker call or outliving store that is control-dependent on a Co branch, or a marker call with a Co index or op code: a slice invocation computes the condition (and the index or code) into fresh wires; the event is issued under `qpred` of the condition wire, once per member of the index or code dispatch domain under the predicate "value = member" (ISA §3.5, §4.6); then the wires are uncomputed.   deps: DLT-3.5-P1.S1 (marker call), DLT-10-P17.S1 (slice invocation), DLT-2-P3.S2 (wire), DLT-3.4-P20.S3 (dispatch domain), ISA-3.5, ISA-4.6
 DLT-10-P40
@@ -2080,17 +2081,17 @@ DLT-10-P42
   <1>1 [req] A `qalloc`/`qborrow` whose n is Co allocates the maximum of n's value set, padded to its bound (NS §4.2: "an allocation whose size depends on a qubit is padded to its bound"); gates on wires at or beyond the run-time n are predicated off.   deps: DLT-2-P10.S1 (value set), DLT-2-P3.S2 (wire)
   <1>2 [req] An unbounded value set is BLK-1 (§25.1).   deps: DLT-25.1-P2.S1 (BLK-1), DLT-2-P10.S1 (value set), DLT-25.1
 DLT-10-P43
-  <1>1 [def] **TDL-11 After the region.**
+  <1>1 [req] **TDL-11 After the region.**
 DLT-10-P44
   <1>1 [req] Code that reads an object whose state is Co, inside the closure of a later region entry, is part of that region's slices (TDL-3).   deps: DLT-10-P14.S1 (TDL-3)
 DLT-10-P45
   <1>1 [req] Code outside every generation that may load from, store to, free or otherwise release a may-Co object is compiled in two variants (Cl and Co signatures, §4.3), selected by the object's dynamic state.   deps: DLT-2-P7.S2 (variant), DLT-4.3
   <1>2 [req] Its Co variant at host or CC level traps (`T-TAINT-HOST`, fault code 4), and statically the plugin warns (`BD-W-TAINT-HOST`, naming `__bennett_observe`): NS §4.2, classical outputs of coherent memory leave only through measurement.   deps: DLT-2-P7.S2 (variant), DLT-2-P7.S1 (CC)
   <1>3 [req] A CC store is legal after observation of every byte it writes; for a partial observation while K=Co, permit only the covered basis bytes, update their authoritative arena cells and shadow together and retain that coverage.   deps: DLT-2-P7.S1 (CC)
-  <1>4 [unc] Unobserved Co bytes still trap.
+  <1>4 [req] Unobserved Co bytes still trap.
   <1>5 [req] Release requires full restoration/dematerialisation as TDL-2 states, even inside a generation; it never silently reuses dirty cells.   deps: DLT-10-P3.S1 (TDL-2)
 DLT-10-P46
-  <1>1 [unc] `__bennett_observe(p, len)` observes successive chunks of at most sixteen bytes: copy each chunk's cells into a fresh non-view register of at most 128 wires and ISA `measure` it.   deps: DLT-2-P3.S1 (register), DLT-2-P3.S2 (wire)
+  <1>1 [req] `__bennett_observe(p, len)` observes successive chunks of at most sixteen bytes: copy each chunk's cells into a fresh non-view register of at most 128 wires and ISA `measure` it.   deps: DLT-2-P3.S1 (register), DLT-2-P3.S2 (wire)
   <1>2 [req] Sequential basis measurements preserve the joint distribution.
   <1>3 [req] No whole arena register or slice view is measured.   deps: DLT-2-P3.S1 (register)
   <1>4 [req] Write the outcome into the shadow.
@@ -2098,8 +2099,8 @@ DLT-10-P46
   <1>6 [req] When every byte of X is covered since its last write other than such a permitted CC covering store, XOR the whole measured X out of the arena and set K(X)=Cl.   deps: DLT-2-P7.S1 (CC)
   <1>7 [req] Cl bytes are read from the shadow; M objects are dematerialised first. len=0 changes nothing.
 DLT-10-P47
-  <1>1 [def] **TDL-12 Effects in action regions.** Generations inherit the run's virtual device bindings, established by the CC launch stub from `--bennett-dev` (§19.9) using §8.3 model codes and widths; nested generations inherit the same bindings.   deps: DLT-7.1-P7.S3 (action region), DLT-2-P13.S4 (Generation), DLT-2-P7.S1 (CC), DLT-19.2-P2.S1 (launch stub), DLT-19.9, DLT-8.3
-  <1>2 [unc] Marker signatures stay unchanged.   deps: DLT-2-P1.S1 (Marker)
+  <1>1 [req] **TDL-12 Effects in action regions.** Generations inherit the run's virtual device bindings, established by the CC launch stub from `--bennett-dev` (§19.9) using §8.3 model codes and widths; nested generations inherit the same bindings.   deps: DLT-7.1-P7.S3 (action region), DLT-2-P13.S4 (Generation), DLT-2-P7.S1 (CC), DLT-19.2-P2.S1 (launch stub), DLT-19.9, DLT-8.3
+  <1>2 [req] Marker signatures stay unchanged.   deps: DLT-2-P1.S1 (Marker)
   <1>3 [req] The build/launch record includes bindings, initial images, capacities and state registers.   deps: DLT-2-P3.S1 (register)
   <1>4 [req] Mutable model state (console buffer/length, clock counter, entropy cursor, block overlay and presence bits) is a declared mutable action interface, allocated in the arena at run entry and shared across invocations; entropy/disk images are preserved `in` registers.   deps: DLT-2-P3.S1 (register)
   <1>5 [req] The model's bounded undo log, containing saved overwritten bytes/presence bits needed for inversion, is explicit declared device state, not invocation workspace.   deps: DLT-11.3-P1.S2 (device state)
@@ -2162,8 +2163,8 @@ DLT-11.2-P7
 ````text
 DLT-11.3-P1
   <1>1 [req] In an L variant, an effect marker call becomes a call of the runtimes function `__bennett_dev_<model>_<op>` with the same operands.   deps: DLT-2-P7.S2 (variant), DLT-3.5-P1.S1 (marker call)
-  <1>2 [def] These are ordinary C functions of `bennett-runtimes`, lifted like any code, over the **device state**: runtimes globals `__bennett_dev_<model>_*` that the oracle wrapper's prologue (§16.2) initialises from the descriptor's device bindings (§8.3) before the region function runs.   deps: DLT-16.2, DLT-8.3
-  <1>3 [unc] Their contract:
+  <1>2 [req] These are ordinary C functions of `bennett-runtimes`, lifted like any code, over the **device state**: runtimes globals `__bennett_dev_<model>_*` that the oracle wrapper's prologue (§16.2) initialises from the descriptor's device bindings (§8.3) before the region function runs.   deps: DLT-16.2, DLT-8.3
+  <1>3 [req] Their contract:
 DLT-11.3-P2
   <1>1 [req] `entropy` | base = `lift.addr @e0`, size = 2^A bytes, pos = 0 | `read(p, len)`: if len > size − pos, `__bennett_nz_fault(10)` (`FAULT_ENTROPY_EXHAUSTED`); else copy [base + pos, base + pos + len) to p and pos += len
 DLT-11.3-P3
@@ -2250,49 +2251,49 @@ DLT-12.2-P1
   <1>1 [unc] **Fault replacement F(C)** (§12.3) and the 35 rules.   deps: DLT-12.3
   <1>2 [req] N13, N17, N18 and N20 are 0.1 ids whose rules are replaced (outline §12.2); they are kept as anchors.   deps: DLT-12.2-P15.S1 (N13), DLT-12.2-P19.S1 (N17), DLT-12.2-P20.S1 (N18), DLT-12.2-P22.S1 (N20)
 DLT-12.2-P2
-  <1>1 [def] N0 | the intrinsic families that LLVM defines by its own lowering passes: `llvm.coro.*`; `llvm.matrix.*`; `llvm.type.test`, `llvm.public.type.test`, `llvm.type.checked.load`, `llvm.type.checked.load.relative`, `llvm.icall.branch.funnel`; `llvm.instrprof.*`; `llvm.alloc.token.id`; `llvm.experimental.guard`, `llvm.experimental.widenable.condition` | the normaliser runs, only when the module contains one of them, the passes of the major in use, in this order: `coro-early`, `cgscc(coro-split)`, `coro-cleanup`; `lower-matrix-intrinsics`; `lowertypetests`; `instrprof`; `alloc-token`; `lower-guard-intrinsic`; `lower-widenable-condition` (which gives `true`).
+  <1>1 [req] N0 | the intrinsic families that LLVM defines by its own lowering passes: `llvm.coro.*`; `llvm.matrix.*`; `llvm.type.test`, `llvm.public.type.test`, `llvm.type.checked.load`, `llvm.type.checked.load.relative`, `llvm.icall.branch.funnel`; `llvm.instrprof.*`; `llvm.alloc.token.id`; `llvm.experimental.guard`, `llvm.experimental.widenable.condition` | the normaliser runs, only when the module contains one of them, the passes of the major in use, in this order: `coro-early`, `cgscc(coro-split)`, `coro-cleanup`; `lower-matrix-intrinsics`; `lowertypetests`; `instrprof`; `alloc-token`; `lower-guard-intrinsic`; `lower-widenable-condition` (which gives `true`).
   <1>2 [req] Their output is then normalised by N1–N35   deps: DLT-12.2-P3.S1 (N1), DLT-12.2-P4.S1 (N2), DLT-12.2-P5.S1 (N3), DLT-12.2-P6.S1 (N4), DLT-12.2-P7.S1 (N5), DLT-12.2-P8.S1 (N6), DLT-12.2-P9.S1 (N7), DLT-12.2-P10.S1 (N8), DLT-12.2-P11.S1 (N9), DLT-12.2-P12.S1 (N10), DLT-12.2-P13.S1 (N11), DLT-12.2-P14.S1 (N12), DLT-12.2-P15.S1 (N13), DLT-12.2-P16.S1 (N14), DLT-12.2-P17.S1 (N15), DLT-12.2-P18.S1 (N16), DLT-12.2-P19.S1 (N17), DLT-12.2-P20.S1 (N18), DLT-12.2-P21.S1 (N19), DLT-12.2-P22.S1 (N20), DLT-12.2-P23.S1 (N21), DLT-12.2-P24.S1 (N22), DLT-12.2-P25.S1 (N23), DLT-12.2-P26.S1 (N24), DLT-12.2-P27.S1 (N25), DLT-12.2-P28.S1 (N26), DLT-12.2-P29.S1 (N27), DLT-12.2-P30.S1 (N28), DLT-12.2-P31.S1 (N29), DLT-12.2-P32.S1 (N30), DLT-12.2-P33.S1 (N31), DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33), DLT-12.2-P36.S1 (N34), DLT-12.2-P37.S1 (N35)
 DLT-12.2-P3
-  <1>1 [def] N1 | instruction flags `nsw`, `nuw`, `exact`, `inbounds`, `nusw`, `nneg`, `disjoint`, `samesign`, `inrange` (and `inrange(...)`) | removed: wrapping, inexact, out-of-bounds address arithmetic and the unflagged operation are defined
+  <1>1 [req] N1 | instruction flags `nsw`, `nuw`, `exact`, `inbounds`, `nusw`, `nneg`, `disjoint`, `samesign`, `inrange` (and `inrange(...)`) | removed: wrapping, inexact, out-of-bounds address arithmetic and the unflagged operation are defined
 DLT-12.2-P4
   <1>1 [def] N2 | fast-math flags `nnan`, `ninf`, `nsz`, `arcp`, `contract`, `afn`, `reassoc`, `fast` | removed
 DLT-12.2-P5
-  <1>1 [def] N3 | instruction metadata other than `!dbg` (`!range`, `!nonnull`, `!noundef`, `!align`, `!dereferenceable`, `!dereferenceable_or_null`, `!tbaa`, `!tbaa.struct`, `!alias.scope`, `!noalias`, `!invariant.load`, `!invariant.group`, `!llvm.loop`, `!nontemporal`, `!prof`, `!alloc_token`, …) | removed; N3/N4-removed range information is ignored when computing §5 reference domains   deps: DLT-5
+  <1>1 [req] N3 | instruction metadata other than `!dbg` (`!range`, `!nonnull`, `!noundef`, `!align`, `!dereferenceable`, `!dereferenceable_or_null`, `!tbaa`, `!tbaa.struct`, `!alias.scope`, `!noalias`, `!invariant.load`, `!invariant.group`, `!llvm.loop`, `!nontemporal`, `!prof`, `!alloc_token`, …) | removed; N3/N4-removed range information is ignored when computing §5 reference domains   deps: DLT-5
 DLT-12.2-P6
-  <1>1 [def] N4 | attributes on device function definitions, their parameters and returns, and on every call site in a device function: `noundef`, `nonnull`, `range(...)`, `align` (except together with `byval`, `byref`, `sret`, `inalloca`, `preallocated`), `dereferenceable(...)`, `dereferenceable_or_null(...)`, `nofpclass(...)`, `noalias`, `nocapture`, `captures(...)`, parameter `readnone`/`readonly`/`writeonly`, `returned`, `writable`, `dead_on_unwind`, `initializes(...)`, `allocalign`, `allocptr`; function attributes `memory(...)`, `readnone`, `readonly`, `writeonly`, `argmemonly`, `inaccessiblememonly`, `inaccessiblemem_or_argmemonly`, `willreturn`, `mustprogress`, `nosync`, `nofree`, `norecurse`, `speculatable`, `personality` (after N28) | removed (attribute groups are rewritten; a group shared with an H function is first duplicated)   deps: DLT-12.2-P30.S1 (N28)
+  <1>1 [req] N4 | attributes on device function definitions, their parameters and returns, and on every call site in a device function: `noundef`, `nonnull`, `range(...)`, `align` (except together with `byval`, `byref`, `sret`, `inalloca`, `preallocated`), `dereferenceable(...)`, `dereferenceable_or_null(...)`, `nofpclass(...)`, `noalias`, `nocapture`, `captures(...)`, parameter `readnone`/`readonly`/`writeonly`, `returned`, `writable`, `dead_on_unwind`, `initializes(...)`, `allocalign`, `allocptr`; function attributes `memory(...)`, `readnone`, `readonly`, `writeonly`, `argmemonly`, `inaccessiblememonly`, `inaccessiblemem_or_argmemonly`, `willreturn`, `mustprogress`, `nosync`, `nofree`, `norecurse`, `speculatable`, `personality` (after N28) | removed (attribute groups are rewritten; a group shared with an H function is first duplicated)   deps: DLT-12.2-P30.S1 (N28)
 DLT-12.2-P7
-  <1>1 [def] N5 | calls with no semantic effect: `llvm.assume`, `llvm.sideeffect`, `llvm.donothing`, `llvm.pseudoprobe`, `llvm.fake.use`, `llvm.dbg.*`, `llvm.experimental.noalias.scope.decl`, `llvm.codeview.annotation`, `llvm.var.annotation`, `llvm.reloc.none`, `llvm.prefetch`, `llvm.pcmarker`, `llvm.clear_cache`, `llvm.experimental.convergence.*`, `llvm.seh.*`, `llvm.xray.*`, `llvm.experimental.stackmap`, `llvm.eh.unwind.init`, `llvm.asan.check.memaccess`, `llvm.hwasan.check.memaccess*` | deleted (a token result is never used after deletion of its users) | | N5 | calls that return an operand: `llvm.expect`, `llvm.expect.with.probability`, `llvm.annotation`, `llvm.ptr.annotation`, `llvm.launder.invariant.group`, `llvm.strip.invariant.group`, `llvm.ssa.copy`, `llvm.arithmetic.fence`, `llvm.threadlocal.address`, `llvm.protected.field.ptr`, `llvm.ptrauth.sign`, `llvm.ptrauth.auth`, `llvm.ptrauth.resign`, `llvm.ptrauth.auth.with.pc.and.resign`, `llvm.ptrauth.strip` | every use replaced by operand 0; deleted.
+  <1>1 [req] N5 | calls with no semantic effect: `llvm.assume`, `llvm.sideeffect`, `llvm.donothing`, `llvm.pseudoprobe`, `llvm.fake.use`, `llvm.dbg.*`, `llvm.experimental.noalias.scope.decl`, `llvm.codeview.annotation`, `llvm.var.annotation`, `llvm.reloc.none`, `llvm.prefetch`, `llvm.pcmarker`, `llvm.clear_cache`, `llvm.experimental.convergence.*`, `llvm.seh.*`, `llvm.xray.*`, `llvm.experimental.stackmap`, `llvm.eh.unwind.init`, `llvm.asan.check.memaccess`, `llvm.hwasan.check.memaccess*` | deleted (a token result is never used after deletion of its users) | | N5 | calls that return an operand: `llvm.expect`, `llvm.expect.with.probability`, `llvm.annotation`, `llvm.ptr.annotation`, `llvm.launder.invariant.group`, `llvm.strip.invariant.group`, `llvm.ssa.copy`, `llvm.arithmetic.fence`, `llvm.threadlocal.address`, `llvm.protected.field.ptr`, `llvm.ptrauth.sign`, `llvm.ptrauth.auth`, `llvm.ptrauth.resign`, `llvm.ptrauth.auth.with.pc.and.resign`, `llvm.ptrauth.strip` | every use replaced by operand 0; deleted.
   <1>2 [non] *(non-normative)* Pointer authentication is a target feature with no device counterpart; the identity is one deterministic choice, made identically in both builds
 DLT-12.2-P8
-  <1>1 [def] N6 | `llvm.lifetime.start`, `llvm.lifetime.end`, `llvm.invariant.start`, `llvm.invariant.end` | deleted (a frame is live for its whole activation, §17.3)   deps: DLT-17.3
+  <1>1 [req] N6 | `llvm.lifetime.start`, `llvm.lifetime.end`, `llvm.invariant.start`, `llvm.invariant.end` | deleted (a frame is live for its whole activation, §17.3)   deps: DLT-17.3
 DLT-12.2-P9
   <1>1 [def] N7 | `undef` and `poison` constants: whole operands, vector lanes, aggregate elements, `shufflevector` mask elements, global initialisers | the zero of the type: `0`, `+0.0`, `null`, `zeroinitializer` for a wholly undefined vector or aggregate; mask element `0`
 DLT-12.2-P10
-  <1>1 [def] N8 | `%x = freeze T v` | deleted; every use of `%x` replaced by v
+  <1>1 [req] N8 | `%x = freeze T v` | deleted; every use of `%x` replaced by v
 DLT-12.2-P11
-  <1>1 [def] N9 | `atomic` and `volatile` on loads and stores; `fence`; `atomicrmw`; `cmpxchg` | plain load/store; fence deleted; `atomicrmw op ptr p, T v` → `%nz.l.r = load T, ptr p`, `%nz.v.r = <op> T %nz.l.r, v` for `add`/`sub`/`and`/`or`/`xor` (for `xchg`: v; `min`/`max`/`umin`/`umax`: `icmp` + `select` named `%nz.k.r`, `%nz.v.r`; FP `fadd`/`fsub`: ordinary `fadd`/`fsub` then N32; `fmax`/`fmin`, `fmaximum`/`fminimum`, `fmaximumnum`/`fminimumnum`: respectively `llvm.maxnum`/`llvm.minnum`, `llvm.maximum`/`llvm.minimum`, `llvm.maximumnum`/`llvm.minimumnum` then N32; `nand`: `%nz.a.r = and T %nz.l.r, v`, then `%nz.v.r = xor T %nz.a.r, -1` (these two logical instructions, in this order, without flags); `uinc_wrap`: k=`icmp uge old,v`, i=`add old,1`, new=`select k,0,i`; `udec_wrap`: k=`icmp eq old,0`, g=`icmp ugt old,v`, w=`or k,g`, d=`sub old,1`, new=`select w,v,d`; `usub_cond`/`usub_sat`: k=`icmp uge old,v`, s=`sub old,v`, new=`select k,s,old` / `select k,s,0`. Names are `%nz.{k,i,v}.r`, `%nz.{k,g,w,d,v}.r` and `%nz.{k,s,v}.r` respectively, all arithmetic at T without overflow flags), `store T %nz.v.r, ptr p`, uses of `%r` → `%nz.l.r`; `cmpxchg ptr p, T c, T n` → `%nz.l.r = load`, `%nz.e.r = icmp eq T %nz.l.r, c`, `%nz.s.r = select i1 %nz.e.r, T n, T %nz.l.r`, `store T %nz.s.r, ptr p`, `%nz.a.r = insertvalue { T, i1 } zeroinitializer, T %nz.l.r, 0`, `%r = insertvalue { T, i1 } %nz.a.r, i1 %nz.e.r, 1` (single-thread assumption, recorded in the certificate, §24 D24).   deps: DLT-12.2-P34.S1 (N32), DLT-24-P8.S1 (D24), DLT-24
+  <1>1 [req] N9 | `atomic` and `volatile` on loads and stores; `fence`; `atomicrmw`; `cmpxchg` | plain load/store; fence deleted; `atomicrmw op ptr p, T v` → `%nz.l.r = load T, ptr p`, `%nz.v.r = <op> T %nz.l.r, v` for `add`/`sub`/`and`/`or`/`xor` (for `xchg`: v; `min`/`max`/`umin`/`umax`: `icmp` + `select` named `%nz.k.r`, `%nz.v.r`; FP `fadd`/`fsub`: ordinary `fadd`/`fsub` then N32; `fmax`/`fmin`, `fmaximum`/`fminimum`, `fmaximumnum`/`fminimumnum`: respectively `llvm.maxnum`/`llvm.minnum`, `llvm.maximum`/`llvm.minimum`, `llvm.maximumnum`/`llvm.minimumnum` then N32; `nand`: `%nz.a.r = and T %nz.l.r, v`, then `%nz.v.r = xor T %nz.a.r, -1` (these two logical instructions, in this order, without flags); `uinc_wrap`: k=`icmp uge old,v`, i=`add old,1`, new=`select k,0,i`; `udec_wrap`: k=`icmp eq old,0`, g=`icmp ugt old,v`, w=`or k,g`, d=`sub old,1`, new=`select w,v,d`; `usub_cond`/`usub_sat`: k=`icmp uge old,v`, s=`sub old,v`, new=`select k,s,old` / `select k,s,0`. Names are `%nz.{k,i,v}.r`, `%nz.{k,g,w,d,v}.r` and `%nz.{k,s,v}.r` respectively, all arithmetic at T without overflow flags), `store T %nz.v.r, ptr p`, uses of `%r` → `%nz.l.r`; `cmpxchg ptr p, T c, T n` → `%nz.l.r = load`, `%nz.e.r = icmp eq T %nz.l.r, c`, `%nz.s.r = select i1 %nz.e.r, T n, T %nz.l.r`, `store T %nz.s.r, ptr p`, `%nz.a.r = insertvalue { T, i1 } zeroinitializer, T %nz.l.r, 0`, `%r = insertvalue { T, i1 } %nz.a.r, i1 %nz.e.r, 1` (single-thread assumption, recorded in the certificate, §24 D24).   deps: DLT-12.2-P34.S1 (N32), DLT-24-P8.S1 (D24), DLT-24
   <1>2 [req] Volatile accesses in platform-profile code are first routed by N35 (§20.3)   deps: DLT-12.2-P37.S1 (N35), DLT-20.3
 DLT-12.2-P12
-  <1>1 [def] N10 | `llvm.is.constant.*` | `false` | | N10 | `llvm.objectsize.*(p, min, nullunknown, dynamic)` | `-1` (all ones) if `min` is `false`, else `0` | | N10 | `llvm.allow.runtime.check`, `llvm.allow.ubsan.check` | `true` (checks stay; a failing check is a fault) | | N10 | `llvm.allow.sanitize.address`, `.hwaddress`, `.memory`, `.thread` | `false` (no sanitizer runtime exists in either build) | | N10 | `llvm.get.dynamic.area.offset` | `0` | | N10 | `llvm.vscale` | the constant V of §12.5   deps: DLT-12.5
+  <1>1 [req] N10 | `llvm.is.constant.*` | `false` | | N10 | `llvm.objectsize.*(p, min, nullunknown, dynamic)` | `-1` (all ones) if `min` is `false`, else `0` | | N10 | `llvm.allow.runtime.check`, `llvm.allow.ubsan.check` | `true` (checks stay; a failing check is a fault) | | N10 | `llvm.allow.sanitize.address`, `.hwaddress`, `.memory`, `.thread` | `false` (no sanitizer runtime exists in either build) | | N10 | `llvm.get.dynamic.area.offset` | `0` | | N10 | `llvm.vscale` | the constant V of §12.5   deps: DLT-12.5
 DLT-12.2-P13
-  <1>1 [def] N11 | calls of `llvm.trap`, `llvm.debugtrap`, `llvm.ubsantrap`, `llvm.looptrap` | F(4) | | N11 | `llvm.cond.loop(c)` | the block is split after the call; `br i1 c, label %nz.spin.<f>.<k>, label <rest>`; the new block `nz.spin.<f>.<k>` is `br label %nz.spin.<f>.<k>` (the infinite loop LangRef defines; budgets bound it, §9)   deps: DLT-9
+  <1>1 [req] N11 | calls of `llvm.trap`, `llvm.debugtrap`, `llvm.ubsantrap`, `llvm.looptrap` | F(4) | | N11 | `llvm.cond.loop(c)` | the block is split after the call; `br i1 c, label %nz.spin.<f>.<k>, label <rest>`; the new block `nz.spin.<f>.<k>` is `br label %nz.spin.<f>.<k>` (the infinite loop LangRef defines; budgets bound it, §9)   deps: DLT-9
 DLT-12.2-P14
-  <1>1 [def] N12 | `llvm.abs.*(x, i1 true)`, `llvm.ctlz.*(x, i1 true)`, `llvm.cttz.*(x, i1 true)` | the flag becomes `i1 false`
+  <1>1 [req] N12 | `llvm.abs.*(x, i1 true)`, `llvm.ctlz.*(x, i1 true)`, `llvm.cttz.*(x, i1 true)` | the flag becomes `i1 false`
 DLT-12.2-P15
   <1>1 [def] N13 | (0.1: `memcpy` → `memmove`) | replaced by N26   deps: DLT-12.2-P28.S1 (N26)
 DLT-12.2-P16
-  <1>1 [def] N14 | `%r = shl/lshr/ashr iW a, b` with b not a constant | `%nz.c.r = icmp uge iW b, W`; `%nz.s.r = <op> iW a, b`; `%r = select i1 %nz.c.r, iW 0, iW %nz.s.r` (every shift by ≥ W gives 0, as the ISA's shifts do, ISA §4.1) | | N14 | the same with b a constant ≥ W | every use of `%r` replaced by `0`; deleted   deps: ISA-4.1
+  <1>1 [req] N14 | `%r = shl/lshr/ashr iW a, b` with b not a constant | `%nz.c.r = icmp uge iW b, W`; `%nz.s.r = <op> iW a, b`; `%r = select i1 %nz.c.r, iW 0, iW %nz.s.r` (every shift by ≥ W gives 0, as the ISA's shifts do, ISA §4.1) | | N14 | the same with b a constant ≥ W | every use of `%r` replaced by `0`; deleted   deps: ISA-4.1
 DLT-12.2-P17
   <1>1 [def] N15 | `extractelement`/`insertelement` with any integer index i on L lanes | interpret iK index i as unsigned, including negative spellings.
   <1>2 [req] A constant i<L is left for N21’s in-range lane renaming.   deps: DLT-12.2-P23.S1 (N21)
   <1>3 [req] A constant i>=L replaces all result uses by the zero element (extract) or the unchanged input vector (insert), then deletes the instruction.
   <1>4 [req] For a non-constant index: let W=max(K,⌈log2(L+1)⌉), zero-extend to `%nz.i.r` when W>K (otherwise use i unchanged); `%nz.c.r = icmp uge iW wide_i, L` with exact L; `%nz.e.r = <the original instruction>`; `%r = select i1 %nz.c.r, T Z, T %nz.e.r` with Z = the zero element (extract) or the unchanged vector operand (insert)
 DLT-12.2-P18
-  <1>1 [def] N16 | `%r = call T @llvm.fmuladd.*(a, b, c)` | `%nz.m.r = fmul T a, b`; `%r = fadd T %nz.m.r, c` (no fusion; explicit `llvm.fma` keeps fusion through §13)   deps: DLT-13
+  <1>1 [req] N16 | `%r = call T @llvm.fmuladd.*(a, b, c)` | `%nz.m.r = fmul T a, b`; `%r = fadd T %nz.m.r, c` (no fusion; explicit `llvm.fma` keeps fusion through §13)   deps: DLT-13
 DLT-12.2-P19
-  <1>1 [def] N17 | (0.1: FP formats and transcendentals → F(8)) | replaced by §13 (N32, N33): no floating-point construct faults   deps: DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33), DLT-13
+  <1>1 [req] N17 | (0.1: FP formats and transcendentals → F(8)) | replaced by §13 (N32, N33): no floating-point construct faults   deps: DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33), DLT-13
 DLT-12.2-P20
-  <1>1 [def] N18 | (0.1: external calls in oracle and reversible closures → F(8)) | replaced by §4.5: shims first; trapped only without bitcode   deps: DLT-2-P15.S1 (trapped), DLT-4.5
+  <1>1 [req] N18 | (0.1: external calls in oracle and reversible closures → F(8)) | replaced by §4.5: shims first; trapped only without bitcode   deps: DLT-2-P15.S1 (trapped), DLT-4.5
 DLT-12.2-P21
   <1>1 [def] N19 | floating-point arithmetic, comparison and conversion of `float` and `double` | the soft-float rewrite of §13.1 (applied by N32)   deps: DLT-12.2-P34.S1 (N32), DLT-13.1
 DLT-12.2-P22
@@ -2306,9 +2307,9 @@ DLT-12.2-P25
 DLT-12.2-P26
   <1>1 [def] N24 | **allocas → shadow stack**: every `alloca`; `llvm.stacksave`, `llvm.stackrestore`; `llvm.frameaddress`, `llvm.sponentry`, `llvm.addressofreturnaddress`, `llvm.stackaddress`, `llvm.returnaddress`, `llvm.swift.async.context.addr`, `llvm.localescape`, `llvm.localrecover`, `llvm.localaddress`, `llvm.eh.recoverfp`, `llvm.eh.dwarf.cfa`; `llvm.structured.alloca` | §17.3   deps: DLT-17.3
 DLT-12.2-P27
-  <1>1 [def] N25 | `byval`, `inalloca` and `preallocated` arguments; `llvm.call.preallocated.*`; aggregate returns wider than 128 bits | an explicit caller copy into a shadow-stack slot of the caller's frame (`%nz.bv<j>.<r>` for argument j) passed as a plain `ptr`, and the attribute removed from the callee and the call; a return of a first-class aggregate wider than 128 bits is demoted to a hidden first parameter `ptr %nz.ret` in which the callee stores the value (`sret` semantics)   deps: DLT-2-P10.S1 (slot)
+  <1>1 [req] N25 | `byval`, `inalloca` and `preallocated` arguments; `llvm.call.preallocated.*`; aggregate returns wider than 128 bits | an explicit caller copy into a shadow-stack slot of the caller's frame (`%nz.bv<j>.<r>` for argument j) passed as a plain `ptr`, and the attribute removed from the callee and the call; a return of a first-class aggregate wider than 128 bits is demoted to a hidden first parameter `ptr %nz.ret` in which the callee stores the value (`sret` semantics)   deps: DLT-2-P10.S1 (slot)
 DLT-12.2-P28
-  <1>1 [def] N26 | **memory intrinsics**: `llvm.memcpy.*`, `llvm.memcpy.inline.*`, `llvm.memmove.*`, `llvm.memset.*`, `llvm.memset.inline.*`, `llvm.memcpy/memmove/memset.element.unordered.atomic.*`, `llvm.experimental.memset.pattern.*` | `call void @__bennett_rt_memmove(ptr d, ptr s, i64 n)`, `call void @__bennett_rt_memset(ptr d, i8 v, i64 n)` (the `i1` volatile flag and element-size operand dropped; a constant length becomes an `i64` constant; a narrower non-constant length is first `%nz.n.<r> = zext … to i64`); `memset.pattern(d, v: T, count)` → a loop storing v at d + i·size(T) for i < count (blocks `nz.mp.<r>.*`)
+  <1>1 [req] N26 | **memory intrinsics**: `llvm.memcpy.*`, `llvm.memcpy.inline.*`, `llvm.memmove.*`, `llvm.memset.*`, `llvm.memset.inline.*`, `llvm.memcpy/memmove/memset.element.unordered.atomic.*`, `llvm.experimental.memset.pattern.*` | `call void @__bennett_rt_memmove(ptr d, ptr s, i64 n)`, `call void @__bennett_rt_memset(ptr d, i8 v, i64 n)` (the `i1` volatile flag and element-size operand dropped; a constant length becomes an `i64` constant; a narrower non-constant length is first `%nz.n.<r> = zext … to i64`); `memset.pattern(d, v: T, count)` → a loop storing v at d + i·size(T) for i < count (blocks `nz.mp.<r>.*`)
 DLT-12.2-P29
   <1>1 [def] N27 | **integer intrinsics** | the fixed expansions of §12.8   deps: DLT-12.8
 DLT-12.2-P30
@@ -2316,7 +2317,7 @@ DLT-12.2-P30
 DLT-12.2-P31
   <1>1 [def] N29 | **setjmp/longjmp** | §14.5   deps: DLT-14.5
 DLT-12.2-P32
-  <1>1 [def] N30 | **rewindable frames** (fibers) | §14.6, only in the functions §14.6 selects   deps: DLT-14.6
+  <1>1 [req] N30 | **rewindable frames** (fibers) | §14.6, only in the functions §14.6 selects   deps: DLT-14.6
 DLT-12.2-P33
   <1>1 [def] N31 | **inline asm and target intrinsics** | the §15 tables   deps: DLT-15
 DLT-12.2-P34
@@ -2324,13 +2325,13 @@ DLT-12.2-P34
 DLT-12.2-P35
   <1>1 [def] N33 | **extended FP formats and libm intrinsics** | §13.3–§13.5   deps: DLT-13.3, DLT-13.4, DLT-13.5
 DLT-12.2-P36
-  <1>1 [def] N34 | **R-tier budget instrumentation points** | a call of `__bennett_rt_rstep()` is *not* inserted; N34 marks each counted R instruction with metadata `!bennett.rstep` (kept by N3); lowering checks/charges before that instruction (§17.6).   deps: DLT-12.2-P5.S1 (N3), DLT-17.6
+  <1>1 [req] N34 | **R-tier budget instrumentation points** | a call of `__bennett_rt_rstep()` is *not* inserted; N34 marks each counted R instruction with metadata `!bennett.rstep` (kept by N3); lowering checks/charges before that instruction (§17.6).   deps: DLT-12.2-P5.S1 (N3), DLT-17.6
   <1>2 [req] Batching must preserve the same first fault and effect prefix
 DLT-12.2-P37
   <1>1 [def] N35 | **platform hooks** | §20.3 (MMIO routing), §20.4 (interrupt poll points), only under a platform profile   deps: DLT-20.3, DLT-20.4
 DLT-12.2-P38
   <1>1 [req] The other generic intrinsics are rows of §12.8 (integer), §13 (floating point), §14 (control transfer) and §15 (target intrinsics).   deps: DLT-12.2-P34.S1 (floating point), DLT-12.8, DLT-13, DLT-14, DLT-15
-  <1>2 [def] **Completeness obligation:** Appendix C lists every generic (target-independent) intrinsic name of LLVM 18, 20 and 23 (546 names) with its rule.
+  <1>2 [req] **Completeness obligation:** Appendix C lists every generic (target-independent) intrinsic name of LLVM 18, 20 and 23 (546 names) with its rule.
   <1>3 [req] No generic intrinsic is `trapped`.   deps: DLT-2-P15.S1 (trapped)
 DLT-12.2-P39
   <1>1 [non] *(non-normative)* Division by zero and `sdiv`/`srem` of INT_MIN by −1 are not rewritten: they are faults of the reference semantics (§17.5), the ISA's `lift.div` and CC division fault on them directly (ISA §4.1, §4.2), and the native comparison build traps (§17.7).   deps: DLT-2-P7.S1 (CC), DLT-17.5, ISA-4.1, ISA-4.2, DLT-17.7
@@ -2368,7 +2369,7 @@ DLT-12.2-P45
   <1>1 [req] **Narrow unsigned lane indices.** An i1 index denotes 0 or 1, both below L=2.
   <1>2 [req] W=max(1,ceil(log2(3)))=2 represents L exactly; neither valid input is zeroed.
   <1>3 [req] Insertion yields [7,9] or [5,7], packed as 2311 or 1797.
-  <1>4 [unc] The four-lane probe also prevents unreachable lane constants 2/3 aliasing 0/1.
+  <1>4 [req] The four-lane probe also prevents unreachable lane constants 2/3 aliasing 0/1.
   <1>5 [ex] (code block, 23 lines) define i8 @f(i1 %i) {
   <1>6 [ex] (code block, 41 lines) define i8 @f(i1 %i) {
   <1>7 [ex] (code block, 3 lines) f(0)=5; f(1)=9; g(0)=2311; g(1)=1797; h(0)=5; h(1)=9; code=0
@@ -2394,7 +2395,7 @@ DLT-12.2-P49
   <1>1 [req] **N9 NAND and operation sweep.** The ordinary-instruction template applies only to add/sub/and/or/xor; all other LLVM 18/23 atomicrmw operations are the explicit exceptions above (including the six FP min/max spellings).   deps: DLT-12.2-P11.S1 (N9)
   <1>2 [req] For old=0xf0 and v=0xcc, the canonical two logical rows produce 0xc0 then 0x3f.
   <1>3 [req] The old-result substitution still returns 240.
-  <1>4 [unc] Both source and output execute on LLVM 18/23.
+  <1>4 [req] Both source and output execute on LLVM 18/23.
   <1>5 [ex] (code block, 12 lines) @cell = internal global i8 -16, align 1
   <1>6 [ex] (code block, 18 lines) @cell = internal global i8 -16, align 1
   <1>7 [ex] (code block, 3 lines) f()=63; old(240)=[240,63]; code=0
@@ -2434,25 +2435,25 @@ DLT-12.4-P2
 DLT-12.4-P3
   <1>1 [def] V2 | instruction metadata other than `!dbg` and `!bennett.rstep`
 DLT-12.4-P4
-  <1>1 [def] V3 | an attribute N4 removes, on a device function, its parameters or return, or a call site in a device function   deps: DLT-12.2-P6.S1 (N4)
+  <1>1 [req] V3 | an attribute N4 removes, on a device function, its parameters or return, or a call site in a device function   deps: DLT-12.2-P6.S1 (N4)
 DLT-12.4-P5
-  <1>1 [def] V4 | a call of an intrinsic that N0, N5, N6, N10, N11, N16, N21, N24, N26, N27, N32 or N33 removes, or of `llvm.abs`/`ctlz`/`cttz` with a `true` flag   deps: DLT-12.2-P2.S1 (N0), DLT-12.2-P7.S1 (N5), DLT-12.2-P8.S1 (N6), DLT-12.2-P12.S1 (N10), DLT-12.2-P13.S1 (N11), DLT-12.2-P18.S1 (N16), DLT-12.2-P23.S1 (N21), DLT-12.2-P26.S1 (N24), DLT-12.2-P28.S1 (N26), DLT-12.2-P29.S1 (N27), DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33)
+  <1>1 [req] V4 | a call of an intrinsic that N0, N5, N6, N10, N11, N16, N21, N24, N26, N27, N32 or N33 removes, or of `llvm.abs`/`ctlz`/`cttz` with a `true` flag   deps: DLT-12.2-P2.S1 (N0), DLT-12.2-P7.S1 (N5), DLT-12.2-P8.S1 (N6), DLT-12.2-P12.S1 (N10), DLT-12.2-P13.S1 (N11), DLT-12.2-P18.S1 (N16), DLT-12.2-P23.S1 (N21), DLT-12.2-P26.S1 (N24), DLT-12.2-P28.S1 (N26), DLT-12.2-P29.S1 (N27), DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33)
 DLT-12.4-P6
   <1>1 [def] V5 | an `undef` or `poison` constant in a device function or in the initialiser of a global a device function references
 DLT-12.4-P7
-  <1>1 [def] V6 | `freeze`, `fence`, `atomicrmw`, `cmpxchg`, an atomic or volatile load or store
+  <1>1 [req] V6 | `freeze`, `fence`, `atomicrmw`, `cmpxchg`, an atomic or volatile load or store
 DLT-12.4-P8
   <1>1 [def] V7 | a shift whose amount is not a constant < W, unless the shift's only use is as the false operand of a `select` whose true operand is 0 and whose condition is `icmp uge` of the same amount and the constant W
 DLT-12.4-P9
-  <1>1 [def] V8 | `extractelement`/`insertelement` with a non-constant index outside the N15 pattern (only before N21; after N21 no vector remains, V13)   deps: DLT-12.2-P17.S1 (N15), DLT-12.2-P23.S1 (N21), DLT-12.4-P14.S1 (V13)
+  <1>1 [req] V8 | `extractelement`/`insertelement` with a non-constant index outside the N15 pattern (only before N21; after N21 no vector remains, V13)   deps: DLT-12.2-P17.S1 (N15), DLT-12.2-P23.S1 (N21), DLT-12.4-P14.S1 (V13)
 DLT-12.4-P10
-  <1>1 [def] V9 | a floating-point instruction other than `fneg`, `bitcast`, `load`, `store`, `select` and `phi` of a floating-point value, or a call of a floating-point intrinsic other than `llvm.fabs` and `llvm.copysign` (after N32/N33; 0.1's V9 is inverted)   deps: DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33)
+  <1>1 [req] V9 | a floating-point instruction other than `fneg`, `bitcast`, `load`, `store`, `select` and `phi` of a floating-point value, or a call of a floating-point intrinsic other than `llvm.fabs` and `llvm.copysign` (after N32/N33; 0.1's V9 is inverted)   deps: DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33)
 DLT-12.4-P11
-  <1>1 [def] V10 | an operand or result of type `half`, `bfloat`, `x86_fp80`, `fp128` or `ppc_fp128` other than in the bit-exact forms retained by §13.1 (`fneg`, `llvm.fabs`, `llvm.copysign`, `bitcast`, `load`, `store`, `select`, `phi`) or value transport through function parameters, call arguments/results, `ret`, `insertvalue` and `extractvalue` (§16.2–§16.4); calls remain subject to V4, V9 and V12 (after N32/N33)   deps: DLT-12.4-P5.S1 (V4), DLT-12.4-P10.S1 (V9), DLT-12.4-P13.S1 (V12), DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33), DLT-13.1, DLT-16.2, DLT-16.3, DLT-16.4
+  <1>1 [req] V10 | an operand or result of type `half`, `bfloat`, `x86_fp80`, `fp128` or `ppc_fp128` other than in the bit-exact forms retained by §13.1 (`fneg`, `llvm.fabs`, `llvm.copysign`, `bitcast`, `load`, `store`, `select`, `phi`) or value transport through function parameters, call arguments/results, `ret`, `insertvalue` and `extractvalue` (§16.2–§16.4); calls remain subject to V4, V9 and V12 (after N32/N33)   deps: DLT-12.4-P5.S1 (V4), DLT-12.4-P10.S1 (V9), DLT-12.4-P13.S1 (V12), DLT-12.2-P34.S1 (N32), DLT-12.2-P35.S1 (N33), DLT-13.1, DLT-16.2, DLT-16.3, DLT-16.4
 DLT-12.4-P12
-  <1>1 [def] V11 | an `alloca` (after N24; replaces 0.1's V11)   deps: DLT-12.2-P26.S1 (N24)
+  <1>1 [req] V11 | an `alloca` (after N24; replaces 0.1's V11)   deps: DLT-12.2-P26.S1 (N24)
 DLT-12.4-P13
-  <1>1 [def] V12 | in an L or R variant, a call of a function without a definition other than a primitive, a runtime entry point defined in the link, or a trapped call already replaced by F(8)   deps: DLT-2-P7.S2 (variant), DLT-2-P15.S1 (trapped)
+  <1>1 [req] V12 | in an L or R variant, a call of a function without a definition other than a primitive, a runtime entry point defined in the link, or a trapped call already replaced by F(8)   deps: DLT-2-P7.S2 (variant), DLT-2-P15.S1 (trapped)
 DLT-12.4-P14
   <1>1 [def] V13 | a value of vector type
 DLT-12.4-P15
@@ -2555,33 +2556,33 @@ DLT-12.5-P1
 ````text
 DLT-12.6-P1
   <1>1 [req] For a value `%v` of type `<L x T>`, lane k is the scalar `%nz.l<k>.v` (k = 0 … L − 1).
-  <1>2 [unc] Rules, in lane order k = 0, 1, …:
+  <1>2 [req] Rules, in lane order k = 0, 1, …:
 DLT-12.6-P2
   <1>1 [req] elementwise instructions (binary, bitwise, `icmp`, `fcmp`, casts, `select` with a vector or scalar condition, unary `fneg`, `freeze`, calls of elementwise intrinsics): one scalar instruction per lane, `%nz.l<k>.r = <op> T %nz.l<k>.a, %nz.l<k>.b`;
 DLT-12.6-P3
   <1>1 [req] `bitcast` is elementwise only for equal lane geometries.
-  <1>2 [unc] Otherwise pack the source bit string in datalayout order and resegment it into destination lanes or a scalar.
-  <1>3 [unc] On supported little-endian targets lane 0 occupies the low bits.
-  <1>4 [unc] Zero-extend source carriers to total width, shift by cumulative widths and OR in source-lane order; extract by logical right shift and truncation in destination-lane order.
-  <1>5 [unc] Omit identity casts and zero shifts; N22 legalises total widths above 128.   deps: DLT-12.2-P24.S1 (N22)
+  <1>2 [req] Otherwise pack the source bit string in datalayout order and resegment it into destination lanes or a scalar.
+  <1>3 [req] On supported little-endian targets lane 0 occupies the low bits.
+  <1>4 [req] Zero-extend source carriers to total width, shift by cumulative widths and OR in source-lane order; extract by logical right shift and truncation in destination-lane order.
+  <1>5 [req] Omit identity casts and zero shifts; N22 legalises total widths above 128.   deps: DLT-12.2-P24.S1 (N22)
   <1>6 [req] Drop no source memory access.
 DLT-12.6-P4
   <1>1 [req] Every vector load/store follows the vector's datalayout bit string: lane k begins at bit k·bitwidth(T), with no scalar allocation padding between lanes.
   <1>2 [req] `getelementptr T, ptr p, i64 k` followed by load/store T is permitted only when T's allocation stride equals that lane spacing.
   <1>3 [req] Otherwise byte-sized lanes use `getelementptr i8, ptr p, i64 (k·bitwidth(T)/8)`; sub-byte lanes use packed-byte extraction/insertion.
-  <1>4 [unc] Replacement accesses stay within the original vector storage range.
+  <1>4 [req] Replacement accesses stay within the original vector storage range.
   <1>5 [req] At byte offset o, scalar alignment is min(abi-align(T), gcd(original alignment,o)); gcd(a,0)=a.
   <1>6 [req] Masked accesses touch only bytes containing active lanes and preserve inactive bits; padding follows N22.   deps: DLT-12.2-P24.S1 (N22)
   <1>7 [req] This applies also to byte-multiple integer lanes such as i24, not only packed i1.
   <1>8 [req] See [LangRef vector layout](https://llvm.org/docs/LangRef.html#vector-type) and [load/store semantics](https://llvm.org/docs/LangRef.html#load-instruction);
 DLT-12.6-P5
   <1>1 [req] `insertelement`, `extractelement` with constant in-range indices and `shufflevector` with valid indices: lane renaming; N15 has already removed constant out-of-range extraction/insertion.   deps: DLT-12.2-P17.S1 (N15)
-  <1>2 [unc] With a non-constant index (after N15): a `select` chain over the L lanes in lane order, using the same widened unsigned index and exact lane constants as N15.   deps: DLT-12.2-P17.S1 (N15)
+  <1>2 [req] With a non-constant index (after N15): a `select` chain over the L lanes in lane order, using the same widened unsigned index and exact lane constants as N15.   deps: DLT-12.2-P17.S1 (N15)
   <1>3 [req] Constants must never wrap to iK.
   <1>4 [req] Insertion may fuse the out-of-range unchanged-vector select into per-lane equality selects: all equalities are false out of range.
   <1>5 [req] LLVM admits an index of any integer width, independent of L ([extractelement](https://llvm.org/docs/LangRef.html#extractelement-instruction), [insertelement](https://llvm.org/docs/LangRef.html#insertelement-instruction)); LangRef out-of-range poison is totalised by N15, not by truncating L;   deps: DLT-12.2-P17.S1 (N15)
 DLT-12.6-P6
-  <1>1 [def] `llvm.vector.reduce.<op>(v)` with op ∈ {add, mul, and, or, xor, smax, smin, umax, umin, fadd, fmul, fmax, fmin, fmaximum, fminimum}: a **left fold** in lane order: `%nz.f1.r = <op> lane0, lane1`, `%nz.f<k>.r = <op> %nz.f<k−1>.r, lane k`, the last named `%r`; the ordered `fadd`/`fmul` forms take the start value as the first operand.
+  <1>1 [req] `llvm.vector.reduce.<op>(v)` with op ∈ {add, mul, and, or, xor, smax, smin, umax, umin, fadd, fmul, fmax, fmin, fmaximum, fminimum}: a **left fold** in lane order: `%nz.f1.r = <op> lane0, lane1`, `%nz.f<k>.r = <op> %nz.f<k−1>.r, lane k`, the last named `%r`; the ordered `fadd`/`fmul` forms take the start value as the first operand.
   <1>2 [req] Exact for floating point once N2 has removed `reassoc`;   deps: DLT-12.2-P4.S1 (N2), DLT-12.2-P34.S1 (floating point)
 DLT-12.6-P7
   <1>1 [req] Selector/reduction exceptions take precedence over the next bullet.
@@ -2593,7 +2594,7 @@ DLT-12.6-P8
 DLT-12.6-P9
   <1>1 [req] `llvm.stepvector` lane k is k; `llvm.get.active.lane.mask(base, n)` lane k is base + k < n (unsigned); `llvm.experimental.get.vector.length(cnt, vf, scalable)` is umin(cnt, vf·(V if scalable else 1)); `cttz.elts` is the index of the first nonzero lane (L if none, or the poison-free 0 of N7 when the flag says zero is poison); `loop.dependence.raw/war.mask(a, b, size)` lane k follows LangRef's definition;   deps: DLT-12.2-P9.S1 (N7)
 DLT-12.6-P10
-  <1>1 [unc] `vector.extract`, `vector.insert`, `vector.reverse`, `vector.splice*`, `vector.interleave<n>`, `vector.deinterleave<n>`, `experimental.vector.compress`, `experimental.vector.histogram.*`, `experimental.vector.match`, `experimental.vector.extract.last.active`, `vector.partial.reduce.*`: lane permutations and folds by their LangRef definitions;
+  <1>1 [req] `vector.extract`, `vector.insert`, `vector.reverse`, `vector.splice*`, `vector.interleave<n>`, `vector.deinterleave<n>`, `experimental.vector.compress`, `experimental.vector.histogram.*`, `experimental.vector.match`, `experimental.vector.extract.last.active`, `vector.partial.reduce.*`: lane permutations and folds by their LangRef definitions;
 DLT-12.6-P11
   <1>1 [req] a vector parameter or result of an internal device function becomes L scalar parameters or an aggregate of L scalars in lane order; a vector that crosses an external boundary (a device entry's signature, a call of a function without a definition) is rebuilt with `insertelement` at that boundary, which only H code and the native build see.
 DLT-12.6-P12
@@ -2625,7 +2626,7 @@ DLT-12.6-P17
   <1>1 [req] **Padded scalar, contiguous vector.** Scalar i24 allocation stride is four under this datalayout, but vector lane spacing is 24 bits.
   <1>2 [req] Lane 1 reads bytes 04 05 06, so 4+5·256+6·65536=394500.
   <1>3 [req] Store writes six contiguous bytes and leaves the following sentinel bytes untouched.
-  <1>4 [unc] These ordinary accesses stay within six bytes.
+  <1>4 [req] These ordinary accesses stay within six bytes.
   <1>5 [ex] (code block, 15 lines) target datalayout = "e-p:64:64-i64:64-i24:32-n8:16:32:64-S128"
   <1>6 [ex] (code block, 20 lines) target datalayout = "e-p:64:64-i64:64-i24:32-n8:16:32:64-S128"
   <1>7 [ex] (code block, 4 lines) bytes=0102030405060708 -> f=394500; code=0
@@ -2639,15 +2640,15 @@ DLT-12.7-P1
   <1>2 [req] Limbs a_k, b_k (k = 0 … L − 1) have type i<w_k>.
   <1>3 [req] Every limb operation, constant and incoming carry uses w_k, with an identity conversion when widths agree (in particular an i1 carry into an i1 top limb needs no zext):
 DLT-12.7-P2
-  <1>1 [unc] `add`: `%nz.m0.r = add a_0, b_0`, `%nz.c0.r = icmp ult %nz.m0.r, a_0`; for k ≥ 1: `%nz.t<k>.r = add a_k, b_k`, `%nz.z<k>.r = zext i1 %nz.c<k−1>.r to i<w_k>`, `%nz.m<k>.r = add %nz.t<k>.r, %nz.z<k>.r` and, for k < L − 1, `%nz.u<k>.r = icmp ult %nz.t<k>.r, a_k`, `%nz.v<k>.r = icmp ult %nz.m<k>.r, %nz.t<k>.r`, `%nz.c<k>.r = or i1 %nz.u<k>.r, %nz.v<k>.r`;
+  <1>1 [req] `add`: `%nz.m0.r = add a_0, b_0`, `%nz.c0.r = icmp ult %nz.m0.r, a_0`; for k ≥ 1: `%nz.t<k>.r = add a_k, b_k`, `%nz.z<k>.r = zext i1 %nz.c<k−1>.r to i<w_k>`, `%nz.m<k>.r = add %nz.t<k>.r, %nz.z<k>.r` and, for k < L − 1, `%nz.u<k>.r = icmp ult %nz.t<k>.r, a_k`, `%nz.v<k>.r = icmp ult %nz.m<k>.r, %nz.t<k>.r`, `%nz.c<k>.r = or i1 %nz.u<k>.r, %nz.v<k>.r`;
 DLT-12.7-P3
   <1>1 [req] `sub`: let beta_-1=0.
   <1>2 [req] At limb k compute t_k=a_k−b_k modulo 2^w_k, z_k=zero-extended beta_(k−1) (identity if w_k=1), and m_k=t_k−z_k modulo 2^w_k.
   <1>3 [req] When another limb follows, beta_k=(icmp ult a_k,b_k) OR (icmp ult t_k,z_k).
-  <1>4 [unc] Discard the final outgoing borrow.
+  <1>4 [req] Discard the final outgoing borrow.
   <1>5 [req] Canonical names use `%nz.m0.r = sub a_0,b_0`, `%nz.c0.r = icmp ult a_0,b_0`; thereafter `%nz.t<k>.r`, `%nz.z<k>.r`, `%nz.m<k>.r`, `%nz.u<k>.r`, `%nz.v<k>.r`, `%nz.c<k>.r` in that order.
   <1>6 [req] In particular v_k tests t_k<z_k, never m_k<t_k.
-  <1>7 [unc] This derives wrapping subtraction from [LangRef sub](https://llvm.org/docs/LangRef.html#sub-instruction) and [usub.with.overflow](https://llvm.org/docs/LangRef.html#llvm-usub-with-overflow-intrinsics);
+  <1>7 [req] This derives wrapping subtraction from [LangRef sub](https://llvm.org/docs/LangRef.html#sub-instruction) and [usub.with.overflow](https://llvm.org/docs/LangRef.html#llvm-usub-with-overflow-intrinsics);
 DLT-12.7-P4
   <1>1 [req] `and`, `or`, `xor`: per limb; `icmp`: lexicographic from the top limb (signed on the top limb only for signed predicates); `select`, `phi`: per limb; `zext`, `sext`, `trunc`: limb copies; `sext` extracts the sign at bit w_top − 1, sign-extends the old partial top limb when widening it, and fills each new limb with that sign at its own width;
 DLT-12.7-P5
@@ -2785,7 +2786,7 @@ DLT-12.9-P6
   <1>9 [ex] (code block, 4 lines) w(limbs a = [0xffffffffffffffff, 0xffffffffffffffff, 5, 1], b = [1, 0, 0xfffffff…
 DLT-12.9-P7
   <1>1 [non] *(non-normative)* Limbs are least significant first.
-  <1>2 [non] Limb 0: 2^64 − 1 + 1 = 0, carry 1; limb 1: 2^64 − 1 + 0 + 1 = 0, carry 1; limb 2: 5 + 2^64 − 1 + 1 = 5, carry 1; limb 3: 1 + 2 + 1 = 4.
+  <1>2 [ex] Limb 0: 2^64 − 1 + 1 = 0, carry 1; limb 1: 2^64 − 1 + 0 + 1 = 0, carry 1; limb 2: 5 + 2^64 − 1 + 1 = 5, carry 1; limb 3: 1 + 2 + 1 = 4.
 DLT-12.9-P8
   <1>1 [ex] Allocas move to the shadow stack (N24, §17.3); the frame is zero-filled, so the read of `b[2]`, undefined in the input, is 0:   deps: DLT-12.2-P26.S1 (N24), DLT-17.3
   <1>2 [ex] (code block, 12 lines) define internal i64 @a(i64 %x) {
@@ -2877,9 +2878,9 @@ DLT-13.1-P24
   <1>3 [req] Here d is a shadow-stack slot of L=ceil(M/64) limbs at byte offsets 8k (§12.7).   deps: DLT-2-P10.S1 (slot), DLT-12.7
   <1>4 [req] The entry writes the exact M-bit saturated result, limb 0 least significant, using truncation toward zero / the rounding rule above, with NaN mapped to 0; N22 loads each limb at width min(64,M−64k).   deps: DLT-12.2-P24.S1 (N22)
   <1>5 [req] For sitofp/uitofp from iM, store all limbs in slot s and call `C @__bennett_sf_<op>_B_wide(ptr s, i32 M)`, correctly rounded from the exact signed/unsigned M-bit integer.   deps: DLT-2-P10.S1 (slot)
-  <1>6 [unc] No i128 carrier intervenes.
+  <1>6 [req] No i128 carrier intervenes.
   <1>7 [req] For canonical temporary slots, emit ss_push(8L,8), then limb GEP/store rows in increasing k; for destinations, push then call then limb GEP/load rows in increasing k; pop slots in reverse push order after their last use.   deps: DLT-2-P10.S1 (slot)
-  <1>8 [unc] Bitcast FP operands before destination push and FP results after pop.
+  <1>8 [req] Bitcast FP operands before destination push and FP results after pop.
   <1>9 [req] The usual shadow-stack checks, budget charges and linked-runtime materialisation apply.
   <1>10 [req] The helper's suffix op is fptosi/fptoui for the corresponding .sat form.
 DLT-13.1-P25
@@ -2906,7 +2907,7 @@ DLT-13.3-P1
 
 ````text
 DLT-13.4-P1
-  <1>1 [def] `llvm.sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `exp`, `exp2`, `exp10`, `log`, `log2`, `log10`, `pow`, `powi`, `sincos`, `sincospi` and `modf` become calls of the **runtimes libm**: `@<name>` for `double`, `@<name>f` for `float`, and `@<name>l` for the target's native `long double` format D (x86-64: `x86_fp80`; AArch64 and RISC-V64: `fp128`).
+  <1>1 [req] `llvm.sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `exp`, `exp2`, `exp10`, `log`, `log2`, `log10`, `pow`, `powi`, `sincos`, `sincospi` and `modf` become calls of the **runtimes libm**: `@<name>` for `double`, `@<name>f` for `float`, and `@<name>l` for the target's native `long double` format D (x86-64: `x86_fp80`; AArch64 and RISC-V64: `fp128`).
   <1>2 [req] For every other source format B, including half, bfloat and non-native x86_fp80/fp128/ppc_fp128, use a direct own-format carrier call `C_B @__bennett_sf_<name>_<suffix>(C_B, …)`; C_B and suffix are exactly §13.1's table.   deps: DLT-13.1
   <1>3 [req] No conversion through D is emitted.
   <1>4 [req] All seven source formats remain covered on every supported platform; a format different from D is neither rejected nor trapped.   deps: DLT-2-P15.S1 (trapped)
@@ -2922,7 +2923,7 @@ DLT-13.4-P3
   <1>2 [req] `sincos(x)` is the pair (sin x, cos x), `sincospi(x)` the pair (sinpi x, cospi x), and `modf(x)` the pair (fractional, integral).
   <1>3 [req] Their carrier entry points return `{ C_B, C_B }`.
   <1>4 [req] For powi and these pair operations use this carrier route on every format, avoiding the C pointer-output ABI.
-  <1>5 [unc] Reconstruct pair fields in order j=0,1: `%nz.outbits<j>.r = extractvalue` of `%nz.i.r`, then bitcast to B as `%nz.outfp<j>.r`, then insert into `{ B, B }` (first into zeroinitializer as `%nz.out0.r`, finally as `%r`).
+  <1>5 [req] Reconstruct pair fields in order j=0,1: `%nz.outbits<j>.r = extractvalue` of `%nz.i.r`, then bitcast to B as `%nz.outfp<j>.r`, then insert into `{ B, B }` (first into zeroinitializer as `%nz.out0.r`, finally as `%r`).
   <1>6 [req] Thus the special operations retain their semantics and field order under the same format policy.
 DLT-13.4-P4
   <1>1 [req] The runtimes libm is musl-derived and compiled through this pipeline, so it is soft-float code itself and the same function runs in both builds; calls of `sin`, `exp`, … in source resolve to it by §4.5.   deps: DLT-13.4-P1.S1 (runtimes libm), DLT-4.5
@@ -2955,8 +2956,8 @@ DLT-13.6-P1
   <1>8 [ex] (code block, 4 lines) fm(1.5, 2.0, 0.25) = 3.25 (0x400a000000000000), input and output modules
 DLT-13.6-P2
   <1>1 [non] *(non-normative)* The double nearest 0.1 is 0x3FB999999999999A = 0.1 + 2^−54/10 exactly, so its exact product with 10 is 1 + 2^−54.
-  <1>2 [non] Unfused, the product rounds to 1.0 (2^−54 is below half an ulp of 1, 2^−53) and adding −1.0 gives 0.0; fused, the exact 1 + 2^−54 − 1 = 2^−54 is returned.
-  <1>3 [non] `llvm.fmuladd` lets the code generator choose, so the input module's result depends on the CPU; N16 fixes the unfused meaning in both builds (spike F4).   deps: DLT-12.2-P18.S1 (N16)
+  <1>2 [ex] Unfused, the product rounds to 1.0 (2^−54 is below half an ulp of 1, 2^−53) and adding −1.0 gives 0.0; fused, the exact 1 + 2^−54 − 1 = 2^−54 is returned.
+  <1>3 [ex] `llvm.fmuladd` lets the code generator choose, so the input module's result depends on the CPU; N16 fixes the unfused meaning in both builds (spike F4).   deps: DLT-12.2-P18.S1 (N16)
 DLT-13.6-P3
   <1>1 [ex] Extended precision and libm intrinsics (N33):   deps: DLT-12.2-P35.S1 (N33)
   <1>2 [ex] (code block, 7 lines) define internal x86_fp80 @l(x86_fp80 %a, double %d) {
@@ -2965,7 +2966,7 @@ DLT-13.6-P3
   <1>5 [ex] (code block, 26 lines) define internal double @e(double %x, float %y) {
 DLT-13.6-P4
   <1>1 [non] *(non-normative)* The calls of `exp` and `sinf` pass `double` and `float` values, which are bit-exact moves; they resolve by §4.5 to the runtimes libm, whose own floating-point code has been normalised by §13.1.   deps: DLT-13.4-P1.S1 (runtimes libm), DLT-4.5, DLT-13.1
-  <1>2 [non] N33 runs before N32 (§12.1), so its declarations precede N32's; the libm calls it creates are not floating-point instructions in the sense of §13.1 (they pass bit-exact values) and N32 leaves them alone.   deps: DLT-12.2-P35.S1 (N33), DLT-12.2-P34.S1 (N32), DLT-12.1, DLT-13.1
+  <1>2 [ex] N33 runs before N32 (§12.1), so its declarations precede N32's; the libm calls it creates are not floating-point instructions in the sense of §13.1 (they pass bit-exact values) and N32 leaves them alone.   deps: DLT-12.2-P35.S1 (N33), DLT-12.2-P34.S1 (N32), DLT-12.1, DLT-13.1
 DLT-13.6-P5
   <1>1 [ex] **Portable extended-format libm witnesses.** The invalid old routes fail LLVM 18/23 verification: `fpext fp128 to x86_fp80` on x86-64 and `fpext ppc_fp128 to fp128` on AArch64/RISC-V64 both report `invalid cast opcode` (exit 1).
   <1>2 [ex] Each source and new materialised output below verifies on both majors (exit 0), including non-native x86_fp80 on the latter platforms.
@@ -3009,7 +3010,7 @@ DLT-14.2-P1
   <1>1 [req] **Candidate set** of an indirect call with callee value v: every `FN(F)` atom of AV(v) (§5), resolved through aliases; if AV(v) has the ⊤ flag, in addition every function whose LLVM function type equals the call's and whose address is used anywhere in the linked program (sound for defined C, C++ and Rust: a call through an incompatible type is undefined, and compatible C types lower to the same LLVM type under opaque pointers; SQLite §3).   deps: DLT-2-P5.S3 (Candidate set), DLT-5
   <1>2 [req] The device closure includes every candidate (§4.1).   deps: DLT-4.1
 DLT-14.2-P2
-  <1>1 [unc] **Dispatch**: the compare tree of §16.4 over the candidates' A(F) values, sorted unsigned, with a static call at each leaf: CC/R `icmp eq` + `br` + `call @F_k` (ISA §4.1), lifted `lift.icmp.eq` + `qbranch` + `lift.call @L(F_k)` (ISA §4.2).   deps: DLT-2-P7.S1 (CC), DLT-16.4, ISA-4.1, ISA-4.2
+  <1>1 [req] **Dispatch**: the compare tree of §16.4 over the candidates' A(F) values, sorted unsigned, with a static call at each leaf: CC/R `icmp eq` + `br` + `call @F_k` (ISA §4.1), lifted `lift.icmp.eq` + `qbranch` + `lift.call @L(F_k)` (ISA §4.2).   deps: DLT-2-P7.S1 (CC), DLT-16.4, ISA-4.1, ISA-4.2
   <1>2 [req] `qjumpr` is intra-function only (ISA §4.2) and is not used for calls.   deps: ISA-4.2
 DLT-14.2-P3
   <1>1 [req] **No match** (a value that is the address of no function of the program, or of a function without bitcode): F(4) `FAULT_UB_TRAP` (outline E13; calling through such a pointer is undefined or reaches code without bitcode, which the coverage report names).
@@ -3019,7 +3020,7 @@ DLT-14.2-P4
   <1>2 [req] Before the compare tree, an indirect call whose callee value v points to a live allocation holding the tag at offset 0 calls the stored function with the stored nest value as its `nest` argument.
 DLT-14.2-P5
   <1>1 [req] Calls through a variadic function type use §14.3.   deps: DLT-14.3
-  <1>2 [unc] The same compare-tree construction serves region operands (§7.2), handle ids (§6.5), descriptor shapes (§8.4), `switch` (§14.8) and `indirectbr` (§14.9).   deps: DLT-7.2, DLT-6.5, DLT-8.4, DLT-14.8, DLT-14.9
+  <1>2 [req] The same compare-tree construction serves region operands (§7.2), handle ids (§6.5), descriptor shapes (§8.4), `switch` (§14.8) and `indirectbr` (§14.9).   deps: DLT-7.2, DLT-6.5, DLT-8.4, DLT-14.8, DLT-14.9
   <1>3 [ex] (code block, 36 lines) define internal i32 @lt(i32 %a, i32 %b) {
 DLT-14.2-P6
   <1>1 [req] A callee from host input dispatches over the address-taken functions of the call's type; here `@lt` and `@gt` (their addresses are stored in `@cmps`), but not `@neg`, whose type differs:
@@ -3030,7 +3031,7 @@ DLT-14.2-P6
 
 ````text
 DLT-14.3-P1
-  <1>1 [def] A variadic definition `R @f(P…, ...)` becomes `R @f(P…, ptr %nz.va)`; every call of it, direct or through a variadic function type, passes a **va block** in place of the variadic arguments.
+  <1>1 [req] A variadic definition `R @f(P…, ...)` becomes `R @f(P…, ptr %nz.va)`; every call of it, direct or through a variadic function type, passes a **va block** in place of the variadic arguments.
 DLT-14.3-P2
   <1>1 [req] A call site spills its variadic arguments (as the front end promoted them) into a va block `%nz.vb.<r>`, an alloca of the caller's entry block (so N24 places it in the caller's shadow frame), in argument order: argument j at the next offset aligned to max(8, ABI alignment of its type), occupying its size rounded up to 8 bytes (the x86-64 System V, AAPCS64 and RISC-V LP64 memory-argument layout); argument j ≥ 1 is addressed by `%nz.vb<j>.<r>`.   deps: DLT-12.2-P26.S1 (N24), DLT-14.3-P1.S1 (va block)
 DLT-14.3-P3
@@ -3053,7 +3054,7 @@ DLT-14.3-P9
   <1>5 [ex] (code block, 5 lines) top(1) = 321
 DLT-14.3-P10
   <1>1 [non] *(non-normative)* The input is the shape clang's inline x86-64 `va_arg` expansion takes after `default<O2>` (with the loop bound left as a parameter).
-  <1>2 [non] With gp_offset = 48 the `fits` test (gp_offset < 41) is always false, so every argument is read from `overflow_arg_area`, which is the va block: slots at offsets 0, 8, 16 hold x, 20, 300, and the sum is x + 320.   deps: DLT-14.3-P1.S1 (va block), DLT-2-P10.S1 (slot)
+  <1>2 [req] With gp_offset = 48 the `fits` test (gp_offset < 41) is always false, so every argument is read from `overflow_arg_area`, which is the va block: slots at offsets 0, 8, 16 hold x, 20, 300, and the sum is x + 320.   deps: DLT-14.3-P1.S1 (va block), DLT-2-P10.S1 (slot)
 ````
 
 ### §14.4 Unwinding (N28: explicit propagation)   [DLT-14.4]
@@ -3064,15 +3065,15 @@ DLT-14.4-P1
   <1>2 [req] Returning replacements use dedicated `__bennett_rt_` symbols (including throw, unwind, longjmp and exit replacements), so builtin nonreturning assumptions cannot reappear.
   <1>3 [req] The residual validator rejects any such surviving attribute or constraint.
 DLT-14.4-P2
-  <1>1 [def] The runtimes keep the **EH state** in the global `__bennett_rt_eh` of type `{ i32 active, i32 selector, ptr object }` (active: 0 none, 1 exception, 2 longjmp, 3 fiber switch, 4 exit; §14.5– §14.7).   deps: DLT-14.5, DLT-14.7
+  <1>1 [req] The runtimes keep the **EH state** in the global `__bennett_rt_eh` of type `{ i32 active, i32 selector, ptr object }` (active: 0 none, 1 exception, 2 longjmp, 3 fiber switch, 4 exit; §14.5– §14.7).   deps: DLT-14.5, DLT-14.7
   <1>2 [req] Every device variant is rewritten, and the native comparison build uses the same materialised code, so the behaviour is identical in both builds:   deps: DLT-2-P7.S2 (variant)
 DLT-14.4-P3
-  <1>1 [unc] `invoke F(args) to label %N unwind label %U` → `call F(args)`; `%nz.ehl.<r> = load i32, ptr @__bennett_rt_eh`; `%nz.ehc.<r> = icmp ne i32 %nz.ehl.<r>, 0`; `br i1 %nz.ehc.<r>, label %U, label %N`.
+  <1>1 [req] `invoke F(args) to label %N unwind label %U` → `call F(args)`; `%nz.ehl.<r> = load i32, ptr @__bennett_rt_eh`; `%nz.ehc.<r> = icmp ne i32 %nz.ehl.<r>, 0`; `br i1 %nz.ehc.<r>, label %U, label %N`.
 DLT-14.4-P4
-  <1>1 [def] A `call` of a function that may unwind (one without `nounwind`, or an indirect call) inside a function that may unwind → the same check after the call, branching on a set flag to the function's **early-return block** `nz.ehr.<f>`, which pops the shadow frame (§17.3) and returns the zero of the return type.   deps: DLT-17.3
+  <1>1 [req] A `call` of a function that may unwind (one without `nounwind`, or an indirect call) inside a function that may unwind → the same check after the call, branching on a set flag to the function's **early-return block** `nz.ehr.<f>`, which pops the shadow frame (§17.3) and returns the zero of the return type.   deps: DLT-17.3
 DLT-14.4-P5
   <1>1 [req] `%r = landingpad T clauses` → `%r = call { ptr, i32 } @__bennett_rt_eh_match(ptr P, ptr @nz.lp.<f>.<r>)`, where P is the function's personality and `@nz.lp.<f>.<r>` is the private constant `{ i64 cleanup, i64 n, [n x { i64 kind, ptr info }] }` of the clauses in order (kind 0 `catch` with its typeinfo, kind 1 `filter` with its array).
-  <1>2 [unc] The runtimes implement the personality's matching: for `__gxx_personality_v0`, C++ catch by typeinfo with the C++ ABI's derived-class rules and filters; for `rust_eh_personality`, Rust panics; for `__gcc_personality_v0`, cleanups only.
+  <1>2 [req] The runtimes implement the personality's matching: for `__gxx_personality_v0`, C++ catch by typeinfo with the C++ ABI's derived-class rules and filters; for `rust_eh_personality`, Rust panics; for `__gcc_personality_v0`, cleanups only.
   <1>3 [req] A matching catch or a cleanup clears `active` and returns (object, selector) with selector = `llvm.eh.typeid.for` of the matched typeinfo (0 for a cleanup); when nothing matches (or the pseudo-exception is a longjmp, switch or exit, which no clause handles) the flag stays set, the selector is −1, and the normaliser's check after the call (`%nz.ehm.<r> = extractvalue … 1`, `icmp eq … −1`) branches to the early-return block.   deps: DLT-14.4-P4.S1 (early-return block)
 DLT-14.4-P6
   <1>1 [req] `resume v` → `call void @__bennett_rt_eh_resume({ ptr, i32 } v)` (sets `active` = 1 and the object) and a branch to the early-return block.   deps: DLT-14.4-P4.S1 (early-return block)
@@ -3094,7 +3095,7 @@ DLT-14.4-P10
 
 ````text
 DLT-14.5-P1
-  <1>1 [def] A call of `setjmp`, `_setjmp`, `sigsetjmp` or `__sigsetjmp` with buffer b in function f becomes a block boundary: `call void @__bennett_rt_setjmp(ptr b, ptr %nz.fp.<f>, i32 k)` stores the **frame token** (f's shadow-frame address, §17.3) and the site index k (0-based among f's setjmp sites) in b, and the call's result becomes the phi `%r = phi i32 [ 0, <normal> ], [ v, %nz.sj<k>.<f> ]` at the continuation.   deps: DLT-17.3
+  <1>1 [req] A call of `setjmp`, `_setjmp`, `sigsetjmp` or `__sigsetjmp` with buffer b in function f becomes a block boundary: `call void @__bennett_rt_setjmp(ptr b, ptr %nz.fp.<f>, i32 k)` stores the **frame token** (f's shadow-frame address, §17.3) and the site index k (0-based among f's setjmp sites) in b, and the call's result becomes the phi `%r = phi i32 [ 0, <normal> ], [ v, %nz.sj<k>.<f> ]` at the continuation.   deps: DLT-17.3
 DLT-14.5-P2
   <1>1 [req] `longjmp(b, v)` (and `siglongjmp`, `_longjmp`) is a runtimes function that sets the EH state to the longjmp pseudo-exception (`active` = 2, object = b, selector = v, with v = 0 replaced by 1) and returns; propagation is §14.4 (landing pads do not handle it).   deps: DLT-14.4-P2.S1 (EH state), DLT-14.4
 DLT-14.5-P3
@@ -3142,7 +3143,7 @@ DLT-14.7-P1
   <1>1 [unc] `abort` → F(4).
 DLT-14.7-P2
   <1>1 [req] musl's `exit` runs the `atexit` handlers and flushes stdio, then calls `_Exit(s)`.
-  <1>2 [def] `_Exit(s)` (the runtimes' `exit_group` system call) sets the EH state to the **exit pseudo-exception** (`active` = 4, selector = s) and propagates.   deps: DLT-14.4-P2.S1 (EH state)
+  <1>2 [req] `_Exit(s)` (the runtimes' `exit_group` system call) sets the EH state to the **exit pseudo-exception** (`active` = 4, selector = s) and propagates.   deps: DLT-14.4-P2.S1 (EH state)
 DLT-14.7-P3
   <1>1 [req] An R or CC whole-program entry (§19.2) catches it and returns s as the program's status; an oracle wrapper in "oracle from program" mode (§19.3) catches it and delivers s as the payload; a CC device entry of a host program catches it and makes `hostcall bennett.exit` with s, whose host stub calls `_Exit(s)`.   deps: DLT-2-P7.S1 (CC), DLT-19.2, DLT-19.3
   <1>2 [req] Elsewhere (inside an oracle in the plain marker form, inside an action) it is unwinding out of the region: code 4.
@@ -3184,7 +3185,7 @@ DLT-15.1-P1
 DLT-15.1-P2
   <1>1 [req] the asm string with every run of whitespace (including `\n`, `\t` and `;` separators) replaced by one space and leading and trailing whitespace removed, operand placeholders (`$0`, `${0:w}`) kept;
 DLT-15.1-P3
-  <1>1 [unc] the constraint string exactly as LLVM prints it (clobbers included).
+  <1>1 [req] the constraint string exactly as LLVM prints it (clobbers included).
 DLT-15.1-P4
   <1>1 [req] A row has a **class** and a **replacement** in IR.
   <1>2 [req] Target-intrinsic rows are keyed by the intrinsic name.
@@ -3208,11 +3209,11 @@ DLT-15.2-P5
 DLT-15.2-P6
   <1>1 [req] asm-goto (`callbr`) whose asm string is lowered → its replacement followed by a branch to the default destination; `llvm.callbr.landingpad` → its operand.   deps: DLT-2-P15.S1 (lowered)
 DLT-15.2-P7
-  <1>1 [unc] **shimmed** (a call of a runtimes or platform function):   deps: DLT-2-P15.S1 (shimmed)
+  <1>1 [req] **shimmed** (a call of a runtimes or platform function):   deps: DLT-2-P15.S1 (shimmed)
 DLT-15.2-P8
   <1>1 [req] the system-call instructions (§15.5) → `__bennett_rt_syscall(nr, a1, …, a6)`, the runtimes' system-call layer, which maps calls onto device models (§11.2) and runtimes services;   deps: DLT-15.5, DLT-11.2
 DLT-15.2-P9
-  <1>1 [unc] privileged forms → platform functions (§20.2).   deps: DLT-20.2
+  <1>1 [req] privileged forms → platform functions (§20.2).   deps: DLT-20.2
 DLT-15.2-P10
   <1>1 [req] **trapped**: every other row → F(8) with a coverage line naming the asm string.   deps: DLT-2-P15.S1 (trapped)
   <1>2 [req] This is required by NS §3.3 ("trapped"), and it occurs only on the executions that reach the asm.   deps: DLT-2-P15.S1 (trapped)
@@ -3246,7 +3247,7 @@ DLT-15.5-P4
   <1>1 [req] RISC-V64 | `ecall` | `={x10},{x17}` then the first k of `{x10},{x11},{x12},{x13},{x14},{x15}`, then `~{memory}` | nr = `{x17}`, a1 … ak in order
 DLT-15.5-P5
   <1>1 [non] *(non-normative)* These are the strings clang 18 and clang 23 produce from musl's `arch/*/syscall_arch.h` (the RISC-V source string `ecall\n\t` normalises to `ecall`).
-  <1>2 [non] The xv6-riscv and Linux `tinyconfig` rows are §20.2, fixed by the platform spike (§20.7).   deps: DLT-20.2, DLT-20.7
+  <1>2 [req] The xv6-riscv and Linux `tinyconfig` rows are §20.2, fixed by the platform spike (§20.7).   deps: DLT-20.2, DLT-20.7
   <1>3 [ex] (code block, 9 lines) define i64 @write3(i64 %fd, ptr %buf) {
   <1>4 [ex] (code block, 7 lines) define internal i64 @w(i64 %fd, i64 %a) {
   <1>5 [ex] (code block, 8 lines) define internal i64 @w(i64 %fd, i64 %a) {
@@ -3256,7 +3257,7 @@ DLT-15.5-P5
 
 ````text
 DLT-16-P1
-  <1>1 [def] The lifting map turns a materialised region function, a binding shape (§8.4) and the link layout (§19.5) into the **reference object** of that shape: the ISA object whose oracle `@ref` defines F_B and the budget unit by the reference interpreter (ISA §4.2 "Reference body and binding", §14.1).   deps: DLT-8.4, DLT-19.5, ISA-4.2, DLT-14.1
+  <1>1 [req] The lifting map turns a materialised region function, a binding shape (§8.4) and the link layout (§19.5) into the **reference object** of that shape: the ISA object whose oracle `@ref` defines F_B and the budget unit by the reference interpreter (ISA §4.2 "Reference body and binding", §14.1).   deps: DLT-8.4, DLT-19.5, ISA-4.2, DLT-14.1
   <1>2 [req] It is a function of its inputs alone, so two plugins on the same LLVM version and pipeline produce byte-identical reference objects.   deps: DLT-16-P1.S1 (reference object)
   <1>3 [req] Its version (`map 0.2.9`) is the certificate's `dialect_mapping_version` (ISA §12.3).   deps: ISA-12.3
   <1>4 [req] The plugin's device objects (§17.4) are plugin-defined; they MUST be extensionally equal to the reference objects (ISA §5.7, T6; §18.7).   deps: DLT-16-P1.S1 (reference object), DLT-17.4, ISA-5.7, DLT-18.7
@@ -3278,43 +3279,43 @@ DLT-16.1-P1
 DLT-16.2-P1
   <1>1 [req] For a shape with region function f, the reference object is the ISA text (ISA §16) with:   deps: DLT-16-P1.S1 (reference object), ISA-16
 DLT-16.2-P2
-  <1>1 [unc] the header `bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=<pw>`;
+  <1>1 [req] the header `bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=<pw>`;
 DLT-16.2-P3
   <1>1 [ex] `section symbols`: one JCS line, keys `"0"`, `"1"`, … in the order `@ref`, `@L1` … `@Ln`, then the data symbols `G…` in `section data` order, each with its kind, name, signature (ISA §9.1; `args` types spelled as JCS strings of the ISA §16.2 type, e.g. `"i64"`) and interface hash (ISA §9.2);   deps: DLT-21.1-P2.S1 (L1), ISA-9.1, ISA-16.2, ISA-9.2
 DLT-16.2-P4
   <1>1 [req] `section functions`: `@ref`, then the lprocs `@L1` … `@Ln`: one per function of the L closure of f (direct calls and indirect-call candidates), numbered in depth-first preorder from `@ref` along the `lift.call` rows in text order;   deps: DLT-21.1-P2.S1 (L1)
 DLT-16.2-P5
-  <1>1 [unc] `section data`: one line `G<n> <hex>` per global of the layout below, in `layout.globals` key order, with the global's initialiser bytes after §12 (function addresses encoded as A(F) in P(a)-bit little-endian at each pointer field, §4.4; pointers to globals as their bases plus offsets);   deps: DLT-4.4-P1.S1 (function address), DLT-12, DLT-4.4
+  <1>1 [req] `section data`: one line `G<n> <hex>` per global of the layout below, in `layout.globals` key order, with the global's initialiser bytes after §12 (function addresses encoded as A(F) in P(a)-bit little-endian at each pointer field, §4.4; pointers to globals as their bases plus offsets);   deps: DLT-4.4-P1.S1 (function address), DLT-12, DLT-4.4
 DLT-16.2-P6
-  <1>1 [unc] `section layout`: one JCS line (§16.3).   deps: DLT-16.3
+  <1>1 [req] `section layout`: one JCS line (§16.3).   deps: DLT-16.3
 DLT-16.2-P7
   <1>1 [req] **The wrapper `@ref`.** Its header is `oracle @ref (<ins>) (tgt:wire[T]) (fault:wire[4]) (<mems>) (<args>)`:   deps: DLT-2-P3.S2 (wire)
 DLT-16.2-P8
-  <1>1 [unc] `<ins>`: `x<k>:wire[n] in` for the k-th `IN` binding in parameter order (n = n(q));   deps: DLT-2-P3.S2 (wire)
+  <1>1 [req] `<ins>`: `x<k>:wire[n] in` for the k-th `IN` binding in parameter order (n = n(q));   deps: DLT-2-P3.S2 (wire)
 DLT-16.2-P9
   <1>1 [req] T: the width of the variant's slice (§8.6), or 1 when the shape has no output;   deps: DLT-2-P7.S2 (variant), DLT-8.6
 DLT-16.2-P10
   <1>1 [req] `<mems>`: first `coh:region[A,8] in` when a slice or oracle reads an arena object, then `m<k>:region[A,8] in` for the k-th `MEM_IN` binding in parameter order, then `e0` for an ENTROPY binding, `k0` for a BLOCK binding, `s0` for an entry-state snapshot (§8.5);   deps: DLT-8.5
 DLT-16.2-P11
-  <1>1 [unc] `<args>`: `a<k>:i<W>` for the k-th `ARG` binding in parameter order (W = P(a) for a `ptr addrspace(a)`).
+  <1>1 [req] `<args>`: `a<k>:i<W>` for the k-th `ARG` binding in parameter order (W = P(a) for a `ptr addrspace(a)`).
 DLT-16.2-P12
   <1>1 [req] Its body is one block `^entry():` with, in order:
 DLT-16.2-P13
   <1>1 [req] **Prologue** (each part only when needed): the entry-state replay `t = lift.call @L(__bennett_rt_entry_replay) (s)` with `s = lift.addr @s0`; the device-state stores of §11.3 (for ENTROPY: `d0 = lift.addr @e0`, `d1 = lift.addr @G(base)`, `lift.boundscheck d1 8`, `lift.store.i64 d1 d0`, `d2 = lift.const.i64 <2^A>`, `d3 = lift.addr @G(size)`, `lift.boundscheck d3 8`, `lift.store.i64 d3 d2`; the position starts at its data image 0; the other models likewise in model order); the shadow-stack setup `t = lift.call @L(__bennett_rt_ss_init) (c)` with c = `lift.const.i64 <sstack>` (baseline for the provisional object, resolved for the final object under §9.2; no rematching) when the closure contains a call of `__bennett_rt_ss_push` (§17.3).   deps: DLT-11.3, DLT-9.2, DLT-17.3
 DLT-16.2-P14
-  <1>1 [unc] **Arguments**, for each parameter i in order: `IN` with n = W: the pseudo-location `x<k>` itself; `IN` with n < W: `w<i> = lift.zext.iW x<k>` (`lift.sext` for SEXT); `ARG`: `a<k>` itself; `MEM_IN`: `w<i> = lift.addr @m<k>`; `OUT`: `w<i> = lift.alloc <size>`.
+  <1>1 [req] **Arguments**, for each parameter i in order: `IN` with n = W: the pseudo-location `x<k>` itself; `IN` with n < W: `w<i> = lift.zext.iW x<k>` (`lift.sext` for SEXT); `ARG`: `a<k>` itself; `MEM_IN`: `w<i> = lift.addr @m<k>`; `OUT`: `w<i> = lift.alloc <size>`.
 DLT-16.2-P15
   <1>1 [req] **Call**: `r = lift.call @L1 (<arguments>)` (`r:reg[R]`, R the return width, 1 for `void`).   deps: DLT-21.1-P2.S1 (L1)
 DLT-16.2-P16
   <1>1 [def] **Unwind check** (only when f may unwind, §14.4): `e = lift.addr @G(__bennett_rt_eh)`, `lift.boundscheck e 4`, `l = lift.load.i32 e`, `z = lift.const.i32 0`, `u = lift.icmp.ne l z`, `lift.faultif u 4`.   deps: DLT-14.4
   <1>2 [req] A function **may unwind** iff it is not `nounwind` and calls (directly or through a candidate) a function that may unwind, an external function without `nounwind`, or one of the raise functions of §14.4 (least fixpoint).   deps: DLT-14.4
 DLT-16.2-P17
-  <1>1 [def] **Common delivery**, identical in every W_j: compute and validate *every* payload slice in output/slice order (§8.6), including all address offsets, bounds checks, loads, casts, dropped-bit checks and console slices.   deps: DLT-8.6
+  <1>1 [req] **Common delivery**, identical in every W_j: compute and validate *every* payload slice in output/slice order (§8.6), including all address offsets, bounds checks, loads, casts, dropped-bit checks and console slices.   deps: DLT-8.6
   <1>2 [req] Store each projection in `p<j>:reg[w_j]`.
   <1>3 [req] Only after this identical sequence does `lift.retval p<j>` select this variant's result.   deps: DLT-2-P7.S2 (variant)
   <1>4 [req] For k=0 there are no projections or dropped-return-bit checks: discard r and emit `p0 = lift.const.i1 0` followed by `lift.retval p0`, with `p0:reg[1]`.
   <1>5 [req] These two terminal rows are part of the charged reference body, after the call and any unwind check.
-  <1>6 [unc] A fault still delivers code through the four-wire fault interface and zero payload to the hidden bit.
+  <1>6 [req] A fault still delivers code through the four-wire fault interface and zero payload to the hidden bit.
   <1>7 [req] For k=1 retain the original direct result without a projection move.
   <1>8 [req] Every variant has the same location list and row charges, including unused projections.   deps: DLT-2-P7.S2 (variant)
   <1>9 [req] The per-slice computation is: for the `tgt` output with n(tgt) < R: `c = lift.const.iR <n(tgt)>`, `t = lift.lshr r c`, `z = lift.const.iR 0`, `u = lift.icmp.ne t z`, `lift.faultif u 4` (the dropped-bits check of §8.2, in every variant); then the slice value: from `r` by `lift.lshr` of its low bit position (when nonzero) and `lift.trunc`/`lift.zext` to T (when the widths differ); from an `OUT` buffer `w<i>` by `p = lift.add w<i> <offset>` (when nonzero), `lift.boundscheck p <T/8>`, `v = lift.load.i<T> p`; then `p<j> = lift.mov <value>`; after all slices, `lift.retval p<selected>`.   deps: DLT-2-P7.S2 (variant), DLT-8.2
@@ -3351,7 +3352,7 @@ DLT-16.3-P9
   <1>1 [req] the n-th global of the layout (1-based, in link order) | data symbol and global `G<n>`
 DLT-16.3-P10
   <1>1 [req] The `regs` line lists every location of the function that is neither a parameter nor the result, in order of first appearance as a destination in the text, as `name:reg[W]`, separated by `, `; it is omitted when empty.
-  <1>2 [unc] W: a value's width (`i1` → 1, `ptr addrspace(a)` → P(a)); a constant's width; a temporary's width (1 for a compare, else its operation's width).
+  <1>2 [req] W: a value's width (`i1` → 1, `ptr addrspace(a)` → P(a)); a constant's width; a temporary's width (1 for a compare, else its operation's width).
 DLT-16.3-P11
   <1>1 [req] **Layout.** The reference object's `layout` is the device link layout (§19.5) restricted to the non-arena globals that the L closure names in `lift.addr` and, transitively, non-arena globals their initialisers point to (in link order, numbered G1, G2, …), with the link's `ptr_width`, `null_size`, `heap_base`, `heap_limit_max`, `H`, `A_tab` and `S_cells`, and `interface_regions` = { "ref": the shape's regions }.   deps: DLT-16-P1.S1 (reference object), DLT-19.5
   <1>2 [req] An arena-relocated global has no G<n> symbol or data image: its address is @coh plus its arena offset.
@@ -3366,7 +3367,7 @@ DLT-16.3-P11
 ````text
 DLT-16.4-P1
   <1>1 [req] Pointer constants, flattened pointer fields, parameters, results and pointer memory values use P(a), including their DataLayout storage size.
-  <1>2 [unc] Materialise null at P(a).
+  <1>2 [req] Materialise null at P(a).
   <1>3 [req] Before an ISA memory address operand, bridge the source pointer representation to pw with the target's address conversion (zero-extension/truncation for the integral flat-address spaces); this bridge never changes the stored pointer width or the source ptrtoint/inttoptr semantics.
   <1>4 [req] Apply the same rules to constant expressions and the native comparison build.
   <1>5 [req] Representations above 128 bits use §12.7 limbs; mixed-width layouts are not rejected.   deps: DLT-12.7
@@ -3376,17 +3377,17 @@ DLT-16.4-P2
   <1>3 [req] Proved containment in a static arena global (as in arena-o1's one-byte @cnt load) discharges this check without extra rows; a physical coh entry alone is never such a proof.
   <1>4 [req] For an address that can lie in shadow-stack backing storage, also perform §17.3's logical-frame check before every program load, store or memory-function access, including non-coh addresses.   deps: DLT-17.3
   <1>5 [req] The materialised __bennett_rt_ss_check(p,n,table) helper's comparisons, calls and fault rows count normally.
-  <1>6 [unc] Gate mutations and dependent events on its success.
+  <1>6 [req] Gate mutations and dependent events on its success.
   <1>7 [req] Physical boundscheck/load/store rows remain required; they do not substitute for the logical check.
   <1>8 [req] Explicit runtime-internal bookkeeping uses the internal path of §17.3, not the program-access helper.   deps: DLT-17.3
 DLT-16.4-P3
   <1>1 [req] Rows of an instruction are emitted in instruction order within its block.
-  <1>2 [def] Before the rows of an instruction, each of its **constant operands** that is a value operand (in operand order; not an immediate flag; for `getelementptr`, not a constant index) is materialised: an integer constant by `c<j> = lift.const.iW <unsigned decimal>`; `null` by `lift.const.i<P(a)> 0`; a non-arena global `@G` by `c<j> = lift.addr @G<n>`; an arena global by `c<j> = lift.addr @coh`, and if its arena offset δ is nonzero, `c<j+1> = lift.const.i<pw> δ`, `t<j> = lift.add c<j> c<j+1>` (the operand reads this temporary); in an lproc the base is its hidden arena-base parameter rather than lift.addr @coh.
+  <1>2 [req] Before the rows of an instruction, each of its **constant operands** that is a value operand (in operand order; not an immediate flag; for `getelementptr`, not a constant index) is materialised: an integer constant by `c<j> = lift.const.iW <unsigned decimal>`; `null` by `lift.const.i<P(a)> 0`; a non-arena global `@G` by `c<j> = lift.addr @G<n>`; an arena global by `c<j> = lift.addr @coh`, and if its arena offset δ is nonzero, `c<j+1> = lift.const.i<pw> δ`, `t<j> = lift.add c<j> c<j+1>` (the operand reads this temporary); in an lproc the base is its hidden arena-base parameter rather than lift.addr @coh.
   <1>3 [req] The wrapper materialises @coh once before the region call, appends this pw-bit argument after source parameters, and every transitive lproc call threads it unchanged.
   <1>4 [req] Only functions in the arena-reading closure receive it; materialising the base in a lproc uses lift.mov of that parameter.
-  <1>5 [unc] Materialise a function `@F` by `c<j> = lift.const.i<pw> <A(F)>`; a constant expression by the rows of its instructions, innermost first, into temporaries.
+  <1>5 [req] Materialise a function `@F` by `c<j> = lift.const.i<pw> <A(F)>`; a constant expression by the rows of its instructions, innermost first, into temporaries.
   <1>6 [req] The operand then reads `c<j>`.
-  <1>7 [unc] Aggregate constants materialise one scalar carrier constant per flattened field in field order before packing.
+  <1>7 [req] Aggregate constants materialise one scalar carrier constant per flattened field in field order before packing.
   <1>8 [req] A non-constant operand reads the location of its value (`a<i>` for a parameter).
   <1>9 [req] `A`, `B`, `C` below are the operands so read; `v` is the instruction's location.
 DLT-16.4-P4
@@ -3463,9 +3464,9 @@ DLT-16.4-P33
 DLT-16.4-P34
   <1>1 [req] if hi − lo + 1 ≤ 3: for j = lo … hi, in block X: `c = lift.const.iW k_j`; `t = lift.icmp.eq C c`; `qbranch t ^T_j ^Y`, where Y is a new block `^b<i>.s<n>` for j < hi and D for j = hi; X := Y;
 DLT-16.4-P35
-  <1>1 [unc] otherwise, with mid = ⌊(lo + hi)/2⌋: in X: `c = lift.const.iW k_mid`; `t = lift.icmp.ult C c`; new blocks L then R; `qbranch t ^L ^R`; node(lo, mid − 1, L); node(mid, hi, R);
+  <1>1 [req] otherwise, with mid = ⌊(lo + hi)/2⌋: in X: `c = lift.const.iW k_mid`; `t = lift.icmp.ult C c`; new blocks L then R; `qbranch t ^L ^R`; node(lo, mid − 1, L); node(mid, hi, R);
 DLT-16.4-P36
-  <1>1 [unc] with no key: `qjump ^D`.
+  <1>1 [req] with no key: `qjump ^D`.
 DLT-16.4-P37
   <1>1 [req] **Round-5 pointer and canonical-row witnesses.** For pointer-as270, truncation at P(270)=32 followed by zero-extension gives 0 and 1.
   <1>2 [req] For gep-index-obj, I=32 makes index 2^32 zero, while −1 makes low bits all ones: high 0x1 plus low 0xffffffff gives 8589934591.
@@ -3488,9 +3489,9 @@ DLT-16.4-P37
   <1>19 [ex] (code block, 4 lines) L1 78ac77e0893585c119f90dc6ff7f2c9c65ba82d7593c770fa8c4a91996e360a1   deps: DLT-21.1-P2.S1 (L1)
   <1>20 [ex] (code block, 3 lines) input= budget=100,0,32,8 -> code=0 payload=4294967296 steps=9
 DLT-16.4-P38
-  <1>1 [def] **Edge moves** (B → S), S with phis φ_1 … φ_r in S's order and incoming values a_1 … a_r for B: the constant materialisations of the a_k that are constants (in order), then `(v_φ1, …, v_φr) = lift.parmov (A_1, …, A_r)` (ISA §4.2, parallel).   deps: ISA-4.2
+  <1>1 [req] **Edge moves** (B → S), S with phis φ_1 … φ_r in S's order and incoming values a_1 … a_r for B: the constant materialisations of the a_k that are constants (in order), then `(v_φ1, …, v_φr) = lift.parmov (A_1, …, A_r)` (ISA §4.2, parallel).   deps: ISA-4.2
   <1>2 [req] None when S has no phi.
-  <1>3 [def] For a successor X of a conditional terminator or of a compare-tree leaf in block i, X′ is `^b<i>.e<x>` when X has a phi, else `^b<x>`; the **edge block** `^b<i>.e<x>` holds the edge moves (i → x) and `qjump ^b<x>`.
+  <1>3 [req] For a successor X of a conditional terminator or of a compare-tree leaf in block i, X′ is `^b<i>.e<x>` when X has a phi, else `^b<x>`; the **edge block** `^b<i>.e<x>` holds the edge moves (i → x) and `qjump ^b<x>`.
 DLT-16.4-P39
   <1>1 [unc] **Block order.** For i = 0, 1, …: block `^b<i>`, then the blocks created in it (compare-tree blocks, and per indirect call its leaves, default and continuation) in creation order, then its edge blocks in ascending successor index.   deps: DLT-16.4-P38.S3 (edge block)
 DLT-16.4-P40
@@ -3529,7 +3530,7 @@ DLT-16.4-P43
 DLT-16.4-P44
   <1>1 [req] **`binding-console-byte`.** CONSOLE(1) denotes L=1, with a non-null one-byte output register and null return target.   deps: DLT-2-P3.S1 (register)
   <1>2 [req] The materialised one-byte write appends x (120), advancing n from 0 to 1; delivery XORs 0x78 into the output without a host effect.
-  <1>3 [unc] Twelve prologue rows, call, eleven callee rows and three delivery rows total 27.
+  <1>3 [req] Twelve prologue rows, call, eleven callee rows and three delivery rows total 27.
   <1>4 [ex] (code block, 11 lines) @__bennett_dev_console_buf = internal global ptr null
   <1>5 [ex] (code block, 7 lines) null_size=4096 heap_base=8192 heap_limit_max=1
   <1>6 [ex] (code block, 49 lines) bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 tar…   deps: DLT-21.1-P2.S1 (L1)
@@ -3539,7 +3540,7 @@ DLT-16.4-P45
   <1>2 [req] MEM_IN(4) supplies the 16-byte snapshot, and the defined replay helper copies that byte into G1 before f reads it.
   <1>3 [req] The caller snapshot is unchanged.
   <1>4 [req] Initial image G1=0 is overridden by caller byte 7, giving payload 7 in 16 rows.
-  <1>5 [unc] This isolates replay of G, not the general allocation/stack replay loop.
+  <1>5 [req] This isolates replay of G, not the general allocation/stack replay loop.
   <1>6 [ex] (code block, 14 lines) @g = internal global i8 0
   <1>7 [ex] (code block, 5 lines) null_size=4096 heap_base=8192 heap_limit_max=0
   <1>8 [ex] (code block, 39 lines) bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 tar…   deps: DLT-21.1-P2.S1 (L1), DLT-21.1-P3.S1 (L2)
@@ -3564,11 +3565,11 @@ DLT-16.4-P46
 DLT-16.5-P1
   <1>1 [req] The CC tier's entry-state transfer (§8.5) and TDL (§10) use three families of runtime oracles, generated per width and part of the device object:   deps: DLT-2-P7.S1 (CC), DLT-8.5-P2.S14 (entry-state transfer), DLT-8.5, DLT-10
 DLT-16.5-P2
-  <1>1 [unc] `@xor128`: `oracle @xor128 () (t:wire[128]) (f:wire[4]) () (lo:i64, hi:i64)` with body `a = lift.zext.i128 lo`, `b = lift.zext.i128 hi`, `s = lift.const.i128 64`, `h = lift.shl b s`, `v = lift.or h a`, `lift.retval v` (6 steps; memoryless, ISA §7.2);   deps: DLT-2-P3.S2 (wire), ISA-7.2
+  <1>1 [req] `@xor128`: `oracle @xor128 () (t:wire[128]) (f:wire[4]) () (lo:i64, hi:i64)` with body `a = lift.zext.i128 lo`, `b = lift.zext.i128 hi`, `s = lift.const.i128 64`, `h = lift.shl b s`, `v = lift.or h a`, `lift.retval v` (6 steps; memoryless, ISA §7.2);   deps: DLT-2-P3.S2 (wire), ISA-7.2
 DLT-16.5-P3
-  <1>1 [unc] `@xorargs<A>`: payload = a mod 2^A | m · 2^A for the classical arguments (a: i64, m: i8), a (A + 8)-wire target (TDL-4);   deps: DLT-10-P19.S1 (TDL-4)
+  <1>1 [req] `@xorargs<A>`: payload = a mod 2^A | m · 2^A for the classical arguments (a: i64, m: i8), a (A + 8)-wire target (TDL-4);   deps: DLT-10-P19.S1 (TDL-4)
 DLT-16.5-P4
-  <1>1 [unc] `@firstfault<K>`: `in` = K 4-wire bundles, payload = the first nonzero one in order, else 0 (TDL-8).   deps: DLT-10-P36.S1 (TDL-8)
+  <1>1 [req] `@firstfault<K>`: `in` = K 4-wire bundles, payload = the first nonzero one in order, else 0 (TDL-8).   deps: DLT-10-P36.S1 (TDL-8)
 DLT-16.5-P5
   <1>1 [req] An oracle region's identity (§7.3) is the interface hash of `@ref` (ISA §9.2), recorded as the certificate's `reference_program_hash` (ISA §12.3).   deps: DLT-7.3, ISA-9.2, ISA-12.3
   <1>2 [req] F_B(x) is ISA §5.2's on `@ref` with the token's budget (B, heap, stack, depth) (§9.4): success at `lift.retval` within B steps gives (payload, 0); a fault row, a faulting division or memory row, or a budget flag gives (0, code); otherwise (0, 1).   deps: ISA-5.2, DLT-9.4
@@ -3589,8 +3590,8 @@ DLT-16.6-P1
   <1>8 [ex] (code block, 3 lines) budget=5,0,7,1 -> status=ok cases=256 input_and_memory_bits=8
 DLT-16.6-P2
   <1>1 [non] *(non-normative)* Five steps: `lift.call`, the three rows of `@L1` (`lift.const`, `lift.add`, `lift.ret`) and `lift.retval`.   deps: DLT-21.1-P2.S1 (L1)
-  <1>2 [non] The call needs R_L1 = 3 + m′ = 3 + 4 = 7 stack cells (m′ = one parameter, the result and two `regs`, ISA §3.7) and depth 1: with 6 cells or depth 0 the `lift.call` flag gives `FAULT_BUDGET_DEPTH` (3) at step 1.   deps: ISA-3.7
-  <1>3 [non] 0.1's memoryless `inc8` body is replaced by this wrapper form, so its hash changes (a draft-to-draft change, §23).   deps: DLT-23
+  <1>2 [ex] The call needs R_L1 = 3 + m′ = 3 + 4 = 7 stack cells (m′ = one parameter, the result and two `regs`, ISA §3.7) and depth 1: with 6 cells or depth 0 the `lift.call` flag gives `FAULT_BUDGET_DEPTH` (3) at step 1.   deps: ISA-3.7
+  <1>3 [ex] 0.1's memoryless `inc8` body is replaced by this wrapper form, so its hash changes (a draft-to-draft change, §23).   deps: DLT-23
 DLT-16.6-P3
   <1>1 [ex] Two `IN` bindings (`oracle-two-in`, §8.8):   deps: DLT-8.8
   <1>2 [ex] (code block, 8 lines) define internal i9 @add(i8 %a, i8 %b) {
@@ -3613,7 +3614,7 @@ DLT-16.7-P2
   <1>2 [ex] (code block, 55 lines) /* The quantum programmer's translation unit: one Grover iteration over the 3-bi…
 DLT-16.7-P3
   <1>1 [non] *(non-normative)* The descriptor's kinds and the budget record's fields reach the marker as constant stores and `memset`s (PT7, PT8), so there is one shape.   deps: DLT-5.2-P8.S1 (PT7), DLT-5.2-P9.S1 (PT8), DLT-9.1-P1.S1 (budget record)
-  <1>2 [non] The MEM_IN register is the static register of the root `db` (it is stored in the descriptor, so it has a static register file with N = 1 by §6.5 rule 1); `f` stays clean when the fault rate is zero, and `t` returns to |0⟩ after H and X.   deps: DLT-2-P3.S1 (register), DLT-6.5-P8
+  <1>2 [ex] The MEM_IN register is the static register of the root `db` (it is stored in the descriptor, so it has a static register file with N = 1 by §6.5 rule 1); `f` stays clean when the fault rate is zero, and `t` returns to |0⟩ after H and X.   deps: DLT-2-P3.S1 (register), DLT-6.5-P8
 DLT-16.7-P4
   <1>1 [ex] The materialised region function and its closure, written in the shape the pipeline gives them (the recursion kept, `__builtin_trap` already replaced by N11):   deps: DLT-12.2-P13.S1 (N11)
   <1>2 [ex] (code block, 90 lines) @preds = internal constant [2 x ptr] [ptr @pred_even, ptr @pred_big]
@@ -3630,9 +3631,9 @@ DLT-16.7-P6
   <1>4 [ex] (code block, 5 lines) q(img with byte 0 = 0, 16, rowid) for rowid 0..7 = 1 0 0 0 1 1 0 1
 DLT-16.7-P7
   <1>1 [non] *(non-normative)* Derivation of the 71 steps of rowid 4: `@ref` 3 rows to the call; `@L1` `^b0` 12 rows; `^b2` 4 rows to the call of `@L2`; `@L2` 15 rows (lo = 0, hi = 7, mid = 3: record 3 at offset 2 + 6 has key 4, found at once); `@L1` 3 more rows of `^b2` and 14 of `^b4` to the `qbranch`; the leaf's `lift.call` (1), `@L3`'s 10 rows, `qjump` (1), `lift.ret` (1); `@ref`'s 7 delivery rows: 3 + 12 + 4 + 15 + 3 + 14 + 1 + 10 + 1 + 1 + 7 = 71, and B = 70 is `FAULT_BUDGET_STEPS`.   deps: DLT-21.1-P2.S1 (L1), DLT-21.1-P3.S1 (L2), DLT-21.1-P4.S1 (L3)
-  <1>2 [non] Rowid 7 recurses three times (mid 3, then 5 in [4, 7), then 6 in [6, 7)): the stack holds R_L1 = 3 + 35 = 38 cells, three R_L2 = 3 + 22 = 25 frames and R_L3 = 13, 126 cells in all, and the depth reaches 4, so 125 cells or depth 3 give `FAULT_BUDGET_DEPTH`.
-  <1>3 [non] The step check runs the reversible machine for B = 120 on all 8 rowids with this image fixed and reverses every step to the entry tuple.
-  <1>4 [non] The certificate claim of NS §8 rung 4(a) is this check over all rows and all target values with the database fixed classically (§25.2 records how ISA §12.2 labels a domain with a fixed region).   deps: DLT-25.2, ISA-12.2
+  <1>2 [ex] Rowid 7 recurses three times (mid 3, then 5 in [4, 7), then 6 in [6, 7)): the stack holds R_L1 = 3 + 35 = 38 cells, three R_L2 = 3 + 22 = 25 frames and R_L3 = 13, 126 cells in all, and the depth reaches 4, so 125 cells or depth 3 give `FAULT_BUDGET_DEPTH`.
+  <1>3 [ex] The step check runs the reversible machine for B = 120 on all 8 rowids with this image fixed and reverses every step to the entry tuple.
+  <1>4 [ex] The certificate claim of NS §8 rung 4(a) is this check over all rows and all target values with the database fixed classically (§25.2 records how ISA §12.2 labels a domain with a fixed region).   deps: DLT-25.2, ISA-12.2
 ````
 
 ### §16.8 Example: a reduced rung 8 (ENTROPY binding)   [DLT-16.8]
@@ -3653,7 +3654,7 @@ DLT-16.8-P2
   <1>5 [ex] (code block, 3 lines) budget=100,0,512,4 -> status=ok cases=256 input_and_memory_bits=8
 DLT-16.8-P3
   <1>1 [non] *(non-normative)* 0x4c = 76 < 77 and 0x4d = 77 is not, so the payload is 1 on exactly 77 of the 256 entropy values (checked by running all 256): amplitude estimation on this oracle estimates 77/256.
-  <1>2 [non] The step check enumerates the superposed entropy byte itself.
+  <1>2 [ex] The step check enumerates the superposed entropy byte itself.
 ````
 
 ### §16.9 Example: rung 2 (heap, phis, a loop, `free`)   [DLT-16.9]
@@ -3670,7 +3671,7 @@ DLT-16.9-P2
   <1>4 [ex] (code block, 3 lines) budget=200,64,512,4 -> status=ok cases=4 input_and_memory_bits=2
 DLT-16.9-P3
   <1>1 [non] *(non-normative)* The payload is 0 + 1 + … + (n − 1). n = 3 allocates 3 × 16 bytes: with a heap budget of 32 the third `lift.alloc` (`heap_used` 32 + 16 > 32) is `FAULT_BUDGET_HEAP` (2).
-  <1>2 [non] The 45 steps of n = 1: `@ref` 2 rows to the call; `^b0` 3; `^b0.e1` 4; `^b1` 14 (including `@L2`'s 2); `^b1.e2` 3; `^b2` 17 (including `@L3`'s 6); `^b4` 1; `lift.retval` 1.   deps: DLT-21.1-P3.S1 (L2), DLT-21.1-P4.S1 (L3)
+  <1>2 [ex] The 45 steps of n = 1: `@ref` 2 rows to the call; `^b0` 3; `^b0.e1` 4; `^b1` 14 (including `@L2`'s 2); `^b1.e2` 3; `^b2` 17 (including `@L3`'s 6); `^b4` 1; `lift.retval` 1.   deps: DLT-21.1-P3.S1 (L2), DLT-21.1-P4.S1 (L3)
 ````
 
 ### §16.10 Example: `switch` as a compare tree   [DLT-16.10]
@@ -3686,7 +3687,7 @@ DLT-16.10-P1
   <1>7 [ex] (code block, 3 lines) budget=18,0,32,1 -> status=ok cases=256 input_and_memory_bits=8
 DLT-16.10-P2
   <1>1 [non] *(non-normative)* x = 1 takes `lift.call` (1), `^b0` (3), `^b0.s1` (3), `^b1` (3), `lift.ret` (1) and `lift.retval` (1): 12 steps; x = 40 visits `^b0`, `^b0.s2`, `^b0.s4`, `^b0.s5` and `^b2`: 1 + 3 + 3 + 3 + 3 + 3 + 1 + 1 = 18, the most, so B = 18 suffices for all 256 inputs.
-  <1>2 [non] The 0.1 linear chain needed up to 5 compares; the tree needs at most 4 on this table (the `ult` at the root and up to 3 `eq`), and O(log k) for k cases.
+  <1>2 [ex] The 0.1 linear chain needed up to 5 compares; the tree needs at most 4 on this table (the `ult` at the root and up to 3 `eq`), and O(log k) for k cases.
 ````
 
 ### §16.11 Round-1 interface contract vectors   [DLT-16.11]
@@ -3733,7 +3734,7 @@ DLT-17.1-P2
   <1>1 [def] **Live allocations**: a shadow-stack frame from its push to its pop (§17.3); a global, always; a heap allocation of the runtimes allocator from its allocation to its `free` (`free` of a null pointer does nothing).   deps: DLT-17.3
   <1>2 [req] The null region is never allocated.
 DLT-17.1-P3
-  <1>1 [def] **Zero fill**: shadow-stack frames and heap allocations are zero-filled in both builds; globals hold their initialisers.
+  <1>1 [req] **Zero fill**: shadow-stack frames and heap allocations are zero-filled in both builds; globals hold their initialisers.
   <1>2 [req] Region inputs are not zero-filled: they are the bytes the host supplies (NS §3.2).
 DLT-17.1-P4
   <1>1 [req] **Bounds**: a load, store or memory-function range is valid iff all its bytes lie in one live allocation (an address model: the object a pointer was derived from is irrelevant; NS §3.2 "faulting memory access is defined").
@@ -3741,7 +3742,7 @@ DLT-17.1-P5
   <1>1 [req] **Addresses**: the comparison link (§19.5) places globals and functions; the runtimes allocator's fixed base places the heap; the shadow stack is heap memory, so native stack addresses never reach device results.   deps: DLT-4.4-P1.S1 (comparison link), DLT-19.5
   <1>2 [req] The residue is host-stack addresses passed in by host code: executions in which they influence a result are *layout-dependent* (NS §3.2; §24 D12), validated against the reference interpreter.   deps: DLT-24-P2.S1 (D12), DLT-24
 DLT-17.1-P6
-  <1>1 [def] **Single thread**: atomics and volatile are sequentialised (N9; NS §3.2; §24 D24).   deps: DLT-12.2-P11.S1 (N9), DLT-24-P8.S1 (D24), DLT-24
+  <1>1 [req] **Single thread**: atomics and volatile are sequentialised (N9; NS §3.2; §24 D24).   deps: DLT-12.2-P11.S1 (N9), DLT-24-P8.S1 (D24), DLT-24
 ````
 
 ### §17.2 Layout   [DLT-17.2]
@@ -3757,7 +3758,7 @@ DLT-17.2-P1
 ````text
 DLT-17.3-P1
   <1>1 [req] NS §3.2: "Region allocas are rewritten by the normaliser onto a shim-managed shadow stack in both builds where possible"; in device variants it is always possible.   deps: DLT-2-P7.S2 (variant)
-  <1>2 [unc] The runtimes provide, with these contracts:
+  <1>2 [req] The runtimes provide, with these contracts:
 DLT-17.3-P2
   <1>1 [req] `void __bennett_rt_ss_init(i64 size)` | is idempotent: if stack state is already set (by entry replay in an oracle), allocates nothing and keeps base, size and stack pointer; otherwise allocates one heap block of `size` bytes (`sstack`, §9.2), by `__bennett_nz_alloc`; called by the oracle wrapper prologue (§16.2), the R entry stub and the CC entry stub when their closure uses the shadow stack   deps: DLT-2-P7.S1 (CC), DLT-9.2, DLT-16.2
 DLT-17.3-P3
@@ -3781,7 +3782,7 @@ DLT-17.3-P8
   <1>2 [req] Its rows and metadata updates are charged in §16's reference object, and both builds implement the same checks and stack layout.   deps: DLT-16-P1.S1 (reference object), DLT-16
   <1>3 [req] Proven containment may eliminate the helper.
   <1>4 [req] Runtime bookkeeping, zero-fill and entry replay use an explicit internal path restricted to backing storage and metadata, never exposed to source program accesses; it is not a blanket exemption for ordinary calls into runtime-named functions.
-  <1>5 [unc] Replay the logical metadata as well as backing bytes under §8.5.   deps: DLT-8.5
+  <1>5 [req] Replay the logical metadata as well as backing bytes under §8.5.   deps: DLT-8.5
 DLT-17.3-P9
   <1>1 [req] N24 rewrites each function with allocas: `%nz.fp.<f> = call ptr @__bennett_rt_ss_push(i64 S, i64 A)` at entry, where the static allocas of the entry block are laid out in instruction order, each at the next offset aligned to its alignment, S is the total rounded up to A, the largest alignment.   deps: DLT-12.2-P26.S1 (N24)
   <1>2 [req] The pushed frame base is aligned to A; its end (the next frame start before any additional alignment) is base + S.
@@ -3795,7 +3796,7 @@ DLT-17.3-P9
 DLT-17.4-P1
   <1>1 [req] All pointer conversions, carriers, memory widths and address bridges use P(a) and the incoming target conversion exactly as in §16.4, in CC/R and the native build alike.   deps: DLT-2-P7.S1 (CC), DLT-16.4
   <1>2 [req] Every GEP, including constant expressions, uses §16.4's datalayout pointer-index width and preserves higher pointer bits.   deps: DLT-16.4
-  <1>3 [unc] CC/R express its truncations, scaled modular offsets and high/low recombination with ordinary ISA integer operations.   deps: DLT-2-P7.S1 (CC)
+  <1>3 [req] CC/R express its truncations, scaled modular offsets and high/low recombination with ordinary ISA integer operations.   deps: DLT-2-P7.S1 (CC)
   <1>4 [req] This follows [LangRef GEP semantics](https://llvm.org/docs/LangRef.html#getelementptr-instruction) and [datalayout pointer indices](https://llvm.org/docs/LangRef.html#data-layout), not full-width pointer addition when I<P(a); differing widths do not reject a layout.
 DLT-17.4-P2
   <1>1 [req] The lowering of device CC and R variants to ISA CC and R (ISA §4.1) is plugin-defined and constrained by §18.7, with these dialect rules: LLVM integer and memory instructions map to the ISA instructions of the same name (phis to block parameters, ISA §3.4); the primitives to `alloc`, `free` and §11.5; multi-result calls carry aggregates; marker calls lower to the region calls and `qreg.*` instructions of §18.3 with the handle register environment of §6.5; dispatch uses the compare trees of §14.2; host calls are §11.4; effect markers §11.1.   deps: DLT-2-P7.S1 (CC), DLT-2-P7.S2 (variant), DLT-10-P18.S1 (marker calls), DLT-2-P3.S1 (register), DLT-4.5-P4.S1 (host call), ISA-4.1, DLT-18.7, ISA-3.4, DLT-11.5, DLT-18.3, DLT-6.5, DLT-14.2, DLT-11.4, DLT-11.1
@@ -3847,7 +3848,7 @@ DLT-17.6-P1
 DLT-17.6-P2
   <1>1 [req] Exhaustion is `__bennett_nz_fault(1)`, `(2)` or `(3)`, with the typed-fault contract of §17.5.   deps: DLT-17.5
   <1>2 [req] On ISA 0.8 R sites needing this code preservation are blocked:BD-B-ISA7 (§25.1), not claimed implemented by a generic trap.   deps: DLT-25.1
-  <1>3 [unc] Affected fault points stop before later effects.
+  <1>3 [req] Affected fault points stop before later effects.
 DLT-17.6-P3
   <1>1 [req] R faults end the run (ISA §4.1); §25.2 records ISA-8 (fault status to the CC caller, reverse-eligibility of faulted runs).   deps: DLT-25.2-P3.S1 (ISA-8), DLT-2-P7.S1 (CC), ISA-4.1, DLT-25.2
 DLT-17.6-P4
@@ -3873,10 +3874,10 @@ DLT-17.6-P6
 
 ````text
 DLT-17.7-P1
-  <1>1 [def] Differential testing (NS §5.1) compares the artefact with the **native comparison binary**: the materialised device variants, code-generated by the same LLVM major and linked with `bennett-runtimes` and `bennett-arith` (never host libc or libm) under the comparison link of §19.5.   deps: DLT-2-P7.S2 (variant), DLT-4.4-P1.S1 (comparison link), DLT-19.5
+  <1>1 [req] Differential testing (NS §5.1) compares the artefact with the **native comparison binary**: the materialised device variants, code-generated by the same LLVM major and linked with `bennett-runtimes` and `bennett-arith` (never host libc or libm) under the comparison link of §19.5.   deps: DLT-2-P7.S2 (variant), DLT-4.4-P1.S1 (comparison link), DLT-19.5
   <1>2 [req] It is never an `-O0` build: optimisation legally changes marker operands (spike F4), and the materialised optimised module is the one program both builds implement.
   <1>3 [req] The driver MUST make division by zero and INT_MIN/−1 trap in the native build: on targets whose divide instruction does not trap it inserts, after materialisation and outside the materialised module, a check that calls `__bennett_nz_fault` with code 5 or 6.   deps: DLT-12.1-P1.S6 (materialised module)
-  <1>4 [unc] Results compare by the outcome table of §18.7.   deps: DLT-18.7
+  <1>4 [req] Results compare by the outcome table of §18.7.   deps: DLT-18.7
 ````
 
 ### §18.1 State   [DLT-18.1]
@@ -3892,7 +3893,7 @@ DLT-18.1-P3
 DLT-18.1-P4
   <1>1 [req] **H**, the handle table: for each handle, its wires, whether it is live, and the generation it was allocated in, if any;   deps: DLT-2-P3.S2 (wire)
 DLT-18.1-P5
-  <1>1 [unc] **G**, a stack of **recorders**, one per active generation (§18.4);   deps: DLT-18.4
+  <1>1 [req] **G**, a stack of **recorders**, one per active generation (§18.4);   deps: DLT-18.4
 DLT-18.1-P6
   <1>1 [req] **K**, the coherence states of the object instances (TDL-2);   deps: DLT-10-P3.S1 (TDL-2)
 DLT-18.1-P7
@@ -3905,18 +3906,18 @@ DLT-18.1-P8
 
 ````text
 DLT-18.2-P1
-  <1>1 [def] A marker call or a TDL store produces **events**: ISA-level operations, each with a **control set** (a set of wires, initially empty).   deps: DLT-3.5-P1.S1 (marker call), DLT-2-P3.S2 (wire)
+  <1>1 [req] A marker call or a TDL store produces **events**: ISA-level operations, each with a **control set** (a set of wires, initially empty).   deps: DLT-3.5-P1.S1 (marker call), DLT-2-P3.S2 (wire)
   <1>2 [req] The forms are:
 DLT-18.2-P2
-  <1>1 [unc] `qalloc H n`, `qfree H`; the gates `x h s sdg t tdg cx cz swap ccx` (ISA §4.4) and `rx θ`, `ry θ`, `rz θ` on wires; `qload D M A`, `qstore M A V`, `qprep H bytes`;   deps: DLT-2-P3.S2 (wire), ISA-4.4
+  <1>1 [req] `qalloc H n`, `qfree H`; the gates `x h s sdg t tdg cx cz swap ccx` (ISA §4.4) and `rx θ`, `ry θ`, `rz θ` on wires; `qload D M A`, `qstore M A V`, `qprep H bytes`;   deps: DLT-2-P3.S2 (wire), ISA-4.4
 DLT-18.2-P3
-  <1>1 [unc] `oracle R B (ins..) tgt fault (mem..) (args..)` and `wide R …` (§8.6), `inplace G G′ B X`;   deps: DLT-8.6
+  <1>1 [req] `oracle R B (ins..) tgt fault (mem..) (args..)` and `wide R …` (§8.6), `inplace G G′ B X`;   deps: DLT-8.6
 DLT-18.2-P4
-  <1>1 [unc] the TDL events of §10: `slice O (args..) (ins..) (mem..) -> regs`, `xmask X+o m`, `xstore X+a m`, `perm P X+a (params..)`, `xchg X+a h`, `fault C` (TDL-12), `firstfault (f..) Φ`;   deps: DLT-10-P47.S1 (TDL-12), DLT-10
+  <1>1 [req] the TDL events of §10: `slice O (args..) (ins..) (mem..) -> regs`, `xmask X+o m`, `xstore X+a m`, `perm P X+a (params..)`, `xchg X+a h`, `fault C` (TDL-12), `firstfault (f..) Φ`;   deps: DLT-10-P47.S1 (TDL-12), DLT-10
 DLT-18.2-P5
   <1>1 [req] `qcopy S -> D`: allocate D clean then XOR S into it; `quncopy S D`: XOR S into D and release clean D; `qxor S T`: T XOR= S; `copy F -> G` means qalloc G then qxor F G (TDL-8);   deps: DLT-10-P36.S1 (TDL-8)
 DLT-18.2-P6
-  <1>1 [unc] `observe X+o len`, `measure` (outside generations), `effect dev.op` (R).
+  <1>1 [req] `observe X+o len`, `measure` (outside generations), `effect dev.op` (R).
 DLT-18.2-P7
   <1>1 [req] When no recorder is active, an event is **applied** to Σ at once; otherwise it is appended to the innermost recorder.
   <1>2 [req] Applying an event with control set S applies it only on the basis states where every wire of S is 1 (ISA `ctl`, ISA §4.7, §5.3); `qalloc` and `qfree` are unconditional (ISA §3.5).   deps: DLT-18.2-P1.S1 (control set), DLT-2-P3.S2 (wire), ISA-4.7, ISA-5.3, ISA-3.5
@@ -4014,7 +4015,7 @@ DLT-18.4-P1
   <1>3 [req] **Leak rule** (successful source generation only, excluding the declared fault/measurement outputs): (`T-LEAK`): for `ctrl` and `adj`, every register allocated during the generation is freed during it; for `compute`, every register allocated during gen(use) is freed during it, while a register allocated during gen(f) and not freed during it is freed by adjoint(E_f), in which its `qalloc` event becomes a `qfree` event, so gen(use) MUST NOT free it (`T-FOREIGN`).   deps: DLT-2-P3.S1 (register)
   <1>4 [req] Outside generations the check is at program end (§6.6): a register that is still live then, neither freed by device code or the host (`bennett_qreg_free`) nor consumed by a `measure`, is `T-LEAK`.   deps: DLT-2-P3.S1 (register), DLT-6.6
   <1>5 [non] *(non-normative)* The classical part of an action region (G) runs once per invocation; its effect on outliving memory is the events of TDL-5, so under `ctrl` it happens exactly on the branch where the control is 1 (the audit's counterexample to 0.1).   deps: DLT-10-P25.S1 (TDL-5), DLT-7.1-P7.S3 (action region)
-  <1>6 [non] NS §4.2 requires "allocations inside released clean or borrowed and restored": `T-LEAK` and `T-CLEAN` are those checks.
+  <1>6 [req] NS §4.2 requires "allocations inside released clean or borrowed and restored": `T-LEAK` and `T-CLEAN` are those checks.
 ````
 
 ### §18.5 Oracle semantics   [DLT-18.5]
@@ -4040,7 +4041,7 @@ DLT-18.7-P1
   <1>1 [req] A plugin and an executor (ISA §1.2) together conform iff, for every module the rules accept or block, every host input and every sequence of measurement and `observe` outcomes, outside the executions that reach a blocker point: the probability of that sequence, every classical value the host observes (return values of device entries, memory they write, console output), every fault code and every trap equal those of the reference semantics; and the quantum state at every measurement and at every device-entry return equals the reference state, exactly when the program uses permutation gates only, and otherwise within the error bound its certificate states (ISA §12.3).   deps: DLT-6.5-P10.S1 (blocker point), ISA-1.2, ISA-12.3
   <1>2 [req] A program that reaches `T-CLEAN` in the reference semantics is erroneous; an executor that cannot test cleanliness (hardware) need not reproduce that trap (ISA §17 item 14).   deps: ISA-17-P15
 DLT-18.7-P2
-  <1>1 [def] **Outcome table** (NS §5.1: "one outcome table governs §3.2, §5.1 and §8"). For every input of a declared domain the comparison with the native comparison build (§17.7) has one of four outcomes:   deps: DLT-3.2, DLT-5.1, DLT-8, DLT-17.7
+  <1>1 [req] **Outcome table** (NS §5.1: "one outcome table governs §3.2, §5.1 and §8"). For every input of a declared domain the comparison with the native comparison build (§17.7) has one of four outcomes:   deps: DLT-3.2, DLT-5.1, DLT-8, DLT-17.7
 DLT-18.7-P3
   <1>1 [req] native-comparable success | the reference completes without fault and no layout-dependent value influences the result | the artefact's results equal native
 DLT-18.7-P4
@@ -4132,9 +4133,9 @@ DLT-18.8-P12
   <1>4 [ex] (code block, 3 lines) |10> 1
 DLT-18.8-P13
   <1>1 [non] *(non-normative)* The states are those of 0.1 §8.8.
-  <1>2 [non] Control: after h, one controlled flip gives (|00⟩ + |11⟩)/√2 and the second cancels it.
-  <1>3 [non] Adjoint: h|0⟩ = (|0⟩ + |1⟩)/√2, s multiplies the |1⟩ amplitude by i and t by e^{iπ/4}, so before the adjoint it is i·e^{iπ/4}/√2 = e^{i3π/4}/√2 = (−1 + i)/2.
-  <1>4 [non] Compute: h, cx give (|00⟩ + |11⟩)/√2; s s = Z on the ancilla gives (|00⟩ − |11⟩)/√2; the uncomputing cx gives (|0⟩ − |1⟩)/√2 ⊗ |0⟩, and h maps it to |10⟩; x returns a to |0⟩ before release.
+  <1>2 [ex] Control: after h, one controlled flip gives (|00⟩ + |11⟩)/√2 and the second cancels it.
+  <1>3 [ex] Adjoint: h|0⟩ = (|0⟩ + |1⟩)/√2, s multiplies the |1⟩ amplitude by i and t by e^{iπ/4}, so before the adjoint it is i·e^{iπ/4}/√2 = e^{i3π/4}/√2 = (−1 + i)/2.
+  <1>4 [ex] Compute: h, cx give (|00⟩ + |11⟩)/√2; s s = Z on the ancilla gives (|00⟩ − |11⟩)/√2; the uncomputing cx gives (|0⟩ − |1⟩)/√2 ⊗ |0⟩, and h maps it to |10⟩; x returns a to |0⟩ before release.
 DLT-18.8-P14
   <1>1 [ex] **TDL.** The following programs exercise every case of TDL-5, TDL-10 and TDL-11 on the globals `@cnt` and `@other`, which are in the may-Co set (TDL-2) and hence in the arena.   deps: DLT-10-P25.S1 (TDL-5), DLT-10-P38.S1 (TDL-10), DLT-10-P43.S1 (TDL-11), DLT-10-P3.S1 (TDL-2)
   <1>2 [ex] Each device entry ends by observing both globals, so that MC's state at every device entry is empty (MC3; a host may call the entries in any order).   deps: DLT-10-P10.S1 (MC3)
@@ -4149,7 +4150,7 @@ DLT-18.8-P15
   <1>3 [ex] (code block, 4 lines) |0; 00> 0.70710678
 DLT-18.8-P16
   <1>1 [non] *(non-normative)* `observe` gives 0x00 with probability 1/2 (H0 collapses to |0⟩) or 0x05 with probability 1/2 (H0 to |1⟩); `@tdl_a` returns that byte, and `measure` of H0 agrees with it before the reset.
-  <1>2 [non] Under 0.1's semantics the store would have happened on both branches and `@tdl_a` would return 5 with certainty.
+  <1>2 [ex] Under 0.1's semantics the store would have happened on both branches and `@tdl_a` would return 5 with certainty.
 DLT-18.8-P17
   <1>1 [ex] `@tdl_b` runs `@bump` under H0, then `@copy1` and `@add3` under H1.
   <1>2 [ex] In `@copy1` the load of `@cnt` (state Co) is Co, so the load and the `add` form slice O1, and the store into `@other`, whose view is Cl(0), is TDL-5(a) with a Co value.   deps: DLT-10-P25.S1 (TDL-5)
@@ -4159,7 +4160,7 @@ DLT-18.8-P17
   <1>6 [ex] (code block, 6 lines) |00; 00 00> 0.5
 DLT-18.8-P18
   <1>1 [non] *(non-normative)* Before event 10 the copy-out pair is complete: `@other` = cnt + 1 exactly where H1 is 1: 0 + 1 = 1 and 5 + 1 = 6.
-  <1>2 [non] The permutation "add 3" under H1 then gives cnt = 5·H0 + 3·H1: 0, 3, 5, 8.
+  <1>2 [ex] The permutation "add 3" under H1 then gives cnt = 5·H0 + 3·H1: 0, 3, 5, 8.
 DLT-18.8-P19
   <1>1 [ex] A second `@copy1` invocation would overwrite `@other`, whose state is then Co, with a value that is not a bijection of its old contents, outside `compute`: TDL-5(d) (NS §4.2):   deps: DLT-10-P25.S1 (TDL-5)
   <1>2 [ex] (code block, 29 lines) @cnt = internal global i8 0   deps: DLT-22.1-P19.S1 (BD-E-COHERENT-OVERWRITE)
@@ -4170,7 +4171,7 @@ DLT-18.8-P20
   <1>4 [ex] (code block, 4 lines) |01; 00> 0.70710678
 DLT-18.8-P21
   <1>1 [non] *(non-normative)* Events 4–5 are E_f, 6 is the copy, 7 is E_use, 8–9 are adjoint(E_f): the exchange puts the displaced byte back and the second slice invocation XORs 9 into h, which held 9, so h and f9 are clean before release.   deps: DLT-10-P17.S1 (slice invocation)
-  <1>2 [non] During `use`, `@cnt` is 9 on both branches while h holds the old byte: the history is entangled with H0 exactly while it must be (NS §3.1 compute-with-uncompute).
+  <1>2 [ex] During `use`, `@cnt` is 9 on both branches while h holds the old byte: the history is entangled with H0 exactly while it must be (NS §3.1 compute-with-uncompute).
 DLT-18.8-P22
   <1>1 [ex] `@tdl_f`: in `@maybe` the branch on `%z` is a Co branch (the load of `@cnt` is Co), so the gate is issued under `qpred` of the condition wire (TDL-10):   deps: DLT-10-P38.S1 (TDL-10), DLT-2-P3.S2 (wire)
   <1>2 [ex] (code block, 17 lines) @maybe (signature: @cnt may-Co): slice Oz = { %v = load i8, ptr @cnt; %z = icmp …
@@ -4186,8 +4187,8 @@ DLT-18.8-P24
   <1>6 [ex] (code block, 4 lines) |00; console=0000 length=0, Phi1=0> 0.70710678
 DLT-18.8-P25
   <1>1 [non] *(non-normative)* `@tdl_e` returns with H0 and H1 live, as a REPL keeps registers (§6.6); the run's CC epilogue reports fault rate zero.   deps: DLT-2-P3.S1 (register), DLT-2-P7.S1 (CC), DLT-6.6
-  <1>2 [non] Explicit console observation yields empty or 210a with probability 1/2 each; no console is implicitly observed.
-  <1>3 [non] A program that ended without freeing H0 and H1 would trap `T-LEAK` at its end.
+  <1>2 [ex] Explicit console observation yields empty or 210a with probability 1/2 each; no console is implicitly observed.
+  <1>3 [ex] A program that ended without freeing H0 and H1 would trap `T-LEAK` at its end.
 DLT-18.8-P26
   <1>1 [ex] Round-1 boundary witnesses.
   <1>2 [ex] Masks are old XOR new; mutually exclusive arms start from the same old value.
@@ -4214,12 +4215,12 @@ DLT-18.8-P27
 DLT-19.1-P1
   <1>1 [req] Front ends emit bitcode with their stock pre-link pipelines; no Bennett code runs before the final link (Enzyme PR #3211: "forgetting it is a loud failure"), except in the explicit closed-unit mode (§19.7).   deps: DLT-19.7
   <1>2 [req] The driver links all bitcode inputs (§19.8), links `bennett-runtimes` and `bennett-arith` bitcode of the link's major M, runs the post-link pipeline (`lto<O3>` by default, or any envelope pipeline of §21.1 the user selects), then runs the plugin on the whole program (NS §3.3).   deps: DLT-19.8, DLT-21.1
-  <1>3 [unc] With `opt`:
-  <1>4 [ex] (code block, 3 lines) opt -load-pass-plugin=libbennett-plugin-<M>.so -passes='lto<O3>,bennett' -bennet…
+  <1>3 [req] With `opt`:
+  <1>4 [req] (code block, 3 lines) opt -load-pass-plugin=libbennett-plugin-<M>.so -passes='lto<O3>,bennett' -bennet…
 DLT-19.1-P2
   <1>1 [req] The plugin runs on one merged module (full LTO; §24 D23).   deps: DLT-24-P7.S1 (D23), DLT-24
   <1>2 [req] It registers one module pass, `bennett`, and MAY register a full-LTO last extension point for use from a linker plugin; it MUST do nothing in a pre-link phase.   deps: DLT-2-P3.S1 (register)
-  <1>3 [def] **Bitcode sources** (NS §3.3): Rust `std` from the bitcode embedded in rlibs (`.llvmbc`) where present and readable by §19.8, else `-Zbuild-std`; the Julia runtime by the runtimes' shim bitcode; every remaining call without bitcode is a `trapped` coverage line (§4.5).   deps: DLT-2-P15.S1 (trapped), DLT-19.8, DLT-4.5
+  <1>3 [req] **Bitcode sources** (NS §3.3): Rust `std` from the bitcode embedded in rlibs (`.llvmbc`) where present and readable by §19.8, else `-Zbuild-std`; the Julia runtime by the runtimes' shim bitcode; every remaining call without bitcode is a `trapped` coverage line (§4.5).   deps: DLT-2-P15.S1 (trapped), DLT-19.8, DLT-4.5
 ````
 
 ### §19.2 Mode `--bennett-tier=reversible --bennett-entry=<sym>`   [DLT-19.2]
@@ -4228,7 +4229,7 @@ DLT-19.1-P2
 DLT-19.2-P1
   <1>1 [req] The whole program is the device program in tier R (NS §4.2: "entered through `__bennett_reversible` or a driver mode"; rungs 3, 5, 6):
 DLT-19.2-P2
-  <1>1 [def] a CC **launch stub** fetches the argv and envp bytes with `hostcall bennett.argv`, initialises the shadow stack (§17.3), calls the R entry `<sym>` with (argc, argv, envp), catches the exit pseudo-exception (§14.7) and returns the status;   deps: DLT-2-P7.S1 (CC), DLT-17.3, DLT-14.7
+  <1>1 [req] a CC **launch stub** fetches the argv and envp bytes with `hostcall bennett.argv`, initialises the shadow stack (§17.3), calls the R entry `<sym>` with (argc, argv, envp), catches the exit pseudo-exception (§14.7) and returns the status;   deps: DLT-2-P7.S1 (CC), DLT-17.3, DLT-14.7
 DLT-19.2-P3
   <1>1 [req] effects are the ISA device models (§11.2): console, clock, entropy (the launch's entropy tape), block with `block_image` from `--bennett-disk=<file>`;   deps: DLT-11.2
 DLT-19.2-P4
@@ -4249,7 +4250,7 @@ DLT-19.3-P1
 
 ````text
 DLT-19.4-P1
-  <1>1 [def] H functions stay native unless they share **pointer-rich** memory with device code: a pointer argument of a device-entry call, or a global accessed by both, whose pointee may contain pointers that device code reads (§5).   deps: DLT-5
+  <1>1 [req] H functions stay native unless they share **pointer-rich** memory with device code: a pointer argument of a device-entry call, or a global accessed by both, whose pointee may contain pointers that device code reads (§5).   deps: DLT-5
   <1>2 [req] Such H functions are **promoted** to CC variants, transitively up to their roots (in the limit `main`, and then H is the system-call proxy only: `hostcall bennett.syscall`).   deps: DLT-2-P7.S1 (CC), DLT-2-P7.S2 (variant)
   <1>3 [req] Results are equal by the materialised semantics; ISA-11 would let them stay native (an efficiency and placement item, §25.3; outline E11).   deps: DLT-25.3
 ````
@@ -4260,15 +4261,15 @@ DLT-19.4-P1
 DLT-19.5-P1
   <1>1 [req] The driver links the materialised module natively (§17.7) with a linker script that fixes the addresses: non-PIE; identical-code folding and constant merging off; the null region [0, `null_size`) with `null_size` = 4096; the data sections (`.rodata`, `.data`, `.bss`, in that order) from `data_base` = 4096; the text from `text_base` = 0x400000, or, when the device ranges below (data, heap, arena, interface regions, computed first) end above 0x400000, from the first multiple of 0x200000 at or after their end, so that the native comparison binary maps its code disjointly from them; the defaults are options (`--bennett-layout-data-base`, `--bennett-layout-text-base`, §24).   deps: DLT-12.1-P1.S6 (materialised module), DLT-17.7-P1.S1 (native comparison binary), DLT-17.7, DLT-24
   <1>2 [req] The link map gives A(F) for every function and the base of every global.
-  <1>3 [unc] The device `layout` (ISA §9.1) replicates it:   deps: ISA-9.1
+  <1>3 [req] The device `layout` (ISA §9.1) replicates it:   deps: ISA-9.1
 DLT-19.5-P2
-  <1>1 [unc] `globals`: every global of the link at its link address with its image;
+  <1>1 [req] `globals`: every global of the link at its link address with its image;
 DLT-19.5-P3
   <1>1 [req] `heap_base`: the first multiple of 4096 at or after the end of the data; `heap_limit_max`: the largest `heap` of the budget table (which covers the shadow stack, §9.2);   deps: DLT-9.2-P2.S1 (budget table), DLT-9.2
 DLT-19.5-P4
   <1>1 [req] the arena (TDL-4) at the first multiple of its size 2^A at or after the heap's end, with 2^A the smallest power of two covering the may-Co globals and the coherent allocator's heap (its size from `--bennett-arena-heap`, default the largest `heap` of the table); the arena's shadow `__bennett_rt_shadow` is a global of the data sections;   deps: DLT-10-P19.S1 (TDL-4), DLT-10-P20.S2 (coherent allocator)
 DLT-19.5-P5
-  <1>1 [unc] interface regions per oracle above the arena (§16.3); H, A_tab and S_cells by §16.3;   deps: DLT-16.3
+  <1>1 [req] interface regions per oracle above the arena (§16.3); H, A_tab and S_cells by §16.3;   deps: DLT-16.3
 DLT-19.5-P6
   <1>1 [req] the production host image is linked with the same addresses for every function and global whose address may cross the boundary (§4.4).   deps: DLT-4.4
 DLT-19.5-P7
@@ -4287,7 +4288,7 @@ DLT-19.6-P1
 
 ````text
 DLT-19.7-P1
-  <1>1 [def] `-bennett-closed-unit` (the REPL fast path, NS §3.3: "a per-TU invocation remains available as a fast path for programs closed within one unit, with the same semantics"): the plugin runs on one module plus the runtimes and arith bitcode, after a **closedness check**: every device function's callees are defined in that set or are trapped exactly as in whole-program mode; no device function's address escapes the module; no function pointer enters through a device-entry parameter.   deps: DLT-2-P15.S1 (trapped)
+  <1>1 [req] `-bennett-closed-unit` (the REPL fast path, NS §3.3: "a per-TU invocation remains available as a fast path for programs closed within one unit, with the same semantics"): the plugin runs on one module plus the runtimes and arith bitcode, after a **closedness check**: every device function's callees are defined in that set or are trapped exactly as in whole-program mode; no device function's address escapes the module; no function pointer enters through a device-entry parameter.   deps: DLT-2-P15.S1 (trapped)
   <1>2 [req] If the check passes, processing is identical to whole-program mode.
   <1>3 [req] If it fails, the driver falls back to whole-program mode (it does not reject).
   <1>4 [req] Objects are content-addressed (ISA §9.2) and linked at launch (ISA §9.3), so the REPL is incremental.   deps: ISA-9.2, ISA-9.3
@@ -4336,9 +4337,9 @@ DLT-19.9-P14
   <1>1 [req] `-bennett-out=<dir>` | the outputs below | required
 DLT-19.9-P15
   <1>1 [req] **Identity.** `llvmGetPassPluginInfo` returns plugin name `bennett` and version string `dialect-0.2.10;isa-0.8`; the driver refuses a plugin whose string differs.
-  <1>2 [unc] One plugin build per LLVM major (NS §3.2).
+  <1>2 [req] One plugin build per LLVM major (NS §3.2).
 DLT-19.9-P16
-  <1>1 [def] **Outputs** (in `-bennett-out`, file names plugin-defined, §24 D22): the materialised device variants as bitcode (§17.7); the host module with device entries replaced by launch stubs; the ISA objects (ISA §9, §16); the certificate (ISA §12) with `producer.materialisation = {llvm_version, pipeline, normaliser_version: "0.2.8"}` and `bindings.dialect_mapping_version = "0.2.9"`; the coverage report (ISA §13), whose `source` field is `dialect-0.2.10:<rule id>` (e.g. `dialect-0.2.10:N33`); the blocker reports (§25.1); and the **build record**, one JCS object with the build flags, the budget table (resolved, including each shape's selection_identity, final semantic identity, resolved components and frozen layout capacities under §9.2) and its SHA-256, the runtimes, arith and asm-table hashes, the snapshot hash, the layout options and the `cpuid` leaf table (§15.2).   deps: DLT-24-P6.S1 (D22), DLT-12.2-P35.S1 (N33), DLT-2-P7.S2 (variant), DLT-19.2-P2.S1 (launch stub), DLT-9.2-P2.S1 (budget table), DLT-9.2-P3.S2 (selection_identity), DLT-24, DLT-17.7, ISA-9, ISA-16, ISA-12, ISA-13, DLT-25.1, DLT-9.2, DLT-15.2
+  <1>1 [ex] **Outputs** (in `-bennett-out`, file names plugin-defined, §24 D22): the materialised device variants as bitcode (§17.7); the host module with device entries replaced by launch stubs; the ISA objects (ISA §9, §16); the certificate (ISA §12) with `producer.materialisation = {llvm_version, pipeline, normaliser_version: "0.2.8"}` and `bindings.dialect_mapping_version = "0.2.9"`; the coverage report (ISA §13), whose `source` field is `dialect-0.2.10:<rule id>` (e.g. `dialect-0.2.10:N33`); the blocker reports (§25.1); and the **build record**, one JCS object with the build flags, the budget table (resolved, including each shape's selection_identity, final semantic identity, resolved components and frozen layout capacities under §9.2) and its SHA-256, the runtimes, arith and asm-table hashes, the snapshot hash, the layout options and the `cpuid` leaf table (§15.2).   deps: DLT-24-P6.S1 (D22), DLT-12.2-P35.S1 (N33), DLT-2-P7.S2 (variant), DLT-19.2-P2.S1 (launch stub), DLT-9.2-P2.S1 (budget table), DLT-9.2-P3.S2 (selection_identity), DLT-24, DLT-17.7, ISA-9, ISA-16, ISA-12, ISA-13, DLT-25.1, DLT-9.2, DLT-15.2
   <1>2 [req] Its SHA-256 is recorded as the build metadata of the certificate's `producer.version` (`<driver version>+build.<hex>`) until the ISA certificate has a field for it (§25.2).   deps: DLT-25.2
 DLT-19.9-P17
   <1>1 [req] **A missing plugin fails loud.** No production artefact defines a marker: `bennett-runtimes`, `bennett-arith` and the driver's link inputs define no `__bennett_*` marker symbol (test runtimes such as the trace runtime do, and are never linked into production).
@@ -4364,9 +4365,9 @@ DLT-20.1-P1
 DLT-20.1-P2
   <1>1 [req] RAM: one runtimes global `__bennett_rt_platform_ram` of the configured size (`--bennett-platform-ram`, default 128 MiB), which the profile's linker script places at the board's physical base 0x80000000 after the other data (the heap and the text follow it by §19.5), so kernel physical addresses are ordinary device addresses;   deps: DLT-19.5
 DLT-20.1-P3
-  <1>1 [unc] the CSR file (privilege mode, `satp`, `stvec`, `mtvec`, `sstatus`, `mstatus`, `sie`, `sip`, `scause`, `sepc`, `stval`, `sscratch`, `mscratch`, `time`, …) as the runtimes global `__bennett_rt_csr`;
+  <1>1 [req] the CSR file (privilege mode, `satp`, `stvec`, `mtvec`, `sstatus`, `mstatus`, `sie`, `sip`, `scause`, `sepc`, `stval`, `sscratch`, `mscratch`, `time`, …) as the runtimes global `__bennett_rt_csr`;
 DLT-20.1-P4
-  <1>1 [unc] devices: a UART 16550 (console), a CLINT and timer (clock), a PLIC, and a virtio-blk MMIO device (block), each a runtimes C model over the effect markers.
+  <1>1 [req] devices: a UART 16550 (console), a CLINT and timer (clock), a PLIC, and a virtio-blk MMIO device (block), each a runtimes C model over the effect markers.
 ````
 
 ### §20.2 asm rows   [DLT-20.2]
@@ -4412,11 +4413,11 @@ DLT-20.6-P1
   <1>6 [req] A physical RAM address and every permitted virtual alias name the same backing byte.
   <1>7 [req] Indirect dispatch and trap resumption preserve this mapping: A(F), stvec and sepc retain guest virtual code addresses, resolved through the code-address map after Sv39 validation.
   <1>8 [req] Translation failures deliver the modelled guest page/access trap before memory mutation; they are not accidental accesses to an unallocated high host/device address.
-  <1>9 [unc] Runtime helpers avoid a second translation.
+  <1>9 [req] Runtime helpers avoid a second translation.
   <1>10 [req] These rules apply equally to CC/R and L variants.   deps: DLT-2-P7.S1 (CC), DLT-2-P7.S2 (variant)
 DLT-20.6-P2
   <1>1 [req] User programs are built to bitcode and linked into the device program under the comparison layout (§19.5); their ELF images on the disk image are the same link, so entry and function addresses are A(F).   deps: DLT-4.4-P1.S1 (function address), DLT-19.5
-  <1>2 [def] `exec` and `sret` to user mode dispatch the user entry by A(F); user loads and stores go through a **soft-MMU**: N35 instruments all guest functions in translation-enabled privilege contexts with an Sv39 walk over the modelled `satp`, including supervisor kernel accesses, with guest page faults delivered through §20.4.   deps: DLT-12.2-P37.S1 (N35), DLT-20.4
+  <1>2 [req] `exec` and `sret` to user mode dispatch the user entry by A(F); user loads and stores go through a **soft-MMU**: N35 instruments all guest functions in translation-enabled privilege contexts with an Sv39 walk over the modelled `satp`, including supervisor kernel accesses, with guest page faults delivered through §20.4.   deps: DLT-12.2-P37.S1 (N35), DLT-20.4
   <1>3 [ex] (code block, 6 lines) RAM physical P=0x80000000 holds 0x12
 ````
 
@@ -4491,19 +4492,19 @@ DLT-21.1-P1
   <1>3 [req] The harness selects the historical ABI v0 or ABI 0.2 trace runtime from each module's marker signatures; `spec-sem2-*` uses the budget-record ABI of §3.2 and the normative header.   deps: DLT-3.2
   <1>4 [req] The harness checks and their 0.2 reading:
 DLT-21.1-P2
-  <1>1 [def] L1 | the dynamic marker sequence and the classical result are preserved | unchanged; for cases whose marker operands are computed from floating point or query intrinsics, the baseline is the materialised module (§17.7)   deps: DLT-12.2-P34.S1 (floating point), DLT-12.1-P1.S6 (materialised module), DLT-17.7
+  <1>1 [req] L1 | the dynamic marker sequence and the classical result are preserved | unchanged; for cases whose marker operands are computed from floating point or query intrinsics, the baseline is the materialised module (§17.7)   deps: DLT-12.2-P34.S1 (floating point), DLT-12.1-P1.S6 (materialised module), DLT-17.7
 DLT-21.1-P3
-  <1>1 [def] L2 | no pass adds a forbidden attribute | the three lists of §3.6   deps: DLT-3.6
+  <1>1 [req] L2 | no pass adds a forbidden attribute | the three lists of §3.6   deps: DLT-3.6
 DLT-21.1-P4
-  <1>1 [def] L3 | handles stay contained (guard page, `BADHANDLE`; static review of new casts) | dynamic part unchanged; the static review is decided by §6   deps: DLT-6
+  <1>1 [req] L3 | handles stay contained (guard page, `BADHANDLE`; static review of new casts) | dynamic part unchanged; the static review is decided by §6   deps: DLT-6
 DLT-21.1-P5
-  <1>1 [def] L4 | region identity | every region operand resolves (§7.2) to candidates content-equal (§7.3) to the baseline's: aliases, forwarding thunks and merged twins pass (harness relaxation, bd `-cjb`)   deps: DLT-7.2-P4.S1 (forwarding thunks), DLT-7.2, DLT-7.3
+  <1>1 [req] L4 | region identity | every region operand resolves (§7.2) to candidates content-equal (§7.3) to the baseline's: aliases, forwarding thunks and merged twins pass (harness relaxation, bd `-cjb`)   deps: DLT-7.2-P4.S1 (forwarding thunks), DLT-7.2, DLT-7.3
 DLT-21.1-P6
-  <1>1 [def] L5 | native code generation keeps L1 and every marker an undefined external | unchanged   deps: DLT-21.1-P2.S1 (L1)
+  <1>1 [req] L5 | native code generation keeps L1 and every marker an undefined external | unchanged   deps: DLT-21.1-P2.S1 (L1)
 DLT-21.1-P7
-  <1>1 [def] L6 | region-operand shapes | every shape resolves (§7.2: the candidate set is bounded by the program)   deps: DLT-7.2
+  <1>1 [req] L6 | region-operand shapes | every shape resolves (§7.2: the candidate set is bounded by the program)   deps: DLT-7.2
 DLT-21.1-P8
-  <1>1 [def] **Supported envelope**: LLVM 18, 20 and 23; `default<O0>` … `default<O3>`; `default<Os>`, `default<Oz>` on 18 and 20 (LLVM 23's `opt` rejects them); `lto-pre-link<O3>`, `lto<O3>`, `thinlto-pre-link<O3>`, `thinlto<O3>`, `default<O3>` three times; clang `-O0` … `-O3` with `-flto`; rustc `-C opt-level` 0, 1, 2, 3, s, z, including its MergeFunctions in aliases mode; Julia 1.13's own pipeline; `strip`, `strip-nondebug` and `mergefunc` alone.
+  <1>1 [req] **Supported envelope**: LLVM 18, 20 and 23; `default<O0>` … `default<O3>`; `default<Os>`, `default<Oz>` on 18 and 20 (LLVM 23's `opt` rejects them); `lto-pre-link<O3>`, `lto<O3>`, `thinlto-pre-link<O3>`, `thinlto<O3>`, `default<O3>` three times; clang `-O0` … `-O3` with `-flto`; rustc `-C opt-level` 0, 1, 2, 3, s, z, including its MergeFunctions in aliases mode; Julia 1.13's own pipeline; `strip`, `strip-nondebug` and `mergefunc` alone.
   <1>2 [req] **Unsupported** (LLVM bugs outside the contract on every supported major; spike findings §2): the Attributor, module and CGSCC (llvm-project #234748, #236104, and on 18 and 20 the constant-table fold fixed by PR #151359); `normalize` without `preserve-order` (#236128); `structurizecfg` without its prerequisites; the passes the harness classes `non-preserving` and the sanitizer and instrumentation passes; any other single pass not run inside an envelope pipeline (§24 D20).   deps: DLT-24-P5.S1 (D20), DLT-24
 DLT-21.1-P9
   <1>1 [req] Work items the corpus owns for 0.2: rerun P4 (clang `-flto` end to end) and add a rustc `-Clinker-plugin-lto` case (bd `-j88`); minimise the three P3-only interactions (bd `-ape`); a `-g` variant of every `.c` case (bd `-u6a`); Windows funclet and non-x86-64 cases (bd `-kdj`).   deps: DLT-2-P7.S2 (variant)
@@ -4521,27 +4522,27 @@ DLT-21.2-P1
 
 ````text
 DLT-21.3-P1
-  <1>1 [def] DA | Plugin, Validator | recognition, reserved names, attributes, Julia check, unwinding of markers: the §3 examples; L2 over the corpus   deps: DLT-21.1-P3.S1 (L2), DLT-3
+  <1>1 [req] DA | Plugin, Validator | recognition, reserved names, attributes, Julia check, unwinding of markers: the §3 examples; L2 over the corpus   deps: DLT-21.1-P3.S1 (L2), DLT-3
 DLT-21.3-P2
   <1>1 [def] DB | Plugin, Validator | the device analysis and handles: the §5 and §6 examples; L3 over the corpus   deps: DLT-21.1-P4.S1 (L3), DLT-5, DLT-6
 DLT-21.3-P3
-  <1>1 [def] DC | Plugin, Validator | candidate sets, identity, kinds, well-formedness: the §7 examples; L4, L6 over the corpus   deps: DLT-21.1-P5.S1 (L4), DLT-21.1-P7.S1 (L6), DLT-7
+  <1>1 [req] DC | Plugin, Validator | candidate sets, identity, kinds, well-formedness: the §7 examples; L4, L6 over the corpus   deps: DLT-21.1-P5.S1 (L4), DLT-21.1-P7.S1 (L6), DLT-7
 DLT-21.3-P4
-  <1>1 [def] DO | Plugin | descriptors, shapes, entry state, wide outputs, in-place: the §8 examples   deps: DLT-8
+  <1>1 [req] DO | Plugin | descriptors, shapes, entry state, wide outputs, in-place: the §8 examples   deps: DLT-8
 DLT-21.3-P5
-  <1>1 [def] DN | Plugin, Validator | normalisation pairs, native differentials and validator verdicts: the §12–§15 examples; two independent validators agree on the corpus after materialisation   deps: DLT-12, DLT-13, DLT-14, DLT-15
+  <1>1 [req] DN | Plugin, Validator | normalisation pairs, native differentials and validator verdicts: the §12–§15 examples; two independent validators agree on the corpus after materialisation   deps: DLT-12, DLT-13, DLT-14, DLT-15
 DLT-21.3-P6
-  <1>1 [def] DM | Plugin | the lifting map: the §16 objects, hashes, runs and step checks, executed on the ISA reference interpreter   deps: DLT-16
+  <1>1 [req] DM | Plugin | the lifting map: the §16 objects, hashes, runs and step checks, executed on the ISA reference interpreter   deps: DLT-16
 DLT-21.3-P7
   <1>1 [def] DS | Plugin + executor | marker semantics: the §18.8 programs, events and states; differential runs against the reference semantics (§18.7)   deps: DLT-18.8, DLT-18.7
 DLT-21.3-P8
-  <1>1 [def] DT | Plugin + executor | TDL partitions, events and states (§10, §18.8)   deps: DLT-10, DLT-18.8
+  <1>1 [req] DT | Plugin + executor | TDL partitions, events and states (§10, §18.8)   deps: DLT-10, DLT-18.8
 DLT-21.3-P9
   <1>1 [def] DE | Plugin + executor | effects per tier (§11): R console with reversal, CC host effects, L device models   deps: DLT-2-P7.S1 (CC), DLT-11
 DLT-21.3-P10
   <1>1 [def] DV | Plugin | varargs, EH, sjlj and fibers (§14) on the three target ABIs   deps: DLT-14
 DLT-21.3-P11
-  <1>1 [def] DR, DF | Runtime | the contract rows of `bennett-runtimes` (§11, §14, §17.3, §20) and `bennett-arith` (§13): test vectors   deps: DLT-11, DLT-14, DLT-17.3, DLT-20, DLT-13
+  <1>1 [req] DR, DF | Runtime | the contract rows of `bennett-runtimes` (§11, §14, §17.3, §20) and `bennett-arith` (§13): test vectors   deps: DLT-11, DLT-14, DLT-17.3, DLT-20, DLT-13
 DLT-21.3-P12
   <1>1 [def] DD | Driver | the driver modes (§19.2–§19.7), closed-unit equivalence, mixed majors, layouts   deps: DLT-19.2, DLT-19.3, DLT-19.4, DLT-19.5, DLT-19.6, DLT-19.7
 DLT-21.3-P13
@@ -4572,39 +4573,39 @@ DLT-22.1-P2
 DLT-22.1-P3
   <1>1 [def] `BD-E-MARKER-DEFINED` | §3.1 rule 1 | NS §3.1 ("declared external marker functions")   deps: DLT-3.1-P8
 DLT-22.1-P4
-  <1>1 [def] `BD-E-MARKER-UNKNOWN` | §3.1 rule 2 | NS §3.1 (recognition by name; reserved names)   deps: DLT-3.1-P9
+  <1>1 [req] `BD-E-MARKER-UNKNOWN` | §3.1 rule 2 | NS §3.1 (recognition by name; reserved names)   deps: DLT-3.1-P9
 DLT-22.1-P5
-  <1>1 [def] `BD-E-MARKER-ADDRESS` | §3.1 rule 3 | NS §3.1 ("recognises them by name and signature": a marker is never called indirectly)   deps: DLT-3.1-P10
+  <1>1 [req] `BD-E-MARKER-ADDRESS` | §3.1 rule 3 | NS §3.1 ("recognises them by name and signature": a marker is never called indirectly)   deps: DLT-3.1-P10
 DLT-22.1-P6
   <1>1 [def] `BD-E-MARKER-SIGNATURE` | §3.5 | NS §3.1 ("fixed signatures")   deps: DLT-3.5
 DLT-22.1-P7
   <1>1 [def] `BD-E-MARKER-ATTRIBUTE` | §3.6 | NS §3.1 (the positive legality requirement)   deps: DLT-3.6
 DLT-22.1-P8
-  <1>1 [def] `BD-E-JULIA-CCALL` | §3.8 | NS §3.3 (per-front-end integration; the `llvmcall` route keeps the capability, audit B-13)   deps: DLT-3.8
+  <1>1 [req] `BD-E-JULIA-CCALL` | §3.8 | NS §3.3 (per-front-end integration; the `llvmcall` route keeps the capability, audit B-13)   deps: DLT-3.8
 DLT-22.1-P9
   <1>1 [def] `BD-E-EFFECT-LIE` | §3.8 | NS §3.1 (positive legality), NS §3.2 (definedness)   deps: DLT-3.8
 DLT-22.1-P10
-  <1>1 [def] `BD-E-OPERAND` | §3.4 (a constant outside its table) | NS §3.1 (fixed operand encodings); the marker faults on every execution that reaches it   deps: DLT-3.4
+  <1>1 [req] `BD-E-OPERAND` | §3.4 (a constant outside its table) | NS §3.1 (fixed operand encodings); the marker faults on every execution that reaches it   deps: DLT-3.4
 DLT-22.1-P11
-  <1>1 [def] `BD-E-HANDLE-USE` | §6.2 | maintainer decision 2; NS §3.1 ("never dereferenced")   deps: DLT-6.2
+  <1>1 [req] `BD-E-HANDLE-USE` | §6.2 | maintainer decision 2; NS §3.1 ("never dereferenced")   deps: DLT-6.2
 DLT-22.1-P12
-  <1>1 [def] `BD-E-HANDLE-ESCAPE` | §6.4 | NS §3.1 ("any handle use that survives into host native code is rejected")   deps: DLT-6.4
+  <1>1 [req] `BD-E-HANDLE-ESCAPE` | §6.4 | NS §3.1 ("any handle use that survives into host native code is rejected")   deps: DLT-6.4
 DLT-22.1-P13
-  <1>1 [def] `BD-E-HANDLE-UNTRACKED` | §6.2 | NS §3.1 (handles are the results of `qalloc`; linearity is a fail-loud verifier obligation)   deps: DLT-6.2
+  <1>1 [req] `BD-E-HANDLE-UNTRACKED` | §6.2 | NS §3.1 (handles are the results of `qalloc`; linearity is a fail-loud verifier obligation)   deps: DLT-6.2
 DLT-22.1-P14
-  <1>1 [def] `BD-E-REGION-TYPE` | §7.2 (the unique candidate) | decision 3 (candidates of the required type); the call is undefined on every execution   deps: DLT-7.2
+  <1>1 [req] `BD-E-REGION-TYPE` | §7.2 (the unique candidate) | decision 3 (candidates of the required type); the call is undefined on every execution   deps: DLT-7.2
 DLT-22.1-P15
-  <1>1 [def] `BD-E-REGION-MEASURE` | §7.5(a) (the unique candidate), unless deferred | NS §3.1 ("user measurement inside it is refused")   deps: DLT-7.5-P2
+  <1>1 [req] `BD-E-REGION-MEASURE` | §7.5(a) (the unique candidate), unless deferred | NS §3.1 ("user measurement inside it is refused")   deps: DLT-7.5-P2
 DLT-22.1-P16
-  <1>1 [def] `BD-E-REVERSIBLE-MEASURE` | §7.5(b) | NS §4.2 (reversible tier); ISA §10 (a run that measured is not reversible)   deps: DLT-7.5-P3, ISA-10
+  <1>1 [req] `BD-E-REVERSIBLE-MEASURE` | §7.5(b) | NS §4.2 (reversible tier); ISA §10 (a run that measured is not reversible)   deps: DLT-7.5-P3, ISA-10
 DLT-22.1-P17
   <1>1 [def] `BD-E-RESIDUAL` | §12.4 | NS §3.2 (residual-poison validator)   deps: DLT-12.4
 DLT-22.1-P18
-  <1>1 [def] `BD-E-INPLACE-NOT-INVERSE` | §8.7 | NS §3.1 ("an in-place update with no inverse fails loud at compile time")   deps: DLT-8.7
+  <1>1 [req] `BD-E-INPLACE-NOT-INVERSE` | §8.7 | NS §3.1 ("an in-place update with no inverse fails loud at compile time")   deps: DLT-8.7
 DLT-22.1-P19
-  <1>1 [def] `BD-E-COHERENT-OVERWRITE` | TDL-5(d) | NS §4.2 ("writing a register not known to be clean is a compile-time error … else it fails loud")   deps: DLT-10-P25.S1 (TDL-5), DLT-2-P3.S1 (register)
+  <1>1 [req] `BD-E-COHERENT-OVERWRITE` | TDL-5(d) | NS §4.2 ("writing a register not known to be clean is a compile-time error … else it fails loud")   deps: DLT-10-P25.S1 (TDL-5), DLT-2-P3.S1 (register)
 DLT-22.1-P20
-  <1>1 [def] `BD-E-COHERENT-ANGLE` | TDL-10 | NS §4.2 (predication, not superposed parameters); ISA §3.1 ("angles are literals or classical arguments")   deps: DLT-10-P38.S1 (TDL-10), ISA-3.1
+  <1>1 [req] `BD-E-COHERENT-ANGLE` | TDL-10 | NS §4.2 (predication, not superposed parameters); ISA §3.1 ("angles are literals or classical arguments")   deps: DLT-10-P38.S1 (TDL-10), ISA-3.1
 DLT-22.1-P21
   <1>1 [req] **Deleted** from 0.1 (each was a narrowing, audit §1): `BD-E-EH`, `BD-E-LIFT-SUBSET`, `BD-E-DEVICE-ADDRESS`, `BD-E-REGION-UNBOUNDED`, `BD-E-REGION-EXTERNAL`, `BD-E-REGION-THUNK`, `BD-E-REGION-TIER`, `BD-E-REVERSIBLE-MARKER` (except measurement), `BD-E-INPLACE-UNVERIFIED`, `BD-E-OPERAND-UNBOUNDED`, `BD-E-HANDLE-STORE`, and `BD-E-REGION-TYPE` for oracle candidates.   deps: DLT-22.1-P14.S1 (BD-E-REGION-TYPE), DLT-1
 ````
@@ -4656,35 +4657,35 @@ DLT-24-P1
   <1>1 [req] Only mechanics appear here.
   <1>2 [req] Each row states the capability it keeps; none has a default of reject, refuse, fault or no effect for something the north star promises.
 DLT-24-P2
-  <1>1 [def] D12 | host-stack addresses passed into device code (NS §3.2 "where possible") | executions they influence are layout-dependent (§18.7) and validated against the reference interpreter | every program runs; only the comparison oracle changes   deps: DLT-18.7
+  <1>1 [req] D12 | host-stack addresses passed into device code (NS §3.2 "where possible") | executions they influence are layout-dependent (§18.7) and validated against the reference interpreter | every program runs; only the comparison oracle changes   deps: DLT-18.7
 DLT-24-P3
-  <1>1 [def] D13 | a region key stable across LLVM majors (§7.3) | the key depends on the major, which the certificate records | identity within a link is by content   deps: DLT-7.3-P2.S1 (region key), DLT-7.3
+  <1>1 [req] D13 | a region key stable across LLVM majors (§7.3) | the key depends on the major, which the certificate records | identity within a link is by content   deps: DLT-7.3-P2.S1 (region key), DLT-7.3
 DLT-24-P4
   <1>1 [def] D15 | the comparison-link bases (§19.5) | `null_size` 4096, data at 4096, text at 0x400000 or above the device ranges, options to change them | native-equal addresses   deps: DLT-19.5
 DLT-24-P5
-  <1>1 [def] D20 | single passes outside the envelope (§21.1) | unsupported unless listed (they are LLVM bugs, spike findings §2) | every envelope pipeline   deps: DLT-21.1
+  <1>1 [req] D20 | single passes outside the envelope (§21.1) | unsupported unless listed (they are LLVM bugs, spike findings §2) | every envelope pipeline   deps: DLT-21.1
 DLT-24-P6
-  <1>1 [def] D22 | output file names and diagnostic text | plugin-defined; the codes of §22 are normative | –   deps: DLT-22
+  <1>1 [req] D22 | output file names and diagnostic text | plugin-defined; the codes of §22 are normative | –   deps: DLT-22
 DLT-24-P7
   <1>1 [def] D23 | ThinLTO with the plugin | full LTO: one merged module | every program merges into one module (audit D23, M)
 DLT-24-P8
   <1>1 [def] D24 | multi-threaded device code (NS §9.11) | the single-thread assumption (N9), recorded in the certificate | uniprocessor programs, rung 6's configurations   deps: DLT-12.2-P11.S1 (N9)
 DLT-24-P9
-  <1>1 [def] D26 | the binary layout of descriptors and budget records beyond the C view | the LLVM struct layout under the module's datalayout (§8.1, §9.1) | every target   deps: DLT-9.1-P1.S1 (budget record), DLT-8.1, DLT-9.1
+  <1>1 [req] D26 | the binary layout of descriptors and budget records beyond the C view | the LLVM struct layout under the module's datalayout (§8.1, §9.1) | every target   deps: DLT-9.1-P1.S1 (budget record), DLT-8.1, DLT-9.1
 DLT-24-P10
-  <1>1 [def] D27 | budget defaults (§9.2) | 1048576 steps, 1048576 heap bytes, 65536 stack cells, depth 256, `sstack` 65536 | every budget is overridable   deps: DLT-9.2
+  <1>1 [req] D27 | budget defaults (§9.2) | 1048576 steps, 1048576 heap bytes, 65536 stack cells, depth 256, `sstack` 65536 | every budget is overridable   deps: DLT-9.2
 DLT-24-P11
-  <1>1 [def] D28 | the in-place exhaustive width (§8.7) | 24 bits; sampled evidence and the `T-CLEAN` net above | every pair is verified, as proof or evidence   deps: DLT-8.7
+  <1>1 [req] D28 | the in-place exhaustive width (§8.7) | 24 bits; sampled evidence and the `T-CLEAN` net above | every pair is verified, as proof or evidence   deps: DLT-8.7
 DLT-24-P12
-  <1>1 [def] D29 | the static register-file size for unbounded sites (§6.5) | 64 instances, then the BLK-1 blocker trap | – (the case itself is a blocker)   deps: DLT-25.1-P2.S1 (BLK-1), DLT-1.6-P4.S2 (blocker trap), DLT-6.5
+  <1>1 [req] D29 | the static register-file size for unbounded sites (§6.5) | 64 instances, then the BLK-1 blocker trap | – (the case itself is a blocker)   deps: DLT-25.1-P2.S1 (BLK-1), DLT-1.6-P4.S2 (blocker trap), DLT-6.5
 DLT-24-P13
-  <1>1 [def] D30 | further device models (ISA §17 item 3) | the four of ISA §7.3; another device's effect is `FAULT_EFFECT_UNMODELLED` until the ISA adds it | the four modelled devices in every tier   deps: ISA-17-P4, ISA-7.3
+  <1>1 [req] D30 | further device models (ISA §17 item 3) | the four of ISA §7.3; another device's effect is `FAULT_EFFECT_UNMODELLED` until the ISA adds it | the four modelled devices in every tier   deps: ISA-17-P4, ISA-7.3
 DLT-24-P14
   <1>1 [def] D31 | target ABI rows for `va_list` (§14.3), asm (§15) and target intrinsics beyond x86-64, AArch64 and RISC-V64 | added with the target | the three targets of the rungs   deps: DLT-14.3, DLT-15
 DLT-24-P15
-  <1>1 [def] D32 | the platform row lists and board constants (§20) | the patterns of §20.2–§20.6 until the §20.7 spike | rungs 6 and 7   deps: DLT-20, DLT-20.2, DLT-20.3, DLT-20.4, DLT-20.5, DLT-20.6, DLT-20.7
+  <1>1 [req] D32 | the platform row lists and board constants (§20) | the patterns of §20.2–§20.6 until the §20.7 spike | rungs 6 and 7   deps: DLT-20, DLT-20.2, DLT-20.3, DLT-20.4, DLT-20.5, DLT-20.6, DLT-20.7
 DLT-24-P16
-  <1>1 [def] D33 | `vscale` (§12.5) and the declared CPU model for `cpuid` (§15.2) | `vscale_range` minimum; the `cpuid` leaves of the build machine, recorded in the build record | scalable-vector and CPU-feature code   deps: DLT-19.9-P16.S1 (build record), DLT-12.5, DLT-15.2
+  <1>1 [req] D33 | `vscale` (§12.5) and the declared CPU model for `cpuid` (§15.2) | `vscale_range` minimum; the `cpuid` leaves of the build machine, recorded in the build record | scalable-vector and CPU-feature code   deps: DLT-19.9-P16.S1 (build record), DLT-12.5, DLT-15.2
 ````
 
 ### §25.1 Blockers   [DLT-25.1]
@@ -4738,13 +4739,13 @@ DLT-25.2-P3
 DLT-25.2-P4
   <1>1 [def] **ISA-3 editorial**: the JCS spelling of `args` types: the ISA §16.2 type spelling as JSON strings (`"i64"`), as §16 uses.   deps: ISA-16.2, DLT-16
 DLT-25.2-P5
-  <1>1 [def] **`qreg.slice`**: whether `lo` may be a run-time value (§10 TDL-4 uses literal offsets only).   deps: DLT-10-P19.S1 (TDL-4), DLT-10
+  <1>1 [req] **`qreg.slice`**: whether `lo` may be a run-time value (§10 TDL-4 uses literal offsets only).   deps: DLT-10-P19.S1 (TDL-4), DLT-10
 DLT-25.2-P6
-  <1>1 [def] **`qreg` across CC calls**: ISA §3.2 places handles in the classical environment, but the ISA §3.3 transition table is silent on CC `call`, `ret` and `br` block parameters of `qreg` type; §6.5 relies on them carrying `qreg` values unchanged.   deps: DLT-2-P7.S1 (CC), ISA-3.2, ISA-3.3, DLT-6.5
+  <1>1 [req] **`qreg` across CC calls**: ISA §3.2 places handles in the classical environment, but the ISA §3.3 transition table is silent on CC `call`, `ret` and `br` block parameters of `qreg` type; §6.5 relies on them carrying `qreg` values unchanged.   deps: DLT-2-P7.S1 (CC), ISA-3.2, ISA-3.3, DLT-6.5
 DLT-25.2-P7
   <1>1 [req] **ISA §5.4 code 10** "(R only)" versus `fault 10` in oracles (§11.3; ISA §4.2 admits every C < 2^F).   deps: ISA-5.4, DLT-11.3, ISA-4.2
 DLT-25.2-P8
-  <1>1 [def] **Certificate fields** for the build record hash (§19.9), the budget-table hash and the `deferred_measurement` flag (§7.5a); meanwhile `producer.version` build metadata and `definedness_assumptions` carry them.   deps: DLT-19.9-P16.S1 (build record), DLT-19.9, DLT-7.5-P2
+  <1>1 [req] **Certificate fields** for the build record hash (§19.9), the budget-table hash and the `deferred_measurement` flag (§7.5a); meanwhile `producer.version` build metadata and `definedness_assumptions` carry them.   deps: DLT-19.9-P16.S1 (build record), DLT-19.9, DLT-7.5-P2
 DLT-25.2-P9
   <1>1 [req] **ISA §12.2 domains with a fixed classical region**: NS §8 rung 4(a) verifies the oracle "over all rows and all target values" with the database fixed classically before entry; ISA §12.2 labels a domain that fixes an `in` region's cells as evidence with a covered fraction.   deps: ISA-12.2
   <1>2 [req] The ISA should say whether an exhaustive claim over the remaining components, with the fixed region prepared from classical bytes (`qprep`, `bennett_qreg_prepare`), is a proof for that region content.
@@ -4779,7 +4780,7 @@ DLT-25.3-P12
   <1>1 [req] ISA-2 is not a gap (the R step counter, §17.6).   deps: DLT-17.6-P1.S1 (step counter), DLT-17.6
   <1>2 [req] ISA-6 is not a gap (fresh one-wire copy and measurement, §18.3).   deps: DLT-18.3
   <1>3 [req] ISA-10 is settled by the ISA's test vectors.
-  <1>4 [def] **LLVM changes needed**: none; the legality findings' LLVM bugs are outside the envelope (§21.1).   deps: DLT-21.1
+  <1>4 [req] **LLVM changes needed**: none; the legality findings' LLVM bugs are outside the envelope (§21.1).   deps: DLT-21.1
 ````
 
 ### §A Changes from the ratified outline   [DLT-A]

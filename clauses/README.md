@@ -94,7 +94,7 @@ specs.
 - Statement: `<clause-id>.S<k>`, the k-th sentence-level statement of the clause
   (`ISA-5.1-P1.S3`, Lamport `<1>3`); `<clause-id>.S<k>.<j>` is item `(j)` of an
   enumeration inside statement k (Lamport `<2>j`). Each has a kind (`requirement`,
-  `definition`, `non-normative`, `example`, `uncertain`), the rule that chose it (K1-K11),
+  `definition`, `non-normative`, `example`, `uncertain`), the rule that chose it (K1-K16),
   a 12-hex hash, inferred dependencies and the spec's declared ones: a trailing
   `[deps: ISA-3.3-P2.S1, ISA-5.6]` marker in the sentence (0.9 draft onward). Splitting
   and classification rules: design doc, "Statement layer".

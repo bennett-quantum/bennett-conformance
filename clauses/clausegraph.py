@@ -1250,6 +1250,21 @@ RE_ABBR = re.compile(r"(?<![\w.])([A-Za-z]+(?:\.[A-Za-z]+)*)$")
 SENT_CLOSERS = "*_\"”’'"
 SENT_OPENERS = "*_(\"“‘'"
 RE_CAPTION = re.compile(r"^\*\*[^*]+\*\*(?:\s*\([^()]*\))?[.:]?$")
+# a bold span holding a finite verb is a sentence, not a caption ("**Regions are threaded.**")
+RE_CAPTION_VERB = re.compile(r"\b(?:is|are|was|were|has|have|does|do|must|MUST|may|MAY|shall|"
+                             r"SHALL|cannot|should|SHOULD)\b")
+RE_FENCE_WITNESS = re.compile(r"(?:^|\s)[A-Za-z][\w.-]*=")
+RE_EXAMPLE_WORD = re.compile(r"\b(?:e\.g\.|for example|for instance|examples?|witness(?:es)?|"
+                             r"samples?|illustrat\w*)\b", re.I)
+RE_DEF_STOP = re.compile(r"::=|:=|≡|=|:|;|\.(?=\s|$)|\b(?:is|are|denotes|means|refers to|"
+                         r"stands for|consists of)\b")
+RE_DEF_PRE = re.compile(r"^(?:(?:a|an|the|its|each|every)\s+)?$", re.I)
+RE_DEF_AFTER = re.compile(r"\b(?:is|are|called|named|termed|known as)\s+(?:the\s+|a\s+|an\s+)?$")
+RE_ARTICLE = re.compile(r"^(?:a|an|the)\b", re.I)
+RE_LEAD_CAPTION = re.compile(r"^\*\*[^*]+\*\*(?:\s*\([^()]*\))?\.?\s+(?=\S)")
+RE_EQUATION = re.compile(r"^(?:(?:`[^`]+`|[^\s=:;,`*]+(?:\s[^\s=:;,`*]+){0,2})\s*(?:::=|:=|=|≡)\s"
+                         r"|`[^`=]*?\s(?:::=|:=|=)\s)")
+RE_COLON_LABEL = re.compile(r"^(?:\*\*)?[A-Z][\w`/ -]{0,40}?(?:\*\*)?:(?:\s|$)")
 RE_CODE_SPAN = re.compile(r"(`+)(.+?)\1", re.S)
 RE_MODAL = re.compile(r"\b(MUST NOT|MUST|SHOULD NOT|SHOULD|MAY|SHALL NOT|SHALL|REQUIRED|"
                       r"RECOMMENDED|OPTIONAL)\b")
@@ -1302,15 +1317,22 @@ KIND_ABBR = collections.OrderedDict([("requirement", "req"), ("definition", "def
 KINDS = tuple(KIND_ABBR)
 # Classifier rules, first match wins (listed in the design doc).
 CLASSIFIER_RULES = collections.OrderedDict([
-    ("K1", "example: the statement is a fenced code block"),
+    ("K1", "example: a fenced code block that is an example (K12 predicate false): it lies in "
+           "an examples or non-normative section or passage, its info string carries a "
+           "key=value witness tag, or a preceding statement of its clause is an example "
+           "(K6) or names an example / witness / sample / illustration"),
     ("K2", "non-normative: the section or an enclosing section is front matter, a change log "
            "(title 'Changes from ...') or titled *(non-normative)* / *(deferred)*"),
-    ("K3", "non-normative: the sentence starts with *(non-normative...)* or *(deferred...)*, or "
-           "follows such a sentence in the same paragraph; uncertain if it contains an RFC 2119 "
+    ("K3", "non-normative: the sentence starts with *(non-normative...)* or *(deferred...)* "
+           "(the marker scopes its own sentence only); uncertain if it contains an RFC 2119 "
            "keyword"),
     ("K4", "requirement: contains an upper-case RFC 2119 keyword (MUST, MUST NOT, SHOULD, MAY, "
            "SHALL, REQUIRED, ...)"),
-    ("K5", "definition: introduces a defined term (bold) or a rule label of its clause"),
+    ("K5", "definition: introduces a defined term (bold) or a rule label of its clause as "
+           "the subject being defined ('X is/are/means/denotes ...', 'X = ...', 'X: <noun "
+           "phrase>', 'X (...):', '... is the X'), or carries a term whose sentence is "
+           "otherwise a verbless fragment ('**Tier.** CC, R, Q.'), or is a verbless id-table row "
+           "naming what its label stands for"),
     ("K6", "example: starts with e.g. / For example / Example, contains e.g., or lies in an "
            "examples section"),
     ("K7", "requirement: lower-case normative word (must, must not, cannot, shall, may only, "
@@ -1321,7 +1343,24 @@ CLASSIFIER_RULES = collections.OrderedDict([
            "rows state their content in columns, not sentences)"),
     ("K10", "uncertain: none of the above (verbless fragment, list-item fragment)"),
     ("K11", "sub-statement classified K10 inherits the kind of its enumerating sentence"),
+    ("K12", "requirement, or definition when the introducing statement is one: a fenced code "
+            "block that is not an example (K1 predicate false): a normative table, grammar, "
+            "schema or listing"),
+    ("K13", "requirement: carries a term or rule label of its clause (recorded in defines) "
+            "that it does not introduce (run-in caption '**X.** <rule>', inline bold term, "
+            "label row), and states a rule (K7/K8 test), or a label caption outside a table "
+            "heads a verbless remainder ('**T5.** As §6.3.')"),
+    ("K14", "definition: verbless equation 'X = ...', 'X := ...', '... ≡ ...' (X a name "
+            "or code span)"),
+    ("K15", "requirement: verbless colon-labelled fragment 'Label: content' or a bare colon "
+            "introduction 'Frames:' (field and list stems of a normative text)"),
+    ("K16", "kind of the previous statement (requirement or definition): a verbless fragment "
+            "that follows a statement of its clause, or opens a list item continuing the "
+            "previous clause of its section"),
 ])
+# Evaluation order of classify_statement (first match wins).
+RULE_ORDER = ("K1/K12", "K2", "K3", "K4", "K5/K13", "K6", "K7", "K8", "K9", "K14", "K16",
+              "K15", "K10")
 UNCERTAIN_REASON = {"K3": "RFC 2119 keyword inside a *(non-normative)* passage",
                     "K10": "no RFC keyword, defined term, example marker or declarative verb"}
 
@@ -1422,13 +1461,16 @@ def split_sentences(p):
             spans.append((s, e))
         a = c
     # a sentence that is only a bold caption ("**Requirement.**") joins the next one
+    def is_caption(t):
+        # only the bold span counts: "**Lifted width rules** (a mismatch is ...)." is a caption
+        return bool(RE_CAPTION.match(t)) and not RE_CAPTION_VERB.search(RE_BOLD.match(t).group(1))
+
     out = []
     for sp in spans:
-        if out and RE_CAPTION.match(norm_ws(p[out[-1][0]:out[-1][1]])) \
-                and out[-1][2] == "caption":
+        if out and out[-1][2] == "caption":
             out[-1] = (out[-1][0], sp[1], "")
             continue
-        out.append((sp[0], sp[1], "caption" if RE_CAPTION.match(norm_ws(p[sp[0]:sp[1]])) else ""))
+        out.append((sp[0], sp[1], "caption" if is_caption(norm_ws(p[sp[0]:sp[1]])) else ""))
     return [(s, e) for s, e, _ in out]
 
 
@@ -1528,11 +1570,61 @@ def _plain(text):
     return RE_INLINE_ASIDE.sub(" ", RE_CODE_SPAN.sub(" ", text))
 
 
+def _masked(text):
+    """text with code spans and the insides of matched ()/[] blanked (same length)."""
+    prot = _protected(text)
+    return "".join(" " if prot[i] else ch for i, ch in enumerate(text))
+
+
+def _occurrences(text, term, label):
+    """[(start, end)] of a term (bold span) or label in text; a label inside a bold span
+    stands for the whole span."""
+    bolds = [(m.start(), m.end(), norm_ws(m.group(1)).strip().rstrip(".:,;").strip())
+             for m in RE_BOLD.finditer(text)]
+    out = [(a, b) for a, b, t in bolds if t == term]
+    if label:
+        for m in re.finditer(LABEL_LEFT + re.escape(term) + LABEL_RIGHT, text):
+            span = next(((a, b) for a, b, _ in bolds if a <= m.start() < b), None)
+            out.append(span or (m.start(), m.end()))
+    return sorted(set(out))
+
+
+def _introduces(text, term, label=False):
+    """True if the sentence introduces term as the subject being defined (rule K5)."""
+    for a, b in _occurrences(text, term, label):
+        pre = re.sub(r"^[\s|*_(\-]*", "", text[:a])
+        if RE_DEF_AFTER.search(text[:a]):
+            return True
+        if not RE_DEF_PRE.match(pre):
+            continue
+        if text[a:b].startswith("**") and text[a:b].rstrip("*").rstrip().endswith("."):
+            continue  # run-in caption "**X.** ..."
+        post = text[b:]
+        mp = _masked(post)
+        m = RE_DEF_STOP.search(mp)
+        if not m or m.group(0) in (";", "."):
+            continue
+        window = mp[:m.start()]
+        if RE_DECL.search(window) or RE_LOWER_MODAL.search(window) or len(window.split()) > 8:
+            continue
+        if m.group(0) != ":":
+            return True
+        rest = post[m.end():].strip()
+        if not rest or RE_ARTICLE.match(rest):
+            return True
+        if not (RE_DECL.search(_masked(rest)) or RE_LOWER_MODAL.search(_masked(rest))):
+            return True
+    return False
+
+
 def classify_statement(text, code=False, nn_section=False, nn_passage=False,
-                       example_section=False, defines=(), row=False):
-    """(kind, rule, modal keywords). Rules K1-K10: CLASSIFIER_RULES."""
+                       example_section=False, defines=(), row=False, labels=(),
+                       code_example=True, intro_kind=None, prev_kind=None):
+    """(kind, rule, modal keywords). Rules K1-K16 (CLASSIFIER_RULES), order RULE_ORDER."""
     if code:
-        return "example", "K1", []
+        if code_example:
+            return "example", "K1", []
+        return ("definition" if intro_kind == "definition" else "requirement"), "K12", []
     plain = _plain(text)
     modal = sorted(set(RE_MODAL.findall(plain)))
     if nn_section:
@@ -1541,17 +1633,48 @@ def classify_statement(text, code=False, nn_section=False, nn_passage=False,
         return ("uncertain" if modal else "non-normative"), "K3", modal
     if modal:
         return "requirement", "K4", modal
-    if defines:
+    if defines and any(_introduces(text, t, t in labels) for t in defines):
         return "definition", "K5", modal
     if RE_EXAMPLE_LEAD.match(plain.lstrip()) or "e.g." in plain or example_section:
         return "example", "K6", modal
-    if RE_LOWER_MODAL.search(plain):
-        return "requirement", "K7", modal
-    if RE_DECL.search(plain):
-        return "requirement", "K8", modal
-    if row:
-        return "requirement", "K9", modal
+    rule = ("K7" if RE_LOWER_MODAL.search(plain) else "K8" if RE_DECL.search(plain)
+            else "K9" if row else None)
+    if defines:
+        # a verbless row of an id table ("| DP | Platform | the platform profile |") names
+        # what its label stands for; a verbless label caption ("**T5.** As §6.3.") heads a rule
+        if rule in ("K7", "K8") \
+                or (not row and any(t in labels for t in defines)):
+            return "requirement", "K13", modal
+        return "definition", "K5", modal
+    if rule:
+        return "requirement", rule, modal
+    lead = re.sub(r"^[\s*_(]*", "", text)
+    if RE_EQUATION.match(lead) or " ≡ " in text:
+        return "definition", "K14", modal
+    if prev_kind in ("requirement", "definition"):
+        return prev_kind, "K16", modal
+    lead = RE_LEAD_CAPTION.sub("", text.lstrip())
+    if RE_COLON_LABEL.match(lead) and len(lead[:lead.index(":")].split()) <= 4:
+        return "requirement", "K15", modal
     return "uncertain", "K10", modal
+
+
+def fence_is_example(raw, before, nn, ex_sec, normative_ex=False):
+    """K1 predicate for a fenced code block: raw its text, before the preceding top-level
+    statement records of its clause, nn/ex_sec its section flags; normative_ex: the section
+    (or an enclosing one) is an examples section titled (normative ...), whose vectors are
+    normative, so example wording in the clause does not make them examples."""
+    info = raw.split("\n", 1)[0].lstrip()[3:].lstrip("`~").strip()
+    if nn or ex_sec or RE_FENCE_WITNESS.search(info):
+        return True
+    if normative_ex:
+        return False
+    for b in before:
+        if b["code"]:
+            continue
+        if b["nn"] or b["kind"] == "example" or RE_EXAMPLE_WORD.search(_plain(b["text"])):
+            return True
+    return False
 
 
 def _section_flags(g):
@@ -1570,6 +1693,19 @@ def _section_flags(g):
                 ex = True
             cur = secs.get(cur.get("parent"))
         out[sid] = (nn, ex)
+    return out
+
+
+def _normative_example_sections(g):
+    """Section ids titled (or inside a section titled) 'Example...' and '(normative ...)'."""
+    secs = {n["id"]: n for n in g["nodes"] if n["kind"] == "section"}
+    out = set()
+    for sid, n in secs.items():
+        cur = n
+        while cur is not None:
+            if RE_EXAMPLE_TITLE.search(cur["title"]) and "(normative" in cur["title"]:
+                out.add(sid)
+            cur = secs.get(cur.get("parent"))
     return out
 
 
@@ -1613,6 +1749,7 @@ def build_statements(g, xg=None):
     spec = g["spec"]
     secs = collections.OrderedDict((n["id"], n) for n in g["nodes"] if n["kind"] == "section")
     flags = _section_flags(g)
+    norm_ex = _normative_example_sections(g)
     clauses = [n for n in g["nodes"] if n["kind"] == "clause"]
     nodes = {n["id"]: n for n in g["nodes"]}
     kinds = g.get("alias_kinds", {})
@@ -1624,19 +1761,21 @@ def build_statements(g, xg=None):
         for cid in amb["clauses"]:
             clause_terms[cid].append(amb["term"])
     stmts = []
+    prev_by_clause, last_kind = {}, {}  # clause -> previous clause of its section; its kind
+    for a_, b_ in zip(clauses, clauses[1:]):
+        if a_["parent"] == b_["parent"]:
+            prev_by_clause[b_["id"]] = a_["id"]
     for nd in clauses:
         top = []
         for kind, a, b, p in _clause_blocks(nd):
             if kind == "code":
                 top.append({"raw": nd["text"][a:b], "a": a, "code": True, "nn": False})
                 continue
-            nn = False
             for s, e in split_sentences(p):
                 raw = p[s:e]
-                txt = norm_ws(raw)
-                if RE_NN_MARK.match(txt):
-                    nn = True
-                top.append({"raw": raw, "a": a + s, "code": False, "nn": nn})
+                # the marker scopes its own sentence (STATEMENT-NOTES ISA-6.4-P1.S4)
+                top.append({"raw": raw, "a": a + s, "code": False,
+                            "nn": bool(RE_NN_MARK.match(norm_ws(raw)))})
         # defined terms and labels: the first statement of the clause that carries them
         placed = set()
         for st in top:
@@ -1660,13 +1799,27 @@ def build_statements(g, xg=None):
             first = next((x for x in top if not x["code"]), top[0])
             first["defines"].extend(rest)
         nn_sec, ex_sec = flags[nd["parent"]]
+        labels = set(clause_labels.get(nd["id"], ()))
+        done = []  # records of this clause's top-level statements so far
+        prev_clause = prev_by_clause.get(nd["id"])
         for k, st in enumerate(top, 1):
             sid = "%s.S%d" % (nd["id"], k)
             text = st["raw"] if st["code"] else _clean(st["raw"])
+            if done:
+                prev_kind = done[-1]["kind"]
+            elif nd.get("clause_kind") == "item" and prev_clause in last_kind:
+                prev_kind = last_kind[prev_clause]
+            else:
+                prev_kind = None
+            intro = [dict(r, code=r["_code"], nn=r["_nn"]) for r in done]
             kind, rule, modal = classify_statement(
                 text, code=st["code"], nn_section=nn_sec, nn_passage=st["nn"],
                 example_section=ex_sec, defines=st["defines"],
-                row=nd.get("clause_kind") == "row")
+                row=nd.get("clause_kind") == "row", labels=labels,
+                code_example=st["code"] and fence_is_example(st["raw"], intro, nn_sec, ex_sec,
+                                                               nd["parent"] in norm_ex),
+                intro_kind=next((r["kind"] for r in reversed(done) if not r["_code"]), None),
+                prev_kind=prev_kind)
             markers = [] if st["code"] else RE_DEPS.findall(st["raw"])
             line = nd["line"] + nd["text"].count("\n", 0, st["a"])
             rec = {"id": sid, "clause": nd["id"], "section": nd["parent"], "n": "<1>%d" % k,
@@ -1674,8 +1827,10 @@ def build_statements(g, xg=None):
                    "defines": sorted(set(st["defines"])), "text": text,
                    "hash": clause_hash(text), "line": line,
                    "marker": [norm_ws(x) for x in markers] if markers else None,
-                   "_raw": st["raw"], "_code": st["code"]}
+                   "_raw": st["raw"], "_code": st["code"], "_nn": st["nn"]}
             stmts.append(rec)
+            done.append(rec)
+            last_kind[nd["id"]] = kind
             if st["code"]:
                 continue
             for j, (ea, eb) in enumerate(split_enumeration(text), 1):
@@ -1690,13 +1845,14 @@ def build_statements(g, xg=None):
                               "section": nd["parent"], "n": "<2>%d" % j, "level": 2,
                               "parent": sid, "kind": skind, "rule": srule, "modal": smodal,
                               "defines": [], "text": sub, "hash": clause_hash(sub),
-                              "line": line, "marker": None, "_raw": sub, "_code": False})
+                              "line": line, "marker": None, "_raw": sub, "_code": False,
+                              "_nn": st["nn"]})
     for s in stmts:
         if s["kind"] == "uncertain":
             s["uncertain"] = UNCERTAIN_REASON[s["rule"]]
     _statement_deps(g, xg, stmts, nodes)
     for s in stmts:
-        del s["_raw"], s["_code"]
+        del s["_raw"], s["_code"], s["_nn"]
     unresolved = [u for s in stmts for u in s.pop("_unresolved")]
     by_kind = collections.Counter(s["kind"] for s in stmts)
     by_section = collections.OrderedDict()
@@ -1850,7 +2006,7 @@ def statement_targets(s):
 
 
 def _md_text(s):
-    if s["rule"] == "K1":
+    if s["rule"] in ("K1", "K12"):
         body = [ln for ln in s["text"].split("\n") if ln.strip() and not RE_FENCE.match(ln)]
         first = norm_ws(body[0]) if body else ""
         return "(code block, %d lines) %s" % (s["text"].count("\n") + 1,

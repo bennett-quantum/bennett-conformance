@@ -8,17 +8,22 @@
  },
  "xspec": null,
  "rules": {
-  "K1": "example: the statement is a fenced code block",
+  "K1": "example: a fenced code block that is an example (K12 predicate false): it lies in an examples or non-normative section or passage, its info string carries a key=value witness tag, or a preceding statement of its clause is an example (K6) or names an example / witness / sample / illustration",
   "K2": "non-normative: the section or an enclosing section is front matter, a change log (title 'Changes from ...') or titled *(non-normative)* / *(deferred)*",
-  "K3": "non-normative: the sentence starts with *(non-normative...)* or *(deferred...)*, or follows such a sentence in the same paragraph; uncertain if it contains an RFC 2119 keyword",
+  "K3": "non-normative: the sentence starts with *(non-normative...)* or *(deferred...)* (the marker scopes its own sentence only); uncertain if it contains an RFC 2119 keyword",
   "K4": "requirement: contains an upper-case RFC 2119 keyword (MUST, MUST NOT, SHOULD, MAY, SHALL, REQUIRED, ...)",
-  "K5": "definition: introduces a defined term (bold) or a rule label of its clause",
+  "K5": "definition: introduces a defined term (bold) or a rule label of its clause as the subject being defined ('X is/are/means/denotes ...', 'X = ...', 'X: <noun phrase>', 'X (...):', '... is the X'), or carries a term whose sentence is otherwise a verbless fragment ('**Tier.** CC, R, Q.'), or is a verbless id-table row naming what its label stands for",
   "K6": "example: starts with e.g. / For example / Example, contains e.g., or lies in an examples section",
   "K7": "requirement: lower-case normative word (must, must not, cannot, shall, may only, may not, never)",
   "K8": "requirement: a declarative verb from the fixed list (is, are, returns, rejects, traps, ...)",
   "K9": "requirement: a table row (normative table: instruction, default, error-code rows state their content in columns, not sentences)",
   "K10": "uncertain: none of the above (verbless fragment, list-item fragment)",
-  "K11": "sub-statement classified K10 inherits the kind of its enumerating sentence"
+  "K11": "sub-statement classified K10 inherits the kind of its enumerating sentence",
+  "K12": "requirement, or definition when the introducing statement is one: a fenced code block that is not an example (K1 predicate false): a normative table, grammar, schema or listing",
+  "K13": "requirement: carries a term or rule label of its clause (recorded in defines) that it does not introduce (run-in caption '**X.** <rule>', inline bold term, label row), and states a rule (K7/K8 test), or a label caption outside a table heads a verbless remainder ('**T5.** As §6.3.')",
+  "K14": "definition: verbless equation 'X = ...', 'X := ...', '... ≡ ...' (X a name or code span)",
+  "K15": "requirement: verbless colon-labelled fragment 'Label: content' or a bare colon introduction 'Frames:' (field and list stems of a normative text)",
+  "K16": "kind of the previous statement (requirement or definition): a verbless fragment that follows a statement of its clause, or opens a list item continuing the previous clause of its section"
  },
  "statements": [
   {
@@ -797,15 +802,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Diagonal: `s sdg t tdg cz rz`.",
    "hash": "a4ffef2d2d15",
    "line": 68,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -818,15 +822,14 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Non-diagonal: `h rx ry`.",
    "hash": "c970dcc6ddb1",
    "line": 69,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -883,8 +886,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  CC ──calls──▶ R functions (call/uncall)       CC ──calls──▶ Q regions\n  R  ──calls──▶ R functions, Q regions          Q  ──calls──▶ Q regions (§5.5); oracle bodies call lprocs\n```",
@@ -1241,8 +1244,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  iN (1 ≤ N ≤ 128)   ptr (width ptr_width)   f64   token   qreg[n]   region[A,W]\n  wire   wire[N]      linear values in structured code and interfaces\n  reg[N]              a location (oracle bodies, lprocs); not linear\n```",
@@ -1281,14 +1284,12 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K8",
    "modal": [],
-   "defines": [
-    "Indexed operand"
-   ],
-   "text": "**Regions are threaded the same way.** **Indexed operand** `w[i]` (literal i) borrows wire i for one instruction.",
-   "hash": "dd443c4f86d6",
+   "defines": [],
+   "text": "**Regions are threaded the same way.**",
+   "hash": "282d7fddece5",
    "line": 118,
    "marker": null,
    "deps": {
@@ -1301,6 +1302,28 @@
       "status": "inferred"
      }
     ]
+   }
+  },
+  {
+   "id": "ISA-3.3-P2.S3",
+   "clause": "ISA-3.3-P2",
+   "section": "ISA-3.3",
+   "n": "<1>3",
+   "level": 1,
+   "parent": null,
+   "kind": "definition",
+   "rule": "K5",
+   "modal": [],
+   "defines": [
+    "Indexed operand"
+   ],
+   "text": "**Indexed operand** `w[i]` (literal i) borrows wire i for one instruction.",
+   "hash": "5dff3234bcf6",
+   "line": 118,
+   "marker": null,
+   "deps": {
+    "declared": [],
+    "inferred": []
    }
   },
   {
@@ -1364,8 +1387,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Per-opcode operand schema"
@@ -1412,8 +1435,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Lifted width rules"
@@ -1753,15 +1776,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "**Binding**: a `qreg[n]` argument fills a `wire[n]` slot bit for bit (bit 0 ↔ wire 0); it fills a `region[A,W]` slot iff n = 2^A·W with cell i = bits [iW, (i+1)W).",
    "hash": "e728a98ad0f7",
    "line": 174,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -1915,15 +1937,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "`HALT = n`; 2^P > n.",
    "hash": "8c20a12670d9",
    "line": 200,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -1978,8 +1999,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "elementary sub-operations"
@@ -2011,8 +2032,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Slot kinds",
@@ -2034,8 +2055,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "capture slot"
@@ -2105,8 +2126,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Frame layout"
@@ -2133,8 +2154,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Forward machine step"
@@ -2155,15 +2176,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "**Dispatch.** `at_k = (pc == k)` for k = 0..n into clean scratch.",
    "hash": "f6dd61c74a5a",
    "line": 232,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -2296,15 +2316,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "**Successor.** For each k < n, under `at_k`: XOR the row's successor into `pc'` (a label index under `flag`/`¬flag` as stated, or `frame_t.succ`).",
    "hash": "d4b1cf2c44aa",
    "line": 240,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -2317,15 +2336,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Under `at_HALT`: XOR `HALT` into `pc'`.",
    "hash": "72f4275787d2",
    "line": 242,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -2358,15 +2376,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "**Clean dispatch.** Uncompute every `at_k` from `frame_t.old_pc`.",
    "hash": "e7fdce8e2487",
    "line": 245,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -2379,15 +2396,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Decrement the classical step counter.",
    "hash": "4f3019de5031",
    "line": 246,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -2429,15 +2445,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Recompute every `at_k` from `frame_t.old_pc`.",
    "hash": "1d79421bb7f0",
    "line": 251,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -2490,8 +2505,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "reverse index order"
@@ -2512,8 +2527,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "D row"
@@ -2561,8 +2576,8 @@
    "n": "<1>4",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "A+D row"
@@ -2702,8 +2717,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "non-normative",
-   "rule": "K3",
+   "kind": "requirement",
+   "rule": "K8",
    "modal": [],
    "defines": [],
    "text": "B = 0 is legal: the oracle commits `FAULT_BUDGET_STEPS` on every input.",
@@ -2722,8 +2737,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "oracle body"
@@ -2905,15 +2920,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "**Counters and sizes.** Size exponents: `mem` 2^H byte cells, `alloctab` 2^A_tab entries, stack 2^S_cells cells.",
    "hash": "b9dbb254e800",
    "line": 304,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -2926,15 +2940,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Counter widths: `heap_used : wire[Hc]`, Hc ≥ H + 2; `atop : wire[Ac]`, Ac ≥ A_tab + 1; `sp, fp : wire[Sc]`, Sc ≥ S_cells + 1; `depth : wire[Dc]`, Dc ≥ ⌈log₂(depth_limit + 2)⌉.",
    "hash": "53c0e61604a4",
    "line": 305,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -3022,8 +3035,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "result name"
@@ -3077,15 +3090,14 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "`L_f` = all locations of `@f`, m′ = |L_f| (params + 1 + regs for an lproc); **R_f = 3 + m′** cells; cell width W_cell = max(P, Sc, Did, W_max) with W_max the widest location width in the closure.",
    "hash": "98d3387dcea7",
    "line": 324,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -3105,15 +3117,14 @@
    "n": "<1>4",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "A location of width N exchanged with a cell exchanges the cell's low N bits; the cell's remaining bits stay clean.",
    "hash": "8603c4634aa4",
    "line": 326,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -3307,15 +3318,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "Successor: the entry label of `@f`.",
    "hash": "a066ebe4cecf",
    "line": 348,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -3560,15 +3570,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "Successor: `frame.succ`.",
    "hash": "f381d97e104c",
    "line": 372,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -4119,8 +4128,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Flag / fault",
@@ -4908,8 +4917,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "reference body"
@@ -5067,8 +5076,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  x = [[0,1],[1,0]]   h = (1/√2)[[1,1],[1,-1]]   s = diag(1,i)   sdg = diag(1,-i)\n  t = diag(1,e^{iπ/4})  tdg = diag(1,e^{-iπ/4})   cz = diag(1,1,1,-1)\n  rx(θ) = exp(-iθX/2)   ry(θ) = exp(-iθY/2)   rz(θ) = exp(-iθZ/2) = diag(e^{-iθ/2}, e^{iθ/2})\n  cx, ccx, mcx(k): X on the target iff all controls are |1⟩ (exact, no phase)    swap: exact exchange\n```",
@@ -5087,15 +5096,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "Forms: `x a`, `cx c t`, `ccx c1 c2 t`, `mcx (c_1..c_k) t`, `swap a b`, `h a`, `s a`, `sdg a`, `t a`, `tdg a`, `cz a b`, `rx θ a`, `ry θ a`, `rz θ a`; all controlled on the active predicate.",
    "hash": "6572d021a8c8",
    "line": 491,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -5514,15 +5522,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "`oracle_call @o tk (ins..) tgt fr (mem..) (args..)`; `action_call @a (mut..) (ins..) (mem..) (args..)`; `adj action_call …`; `adj oracle_call …` ≡ `oracle_call …`; `ctl w <call>` ≡ the call under `qpred w`.",
    "hash": "b5503b2a336c",
    "line": 526,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -5927,15 +5934,14 @@
    "n": "<1>4",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Predicate stack empty at entry and exit.",
    "hash": "1b11006d8226",
    "line": 561,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -5948,8 +5954,8 @@
    "n": "<1>5",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "explicit cleanup instructions"
@@ -5977,8 +5983,8 @@
    "n": "<1>6",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "`in` wires in actions"
@@ -6120,8 +6126,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "prefix reversal"
@@ -6182,7 +6188,7 @@
    "n": "<2>3",
    "level": 2,
    "parent": "ISA-5.2-P3.S1",
-   "kind": "definition",
+   "kind": "requirement",
    "rule": "K11",
    "modal": [],
    "defines": [],
@@ -6297,15 +6303,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "No fault outcome.",
    "hash": "0504b72ede8b",
    "line": 601,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -6360,15 +6365,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "**Body**: gates; `qcopy quncopy qxor qexch qinplace`; `qload qunload qstore qexchm`; `qpred qunpred qif qloop`; `oracle_call action_call`; `qalloc qborrow qfree qreturn`; `qregion`.",
    "hash": "b0c9adb3b5b2",
    "line": 606,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -6445,8 +6449,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "definition",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  rx/ry/rz(θ) ↦ (−θ)   s ↔ sdg   t ↔ tdg   x cx ccx mcx swap h cz: self-adjoint\n  qalloc ↔ qfree   qborrow ↔ qreturn   qregion creation ↔ release   qcopy ↔ quncopy   qload ↔ qunload\n  qxor qexch qstore qexchm: self-adjoint   qinplace @g @ginv ↦ qinplace @ginv @g   oracle_call ↦ oracle_call\n  action_call @b ↦ adj action_call @b   qpred/qunpred pairs reversed as a whole\n  qif w {A}{B} ↦ qif w {adj A}{adj B}   qloop n {A} ↦ qloop n {adj A}\n  qloop n while cond {A} ↦ flags computed forward as §4.6; adj A for i = n..1 under c_i; flags uncomputed\n```",
@@ -6491,15 +6495,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "Budget = (B, heap_limit, stack_limit, depth_limit), classical.",
    "hash": "edd4e5a08eb0",
    "line": 636,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -6565,8 +6568,8 @@
    "n": "<1>4",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  0 FAULT_NONE            4 FAULT_UB_TRAP            8 FAULT_EFFECT_UNMODELLED\n  1 FAULT_BUDGET_STEPS    5 FAULT_UB_DIV0            9 FAULT_CALLEE\n  2 FAULT_BUDGET_HEAP     6 FAULT_UB_SDIV_OVERFLOW  10 FAULT_ENTROPY_EXHAUSTED (R only)\n  3 FAULT_BUDGET_DEPTH    7 FAULT_UB_MEMFAULT\n```",
@@ -6720,8 +6723,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "borrow frames"
@@ -6776,8 +6779,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "target is in B"
@@ -6965,8 +6968,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "dependency set"
@@ -7525,8 +7528,8 @@
    "n": "<1>4",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K3",
+   "kind": "requirement",
+   "rule": "K4",
    "modal": [
     "MUST"
    ],
@@ -7535,7 +7538,6 @@
    "hash": "84fc98fb5d62",
    "line": 761,
    "marker": null,
-   "uncertain": "RFC 2119 keyword inside a *(non-normative)* passage",
    "deps": {
     "declared": [],
     "inferred": []
@@ -7569,8 +7571,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "null region"
@@ -7591,8 +7593,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "fails before any mutation"
@@ -7653,8 +7655,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "interface region"
@@ -7675,15 +7677,14 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "`lift.load`/`lift.store` dispatch by address range to `mem` or to the mapped interface region (role `in` preserved by the construction).",
    "hash": "10512efbb0a8",
    "line": 794,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -7915,8 +7916,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "dynamic instances"
@@ -7937,15 +7938,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Frames:",
    "hash": "d2ab4023e5b1",
    "line": 827,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -8277,8 +8277,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "History traversal"
@@ -8502,8 +8502,8 @@
    "n": "<1>9",
    "level": 1,
    "parent": null,
-   "kind": "non-normative",
-   "rule": "K3",
+   "kind": "requirement",
+   "rule": "K8",
    "modal": [],
    "defines": [],
    "text": "Suite A contains: `f` calls `g`, uncalls `g`, returns; `g` performs one `clock.read`; `call f; uncall f` leaves the clock at its entry value; and `uncall` of a segment that measured is a trap.",
@@ -8562,8 +8562,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  expr := number | {\"var\": v} | {\"op\": o, \"args\": [expr, …]} | {\"table\": name, \"index\": \"k\" | \"eps_decade\"}\n  v    := \"k\" | \"c\" | \"eps\" | \"a\" | \"w\" | \"i\" | \"theta\"\n  o    := \"+\" (2) | \"-\" (2) | \"*\" (2) | \"/\" (2) | \"max\" (2) | \"min\" (2) | \"ceil\" (1) | \"log2inv_eps\" (0)\n```",
@@ -8646,8 +8646,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Variable binding"
@@ -8857,8 +8857,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  \"resources\": { \"<name>\": { \"kind\": \"count\"|\"time\"|\"occupancy\"|\"peak\", \"unit\": \"<string>\", \"rate\"?: { \"<cls>\": n } } }\n```",
@@ -8877,15 +8877,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "Mandatory: `qubit_second` (occupancy, per class), `time`, `peak_qubits` (peak, per class).",
    "hash": "b427d05b7c30",
    "line": 931,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -8898,8 +8897,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "leaf event",
@@ -8983,8 +8982,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  \"ptr_widths_supported\": [32, 64],\n  \"classes\": { \"<cls>\": { \"qubit_second\": n, \"dirty_rate\": n, \"capacity\": n | \"unbounded\" } },\n  \"gates\":   [ { \"op\": \"<gate>\", \"classes\": [\"<cls>\"|\"*\", …], \"controls\": {\"min\": n, \"max\": n | \"unbounded\"},\n                 \"params\": [\"theta\"]?, \"epsilon\": expr, \"cost\": { \"<resource>\": expr, \"time\": expr } }, … ],\n  \"schemes\": [ { \"name\": \"<name>\", \"realises\": { \"op\": \"<gate>\", \"controls\": {\"min\": n, \"max\": n | \"unbounded\"}, \"params\": [\"theta\"]? },\n                 \"ancillae\": { \"count\": expr, \"state\": \"clean\" | \"dirty\", \"class\": \"<cls>\" },\n                 \"template\": [ { \"gate\": \"<op>\", \"wires\": [ \"c[<expr>]\" | \"t\" | \"t2\" | \"a[<expr>]\", … ], \"params\": [expr]?,\n                                 \"repeat\": { \"var\": \"i\", \"from\": expr, \"to\": expr }? }, … ] }, … ],\n                 /* from inclusive, to exclusive; a scheme has no cost or epsilon of its own (§8.2) */\n  \"qram\": null | { \"load\": { \"cost\": {…} }, \"store\": { \"cost\": {…} }, \"exch\": { \"cost\": {…} } },\n  \"capabilities\": { \"measurement\": {\"mid_circuit\": bool, \"feedforward_latency\": n}, \"mbu\": false,     /* reserved, §6.4 */\n                    \"max_parallel\": n | \"unbounded\", \"max_predicate_depth\": n | \"unbounded\", \"classical_step_time\": n },\n  \"objective\": { \"weighted\": { \"<resource>\": n } } | { \"lexicographic\": [ \"<resource>\", … ] },\n  \"tables\": { \"<name>\": [ n, … ] },\n  \"imports\": { \"<model>\": { \"version\": \"...\", \"map\": { \"<quantity>\": [\"<resource>\", factor] } } }\n```",
@@ -9014,8 +9013,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "total control count c"
@@ -9204,8 +9203,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  symbols:  { \"<local index>\": { \"name\", \"kind\": \"cc\"|\"r\"|\"oracle\"|\"action\"|\"perm_action\"|\"lproc\"|\"data\", \"signature\": <sig>, \"interface_hash\" } }\n  imports:  { \"<name>\": { \"signature\": <sig>, \"pinned_closure_hash\"?: hex } }\n  devices:  { \"models\": { \"<dev>\": { \"version\": \"0.8\" } }, \"services\": { \"<reverse-dns id>\": { \"version\": \"…\" } } }\n  layout:   { \"ptr_width\", \"H\", \"A_tab\", \"S_cells\", \"null_size\", \"heap_base\", \"heap_limit_max\",\n              \"globals\": { \"<name>\": { \"base\", \"size\", \"image\": \"<data name>\" } },\n              \"interface_regions\": { \"<oracle>\": { \"<region>\": { \"base\" } } }, \"block_image\"?: \"<data name>\" }\n  schedule: §11      certificate: §12      coverage: { \"entries\": [ §13 ] }\n  <sig>:    kind \"oracle\": { \"tier\":\"q\", \"kind\", \"in\":[w…], \"tgt\":w, \"fault\":F, \"mem\":[{\"A\",\"W\",\"role\"}], \"args\":[types], \"abi\":\"0.8\" }\n            kind \"action\"/\"perm_action\": { \"tier\":\"q\", \"kind\", \"mut\":[w…], \"in\":[w…], \"mem\":[…], \"args\":[types], \"bounds\":[…], \"abi\" }\n            kind \"lproc\": { \"tier\":\"q\", \"kind\", \"params\":[w…], \"result\":w, \"abi\" }\n            kind \"cc\"/\"r\": { \"tier\", \"kind\", \"params\":[types], \"results\":[types], \"abi\" }\n            kind \"data\": { \"tier\":\"-\", \"kind\", \"size\", \"abi\" }\n```",
@@ -9324,8 +9323,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "definition",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  (1) \"isa=\" <full version string, e.g. 0.8>\n  (2) \"ptr_width=\" INT\n  (3) the JCS signature\n  (4) the canonical function bytes (with reference tokens replaced, below); for a data symbol: its data line NAME SP HEX\n  (5a) for every data entry in the closure set, sorted by name bytewise:        \"data \" NAME \" \" HEX\n  (5b) for every layout leaf in the closure set, sorted by dotted path bytewise: \"layout \" <dotted path> \" \" <JCS value>\n  (5c) for an R/CC function, for every device model and service it uses, sorted: \"device \" <name> \" \" <JCS entry>\n  (6) for every referenced symbol outside the symbol's SCC, in order of first reference: its 64-hex hash\n```",
@@ -9406,8 +9405,8 @@
    "n": "<1>4",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Action / permutation action"
@@ -9428,8 +9427,8 @@
    "n": "<1>5",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "CC / R function"
@@ -9450,8 +9449,8 @@
    "n": "<1>6",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Data symbol"
@@ -9543,8 +9542,8 @@
    "n": "<1>10",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Reference replacement",
@@ -9574,8 +9573,8 @@
    "n": "<1>11",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "SCCs",
@@ -9597,15 +9596,14 @@
    "n": "<1>12",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "`reference_program_hash` = the oracle's interface hash.",
    "hash": "32da5291074d",
    "line": 1065,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -9625,15 +9623,14 @@
    "n": "<1>13",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "`params_hash` = SHA-256 of the JCS array of classical parameter values; `schedule_hash` = SHA-256 of the schedule's JCS bytes.",
    "hash": "c5113f396ea2",
    "line": 1066,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -9750,15 +9747,14 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "Linking = resolution, validation, certificate composition (§12.3), rebinding to closure hashes.",
    "hash": "3fbf445f26ba",
    "line": 1079,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -9842,8 +9838,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Frame descriptor"
@@ -9870,15 +9866,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Shared frames only with disjoint live ranges (suite F); callees `qborrow` only from the caller's designated idle set.",
    "hash": "d8d2c8e0e8a1",
    "line": 1093,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -10079,8 +10074,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Reverse eligibility"
@@ -10301,8 +10296,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```c\n/* launch 0.8. All objects opaque. A function that returns an object transfers ownership to the caller,\n   released with the matching *_free. Status 0 = BENNETT_OK. */\ntypedef enum { BENNETT_OK=0, BENNETT_E_VERSION, BENNETT_E_PTR_WIDTH, BENNETT_E_DEVICE_MISSING, BENNETT_E_GATE_UNSUPPORTED,\n  BENNETT_E_TARGET, BENNETT_E_BUDGET, BENNETT_E_QREG_NOT_CLEAN, BENNETT_E_INVALID_STATE, BENNETT_E_NOT_REVERSIBLE,\n  BENNETT_E_SCHEDULE_INFEASIBLE, BENNETT_E_ARG, BENNETT_E_NOMEM } bennett_status;\ntypedef struct bennett_program_t bennett_program_t;     typedef struct bennett_args_t bennett_args_t;\ntypedef struct bennett_result_t bennett_result_t;       typedef struct bennett_request_t bennett_request_t;\ntypedef struct bennett_estimate_t bennett_estimate_t;   typedef struct bennett_coverage_t bennett_coverage_t;\ntypedef struct bennett_tape_iter_t bennett_tape_iter_t;\ntypedef uint64_t bennett_qreg; typedef uint64_t bennett_token; typedef uint64_t bennett_run_id;\ntypedef enum { BENNETT_ARG_INT, BENNETT_ARG_F64, BENNETT_ARG_QREG, BENNETT_ARG_TOKEN } bennett_arg_kind;\n\nbennett_status bennett_load(const uint8_t* object, size_t len, const uint8_t* target_jcs, size_t tlen, bennett_program_t** out);\nbennett_status bennett_unload(bennett_program_t*);\nbennett_status bennett_budget(bennett_program_t*, const char* region, uint64_t steps, uint64_t heap, uint64_t stack, uint64_t depth, bennett_token* out);\nbennett_status bennett_qreg_new(bennett_program_t*, const char* cls, uint32_t n, bennett_qreg* out);\nbennett_status bennett_qreg_prepare(bennett_program_t*, bennett_qreg, const uint8_t* bits, size_t nbits);\nbennett_status bennett_qreg_free(bennett_program_t*, bennett_qreg);\nbennett_status bennett_args_new(size_t n, bennett_args_t** out);\nbennett_status bennett_args_set_int(bennett_args_t*, size_t i, uint32_t width, const uint8_t* le_bytes);\nbennett_status bennett_args_set_f64(bennett_args_t*, size_t i, double);\nbennett_status bennett_args_set_qreg(bennett_args_t*, size_t i, bennett_qreg);\nbennett_status bennett_args_set_token(bennett_args_t*, size_t i, bennett_token);\nvoid           bennett_args_free(bennett_args_t*);\nbennett_status bennett_run(bennett_program_t*, const char* cc_entry, const bennett_args_t*, const uint8_t* entropy, size_t entropy_len, bennett_run_id* out);\nbennett_status bennett_wait(bennett_program_t*, bennett_run_id, bennett_result_t** result_out, bennett_request_t** request_out);\nbennett_status bennett_reply(bennett_program_t*, bennett_run_id, const uint8_t* payload, size_t len);\nbennett_status bennett_suspend(bennett_program_t*, bennett_run_id);\nbennett_status bennett_resume(bennett_program_t*, bennett_run_id);\nbennett_status bennett_reverse(bennett_program_t*, bennett_run_id);\nbennett_status bennett_run_close(bennett_program_t*, bennett_run_id);\nsize_t         bennett_result_nvalues(const bennett_result_t*);\nbennett_status bennett_result_get(const bennett_result_t*, size_t i, bennett_arg_kind* kind, uint32_t* width, uint8_t* le_bytes_out, size_t cap);\nsize_t         bennett_result_nfaults(const bennett_result_t*);   uint64_t bennett_result_fault(const bennett_result_t*, size_t i);\nsize_t         bennett_result_nmeasurements(const bennett_result_t*);\nbennett_status bennett_result_measurement(const bennett_result_t*, size_t i, bennett_qreg* reg, uint8_t* bits_out, size_t cap, size_t* nbits);\nuint64_t       bennett_result_tape_length(const bennett_result_t*);   void bennett_result_free(bennett_result_t*);\nconst char*    bennett_request_service(const bennett_request_t*);\nconst uint8_t* bennett_request_payload(const bennett_request_t*, size_t* len);   void bennett_request_free(bennett_request_t*);\nbennett_status bennett_tape_open(bennett_program_t*, bennett_run_id, bennett_tape_iter_t** out);\nbennett_status bennett_tape_next(bennett_tape_iter_t*, const char** dev, const char** op, const uint8_t** args, size_t* alen);\nvoid           bennett_tape_free(bennett_tape_iter_t*);\nbennett_status bennett_estimate_run(bennett_program_t*, const char* region, bennett_token, bennett_estimate_t** out);\nsize_t         bennett_estimate_nresources(const bennett_estimate_t*);\nbennett_status bennett_estimate_get(const bennett_estimate_t*, size_t i, const char** name, const char** value_decimal);\nconst uint8_t* bennett_estimate_certificate(const bennett_estimate_t*, size_t* len);   void bennett_estimate_free(bennett_estimate_t*);\nbennett_status bennett_coverage_get(bennett_program_t*, bennett_coverage_t** out);\nconst uint8_t* bennett_coverage_jcs(const bennett_coverage_t*, size_t* len);   void bennett_coverage_free(bennett_coverage_t*);\n```",
@@ -10321,8 +10316,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```c\ntypedef struct bennett_sched_request_t bennett_sched_request_t;   typedef struct bennett_sched_response_t bennett_sched_response_t;\nbennett_status bennett_sched_request_new(bennett_sched_request_t** out);\nbennett_status bennett_sched_request_set_object(bennett_sched_request_t*, const uint8_t*, size_t);\nbennett_status bennett_sched_request_set_target(bennett_sched_request_t*, const uint8_t* jcs, size_t);\nbennett_status bennett_sched_request_set_region(bennett_sched_request_t*, const char* closure_hash_hex, const char* variant, uint32_t inherited_controls);\nbennett_status bennett_sched_request_set_budget(bennett_sched_request_t*, uint64_t steps, uint64_t heap, uint64_t stack, uint64_t depth);\nbennett_status bennett_sched_request_set_params(bennett_sched_request_t*, const uint8_t* params_jcs, size_t);\nbennett_status bennett_sched_request_set_accuracy(bennett_sched_request_t*, const char* epsilon_decimal);\nbennett_status bennett_sched_request_set_capacity(bennett_sched_request_t*, const char* cls, uint64_t peak_qubits);\nvoid           bennett_sched_request_free(bennett_sched_request_t*);\nbennett_status bennett_sched_schedule(const bennett_sched_request_t*, bennett_sched_response_t** out);\ntypedef enum { BENNETT_SCHED_OK, BENNETT_SCHED_INFEASIBLE, BENNETT_SCHED_UNSUPPORTED } bennett_sched_outcome;\nbennett_sched_outcome bennett_sched_response_outcome(const bennett_sched_response_t*);\nconst char*    bennett_sched_response_reason(const bennett_sched_response_t*);\nconst uint8_t* bennett_sched_response_schedule(const bennett_sched_response_t*, size_t* len);\nconst uint8_t* bennett_sched_response_certificate(const bennett_sched_response_t*, size_t* len);\nvoid           bennett_sched_response_free(bennett_sched_response_t*);\n```",
@@ -10341,8 +10336,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "generated operations"
@@ -10416,8 +10411,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "expansion library"
@@ -10476,15 +10471,14 @@
    "n": "<1>5",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "`bennett-isa-spec` publishes the reference library `ref` (§17 item 7).",
    "hash": "c0606a6c30e3",
    "line": 1245,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -10554,8 +10548,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "definition",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  { \"bindings\": { \"closure_hash\", \"target_hash\", \"region\", \"variant\", \"inherited_controls\", \"budget\": [B,heap,stack,depth],\n                  \"params_hash\", \"epsilon\", \"expansion\": { \"name\", \"version\", \"hash\" }, \"scheduler\": { \"name\", \"version\" } },\n    \"entries\": [ { \"path\": [ { \"symbol\": hex, \"point\": \"<block>:<ordinal>\", \"iteration\": [n, …] | \"*\" }, … ],\n                   \"step\": n | \"*\",  \"phase\": \"fwd\" | \"rev\" | \"*\",  \"generated\": n | \"*\",\n                   \"kind\": \"cleanup\" | \"gate\" | \"alloc\" | \"start\",\n                   \"cleanup\": { \"realisation\": \"reverse\" | \"recompute\" },\n                   \"gate\":    { \"realisation\": \"native\" | \"<scheme name>\", \"epsilon_share\": decimal },\n                   \"alloc\":   { \"class\": \"<cls>\" },           /* a concrete class; \"any\" is not allowed in a schedule */\n                   \"start\":   { \"time\": decimal } } ] }\n```",
@@ -10574,8 +10568,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "invocation chain"
@@ -10856,8 +10850,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "diamond-norm SDP"
@@ -11074,8 +11068,8 @@
    "n": "<1>7",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "Positivity test",
@@ -11235,8 +11229,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  versions; bindings { object_hash, interface_hash, closure_hash (required), reference_program_hash, dialect_mapping_version, target_hash, schedule_hash? }\n  producer { name, version, materialisation { llvm_version, pipeline, normaliser_version } }\n  regions { <closure_hash>: { kind, signature, bounds, frame (§9.4), resources { name: decimal }, gates_used { gate: { count, scheme?, epsilon? } },\n            claims: [ <claim> … ], verification: { oracle: i, borrow_frames: [i], inverse_pairs: [ { g, ginv, claim: i } ], unitary: [i], channel: [i],\n                                                   fault_rate: { domain, faults_by_code, undefined_excluded, layout_dependent_excluded } },\n            cleanup: { \"<variant>:<inherited_controls>\": [ { path, realisation } ] },\n            error:   { \"<variant>:<inherited_controls>\": { local: { \"operator_norm\"?: v, \"diamond\"?: v }, inclusive: { \"operator_norm\"?: v, \"diamond\"?: v } } },\n            definedness_assumptions: [ids] } }\n  composition { multiplicities: { \"<hash>:<variant>:<inherited_controls>\": n (from the realised schedule) }, epsilon_total: { \"diamond\": v }, method: \"sum_over_multiplicities\" }\n```",
@@ -11313,15 +11307,14 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Executable claims (`numerical`, `channel`, `exhaustive` with `expected: \"oracle\"`) bind to `schedule_hash` through their subject.",
    "hash": "59bd18a181be",
    "line": 1382,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -11470,8 +11463,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "T1"
@@ -11492,8 +11485,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "T2"
@@ -11537,8 +11530,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "T3"
@@ -11559,8 +11552,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "T4"
@@ -11587,8 +11580,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "T5"
@@ -11615,8 +11608,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "definition",
-   "rule": "K5",
+   "kind": "requirement",
+   "rule": "K13",
    "modal": [],
    "defines": [
     "T6"
@@ -11929,15 +11922,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K14",
    "modal": [],
    "defines": [],
    "text": "`NAME := [A-Za-z_][A-Za-z0-9_.]*`; `INT := -?(0|[1-9][0-9]*)`; `FLOAT :=` shortest round-trip decimal with `.` or exponent, finite; `STRING := \"…\"` with escapes `\\\"`, `\\\\`, `\\n`; `HEX := ([0-9a-f]{2})*`.",
    "hash": "0a5138e12e2d",
    "line": 1457,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -11970,8 +11962,8 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\n  object    := header NL section*\n  header    := \"bennett-object\" SP \"isa=\" VER SP \"object=\" VER SP \"launch=\" VER SP \"sched=\" VER SP \"cert=\" VER SP \"coverage=\" VER SP \"target=\" VER SP \"ptr_width=\" INT\n  section   := NL \"section\" SP SECTNAME NL body\n  SECTNAME  := \"symbols\" | \"imports\" | \"functions\" | \"data\" | \"devices\" | \"layout\" | \"schedule\" | \"certificate\" | \"coverage\"\n  body      := jsonline | dataline* | function*\n  jsonline  := JCS-canonical JSON object NL\n  dataline  := NAME SP HEX NL\n  function  := fhead NL regs? block+\n  fhead     := (\"fn\" SP (\"cc\"|\"r\") | \"oracle\" | \"action\" | \"perm_action\" | \"lproc\") SP \"@\" NAME SP \"(\" plist \")\" SP \"(\" plist \")\" SP \"(\" plist \")\" SP \"(\" plist \")\" SP \"(\" plist \")\"\n               -- oracle: (in..) (tgt) (fault) (mem..) (args..) ; action: (mut..) (in..) (mem..) (args..) () ; lproc: (params..) (result) () () () ; fn: (params..) (results..) () () ()\n  plist     := (param (\",\" SP param)*)?\n  param     := NAME \":\" type (SP (\"in\"|\"mut\"))?\n  type      := \"i\" INT | \"ptr\" | \"f64\" | \"token\" | \"wire\" | \"wire[\" INT \"]\" | \"reg[\" INT \"]\" | \"region[\" INT \",\" INT \"]\" | \"qreg[\" INT \"]\"\n  regs      := \"regs\" SP \"{\" SP (NAME \":\" type (\",\" SP NAME \":\" type)*)? SP \"}\" (SP \"bounds\" SP \"{\" INT (\",\" SP INT)* \"}\")? NL\n  block     := \"^\" NAME \"(\" plist \"):\" NL instr+\n  instr     := (lhs SP \"=\" SP)? OPCODE (SP operand)* (SP \"{\" NL instr+ \"}\" (SP \"{\" NL instr+ \"}\")?)? NL\n  lhs       := NAME | \"(\" NAME (\",\" SP NAME)* \")\"\n  operand   := NAME | NAME \"[\" INT \"]\" | \"@\" NAME | \"^\" NAME (\"(\" (NAME (\",\" SP NAME)*)? \")\")? | INT | FLOAT | STRING | \"(\" (NAME (\",\" SP NAME)*)? \")\"\n  OPCODE    := a mnemonic of §4 with its dotted suffix (§4.8 fixes operand count, kinds and result placement)\n  VER       := INT \".\" INT\n```",
@@ -12050,8 +12042,8 @@
    "n": "<1>3",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\nbennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32\n\nsection symbols\n{\"0\":{\"interface_hash\":\"8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93\",\"kind\":\"oracle\",\"name\":\"inc8\",\"signature\":{\"abi\":\"0.8\",\"args\":[],\"fault\":4,\"in\":[8],\"kind\":\"oracle\",\"mem\":[],\"tgt\":8,\"tier\":\"q\"}}}\n\nsection functions\noracle @inc8 (x:wire[8] in) (t:wire[8]) (f:wire[4]) () ()\nregs { one:reg[8], r:reg[8] }\n^entry():\none = lift.const.i8 1\nr = lift.add x one\nlift.retval r\n```",
@@ -12090,8 +12082,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\nisa=0.8\nptr_width=32\n{\"abi\":\"0.8\",\"args\":[],\"fault\":4,\"in\":[8],\"kind\":\"oracle\",\"mem\":[],\"tgt\":8,\"tier\":\"q\"}\noracle @inc8 (x:wire[8] in) (t:wire[8]) (f:wire[4]) () ()\nregs { one:reg[8], r:reg[8] }\n^entry():\none = lift.const.i8 1\nr = lift.add x one\nlift.retval r\n```",
@@ -12165,8 +12157,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "definition",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\nbennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32\n\nsection symbols\n{\"0\":{\"interface_hash\":\"68225d213c44812fe844cd295d8821127c3cf31682be4eb19303cb53f9b147f7\",\"kind\":\"oracle\",\"name\":\"sum_db\",\"signature\":{\"abi\":\"0.8\",\"args\":[],\"fault\":4,\"in\":[8],\"kind\":\"oracle\",\"mem\":[{\"A\":4,\"W\":8,\"role\":\"in\"}],\"tgt\":8,\"tier\":\"q\"}},\"1\":{\"interface_hash\":\"74f110bbafde68a4785025e7e571ef871ddd83a09465ab9c1604f653a0cfcd92\",\"kind\":\"lproc\",\"name\":\"sum\",\"signature\":{\"abi\":\"0.8\",\"kind\":\"lproc\",\"params\":[8,8,32],\"result\":8,\"tier\":\"q\"}},\"2\":{\"interface_hash\":\"7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6\",\"kind\":\"data\",\"name\":\"zero\",\"signature\":{\"abi\":\"0.8\",\"kind\":\"data\",\"size\":1,\"tier\":\"-\"}}}\n\nsection functions\noracle @sum_db (n:wire[8] in) (t:wire[8]) (f:wire[4]) (db:region[4,8] in) ()\nregs { base:reg[32], acc:reg[8], r:reg[8] }\n^entry():\nbase = lift.addr @db\nacc = lift.const.i8 0\nr = lift.call @sum (n, acc, base)\nlift.retval r\nlproc @sum (n:reg[8], acc:reg[8], base:reg[32]) (r:reg[8]) () () ()\nregs { zp:reg[32], zv:reg[8], z:reg[1], one:reg[8], n2:reg[8], idx:reg[32], p:reg[32], v:reg[8], acc2:reg[8] }\n^entry():\nzp = lift.addr @zero\nlift.boundscheck zp 1\nzv = lift.load.i8 zp\nz = lift.icmp.eq n zv\nqbranch z ^done ^more\n^more():\none = lift.const.i8 1\nn2 = lift.sub n one\nidx = lift.zext.i32 n2\np = lift.add base idx\nlift.boundscheck p 1\nv = lift.load.i8 p\nacc2 = lift.add acc v\nr = lift.call @sum (n2, acc2, base)\nlift.ret r\n^done():\nlift.ret acc\n\nsection data\nzero 00\n\nsection layout\n{\"A_tab\":4,\"H\":13,\"S_cells\":9,\"globals\":{\"zero\":{\"base\":16,\"image\":\"zero\",\"size\":1}},\"heap_base\":4112,\"heap_limit_max\":4080,\"interface_regions\":{\"sum_db\":{\"db\":{\"base\":4096}}},\"null_size\":16,\"ptr_width\":32}\n```",
@@ -12185,15 +12177,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K15",
    "modal": [],
    "defines": [],
    "text": "Ranges: null [0,16), `zero` [16,17), `db` [4096,4112), heap [4112,8192) within 2^13: disjoint; two pre-entries ≤ 2^4.",
    "hash": "cc071a218dc4",
    "line": 1572,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -12319,8 +12310,8 @@
    "n": "<1>7",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\nisa=0.8\nptr_width=32\n{\"abi\":\"0.8\",\"kind\":\"lproc\",\"params\":[8,8,32],\"result\":8,\"tier\":\"q\"}\nlproc @sum (n:reg[8], acc:reg[8], base:reg[32]) (r:reg[8]) () () ()\nregs { zp:reg[32], zv:reg[8], z:reg[1], one:reg[8], n2:reg[8], idx:reg[32], p:reg[32], v:reg[8], acc2:reg[8] }\n^entry():\nzp = lift.addr @7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6\nlift.boundscheck zp 1\nzv = lift.load.i8 zp\nz = lift.icmp.eq n zv\nqbranch z ^done ^more\n^more():\none = lift.const.i8 1\nn2 = lift.sub n one\nidx = lift.zext.i32 n2\np = lift.add base idx\nlift.boundscheck p 1\nv = lift.load.i8 p\nacc2 = lift.add acc v\nr = lift.call @$0 (n2, acc2, base)\nlift.ret r\n^done():\nlift.ret acc\ndata zero 00\nlayout globals.zero {\"base\":16,\"image\":\"zero\",\"size\":1}\n7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6\n```",
@@ -12366,8 +12357,8 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "example",
-   "rule": "K1",
+   "kind": "requirement",
+   "rule": "K12",
    "modal": [],
    "defines": [],
    "text": "```\ninc8 = 8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93\nzero = 7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6\nsum = 74f110bbafde68a4785025e7e571ef871ddd83a09465ab9c1604f653a0cfcd92\nsum_db = 68225d213c44812fe844cd295d8821127c3cf31682be4eb19303cb53f9b147f7\n```",
@@ -12530,15 +12521,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "**Memory layout of the opaque C objects.** Default: opaque; only the listed functions touch them.",
    "hash": "b69c1c72088c",
    "line": 1646,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -12673,15 +12663,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "**Default `epsilon_share`** (§8.1, §11) when a schedule assigns none.",
    "hash": "0ac0ca6d2de8",
    "line": 1661,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -12705,15 +12694,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "requirement",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Default: the region's `epsilon` divided equally among its ε > 0 operations.",
    "hash": "bc422cd540ec",
    "line": 1662,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -12754,15 +12742,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "**Occupancy rate of a class absent from `rate`** (§8.2). Default: 1.",
    "hash": "abec8bbe0373",
    "line": 1666,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -12781,15 +12768,14 @@
    "n": "<1>1",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "**Classical step timing of CC/R instructions and effects** (§8.2). Default: `classical_step_time` each, sequential.",
    "hash": "a07c335c3409",
    "line": 1667,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": [
@@ -12836,15 +12822,14 @@
    "n": "<1>2",
    "level": 1,
    "parent": null,
-   "kind": "uncertain",
-   "rule": "K10",
+   "kind": "definition",
+   "rule": "K16",
    "modal": [],
    "defines": [],
    "text": "Default: exhaustive for ≤ 16 interface bits; 2^16 samples above.",
    "hash": "49246252e900",
    "line": 1670,
    "marker": null,
-   "uncertain": "no RFC keyword, defined term, example marker or declarative verb",
    "deps": {
     "declared": [],
     "inferred": []
@@ -12879,29 +12864,33 @@
  ],
  "unresolved": [],
  "stats": {
-  "statements": 540,
-  "top_level": 532,
+  "statements": 541,
+  "top_level": 533,
   "sub_statements": 8,
   "clauses": 314,
   "by_kind": {
-   "requirement": 359,
-   "definition": 101,
-   "non-normative": 13,
-   "example": 21,
-   "uncertain": 46
+   "requirement": 450,
+   "definition": 73,
+   "non-normative": 11,
+   "example": 1,
+   "uncertain": 6
   },
   "by_rule": {
-   "K1": 20,
    "K2": 8,
-   "K3": 6,
-   "K4": 22,
-   "K5": 100,
+   "K3": 3,
+   "K4": 23,
+   "K5": 54,
    "K6": 1,
    "K7": 9,
-   "K8": 226,
+   "K8": 229,
    "K9": 102,
-   "K10": 45,
-   "K11": 1
+   "K10": 6,
+   "K11": 1,
+   "K12": 20,
+   "K13": 46,
+   "K14": 8,
+   "K15": 8,
+   "K16": 23
   },
   "markers": 0,
   "declared_edges": 0,
@@ -12939,16 +12928,16 @@
    },
    "ISA-2": {
     "requirement": 0,
-    "definition": 12,
+    "definition": 14,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 2
+    "uncertain": 0
    },
    "ISA-3.1": {
-    "requirement": 3,
+    "requirement": 4,
     "definition": 0,
     "non-normative": 0,
-    "example": 1,
+    "example": 0,
     "uncertain": 0
    },
    "ISA-3.2": {
@@ -12959,11 +12948,11 @@
     "uncertain": 0
    },
    "ISA-3.3": {
-    "requirement": 17,
-    "definition": 4,
+    "requirement": 22,
+    "definition": 2,
     "non-normative": 0,
-    "example": 1,
-    "uncertain": 1
+    "example": 0,
+    "uncertain": 0
    },
    "ISA-3.4": {
     "requirement": 1,
@@ -12980,18 +12969,18 @@
     "uncertain": 0
    },
    "ISA-3.6": {
-    "requirement": 16,
-    "definition": 11,
-    "non-normative": 2,
+    "requirement": 30,
+    "definition": 5,
+    "non-normative": 1,
     "example": 0,
-    "uncertain": 7
+    "uncertain": 0
    },
    "ISA-3.7": {
-    "requirement": 17,
+    "requirement": 23,
     "definition": 14,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 6
+    "uncertain": 0
    },
    "ISA-4.1": {
     "requirement": 18,
@@ -13001,8 +12990,8 @@
     "uncertain": 0
    },
    "ISA-4.2": {
-    "requirement": 33,
-    "definition": 3,
+    "requirement": 35,
+    "definition": 1,
     "non-normative": 0,
     "example": 0,
     "uncertain": 0
@@ -13015,11 +13004,11 @@
     "uncertain": 0
    },
    "ISA-4.4": {
-    "requirement": 3,
+    "requirement": 5,
     "definition": 0,
     "non-normative": 0,
-    "example": 1,
-    "uncertain": 1
+    "example": 0,
+    "uncertain": 0
    },
    "ISA-4.5": {
     "requirement": 6,
@@ -13037,10 +13026,10 @@
    },
    "ISA-4.7": {
     "requirement": 1,
-    "definition": 0,
+    "definition": 1,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 1
+    "uncertain": 0
    },
    "ISA-4.8": {
     "requirement": 13,
@@ -13050,32 +13039,32 @@
     "uncertain": 0
    },
    "ISA-5.1": {
-    "requirement": 3,
-    "definition": 3,
+    "requirement": 6,
+    "definition": 1,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 1
+    "uncertain": 0
    },
    "ISA-5.2": {
-    "requirement": 7,
-    "definition": 4,
+    "requirement": 9,
+    "definition": 2,
     "non-normative": 0,
     "example": 0,
     "uncertain": 0
    },
    "ISA-5.3": {
-    "requirement": 5,
-    "definition": 2,
+    "requirement": 7,
+    "definition": 3,
     "non-normative": 0,
-    "example": 1,
-    "uncertain": 2
+    "example": 0,
+    "uncertain": 0
    },
    "ISA-5.4": {
-    "requirement": 2,
-    "definition": 0,
+    "requirement": 3,
+    "definition": 1,
     "non-normative": 0,
-    "example": 1,
-    "uncertain": 2
+    "example": 0,
+    "uncertain": 1
    },
    "ISA-5.5": {
     "requirement": 4,
@@ -13085,8 +13074,8 @@
     "uncertain": 0
    },
    "ISA-5.6": {
-    "requirement": 8,
-    "definition": 2,
+    "requirement": 10,
+    "definition": 0,
     "non-normative": 0,
     "example": 0,
     "uncertain": 0
@@ -13099,8 +13088,8 @@
     "uncertain": 0
    },
    "ISA-6.1": {
-    "requirement": 17,
-    "definition": 1,
+    "requirement": 18,
+    "definition": 0,
     "non-normative": 0,
     "example": 0,
     "uncertain": 0
@@ -13120,25 +13109,25 @@
     "uncertain": 0
    },
    "ISA-6.4": {
-    "requirement": 2,
+    "requirement": 3,
     "definition": 0,
     "non-normative": 1,
     "example": 0,
-    "uncertain": 1
+    "uncertain": 0
    },
    "ISA-7.1": {
-    "requirement": 1,
-    "definition": 2,
+    "requirement": 3,
+    "definition": 0,
     "non-normative": 0,
     "example": 0,
     "uncertain": 1
    },
    "ISA-7.2": {
-    "requirement": 3,
-    "definition": 1,
+    "requirement": 5,
+    "definition": 0,
     "non-normative": 0,
     "example": 1,
-    "uncertain": 1
+    "uncertain": 0
    },
    "ISA-7.3": {
     "requirement": 6,
@@ -13148,31 +13137,31 @@
     "uncertain": 0
    },
    "ISA-7.4": {
-    "requirement": 21,
-    "definition": 4,
-    "non-normative": 2,
+    "requirement": 25,
+    "definition": 2,
+    "non-normative": 1,
     "example": 0,
-    "uncertain": 1
+    "uncertain": 0
    },
    "ISA-8.1": {
-    "requirement": 13,
-    "definition": 1,
+    "requirement": 15,
+    "definition": 0,
     "non-normative": 0,
-    "example": 1,
+    "example": 0,
     "uncertain": 0
    },
    "ISA-8.2": {
-    "requirement": 3,
-    "definition": 1,
+    "requirement": 6,
+    "definition": 0,
     "non-normative": 0,
-    "example": 1,
-    "uncertain": 1
+    "example": 0,
+    "uncertain": 0
    },
    "ISA-8.3": {
-    "requirement": 4,
-    "definition": 1,
+    "requirement": 6,
+    "definition": 0,
     "non-normative": 0,
-    "example": 1,
+    "example": 0,
     "uncertain": 0
    },
    "ISA-8.4": {
@@ -13183,50 +13172,50 @@
     "uncertain": 0
    },
    "ISA-9.1": {
-    "requirement": 4,
-    "definition": 0,
-    "non-normative": 0,
-    "example": 1,
-    "uncertain": 0
-   },
-   "ISA-9.2": {
     "requirement": 5,
-    "definition": 10,
-    "non-normative": 0,
-    "example": 1,
-    "uncertain": 2
-   },
-   "ISA-9.3": {
-    "requirement": 2,
     "definition": 0,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 1
+    "uncertain": 0
    },
-   "ISA-9.4": {
+   "ISA-9.2": {
+    "requirement": 10,
+    "definition": 8,
+    "non-normative": 0,
+    "example": 0,
+    "uncertain": 0
+   },
+   "ISA-9.3": {
     "requirement": 2,
     "definition": 1,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 1
+    "uncertain": 0
+   },
+   "ISA-9.4": {
+    "requirement": 4,
+    "definition": 0,
+    "non-normative": 0,
+    "example": 0,
+    "uncertain": 0
    },
    "ISA-10": {
-    "requirement": 17,
-    "definition": 2,
+    "requirement": 19,
+    "definition": 1,
     "non-normative": 0,
-    "example": 1,
+    "example": 0,
     "uncertain": 0
    },
    "ISA-11": {
-    "requirement": 11,
-    "definition": 4,
+    "requirement": 16,
+    "definition": 2,
     "non-normative": 0,
-    "example": 2,
-    "uncertain": 1
+    "example": 0,
+    "uncertain": 0
    },
    "ISA-12.1": {
-    "requirement": 14,
-    "definition": 5,
+    "requirement": 16,
+    "definition": 3,
     "non-normative": 0,
     "example": 0,
     "uncertain": 0
@@ -13239,11 +13228,11 @@
     "uncertain": 1
    },
    "ISA-12.3": {
-    "requirement": 2,
+    "requirement": 4,
     "definition": 0,
     "non-normative": 0,
-    "example": 1,
-    "uncertain": 1
+    "example": 0,
+    "uncertain": 0
    },
    "ISA-13": {
     "requirement": 0,
@@ -13267,8 +13256,8 @@
     "uncertain": 0
    },
    "ISA-14.3": {
-    "requirement": 0,
-    "definition": 6,
+    "requirement": 6,
+    "definition": 0,
     "non-normative": 0,
     "example": 0,
     "uncertain": 0
@@ -13282,31 +13271,31 @@
    },
    "ISA-16.1": {
     "requirement": 1,
+    "definition": 1,
+    "non-normative": 0,
+    "example": 0,
+    "uncertain": 1
+   },
+   "ISA-16.2": {
+    "requirement": 1,
     "definition": 0,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 2
-   },
-   "ISA-16.2": {
-    "requirement": 0,
-    "definition": 0,
-    "non-normative": 0,
-    "example": 1,
     "uncertain": 0
    },
    "ISA-16.3": {
-    "requirement": 9,
-    "definition": 2,
-    "non-normative": 0,
-    "example": 5,
-    "uncertain": 1
-   },
-   "ISA-17": {
-    "requirement": 10,
-    "definition": 4,
+    "requirement": 14,
+    "definition": 3,
     "non-normative": 0,
     "example": 0,
-    "uncertain": 6
+    "uncertain": 0
+   },
+   "ISA-17": {
+    "requirement": 13,
+    "definition": 7,
+    "non-normative": 0,
+    "example": 0,
+    "uncertain": 0
    }
   }
  }

@@ -89,6 +89,161 @@ class TestSplitter(unittest.TestCase):
         self.assertEqual(cg.split_enumeration("Starts at (2) then (3)."), [])
 
 
+class TestSplitterBoldEnd(unittest.TestCase):
+    def test_sentence_ending_inside_bold(self):
+        # STATEMENT-NOTES ISA-3.3-P2.S2: `.**` + space + capital/bold opener ends a sentence
+        self.assertEqual(
+            sents("**Regions are threaded the same way.** **Indexed operand** `w[i]` (literal "
+                  "i) borrows wire i for one instruction."),
+            ["**Regions are threaded the same way.**",
+             "**Indexed operand** `w[i]` (literal i) borrows wire i for one instruction."])
+        self.assertEqual(sents("**A rule is here.** Then more."),
+                         ["**A rule is here.**", "Then more."])
+        # a caption (no finite verb in the bold span) still joins the next sentence
+        self.assertEqual(sents("**Reference body and binding.** Every oracle carries it."),
+                         ["**Reference body and binding.** Every oracle carries it."])
+        self.assertEqual(sents("**Width rules** (a mismatch is ill-formed). Every x is y."),
+                         ["**Width rules** (a mismatch is ill-formed). Every x is y."])
+
+
+class TestClassifierFixes(unittest.TestCase):
+    def k(self, text, **kw):
+        return cg.classify_statement(text, **kw)[:2]
+
+    def test_k5_only_when_term_is_introduced(self):
+        d = ("definition", "K5")
+        self.assertEqual(self.k("**Interface regions** are caller-owned.",
+                                defines=["Interface regions"]), d)
+        self.assertEqual(self.k("**Budget**: classical (B, h).", defines=["Budget"]), d)
+        self.assertEqual(self.k("**Program-point id** = `(a, b)`.",
+                                defines=["Program-point id"]), d)
+        self.assertEqual(self.k("Its size is the **effective control count**.",
+                                defines=["effective control count"]), d)
+        self.assertEqual(self.k("The **Choi matrix** is J(x).", defines=["Choi matrix"]), d)
+        self.assertEqual(self.k("**Adjoint table** (reverse order, renumbered):",
+                                defines=["Adjoint table"]), d)
+        self.assertEqual(self.k("**Interval arithmetic** at `p` means every op rounds out.",
+                                defines=["Interval arithmetic"]), d)
+        self.assertEqual(self.k("**Tier.** CC, R, Q.", defines=["Tier"]), d)
+        self.assertEqual(self.k("**C1 capture**: `d ^= a` for i = 1..m;", defines=["C1"],
+                                labels=["C1"]), d)
+
+    def test_k13_caption_or_inline_term_with_a_rule(self):
+        r = ("requirement", "K13")
+        # STATEMENT-NOTES "K5 overriding a requirement"
+        self.assertEqual(self.k("**`in` wires in actions** appear only as controls.",
+                                defines=["`in` wires in actions"]), r)
+        self.assertEqual(self.k("**Rule (suite F).** Borrowed wires are touched only inside "
+                                "**borrow frames**: maximal runs.",
+                                defines=["borrow frames"]), r)
+        self.assertEqual(self.k("**T3 (permutation theorem).** If V is a permutation, the "
+                                "tuple is P(x).", defines=["T3"], labels=["T3"]), r)
+        self.assertEqual(self.k("**T5.** As §6.3.", defines=["T5"], labels=["T5"]), r)
+        # a verbless id-table row names what its label stands for (definition, K5)
+        self.assertEqual(self.k("DP | Platform | the platform profile (§20)", row=True,
+                                defines=["DP"], labels=["DP"]), ("definition", "K5"))
+        self.assertEqual(self.k("**Data symbol**: parts (5)–(6) are empty.",
+                                defines=["Data symbol"]), r)
+        self.assertEqual(self.k("Every `qalloc` is matched by **explicit cleanup**; the "
+                                "schedule chooses only realisations.",
+                                defines=["explicit cleanup"]), r)
+
+    def test_k14_equation_and_k15_colon_label(self):
+        self.assertEqual(self.k("Budget = (B, heap_limit), classical."), ("definition", "K14"))
+        self.assertEqual(self.k("`params_hash` = SHA-256 of the bytes."), ("definition", "K14"))
+        self.assertEqual(self.k("`NAME := [A-Z]+`; `INT := -?[0-9]+`."), ("definition", "K14"))
+        self.assertEqual(self.k("`adj f …` ≡ `f …`."), ("definition", "K14"))
+        self.assertEqual(self.k("Forms: `x a`, `cx c t`; all controlled."),
+                         ("requirement", "K15"))
+        self.assertEqual(self.k("**Body**: gates; `qcopy`; `qalloc`."), ("requirement", "K15"))
+        self.assertEqual(self.k("Frames:"), ("requirement", "K15"))
+
+    def test_k16_inherits_and_k12_fence_kind(self):
+        self.assertEqual(self.k("No fault outcome.", prev_kind="requirement"),
+                         ("requirement", "K16"))
+        self.assertEqual(self.k("No fault outcome.", prev_kind="example"), ("uncertain", "K10"))
+        self.assertEqual(self.k("```\nx = y\n```", code=True, code_example=False),
+                         ("requirement", "K12"))
+        self.assertEqual(self.k("```\nx = y\n```", code=True, code_example=False,
+                                intro_kind="definition"), ("definition", "K12"))
+
+
+FENCES = """# T
+
+## 1. Gates
+
+```
+x = [[0,1],[1,0]]
+```
+
+## 2. Tables
+
+**Adjoint table** (reverse order):
+
+```
+s <-> sdg
+```
+
+Metadata sections are one line each, an object:
+
+```
+symbols: {}
+```
+
+For example, a call:
+
+```
+call @f
+```
+
+The checked witness:
+
+```text state=x
+{"a":1}
+```
+
+## 3. Worked examples
+
+The object:
+
+```
+bennett-object
+```
+
+## 4. Notes
+
+*(non-normative)* A sketch:
+
+```
+sketch
+```
+
+## 5. Example objects (normative test vectors)
+
+**Example 1** (`inc8`): one oracle. The function has six lines.
+
+```
+bennett-object
+```
+"""
+
+
+class TestFenceRule(unittest.TestCase):
+    # STATEMENT-NOTES "K1: every fenced code block is example"
+    def test_k12(self):
+        st = by_id(cg.build_statements(build(FENCES)))
+        got = {k: (v["kind"], v["rule"]) for k, v in st.items() if v["text"].startswith("```")}
+        self.assertEqual(got, {
+            "ISA-1-P1.S1": ("requirement", "K12"),
+            "ISA-2-P1.S2": ("definition", "K12"),
+            "ISA-2-P2.S2": ("requirement", "K12"),
+            "ISA-2-P3.S2": ("example", "K1"),
+            "ISA-2-P4.S2": ("example", "K1"),
+            "ISA-3-P1.S2": ("example", "K1"),
+            "ISA-4-P1.S2": ("example", "K1"),
+            "ISA-5-P1.S3": ("requirement", "K12")})  # normative vectors (ISA §16.3)
+
+
 class TestClassifier(unittest.TestCase):
     def k(self, text, **kw):
         return cg.classify_statement(text, **kw)[:2]
@@ -163,12 +318,21 @@ class TestStatementLayer(unittest.TestCase):
         self.assertEqual(s["ISA-1-P1.S1"]["text"], "**lproc**: a lifted procedure.")
         self.assertEqual(s["ISA-2-P1.S1"]["kind"], "requirement")
         self.assertTrue(s["ISA-2-P1.S1"]["text"].startswith("**Requirement.** An lproc"))
-        self.assertEqual(s["ISA-2-P1.S2"]["kind"], "uncertain")
-        self.assertIn("uncertain", s["ISA-2-P1.S2"])
-        self.assertEqual(s["ISA-2-P3.S1"]["kind"], "definition")  # defining-table row: PT3
+        # STATEMENT-NOTES "uncertain that should be decided" (ISA-5.1-P1.S4): a verbless
+        # fragment after a requirement inherits it (K16); this test used to expect uncertain
+        self.assertEqual((s["ISA-2-P1.S2"]["kind"], s["ISA-2-P1.S2"]["rule"]),
+                         ("requirement", "K16"))
+        self.assertNotIn("uncertain", s["ISA-2-P1.S2"])
+        # STATEMENT-NOTES "K5 overriding a requirement" (T3/T5): a labelled rule row is a
+        # requirement carrying its label (K13); this test used to expect definition
+        self.assertEqual((s["ISA-2-P3.S1"]["kind"], s["ISA-2-P3.S1"]["rule"]),
+                         ("requirement", "K13"))
         self.assertEqual(s["ISA-2-P3.S1"]["defines"], ["PT3"])
         self.assertEqual(s["ISA-2.1-P1.S1"]["kind"], "non-normative")
-        self.assertEqual(s["ISA-2.1-P1.S2"]["kind"], "uncertain")  # MUST in a non-normative tail
+        # STATEMENT-NOTES ISA-6.4-P1.S4: the marker scopes its own sentence; this test used to
+        # expect uncertain (K3 propagated to the paragraph end)
+        self.assertEqual((s["ISA-2.1-P1.S2"]["kind"], s["ISA-2.1-P1.S2"]["rule"]),
+                         ("requirement", "K4"))
         self.assertEqual(len(s["ISA-2-P1.S1"]["hash"]), 12)
 
     def test_enumerated_sub_statements(self):
