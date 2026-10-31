@@ -2,7 +2,9 @@
 
 Structured proofs of the invariants the Bennett specs lean on: reversibility of
 matched compute/uncompute pairs, no clone, soundness of the static uncomputation
-discipline, injectivity of the identity envelope. They are about the published
+discipline, injectivity of the identity envelope, and soundness of
+schedule selection (one maximal entry per operation, exact admission, §17
+defaults). They are about the published
 spec (ISA 0.8 for now), not about any implementation. Their main product is a
 precise list of where the spec is silent or wrong: every `ASSUMED` and `OPEN`
 leaf is a candidate defect or 0.9 proposal, with the sentence the spec would need.
