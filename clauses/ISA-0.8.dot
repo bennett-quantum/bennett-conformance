@@ -1,0 +1,861 @@
+digraph "ISA-0.8" {
+  graph [rankdir=LR, compound=true, fontsize=10, label="ISA 0.8 clause graph"];
+  node [shape=box, fontsize=8, height=0.2];
+  edge [arrowsize=0.5];
+  subgraph "cluster_ISA-front" {
+    label="§front front matter";
+    "ISA-front" [shape=folder, label="§front"];
+    "ISA-front-P1" [label="P1"];
+    "ISA-front-P2" [label="P2\nfull version string"];
+  }
+  subgraph "cluster_ISA-1" {
+    label="§1 Scope and conformance";
+    "ISA-1" [shape=folder, label="§1"];
+    subgraph "cluster_ISA-1.1" {
+      label="§1.1 What the ISA is";
+      "ISA-1.1" [shape=folder, label="§1.1"];
+      "ISA-1.1-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-1.2" {
+      label="§1.2 Conformance classes";
+      "ISA-1.2" [shape=folder, label="§1.2"];
+      "ISA-1.2-P1" [label="P1"];
+      "ISA-1.2-P2" [label="P2"];
+      "ISA-1.2-P3" [label="P3"];
+      "ISA-1.2-P4" [label="P4"];
+      "ISA-1.2-P5" [label="P5"];
+    }
+    subgraph "cluster_ISA-1.3" {
+      label="§1.3 Deferred *(asserted non-semantic)*";
+      "ISA-1.3" [shape=folder, label="§1.3"];
+      "ISA-1.3-P1" [label="P1\nMinimality claims"];
+    }
+  }
+  subgraph "cluster_ISA-2" {
+    label="§2 Terminology";
+    "ISA-2" [shape=folder, label="§2"];
+    "ISA-2-P1" [label="P1\nTier, Wire, bundle"];
+    "ISA-2-P2" [label="P2\nLocation, Pseudo-location"];
+    "ISA-2-P3" [label="P3\nRegion, lifted oracle, permutation action"];
+    "ISA-2-P4" [label="P4\nlproc"];
+    "ISA-2-P5" [label="P5\nBudget"];
+    "ISA-2-P6" [label="P6\nFrame"];
+    "ISA-2-P7" [label="P7\nBasis configuration"];
+    "ISA-2-P8" [label="P8\nGate classes"];
+    "ISA-2-P9" [label="P9\nEffective control context, effective control count"];
+  }
+  subgraph "cluster_ISA-3" {
+    label="§3 Machine model";
+    "ISA-3" [shape=folder, label="§3"];
+    subgraph "cluster_ISA-3.1" {
+      label="§3.1 Tiers and the control invariant";
+      "ISA-3.1" [shape=folder, label="§3.1"];
+      "ISA-3.1-P1" [label="P1"];
+      "ISA-3.1-P2" [label="P2"];
+    }
+    subgraph "cluster_ISA-3.2" {
+      label="§3.2 State";
+      "ISA-3.2" [shape=folder, label="§3.2"];
+      "ISA-3.2-P1" [label="P1\nquantum-register handles"];
+      "ISA-3.2-P2" [label="P2"];
+      "ISA-3.2-P3" [label="P3"];
+      "ISA-3.2-P4" [label="P4"];
+      "ISA-3.2-P5" [label="P5"];
+      "ISA-3.2-P6" [label="P6"];
+      "ISA-3.2-P7" [label="P7"];
+      "ISA-3.2-P8" [label="P8"];
+      "ISA-3.2-P9" [label="P9"];
+      "ISA-3.2-P10" [label="P10"];
+    }
+    subgraph "cluster_ISA-3.3" {
+      label="§3.3 Types, ownership, operand schema";
+      "ISA-3.3" [shape=folder, label="§3.3"];
+      "ISA-3.3-P1" [label="P1"];
+      "ISA-3.3-P2" [label="P2\nIndexed operand"];
+      "ISA-3.3-P3" [label="P3"];
+      "ISA-3.3-P4" [label="P4\nPer-opcode operand schema"];
+      "ISA-3.3-P5" [label="P5\nLifted width rules"];
+      "ISA-3.3-P6" [label="P6\nHandle transitions"];
+      "ISA-3.3-P7" [label="P7"];
+      "ISA-3.3-P8" [label="P8"];
+      "ISA-3.3-P9" [label="P9"];
+      "ISA-3.3-P10" [label="P10"];
+      "ISA-3.3-P11" [label="P11"];
+      "ISA-3.3-P12" [label="P12"];
+      "ISA-3.3-P13" [label="P13"];
+      "ISA-3.3-P14" [label="P14"];
+    }
+    subgraph "cluster_ISA-3.4" {
+      label="§3.4 Execution in CC and R";
+      "ISA-3.4" [shape=folder, label="§3.4"];
+      "ISA-3.4-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-3.5" {
+      label="§3.5 Predication";
+      "ISA-3.5" [shape=folder, label="§3.5"];
+      "ISA-3.5-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-3.6" {
+      label="§3.6 The predicated step machine";
+      "ISA-3.6" [shape=folder, label="§3.6"];
+      "ISA-3.6-P1" [label="P1\nlproc closure"];
+      "ISA-3.6-P2" [label="P2\nSlot kinds, assignment slot, capture slot"];
+      "ISA-3.6-P3" [label="P3\nFrame layout"];
+      "ISA-3.6-P4" [label="P4\nForward machine step"];
+      "ISA-3.6-P5" [label="P5"];
+      "ISA-3.6-P6" [label="P6"];
+      "ISA-3.6-P7" [label="P7"];
+      "ISA-3.6-P8" [label="P8"];
+      "ISA-3.6-P9" [label="P9"];
+      "ISA-3.6-P10" [label="P10"];
+      "ISA-3.6-P11" [label="P11\nInverse machine step"];
+      "ISA-3.6-P12" [label="P12"];
+      "ISA-3.6-P13" [label="P13"];
+      "ISA-3.6-P14" [label="P14"];
+      "ISA-3.6-P15" [label="P15\nA+D row, D row, reverse index order"];
+      "ISA-3.6-P16" [label="P16"];
+      "ISA-3.6-P17" [label="P17"];
+    }
+    subgraph "cluster_ISA-3.7" {
+      label="§3.7 Register files, procedures, counters, stack";
+      "ISA-3.7" [shape=folder, label="§3.7"];
+      "ISA-3.7-P1" [label="P1\noracle body"];
+      "ISA-3.7-P2" [label="P2"];
+      "ISA-3.7-P3" [label="P3"];
+      "ISA-3.7-P4" [label="P4\nInitial allocator state"];
+      "ISA-3.7-P5" [label="P5\nresult name"];
+      "ISA-3.7-P6" [label="P6"];
+      "ISA-3.7-P7" [label="P7\nC1"];
+      "ISA-3.7-P8" [label="P8\nC2"];
+      "ISA-3.7-P9" [label="P9\nC3"];
+      "ISA-3.7-P10" [label="P10\nC4"];
+      "ISA-3.7-P11" [label="P11\nC5"];
+      "ISA-3.7-P12" [label="P12"];
+      "ISA-3.7-P13" [label="P13\n`lift.ret v`"];
+      "ISA-3.7-P14" [label="P14\nR1"];
+      "ISA-3.7-P15" [label="P15\nR2"];
+      "ISA-3.7-P16" [label="P16\nR3"];
+      "ISA-3.7-P17" [label="P17\nR4"];
+      "ISA-3.7-P18" [label="P18\nR5"];
+      "ISA-3.7-P19" [label="P19"];
+      "ISA-3.7-P20" [label="P20"];
+    }
+  }
+  subgraph "cluster_ISA-4" {
+    label="§4 Instruction set";
+    "ISA-4" [shape=folder, label="§4"];
+    subgraph "cluster_ISA-4.1" {
+      label="§4.1 Classical control (CC, R)";
+      "ISA-4.1" [shape=folder, label="§4.1"];
+      "ISA-4.1-P1" [label="P1"];
+      "ISA-4.1-P2" [label="P2"];
+      "ISA-4.1-P3" [label="P3"];
+      "ISA-4.1-P4" [label="P4"];
+      "ISA-4.1-P5" [label="P5"];
+      "ISA-4.1-P6" [label="P6"];
+      "ISA-4.1-P7" [label="P7"];
+      "ISA-4.1-P8" [label="P8"];
+      "ISA-4.1-P9" [label="P9"];
+      "ISA-4.1-P10" [label="P10"];
+      "ISA-4.1-P11" [label="P11"];
+      "ISA-4.1-P12" [label="P12\nsegment uncall"];
+      "ISA-4.1-P13" [label="P13"];
+      "ISA-4.1-P14" [label="P14"];
+      "ISA-4.1-P15" [label="P15"];
+      "ISA-4.1-P16" [label="P16"];
+      "ISA-4.1-P17" [label="P17"];
+    }
+    subgraph "cluster_ISA-4.2" {
+      label="§4.2 Lifted rows (oracle bodies and lprocs)";
+      "ISA-4.2" [shape=folder, label="§4.2"];
+      "ISA-4.2-P1" [label="P1\nFlag / fault, Writes / slots"];
+      "ISA-4.2-P2" [label="P2"];
+      "ISA-4.2-P3" [label="P3"];
+      "ISA-4.2-P4" [label="P4"];
+      "ISA-4.2-P5" [label="P5"];
+      "ISA-4.2-P6" [label="P6"];
+      "ISA-4.2-P7" [label="P7"];
+      "ISA-4.2-P8" [label="P8"];
+      "ISA-4.2-P9" [label="P9"];
+      "ISA-4.2-P10" [label="P10"];
+      "ISA-4.2-P11" [label="P11"];
+      "ISA-4.2-P12" [label="P12"];
+      "ISA-4.2-P13" [label="P13"];
+      "ISA-4.2-P14" [label="P14"];
+      "ISA-4.2-P15" [label="P15\nInverse exchanges"];
+      "ISA-4.2-P16" [label="P16"];
+      "ISA-4.2-P17" [label="P17"];
+      "ISA-4.2-P18" [label="P18"];
+      "ISA-4.2-P19" [label="P19"];
+      "ISA-4.2-P20" [label="P20"];
+      "ISA-4.2-P21" [label="P21"];
+      "ISA-4.2-P22" [label="P22"];
+      "ISA-4.2-P23" [label="P23"];
+      "ISA-4.2-P24" [label="P24"];
+      "ISA-4.2-P25" [label="P25"];
+      "ISA-4.2-P26" [label="P26"];
+      "ISA-4.2-P27" [label="P27"];
+      "ISA-4.2-P28" [label="P28"];
+      "ISA-4.2-P29" [label="P29\nreference body"];
+    }
+    subgraph "cluster_ISA-4.3" {
+      label="§4.3 Allocation";
+      "ISA-4.3" [shape=folder, label="§4.3"];
+      "ISA-4.3-P1" [label="P1"];
+      "ISA-4.3-P2" [label="P2"];
+      "ISA-4.3-P3" [label="P3"];
+      "ISA-4.3-P4" [label="P4"];
+    }
+    subgraph "cluster_ISA-4.4" {
+      label="§4.4 Gates";
+      "ISA-4.4" [shape=folder, label="§4.4"];
+      "ISA-4.4-P1" [label="P1"];
+      "ISA-4.4-P2" [label="P2"];
+    }
+    subgraph "cluster_ISA-4.5" {
+      label="§4.5 Copy, XOR, exchange, in-place";
+      "ISA-4.5" [shape=folder, label="§4.5"];
+      "ISA-4.5-P1" [label="P1"];
+      "ISA-4.5-P2" [label="P2"];
+      "ISA-4.5-P3" [label="P3"];
+      "ISA-4.5-P4" [label="P4"];
+      "ISA-4.5-P5" [label="P5"];
+    }
+    subgraph "cluster_ISA-4.6" {
+      label="§4.6 Quantum memory, predication, structure";
+      "ISA-4.6" [shape=folder, label="§4.6"];
+      "ISA-4.6-P1" [label="P1"];
+      "ISA-4.6-P2" [label="P2"];
+      "ISA-4.6-P3" [label="P3"];
+      "ISA-4.6-P4" [label="P4"];
+      "ISA-4.6-P5" [label="P5"];
+      "ISA-4.6-P6" [label="P6"];
+      "ISA-4.6-P7" [label="P7"];
+      "ISA-4.6-P8" [label="P8"];
+      "ISA-4.6-P9" [label="P9"];
+    }
+    subgraph "cluster_ISA-4.7" {
+      label="§4.7 Region calls (structured code, CC and R)";
+      "ISA-4.7" [shape=folder, label="§4.7"];
+      "ISA-4.7-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-4.8" {
+      label="§4.8 Opcode table (tier, operands, result)";
+      "ISA-4.8" [shape=folder, label="§4.8"];
+      "ISA-4.8-P1" [label="P1"];
+      "ISA-4.8-P2" [label="P2"];
+      "ISA-4.8-P3" [label="P3"];
+      "ISA-4.8-P4" [label="P4"];
+      "ISA-4.8-P5" [label="P5"];
+      "ISA-4.8-P6" [label="P6"];
+      "ISA-4.8-P7" [label="P7"];
+      "ISA-4.8-P8" [label="P8"];
+      "ISA-4.8-P9" [label="P9"];
+      "ISA-4.8-P10" [label="P10"];
+      "ISA-4.8-P11" [label="P11"];
+      "ISA-4.8-P12" [label="P12"];
+      "ISA-4.8-P13" [label="P13"];
+    }
+  }
+  subgraph "cluster_ISA-5" {
+    label="§5 Regions";
+    "ISA-5" [shape=folder, label="§5"];
+    subgraph "cluster_ISA-5.1" {
+      label="§5.1 Interfaces and common well-formedness";
+      "ISA-5.1" [shape=folder, label="§5.1"];
+      "ISA-5.1-P1" [label="P1\nInterface regions, `in` wires in actions, explicit cleanup instructions"];
+    }
+    subgraph "cluster_ISA-5.2" {
+      label="§5.2 Lifted oracle";
+      "ISA-5.2" [shape=folder, label="§5.2"];
+      "ISA-5.2-P1" [label="P1\nexact-permutation only"];
+      "ISA-5.2-P2" [label="P2"];
+      "ISA-5.2-P3" [label="P3\nprefix reversal"];
+      "ISA-5.2-P4" [label="P4\nDomain D"];
+    }
+    subgraph "cluster_ISA-5.3" {
+      label="§5.3 Quantum action";
+      "ISA-5.3" [shape=folder, label="§5.3"];
+      "ISA-5.3-P1" [label="P1\nPermutation action"];
+      "ISA-5.3-P2" [label="P2"];
+      "ISA-5.3-P3" [label="P3"];
+      "ISA-5.3-P4" [label="P4\nAdjoint table"];
+      "ISA-5.3-P5" [label="P5"];
+    }
+    subgraph "cluster_ISA-5.4" {
+      label="§5.4 Budgets and fault codes";
+      "ISA-5.4" [shape=folder, label="§5.4"];
+      "ISA-5.4-P1" [label="P1"];
+      "ISA-5.4-P2" [label="P2"];
+    }
+    subgraph "cluster_ISA-5.5" {
+      label="§5.5 Nesting and matched cleanup";
+      "ISA-5.5" [shape=folder, label="§5.5"];
+      "ISA-5.5-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-5.6" {
+      label="§5.6 Borrowed systems and borrow frames";
+      "ISA-5.6" [shape=folder, label="§5.6"];
+      "ISA-5.6-P1" [label="P1"];
+      "ISA-5.6-P2" [label="P2\nborrow frames"];
+      "ISA-5.6-P3" [label="P3\ntarget is in B"];
+      "ISA-5.6-P4" [label="P4"];
+      "ISA-5.6-P5" [label="P5"];
+      "ISA-5.6-P6" [label="P6"];
+      "ISA-5.6-P7" [label="P7"];
+    }
+    subgraph "cluster_ISA-5.7" {
+      label="§5.7 Executor transformations";
+      "ISA-5.7" [shape=folder, label="§5.7"];
+      "ISA-5.7-P1" [label="P1"];
+    }
+  }
+  subgraph "cluster_ISA-6" {
+    label="§6 Uncomputation validity (static discipline)";
+    "ISA-6" [shape=folder, label="§6"];
+    subgraph "cluster_ISA-6.1" {
+      label="§6.1 Provenance and transfer";
+      "ISA-6.1" [shape=folder, label="§6.1"];
+      "ISA-6.1-P1" [label="P1\ndependency set"];
+      "ISA-6.1-P2" [label="P2"];
+      "ISA-6.1-P3" [label="P3"];
+      "ISA-6.1-P4" [label="P4"];
+      "ISA-6.1-P5" [label="P5"];
+      "ISA-6.1-P6" [label="P6"];
+      "ISA-6.1-P7" [label="P7"];
+      "ISA-6.1-P8" [label="P8"];
+      "ISA-6.1-P9" [label="P9"];
+      "ISA-6.1-P10" [label="P10"];
+      "ISA-6.1-P11" [label="P11"];
+      "ISA-6.1-P12" [label="P12"];
+      "ISA-6.1-P13" [label="P13"];
+      "ISA-6.1-P14" [label="P14"];
+      "ISA-6.1-P15" [label="P15"];
+      "ISA-6.1-P16" [label="P16"];
+    }
+    subgraph "cluster_ISA-6.2" {
+      label="§6.2 Window and obligations";
+      "ISA-6.2" [shape=folder, label="§6.2"];
+      "ISA-6.2-P1" [label="P1\nill-formed"];
+    }
+    subgraph "cluster_ISA-6.3" {
+      label="§6.3 T5";
+      "ISA-6.3" [shape=folder, label="§6.3"];
+      "ISA-6.3-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-6.4" {
+      label="§6.4 Effective control and cleanup realisations";
+      "ISA-6.4" [shape=folder, label="§6.4"];
+      "ISA-6.4-P1" [label="P1"];
+    }
+  }
+  subgraph "cluster_ISA-7" {
+    label="§7 Memory and effects";
+    "ISA-7" [shape=folder, label="§7"];
+    subgraph "cluster_ISA-7.1" {
+      label="§7.1 Classical memory (CC, R)";
+      "ISA-7.1" [shape=folder, label="§7.1"];
+      "ISA-7.1-P1" [label="P1\nfails before any mutation, null region"];
+    }
+    subgraph "cluster_ISA-7.2" {
+      label="§7.2 Lifted memory of an oracle";
+      "ISA-7.2" [shape=folder, label="§7.2"];
+      "ISA-7.2-P1" [label="P1\ninterface region"];
+      "ISA-7.2-P2" [label="P2"];
+    }
+    subgraph "cluster_ISA-7.3" {
+      label="§7.3 Device models and tapes (R)";
+      "ISA-7.3" [shape=folder, label="§7.3"];
+      "ISA-7.3-P1" [label="P1"];
+      "ISA-7.3-P2" [label="P2"];
+      "ISA-7.3-P3" [label="P3"];
+      "ISA-7.3-P4" [label="P4"];
+      "ISA-7.3-P5" [label="P5"];
+      "ISA-7.3-P6" [label="P6"];
+    }
+    subgraph "cluster_ISA-7.4" {
+      label="§7.4 Run history and the dynamic SSA model (CC, R)";
+      "ISA-7.4" [shape=folder, label="§7.4"];
+      "ISA-7.4-P1" [label="P1\ndynamic instances"];
+      "ISA-7.4-P2" [label="P2"];
+      "ISA-7.4-P3" [label="P3"];
+      "ISA-7.4-P4" [label="P4"];
+      "ISA-7.4-P5" [label="P5"];
+      "ISA-7.4-P6" [label="P6"];
+      "ISA-7.4-P7" [label="P7"];
+      "ISA-7.4-P8" [label="P8"];
+      "ISA-7.4-P9" [label="P9"];
+      "ISA-7.4-P10" [label="P10"];
+      "ISA-7.4-P11" [label="P11"];
+      "ISA-7.4-P12" [label="P12"];
+      "ISA-7.4-P13" [label="P13"];
+      "ISA-7.4-P14" [label="P14"];
+      "ISA-7.4-P15" [label="P15"];
+      "ISA-7.4-P16" [label="P16\nHistory traversal"];
+      "ISA-7.4-P17" [label="P17\nSegment uncall, Whole-run reversal"];
+    }
+  }
+  subgraph "cluster_ISA-8" {
+    label="§8 Target descriptions (target 0.8)";
+    "ISA-8" [shape=folder, label="§8"];
+    subgraph "cluster_ISA-8.1" {
+      label="§8.1 Format and expressions";
+      "ISA-8.1" [shape=folder, label="§8.1"];
+      "ISA-8.1-P1" [label="P1"];
+      "ISA-8.1-P2" [label="P2"];
+      "ISA-8.1-P3" [label="P3\nVariable binding"];
+      "ISA-8.1-P4" [label="P4"];
+      "ISA-8.1-P5" [label="P5"];
+      "ISA-8.1-P6" [label="P6"];
+      "ISA-8.1-P7" [label="P7"];
+      "ISA-8.1-P8" [label="P8"];
+      "ISA-8.1-P9" [label="P9"];
+      "ISA-8.1-P10" [label="P10"];
+    }
+    subgraph "cluster_ISA-8.2" {
+      label="§8.2 Resources, aggregation, timing";
+      "ISA-8.2" [shape=folder, label="§8.2"];
+      "ISA-8.2-P1" [label="P1"];
+      "ISA-8.2-P2" [label="P2\nleaf event, scheduled event list"];
+    }
+    subgraph "cluster_ISA-8.3" {
+      label="§8.3 Classes, gates, schemes, capabilities";
+      "ISA-8.3" [shape=folder, label="§8.3"];
+      "ISA-8.3-P1" [label="P1"];
+      "ISA-8.3-P2" [label="P2\ntotal control count c"];
+    }
+    subgraph "cluster_ISA-8.4" {
+      label="§8.4 Space budget";
+      "ISA-8.4" [shape=folder, label="§8.4"];
+      "ISA-8.4-P1" [label="P1"];
+    }
+  }
+  subgraph "cluster_ISA-9" {
+    label="§9 Objects, identity, linking, reversible ABI (object 0.8)";
+    "ISA-9" [shape=folder, label="§9"];
+    subgraph "cluster_ISA-9.1" {
+      label="§9.1 Sections and schemas";
+      "ISA-9.1" [shape=folder, label="§9.1"];
+      "ISA-9.1-P1" [label="P1"];
+      "ISA-9.1-P2" [label="P2"];
+    }
+    subgraph "cluster_ISA-9.2" {
+      label="§9.2 Identity";
+      "ISA-9.2" [shape=folder, label="§9.2"];
+      "ISA-9.2-P1" [label="P1\nCanonical function bytes, Semantic envelope"];
+      "ISA-9.2-P2" [label="P2\nAction / permutation action, CC / R function, Closure set"];
+    }
+    subgraph "cluster_ISA-9.3" {
+      label="§9.3 Linking";
+      "ISA-9.3" [shape=folder, label="§9.3"];
+      "ISA-9.3-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-9.4" {
+      label="§9.4 Reversible ABI";
+      "ISA-9.4" [shape=folder, label="§9.4"];
+      "ISA-9.4-P1" [label="P1"];
+      "ISA-9.4-P2" [label="P2"];
+      "ISA-9.4-P3" [label="P3\nFrame descriptor"];
+    }
+  }
+  subgraph "cluster_ISA-10" {
+    label="§10 Launch ABI (launch 0.8)";
+    "ISA-10" [shape=folder, label="§10"];
+    "ISA-10-P1" [label="P1\nPositional binding"];
+    "ISA-10-P2" [label="P2"];
+    "ISA-10-P3" [label="P3\nReverse eligibility"];
+    "ISA-10-P4" [label="P4"];
+    "ISA-10-P5" [label="P5"];
+    "ISA-10-P6" [label="P6"];
+    "ISA-10-P7" [label="P7"];
+  }
+  subgraph "cluster_ISA-11" {
+    label="§11 Scheduling interface (sched 0.8)";
+    "ISA-11" [shape=folder, label="§11"];
+    "ISA-11-P1" [label="P1"];
+    "ISA-11-P2" [label="P2\nexpansion library, generated operations"];
+    "ISA-11-P3" [label="P3\nSchedule document"];
+    "ISA-11-P4" [label="P4\ninvocation chain"];
+  }
+  subgraph "cluster_ISA-12" {
+    label="§12 Certificate (cert 0.8; JCS)";
+    "ISA-12" [shape=folder, label="§12"];
+    subgraph "cluster_ISA-12.1" {
+      label="§12.1 Claims";
+      "ISA-12.1" [shape=folder, label="§12.1"];
+      "ISA-12.1-P1" [label="P1"];
+      "ISA-12.1-P2" [label="P2"];
+      "ISA-12.1-P3" [label="P3"];
+      "ISA-12.1-P4" [label="P4"];
+      "ISA-12.1-P5" [label="P5\ndiamond-norm SDP"];
+      "ISA-12.1-P6" [label="P6"];
+      "ISA-12.1-P7" [label="P7\nChoi matrix, Diamond-norm SDP, Interval arithmetic"];
+      "ISA-12.1-P8" [label="P8"];
+    }
+    subgraph "cluster_ISA-12.2" {
+      label="§12.2 Domains";
+      "ISA-12.2" [shape=folder, label="§12.2"];
+      "ISA-12.2-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-12.3" {
+      label="§12.3 Schema and composition";
+      "ISA-12.3" [shape=folder, label="§12.3"];
+      "ISA-12.3-P1" [label="P1"];
+      "ISA-12.3-P2" [label="P2"];
+    }
+  }
+  subgraph "cluster_ISA-13" {
+    label="§13 Coverage (coverage 0.8)";
+    "ISA-13" [shape=folder, label="§13"];
+    "ISA-13-P1" [label="P1"];
+  }
+  subgraph "cluster_ISA-14" {
+    label="§14 Formal model";
+    "ISA-14" [shape=folder, label="§14"];
+    subgraph "cluster_ISA-14.1" {
+      label="§14.1 Reference interpreter *(normative)*";
+      "ISA-14.1" [shape=folder, label="§14.1"];
+      "ISA-14.1-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-14.2" {
+      label="§14.2 Quantum state semantics";
+      "ISA-14.2" [shape=folder, label="§14.2"];
+      "ISA-14.2-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-14.3" {
+      label="§14.3 Theorems";
+      "ISA-14.3" [shape=folder, label="§14.3"];
+      "ISA-14.3-P1" [label="P1\nT1"];
+      "ISA-14.3-P2" [label="P2\nT2"];
+      "ISA-14.3-P3" [label="P3\nT3"];
+      "ISA-14.3-P4" [label="P4\nT4"];
+      "ISA-14.3-P5" [label="P5\nT5"];
+      "ISA-14.3-P6" [label="P6\nT6"];
+    }
+    subgraph "cluster_ISA-14.4" {
+      label="§14.4 Mechanisation *(deferred)*";
+      "ISA-14.4" [shape=folder, label="§14.4"];
+    }
+  }
+  subgraph "cluster_ISA-15" {
+    label="§15 Conformance suites";
+    "ISA-15" [shape=folder, label="§15"];
+    "ISA-15-P1" [label="P1"];
+    "ISA-15-P2" [label="P2"];
+    "ISA-15-P3" [label="P3"];
+    "ISA-15-P4" [label="P4"];
+    "ISA-15-P5" [label="P5"];
+    "ISA-15-P6" [label="P6"];
+    "ISA-15-P7" [label="P7"];
+    "ISA-15-P8" [label="P8"];
+  }
+  subgraph "cluster_ISA-16" {
+    label="§16 Canonical textual form (normative)";
+    "ISA-16" [shape=folder, label="§16"];
+    subgraph "cluster_ISA-16.1" {
+      label="§16.1 Lexical";
+      "ISA-16.1" [shape=folder, label="§16.1"];
+      "ISA-16.1-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-16.2" {
+      label="§16.2 Grammar";
+      "ISA-16.2" [shape=folder, label="§16.2"];
+      "ISA-16.2-P1" [label="P1"];
+    }
+    subgraph "cluster_ISA-16.3" {
+      label="§16.3 Example objects (normative test vectors, suite C and F)";
+      "ISA-16.3" [shape=folder, label="§16.3"];
+      "ISA-16.3-P1" [label="P1\nExample 1"];
+      "ISA-16.3-P2" [label="P2"];
+      "ISA-16.3-P3" [label="P3"];
+      "ISA-16.3-P4" [label="P4\nExample 2"];
+      "ISA-16.3-P5" [label="P5"];
+      "ISA-16.3-P6" [label="P6"];
+    }
+  }
+  subgraph "cluster_ISA-17" {
+    label="§17 Decisions deferred to implementation, with defaults";
+    "ISA-17" [shape=folder, label="§17"];
+    "ISA-17-P1" [label="P1"];
+    "ISA-17-P2" [label="P2"];
+    "ISA-17-P3" [label="P3"];
+    "ISA-17-P4" [label="P4"];
+    "ISA-17-P5" [label="P5"];
+    "ISA-17-P6" [label="P6"];
+    "ISA-17-P7" [label="P7\nMeasurement-based cleanup"];
+    "ISA-17-P8" [label="P8\nExpansion library"];
+    "ISA-17-P9" [label="P9"];
+    "ISA-17-P10" [label="P10"];
+    "ISA-17-P11" [label="P11\n`any`-class resolution"];
+    "ISA-17-P12" [label="P12"];
+    "ISA-17-P13" [label="P13"];
+    "ISA-17-P14" [label="P14\nSuite sizes"];
+    "ISA-17-P15" [label="P15"];
+  }
+  "ISA-front-P1" -> "ISA-17";
+  "ISA-front-P2" -> "ISA-9.2";
+  "ISA-1.1-P1" -> "ISA-11";
+  "ISA-1.1-P1" -> "ISA-8";
+  "ISA-1.2-P1" -> "ISA-3";
+  "ISA-1.2-P1" -> "ISA-4";
+  "ISA-1.2-P1" -> "ISA-5";
+  "ISA-1.2-P1" -> "ISA-6";
+  "ISA-1.2-P1" -> "ISA-7";
+  "ISA-1.2-P1" -> "ISA-14";
+  "ISA-1.2-P2" -> "ISA-9";
+  "ISA-1.2-P2" -> "ISA-16";
+  "ISA-1.2-P2" -> "ISA-5";
+  "ISA-1.2-P2" -> "ISA-6";
+  "ISA-1.2-P3" -> "ISA-11";
+  "ISA-1.2-P3" -> "ISA-6";
+  "ISA-1.2-P4" -> "ISA-12";
+  "ISA-1.2-P5" -> "ISA-8";
+  "ISA-1.3-P1" -> "ISA-16";
+  "ISA-1.3-P1" -> "ISA-14";
+  "ISA-1.3-P1" -> "ISA-7.3";
+  "ISA-1.3-P1" -> "ISA-10";
+  "ISA-1.3-P1" -> "ISA-11";
+  "ISA-1.3-P1" -> "ISA-17";
+  "ISA-2-P3" -> "ISA-5.2";
+  "ISA-2-P3" -> "ISA-5.3";
+  "ISA-2-P4" -> "ISA-3.7";
+  "ISA-2-P6" -> "ISA-3.6";
+  "ISA-3.1-P1" -> "ISA-5.5";
+  "ISA-3.1-P2" -> "ISA-10";
+  "ISA-3.1-P2" -> "ISA-3.5";
+  "ISA-3.2-P1" -> "ISA-7.4";
+  "ISA-3.2-P1" -> "ISA-3.3";
+  "ISA-3.2-P2" -> "ISA-7.1";
+  "ISA-3.2-P3" -> "ISA-7.3";
+  "ISA-3.2-P4" -> "ISA-7.4";
+  "ISA-3.2-P6" -> "ISA-4.6";
+  "ISA-3.2-P6" -> "ISA-5.1";
+  "ISA-3.2-P7" -> "ISA-3.7";
+  "ISA-3.2-P9" -> "ISA-3.7";
+  "ISA-3.3-P4" -> "ISA-4.8";
+  "ISA-3.3-P11" -> "ISA-4.7";
+  "ISA-3.3-P13" -> "ISA-7.4";
+  "ISA-3.3-P13" -> "ISA-10";
+  "ISA-3.4-P1" -> "ISA-7.4";
+  "ISA-3.6-P2" -> "ISA-4.2";
+  "ISA-3.6-P2" -> "ISA-3.7";
+  "ISA-3.6-P3" -> "ISA-4.2";
+  "ISA-3.6-P15" -> "ISA-3.7";
+  "ISA-3.7-P3" -> "ISA-5.4";
+  "ISA-3.7-P12" -> "ISA-3.6";
+  "ISA-3.7-P19" -> "ISA-3.6";
+  "ISA-4.1-P9" -> "ISA-7.1";
+  "ISA-4.1-P12" -> "ISA-7.4";
+  "ISA-4.1-P14" -> "ISA-3.3";
+  "ISA-4.1-P15" -> "ISA-14.2";
+  "ISA-4.1-P16" -> "ISA-7.3";
+  "ISA-4.1-P17" -> "ISA-10";
+  "ISA-4.2-P13" -> "ISA-7.2";
+  "ISA-4.2-P18" -> "ISA-3.7";
+  "ISA-4.2-P19" -> "ISA-3.7";
+  "ISA-4.2-P22" -> "ISA-5.5";
+  "ISA-4.2-P26" -> "ISA-3.6";
+  "ISA-4.2-P28" -> "ISA-3.3";
+  "ISA-4.2-P28" -> "ISA-16.3";
+  "ISA-4.2-P29" -> "ISA-9.2";
+  "ISA-4.2-P29" -> "ISA-14.1";
+  "ISA-4.3-P2" -> "ISA-5.6";
+  "ISA-4.4-P2" -> "ISA-12";
+  "ISA-4.6-P1" -> "ISA-9.2";
+  "ISA-4.6-P6" -> "ISA-3.5";
+  "ISA-4.7-P1" -> "ISA-3.3";
+  "ISA-4.7-P1" -> "ISA-3.1";
+  "ISA-4.7-P1" -> "ISA-7.4";
+  "ISA-4.8-P7" -> "ISA-4.1";
+  "ISA-4.8-P8" -> "ISA-3.3";
+  "ISA-4.8-P13" -> "ISA-4.7";
+  "ISA-5.2-P2" -> "ISA-5.6";
+  "ISA-5.3-P1" -> "ISA-5.6";
+  "ISA-5.3-P4" -> "ISA-4.6";
+  "ISA-5.4-P1" -> "ISA-7.2";
+  "ISA-5.6-P2" -> "ISA-12";
+  "ISA-5.7-P1" -> "ISA-5.2";
+  "ISA-6.4-P1" -> "ISA-6.2";
+  "ISA-6.4-P1" -> "ISA-17-P7";
+  "ISA-7.2-P2" -> "ISA-5.4";
+  "ISA-7.2-P2" -> "ISA-16.3";
+  "ISA-7.3-P4" -> "ISA-10";
+  "ISA-7.4-P10" -> "ISA-7.3";
+  "ISA-7.4-P14" -> "ISA-5.4";
+  "ISA-7.4-P17" -> "ISA-17-P15";
+  "ISA-7.4-P17" -> "ISA-10";
+  "ISA-8.1-P4" -> "ISA-8.3";
+  "ISA-8.1-P4" -> "ISA-11";
+  "ISA-8.1-P8" -> "ISA-9.4";
+  "ISA-8.1-P10" -> "ISA-11";
+  "ISA-8.3-P1" -> "ISA-8.2";
+  "ISA-8.3-P1" -> "ISA-6.4";
+  "ISA-8.3-P2" -> "ISA-8.1";
+  "ISA-9.1-P1" -> "ISA-11";
+  "ISA-9.1-P1" -> "ISA-12";
+  "ISA-9.1-P1" -> "ISA-13";
+  "ISA-9.2-P2" -> "ISA-12";
+  "ISA-9.3-P1" -> "ISA-12.3";
+  "ISA-9.4-P1" -> "ISA-7.4";
+  "ISA-9.4-P3" -> "ISA-8.1";
+  "ISA-10-P2" -> "ISA-7.4";
+  "ISA-10-P3" -> "ISA-3.3";
+  "ISA-10-P4" -> "ISA-5.4";
+  "ISA-10-P7" -> "ISA-7.3";
+  "ISA-11-P2" -> "ISA-3.6";
+  "ISA-11-P2" -> "ISA-4.2";
+  "ISA-11-P2" -> "ISA-4.5";
+  "ISA-11-P2" -> "ISA-4.6";
+  "ISA-11-P2" -> "ISA-5.2";
+  "ISA-11-P2" -> "ISA-5.7";
+  "ISA-11-P2" -> "ISA-17-P8";
+  "ISA-11-P4" -> "ISA-6";
+  "ISA-12.1-P1" -> "ISA-12.2";
+  "ISA-12.1-P4" -> "ISA-5.3";
+  "ISA-12.1-P6" -> "ISA-12.3";
+  "ISA-12.1-P7" -> "ISA-4";
+  "ISA-12.1-P7" -> "ISA-17-P9";
+  "ISA-12.3-P1" -> "ISA-9.4";
+  "ISA-12.3-P2" -> "ISA-12.1";
+  "ISA-14.1-P1" -> "ISA-4.2";
+  "ISA-14.1-P1" -> "ISA-3.7";
+  "ISA-14.2-P1" -> "ISA-5.6";
+  "ISA-14.2-P1" -> "ISA-4.4";
+  "ISA-14.3-P2" -> "ISA-5.2";
+  "ISA-14.3-P2" -> "ISA-3.6";
+  "ISA-14.3-P4" -> "ISA-7.4";
+  "ISA-14.3-P5" -> "ISA-6.3";
+  "ISA-14.3-P6" -> "ISA-3";
+  "ISA-14.3-P6" -> "ISA-4";
+  "ISA-14.3-P6" -> "ISA-5";
+  "ISA-14.3-P6" -> "ISA-6";
+  "ISA-14.3-P6" -> "ISA-7";
+  "ISA-15-P2" -> "ISA-3.7";
+  "ISA-15-P3" -> "ISA-16.3";
+  "ISA-15-P4" -> "ISA-12.1";
+  "ISA-15-P6" -> "ISA-6";
+  "ISA-15-P7" -> "ISA-10";
+  "ISA-15-P8" -> "ISA-6";
+  "ISA-16.2-P1" -> "ISA-4";
+  "ISA-16.2-P1" -> "ISA-4.8";
+  "ISA-16.3-P5" -> "ISA-9.2";
+  "ISA-17-P2" -> "ISA-16";
+  "ISA-17-P3" -> "ISA-4.4";
+  "ISA-17-P4" -> "ISA-7.3";
+  "ISA-17-P5" -> "ISA-14";
+  "ISA-17-P7" -> "ISA-6.4";
+  "ISA-17-P8" -> "ISA-11";
+  "ISA-17-P9" -> "ISA-12.1";
+  "ISA-17-P10" -> "ISA-8.1";
+  "ISA-17-P10" -> "ISA-11";
+  "ISA-17-P11" -> "ISA-11";
+  "ISA-17-P12" -> "ISA-8.2";
+  "ISA-17-P13" -> "ISA-8.2";
+  "ISA-17-P14" -> "ISA-15";
+  "ISA-17-P15" -> "ISA-3.3";
+  "ISA-2-P2" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-2-P2" -> "ISA-3.7-P1" [style=dashed, color=gray40];
+  "ISA-2-P6" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-3.2-P7" -> "ISA-3.6-P1" [style=dashed, color=gray40];
+  "ISA-3.3-P2" -> "ISA-2-P3" [style=dashed, color=gray40];
+  "ISA-3.3-P3" -> "ISA-6.2-P1" [style=dashed, color=gray40];
+  "ISA-3.3-P3" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-3.3-P5" -> "ISA-6.2-P1" [style=dashed, color=gray40];
+  "ISA-3.3-P5" -> "ISA-3.7-P13" [style=dashed, color=gray40];
+  "ISA-3.3-P5" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-3.3-P9" -> "ISA-6.2-P1" [style=dashed, color=gray40];
+  "ISA-3.6-P1" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-3.6-P1" -> "ISA-9.2-P2" [style=dashed, color=gray40];
+  "ISA-3.6-P6" -> "ISA-3.6-P15" [style=dashed, color=gray40];
+  "ISA-3.6-P11" -> "ISA-5.2-P3" [style=dashed, color=gray40];
+  "ISA-3.6-P15" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-3.6-P17" -> "ISA-14.3-P2" [style=dashed, color=gray40];
+  "ISA-3.7-P1" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-3.7-P1" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+  "ISA-3.7-P2" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-3.7-P4" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+  "ISA-3.7-P5" -> "ISA-2-P2" [style=dashed, color=gray40];
+  "ISA-3.7-P5" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-3.7-P6" -> "ISA-3.7-P7" [style=dashed, color=gray40];
+  "ISA-3.7-P6" -> "ISA-3.7-P8" [style=dashed, color=gray40];
+  "ISA-3.7-P6" -> "ISA-3.7-P9" [style=dashed, color=gray40];
+  "ISA-3.7-P6" -> "ISA-3.7-P10" [style=dashed, color=gray40];
+  "ISA-3.7-P6" -> "ISA-3.7-P11" [style=dashed, color=gray40];
+  "ISA-3.7-P6" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-3.7-P7" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-3.7-P10" -> "ISA-3.7-P8" [style=dashed, color=gray40];
+  "ISA-3.7-P12" -> "ISA-3.7-P11" [style=dashed, color=gray40];
+  "ISA-3.7-P12" -> "ISA-3.7-P10" [style=dashed, color=gray40];
+  "ISA-3.7-P12" -> "ISA-3.7-P9" [style=dashed, color=gray40];
+  "ISA-3.7-P12" -> "ISA-3.7-P8" [style=dashed, color=gray40];
+  "ISA-3.7-P12" -> "ISA-3.7-P7" [style=dashed, color=gray40];
+  "ISA-3.7-P13" -> "ISA-3.7-P14" [style=dashed, color=gray40];
+  "ISA-3.7-P13" -> "ISA-3.7-P15" [style=dashed, color=gray40];
+  "ISA-3.7-P13" -> "ISA-3.7-P16" [style=dashed, color=gray40];
+  "ISA-3.7-P13" -> "ISA-3.7-P17" [style=dashed, color=gray40];
+  "ISA-3.7-P13" -> "ISA-3.7-P18" [style=dashed, color=gray40];
+  "ISA-3.7-P13" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-3.7-P15" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-3.7-P19" -> "ISA-3.7-P18" [style=dashed, color=gray40];
+  "ISA-3.7-P19" -> "ISA-3.7-P17" [style=dashed, color=gray40];
+  "ISA-3.7-P19" -> "ISA-3.7-P16" [style=dashed, color=gray40];
+  "ISA-3.7-P19" -> "ISA-3.7-P15" [style=dashed, color=gray40];
+  "ISA-3.7-P19" -> "ISA-3.7-P14" [style=dashed, color=gray40];
+  "ISA-4.2-P18" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-4.2-P19" -> "ISA-3.7-P13" [style=dashed, color=gray40];
+  "ISA-4.2-P19" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-4.2-P28" -> "ISA-6.2-P1" [style=dashed, color=gray40];
+  "ISA-4.2-P28" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-4.2-P28" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+  "ISA-4.2-P29" -> "ISA-14.3-P6" [style=dashed, color=gray40];
+  "ISA-4.3-P3" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-4.4-P2" -> "ISA-2-P3" [style=dashed, color=gray40];
+  "ISA-4.8-P11" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-4.8-P12" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-5.1-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-5.2-P1" -> "ISA-3.6-P1" [style=dashed, color=gray40];
+  "ISA-5.2-P2" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-5.2-P4" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-5.4-P1" -> "ISA-2-P5" [style=dashed, color=gray40];
+  "ISA-5.5-P1" -> "ISA-5.2-P3" [style=dashed, color=gray40];
+  "ISA-5.6-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-5.6-P2" -> "ISA-14.3-P3" [style=dashed, color=gray40];
+  "ISA-5.6-P7" -> "ISA-14.3-P3" [style=dashed, color=gray40];
+  "ISA-5.7-P1" -> "ISA-14.3-P6" [style=dashed, color=gray40];
+  "ISA-5.7-P1" -> "ISA-4.2-P29" [style=dashed, color=gray40];
+  "ISA-6.1-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-6.4-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-6.4-P1" -> "ISA-17-P7" [style=dashed, color=gray40];
+  "ISA-7.2-P2" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-7.2-P2" -> "ISA-16.3-P1" [style=dashed, color=gray40];
+  "ISA-7.4-P1" -> "ISA-2-P6" [style=dashed, color=gray40];
+  "ISA-7.4-P17" -> "ISA-14.3-P4" [style=dashed, color=gray40];
+  "ISA-8.1-P4" -> "ISA-2-P9" [style=dashed, color=gray40];
+  "ISA-8.3-P2" -> "ISA-14.3-P3" [style=dashed, color=gray40];
+  "ISA-8.3-P2" -> "ISA-2-P9" [style=dashed, color=gray40];
+  "ISA-8.3-P2" -> "ISA-8.2-P2" [style=dashed, color=gray40];
+  "ISA-9.2-P2" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+  "ISA-9.3-P1" -> "ISA-9.2-P2" [style=dashed, color=gray40];
+  "ISA-9.4-P2" -> "ISA-2-P3" [style=dashed, color=gray40];
+  "ISA-9.4-P2" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-11-P2" -> "ISA-14.3-P6" [style=dashed, color=gray40];
+  "ISA-12.2-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-12.3-P2" -> "ISA-14.3-P6" [style=dashed, color=gray40];
+  "ISA-14.1-P1" -> "ISA-4.2-P29" [style=dashed, color=gray40];
+  "ISA-14.2-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-14.3-P2" -> "ISA-5.2-P3" [style=dashed, color=gray40];
+  "ISA-14.3-P2" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-15-P1" -> "ISA-14.3-P4" [style=dashed, color=gray40];
+  "ISA-15-P2" -> "ISA-5.2-P3" [style=dashed, color=gray40];
+  "ISA-15-P2" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+  "ISA-15-P3" -> "ISA-14.3-P3" [style=dashed, color=gray40];
+  "ISA-15-P3" -> "ISA-14.3-P6" [style=dashed, color=gray40];
+  "ISA-15-P3" -> "ISA-2-P3" [style=dashed, color=gray40];
+  "ISA-15-P3" -> "ISA-5.6-P2" [style=dashed, color=gray40];
+  "ISA-15-P4" -> "ISA-12.1-P5" [style=dashed, color=gray40];
+  "ISA-16.3-P1" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-16.3-P4" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+  "ISA-16.3-P4" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-16.3-P5" -> "ISA-3.7-P5" [style=dashed, color=gray40];
+  "ISA-16.3-P6" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+}

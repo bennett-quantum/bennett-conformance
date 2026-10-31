@@ -1,0 +1,451 @@
+# Clause dependency graph for the Bennett specs
+
+Status: implemented (`clauses/clausegraph.py`, tests in `clauses/tests/`), 2026-10-31.
+Usage and tagging conventions: [`clauses/README.md`](../../clauses/README.md).
+
+## Purpose
+
+Give every normative sentence of the published specs a stable handle and a place in a
+dependency graph, so that we can
+
+- ask what depends on a clause (`impact`), before changing it or when a council round
+  changes it;
+- ask whether two changes are independent (`independent`): neither clause lies in the
+  other's cone and no clause is affected by both;
+- follow the ISA from 0.8 to 0.9 (and the dialect onward) without inserting anchors into
+  accepted spec bytes (`diff`);
+- measure which clauses no test or proof witnesses (`coverage`).
+
+The tool reads the specs; it never edits them.
+
+## Inputs and outputs
+
+Inputs: one spec markdown file per build; optionally (`--xspec`) the graph JSON of the
+spec it cites. Today: ISA 0.8 (accepted), the ISA 0.9 working draft, and dialect 0.2.10
+built against ISA 0.8.
+
+`build` writes `clauses/<SPEC>-<version>.json` and `clauses/<SPEC>-<version>.dot`:
+
+| JSON key | Content |
+|---|---|
+| `schema` | `bennett-clausegraph/1` |
+| `spec`, `version` | e.g. `DLT`, `0.2.10` |
+| `source` | file basename, sha256 of the bytes read, line count |
+| `xspec` | spec, version and source sha256 of the `--xspec` graph, or null |
+| `nodes` | root, sections, clauses (below) |
+| `edges` | `{src, dst, kind, line, count}`; `contains` edges carry only src/dst/kind |
+| `aliases` | alias → defining clause id; `alias_kinds`: `label` or `term` |
+| `ambiguous_terms` | bold terms excluded from aliasing, with every location |
+| `unresolved` | `{src, line, ref, reason[, fallback]}` for every reference not resolved to a node |
+| `stats` | node, edge, alias and unresolved counts |
+
+Output is deterministic (same input bytes, same JSON bytes); the test suite checks it.
+The DOT file nests one `cluster_` subgraph per section, puts a folder-shaped node in each
+cluster for references to the section itself, draws `refs` solid, `uses` dashed grey and
+`xspec` blue, and omits `contains` (the clusters show it). `build --svg` runs
+`dot -Tsvg` into `clauses/` when Graphviz is installed; it is not installed on the
+build machine, so no SVG is committed. No viewer is ever invoked.
+
+## Nodes and identifiers
+
+- **Root** `ISA` / `DLT`.
+- **Section** `<SPEC>-<n>` for `## n. Title`, `<SPEC>-<n.m>` for `### n.m Title`,
+  `<SPEC>-<X>` for `## Appendix X. Title`. Text before the first `##` (status, versioning)
+  is section `<SPEC>-front`; it is not `0`, because ISA 0.9 has a real `## 0. Changes from
+  0.8`.
+- **Clause** `<SPEC>-<section>-P<k>`: k-th clause directly in that section, in document
+  order. Clause kinds: `para` (paragraph), `item` (list item, any nesting level, with its
+  indented continuation paragraphs), `row` (table row), `code` (a fenced block with no
+  earlier clause in its section). A fenced code block always belongs to the clause before
+  it in the same section, including after a blank line; a run of code blocks with no
+  prose between them therefore forms one clause.
+- **Tables**: each body row is a clause; the header row is stored on every row as
+  `table_header` (context, not hashed). In a *defining table* (below), consecutive rows
+  with the same label merge into one clause (the dialect's N10 spans six rows).
+- **Hash**: first 12 hex digits of sha256 over the clause text (code included) with
+  whitespace runs collapsed to one space.
+- **Markers**: `item_marker` is a list item's own number or leading `(x)` / `**(x)`;
+  `markers` adds every inline enumerator `(1)`, `(5b)`, `(iii)`, `(a)` that follows
+  whitespace or punctuation and precedes whitespace or punctuation (so ISA §9.2's
+  envelope parts `(1)`…`(6)` and §5.2's construction steps `(1)`…`(4)` are findable).
+
+Malformed input is a hard error (exit 2) naming the file and line: an unterminated code
+fence, a heading other than `# Title`, `## n. Title`, `## Appendix X. Title` or
+`### n.m Title` (so `####` and unnumbered `##` are rejected), a `### n.m` whose `n`
+differs from the enclosing `## n.`, a duplicate section number, a second `#` title, a
+duplicate label. Headings are recognised only outside code fences (the dialect's C
+examples contain `#include`).
+
+## What the parser recognises
+
+### Labels (rule ids)
+
+A label matches `[A-Z][A-Z0-9]*([-.][A-Z0-9]+)*`: `PT3`, `N21`, `TDL-5`, `BD-E-RESIDUAL`,
+`BLK-1`, `E16.9`, `DB`. Three definition forms, read from the actual specs:
+
+1. **Defining table row.** A table whose first header cell is one of `Id`, `Rule`,
+   `Step`, `Code`, `Check`, `Suite`, `#`, and every body row of which starts with a label
+   cell: `PT3`, `` `BD-E-RESIDUAL` ``, `**BLK-1** = ISA-4`, or a comma list `DR, DF`. Each
+   such row defines its labels. The all-rows condition is what keeps dialect Appendix C
+   (header `Rule`, but cells like `N0: the coroutine passes` and a bare `N11` that
+   *refers* to N11) from redefining rules. Single-letter labels (ISA suites `A`–`H`, the
+   0.9 change entry `V`) are not aliases: they would match the article "A" and every
+   variable named `C`.
+2. **Bold lead.** A clause (or list item) whose text starts `**LABEL …**`: dialect
+   `**TDL-5 Stores to outliving objects (the store rule).**`, `**P-1.**`, ISA
+   `1. **C1 capture**:`, `**T3** (permutation theorem).`, 0.9 `**BLOCK-IMAGE**`.
+3. **List lead.** A list item starting `LABEL:` or `` `LABEL`: ``: dialect `- MC1: …`.
+
+Forms 2 and 3 need a digit or hyphen in the label (so `**RAM**`, `- T:` are not labels).
+
+**Uniqueness.** A label defined by two defining-table rows that are not adjacent is an
+error naming both lines. When a table defines a label, bold-lead and list-lead
+occurrences are elaborations, not definitions (`**PT3 geometry-changing bitcast
+witnesses.**`, `**V2.**` examples, the `` - `BD-E-HANDLE-ESCAPE`: `` item in §6.4): they get
+a `uses` edge to the table row like any other mention. Without a table definition the
+first bold or list lead defines the label; a later lead with the *same* bold text is an
+error, a later lead with different text (`**BLOCK-IMAGE witness**`) is an elaboration.
+No real spec trips the duplicate error today.
+
+### Defined terms (bold)
+
+A bold span `**…**` in prose (not in code) defines a term when, after stripping a
+trailing `.:,;`, it has at most 4 words and 48 characters, starts with a letter or
+backtick, contains none of `§()=|"[]{}<>*`, has balanced backticks, is at least two
+characters, and its first word is not a function word (`every`, `or`, `no`, `only`,
+`default`, `MUST`, …). Three further rules, each forced by the real text:
+
+- **Captions are not terms.** A bold span that opens its clause and ends with `.` inside
+  the bold (`**Requirement.**`, `**Bounds.**`, `**Control.**`) is a paragraph caption,
+  except in a Terminology section, where `**Tier.**` is a definition.
+- **Single plain words only in Terminology.** Outside a section titled `Terminology`, a
+  one-word term made only of letters (`**constant**`, `**result**`, `**Body**`,
+  `**involution**`) is dropped unless it is an acronym (`CC`, `SCCs`). Measured on the
+  dialect before this rule, the clauses bolding `constant`, `row` and `C` drew 72, 62
+  and 71 `uses` edges, nearly all from ordinary English. Hyphenated or code-like single words stay
+  (`self-disjoint`, `selection_identity`).
+- **Ambiguity.** A term bolded in two or more clauses is an alias only if exactly one of
+  those clauses is in a Terminology section (ISA `lproc`, dialect `variant`, `trapped`);
+  otherwise it is excluded and recorded in `ambiguous_terms` with every location, and
+  `build` prints a warning. Dialect 0.2.10 has two: `full version string` (front matter
+  and §23) and `oracle region` (§7.1 and §7.3). ISA 0.8 and the 0.9 draft have none.
+
+A label always wins over a term of the same text.
+
+### Section references
+
+| Form | Example | Resolves to |
+|---|---|---|
+| `§n`, `§n.m` | `§5.6`, `§12` | the section node |
+| `§§a, b` (also `and`, `/`) | `§§4.5, 4.7`, `§§17.1/17.3` | each section |
+| range | `§16.2–§16.4`, `§3–§7`, `§4.5–4.7` | every section of the endpoints' depth between them, in document order |
+| item | `§9.2 (5b)`, `§7.5(a)`, `§7.5b`, `§17 item 7`, `§6.5 rule 1`, `§6.2 items 2–4`, `§6.5 rules 1 and 2` | the clause in that section (or its subsections) whose `item_marker` matches, else the first whose inline `markers` match; if none, the section, recorded as `item-not-found` with a `fallback` |
+| possessive | `§5.2's` | the section |
+
+The word before `§` (across line breaks; `(` and whitespace skipped; possessive `'s`
+stripped) sets the target:
+
+- `ISA`, `` `bennett-isa-spec` `` → the ISA (from the dialect: an `xspec` edge, resolved
+  against the `--xspec` graph; without one, `unresolved: xspec-not-loaded`). `dialect`,
+  `` `bennett-dialect-spec` `` → the dialect. Inside the spec of the same name these are local.
+- `NS`, `north star` / `star`, `` `Bennett-NorthStar.md` ``, `SQLite`, `findings` (spike
+  findings), `outline`, `DL` (0.9's abbreviation for the dialect outline) → external,
+  recorded as `external:<name>`.
+- A version number: `ISA 0.8 §x` → the ISA; `dialect draft 0.2.1 §x` → the dialect; a
+  bare version other than the spec's own (`(0.8 §7.3)` in ISA 0.9, `0.1 §1.4` in the
+  dialect) → `external:<SPEC>-<version>`, a prior version.
+- Anything else, including a preceding `§x.y` (`per §3.3 (§3.1: …)`), is local.
+
+A prefix carries across a list joined only by `,`, `/`, `–`, `and`, `or`: in
+`(ISA §4.7, §3.1)` both are ISA; `(ISA §4.1); §7.4` is ISA then local.
+
+### Uses (alias mentions)
+
+Every clause is scanned for every alias of its spec, excluding mentions in the defining
+clause itself.
+
+- Labels: case-sensitive, in prose and code, delimited so that `N2` does not match
+  `N21`, `xN2`, `N2-x` or `E17.2`, and `TDL-5` does not match `TDL-50` (it does match
+  `TDL-5(b)`). An en-dash range of one family (`PT3–PT10`, `C1–C5`) adds a `uses` edge to
+  every defined label in between.
+- Terms: case-sensitive, prose only (code is not scanned: `commit` in a code listing is
+  not the commit step), word-delimited, with an optional `s`/`es` plural (`borrow frame`
+  does not match, `lprocs` does).
+
+## Edges
+
+| Kind | From → to | Source |
+|---|---|---|
+| `contains` | root → section → subsection → clause | headings and positions |
+| `refs` | clause → section or clause, same spec | `§` references |
+| `xspec` | dialect clause → ISA section or clause | `ISA §…` with `--xspec` |
+| `uses` | clause → defining clause | label and term mentions |
+
+Edges are deduplicated per (src, dst, kind) with a `count` and the first line.
+
+## Dependency semantics
+
+"Y depends on X" means Y cites X: a `refs`/`xspec`/`uses` edge from Y to X, or a `refs`/
+`xspec` edge from Y to a section containing X (citing `§5.6` cites every clause in it).
+The forward cone of A is what A transitively depends on; the reverse cone is what
+transitively depends on A; both include A (and, for a section, its clauses).
+
+Two closures are implemented:
+
+- **`full`**: the transitive closure of that relation. Every clause reached is lifted
+  to its enclosing sections, so anything citing *those* sections is reached next.
+- **`anchored`** (default): section citations are followed one hop, at the query end
+  only. The reverse cone of X starts from X and its enclosing sections (so `§5.6` and
+  `§5` citations count), then chains through name-level edges only: label and term
+  mentions, item references, references to the query's sections. Symmetrically, the
+  forward cone expands the query clause's own section citations and then follows only
+  edges to clauses.
+
+The full closure is sound but useless on these specs, because they are densely
+cross-referenced and the terminology clauses cite whole sections (dialect §2: "Abstract
+object, slot, value set: §5"; "Tier … L (lifted …, ISA §3.7)"). Measured on the
+committed graphs (300 random clause pairs per spec, seed 7):
+
+| Graph | mean reverse cone, full | mean reverse cone, anchored | independent pairs, full | independent pairs, anchored |
+|---|---|---|---|---|
+| ISA-0.8 | 104 | 13 | 5 / 300 | 87 / 300 |
+| ISA-0.9-draft | 273 | 34 | 0 / 300 | 43 / 300 |
+| DLT-0.2.10 | 783 | 70 | 1 / 300 | 36 / 300 |
+
+Under `full`, 1123 of 1243 dialect clauses have 800 or more dependents and the rest have
+none: the reverse closure is one giant component. `anchored` keeps the depth structure
+meaningful (ISA §5.6: 17 dependents across both specs instead of 1006). Use `full` when a
+conservative bound is wanted, and `--max-depth` to cut either closure.
+
+`independent a b` follows the brief: it succeeds only if the forward cones are disjoint
+*and* the reverse cones are disjoint (section nodes excluded from the comparison;
+clauses only). Two clauses that both use a common Terminology entry share that entry in
+their forward cones and are reported dependent; the shared nodes are printed so the
+reason is visible. That is deliberately strict; most dialect pairs fail it (table above).
+
+`impact` lists dependent clauses by BFS depth. `top` ranks clauses by number of
+transitive dependents (ties: direct dependents, i.e. depth 1).
+
+## Stability across versions: `diff`
+
+`diff a.json b.json` matches the clauses of two graphs of the same spec in tiers:
+
+1. **hash**: identical normalised text; repeated hashes pair in document order;
+2. **alias**: same (section number, alias), then the same alias in any section (labels
+   are unique per spec, so a moved PT3 is still PT3);
+3. **similar** (extension): remaining clauses of the same section number, paired greedily
+   by `difflib` ratio ≥ 0.6. Without it every edited paragraph without an alias would
+   count as removed plus added.
+
+Each matched pair is *unchanged* (same id, same hash), *moved* (different id: renumbered
+within a section or moved to another), *changed* (different hash) or both. Unmatched
+clauses are *added* / *removed*. `--list` prints every pair; `--json` everything.
+Tags and external references should use aliases where they exist, and be re-targeted
+through `diff --list` where they do not.
+
+### ISA 0.8 → 0.9-draft
+
+Built from `Bennett-ISA-Spec.md` (sha256 90e61d9c377c…) and `Bennett-ISA-Spec-0.9-draft.md`
+(sha256 329ac8a8dcc6…; the draft is being edited concurrently, so these numbers describe
+that revision only):
+
+```
+diff ISA-0.8 -> ISA-0.9-draft: 314 -> 542 clauses; matched 289 {"alias": 30, "hash": 209, "similar": 50}; unchanged 162; moved 79 (renumbered only 47); changed 80 (in place 48); added 253; removed 25
+```
+
+| § | unchanged | moved | changed | moved+changed | added | removed |
+|---|---|---|---|---|---|---|
+| 0 | 0 | 0 | 0 | 0 | 91 | 0 |
+| 1 | 5 | 0 | 1 | 0 | 1 | 1 |
+| 2 | 7 | 1 | 1 | 0 | 1 | 0 |
+| 3 | 12 | 29 | 6 | 16 | 22 | 2 |
+| 4 | 56 | 6 | 12 | 2 | 25 | 4 |
+| 5 | 14 | 0 | 4 | 0 | 6 | 3 |
+| 6 | 17 | 0 | 1 | 0 | 1 | 1 |
+| 7 | 17 | 1 | 2 | 4 | 7 | 2 |
+| 8 | 5 | 8 | 2 | 0 | 6 | 0 |
+| 9 | 3 | 0 | 2 | 2 | 7 | 1 |
+| 10 | 1 | 0 | 6 | 0 | 8 | 0 |
+| 11 | 2 | 1 | 1 | 0 | 33 | 0 |
+| 12 | 3 | 1 | 2 | 3 | 12 | 2 |
+| 13 | 0 | 0 | 1 | 0 | 0 | 0 |
+| 14 | 6 | 0 | 2 | 0 | 1 | 0 |
+| 15 | 1 | 0 | 1 | 0 | 6 | 6 |
+| 16 | 0 | 0 | 1 | 5 | 21 | 2 |
+| 17 | 13 | 0 | 1 | 0 | 5 | 1 |
+| front | 0 | 0 | 2 | 0 | 0 | 0 |
+| total | 162 | 47 | 48 | 32 | 253 | 25 |
+
+Reading: §0 (91 clauses) is the new change log; §11 gains §11.1 (reference-library
+contract; §11 as a whole gains 33 clauses), §10 gains §10.1 (launch estimate); §3 is
+mostly renumbering (29 hash-identical clauses moved because paragraphs were inserted
+earlier in §3.2, §3.3, §3.6 and §3.7). The 6 removed and 6 added clauses of §15 are the
+suite table rows A, B, C, F, G, H, each rewritten beyond the similarity threshold.
+
+## Results on the committed graphs
+
+| Graph | nodes | sections | clauses | edges | contains | refs | uses | xspec | aliases (labels + terms) | unresolved |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ISA-0.8 | 384 | 69 | 314 | 649 | 383 | 161 | 105 | 0 | 116 (16 + 100) | 3 |
+| ISA-0.9-draft | 619 | 76 | 542 | 1559 | 618 | 603 | 338 | 0 | 237 (94 + 143) | 14 |
+| DLT-0.2.10 | 1413 | 169 | 1243 | 4092 | 1412 | 1071 | 1404 | 205 | 337 (179 + 158) | 129 |
+
+Unresolved references by reason (all are references outside the spec being parsed;
+none is a parse failure):
+
+| Graph | reasons |
+|---|---|
+| ISA-0.8 | `external:north-star` 3 |
+| ISA-0.9-draft | `external:ISA-0.8` 6, `external:NS` 1, `external:dialect-outline` 1, `external:north-star` 4, `external:outline` 1, `xspec-not-loaded` 1 |
+| DLT-0.2.10 | `external:DLT-0.1` 2, `external:NS` 105, `external:SQLite` 7, `external:north-star` 7, `external:outline` 2, `external:spike-findings` 6 |
+
+The dialect's 205 `xspec` edges are all resolved against ISA 0.8 (none
+`no-such-section`); built without `--xspec`, the same 200 `ISA §` references are
+listed as `xspec-not-loaded` (205 edges > 200 references because ranges and item lists
+expand to several targets). ISA 0.9 has one dialect reference (`dialect draft 0.2.1 §25.1`),
+unresolved because no dialect graph is loaded when the ISA is built.
+
+### Example `impact` outputs (anchored)
+
+ISA §5.6, borrowed systems and borrow frames, with the dialect loaded (`impact
+clauses/ISA-0.8.json ISA-5.6 --with clauses/DLT-0.2.10.json`):
+
+```
+impact of ISA-5.6 (§5.6 Borrowed systems and borrow frames) (closure anchored): 17 dependent clauses
+depth 1 (10): DLT-1.3-P1 [efficiency item], DLT-18.3-P3, ISA-1.2-P1, ISA-1.2-P2, ISA-4.3-P2, ISA-5.2-P2, ISA-5.3-P1 [Permutation action], ISA-14.2-P1, ISA-14.3-P6 [T6], ISA-15-P3
+depth 2 (6): DLT-8.6-P6, DLT-11.4-P1, ISA-4.2-P29 [reference body], ISA-5.7-P1, ISA-11-P2 [expansion library, generated operations], ISA-12.3-P2
+depth 3 (1): ISA-14.1-P1
+```
+
+Dialect PT3 (`impact clauses/DLT-0.2.10.json PT3 --with clauses/ISA-0.8.json`):
+
+```
+impact of DLT-5.2-P4 [PT3] (closure anchored): 155 dependent clauses
+depth 1 (18): DLT-1.1-P4, DLT-1.2-P4, DLT-1.5-P3 [P-1], DLT-2-P10 [Abstract object, slot, value set], DLT-4.1-P3 [S2], DLT-5.2-P17, DLT-6.2-P1 [bitwise copies], DLT-7.2-P1, DLT-8.4-P1, DLT-11.4-P1, DLT-12.2-P5 [N3], DLT-14.2-P1, DLT-19.4-P1 [pointer-rich], DLT-21.3-P2 [DB], DLT-A-P14 [A13], DLT-B-P10, DLT-B-P46, DLT-front-P3
+depth 2 (61): DLT-1.4-P2, DLT-3.2-P2, DLT-3.4-P20 [dispatch domain], DLT-3.4-P28, DLT-3.8-P3 [Region functions], DLT-4.1-P11, DLT-4.5-P3 [runtime shim], DLT-5.1-P12 [abstract value], DLT-5.2-P1, DLT-5.2-P6 [PT5], DLT-5.2-P7 [PT6], DLT-5.2-P9 [PT8], DLT-5.2-P10 [PT9], DLT-5.2-P13 [PT12], DLT-5.2-P16, DLT-5.3-P1, DLT-5.4-P5, DLT-5.4-P8, DLT-5.4-P9, DLT-6.1-P1 [register tag], DLT-6.2-P3, DLT-6.2-P6, DLT-6.3-P1, DLT-6.4-P1, DLT-6.4-P2, DLT-6.5-P2, DLT-6.5-P3, DLT-6.5-P11, DLT-6.5-P12, DLT-6.5-P13, DLT-6.9-P6, DLT-7.7-P3, DLT-8.7-P3, DLT-8.8-P8, DLT-9.5-P2, DLT-9.5-P6, DLT-10-P40, DLT-10-P42, DLT-12.2-P2 [N0], DLT-12.2-P27 [N25], DLT-12.2-P36 [N34, R-tier budget instrumentation points], DLT-12.2-P46, DLT-12.7-P5, DLT-12.8-P1, DLT-12.8-P14, DLT-12.8-P15, DLT-13.1-P24, DLT-13.1-P25, DLT-14.3-P4, DLT-14.3-P10, DLT-18.8-P27, DLT-20.7-P4, DLT-20.7-P5, DLT-21.4-P1, DLT-23-P2, DLT-25.1-P2 [BLK-1], DLT-25.1-P9, DLT-A-P16 [A15], DLT-A-P17 [A16], DLT-B-P19, DLT-B-P32
+depth 3 (50): DLT-2-P18 [Blocker], DLT-3.4-P21, DLT-3.4-P23, DLT-4.1-P8 [S7], DLT-5-P1, DLT-5.2-P3 [PT2], DLT-5.2-P8 [PT7], DLT-5.2-P12 [PT11], DLT-5.2-P15, DLT-5.2-P20, DLT-5.2-P21, DLT-5.3-P4, DLT-5.4-P7, DLT-6.4-P3, DLT-6.5-P5, DLT-6.5-P6, DLT-6.5-P7, DLT-6.5-P10 [blocker point], DLT-6.5-P14, DLT-6.5-P15, DLT-6.9-P8, DLT-6.9-P10, DLT-7.6-P2, DLT-7.6-P5, DLT-8.2-P1, DLT-9.5-P3 [Launch-supplied], DLT-10-P39, DLT-12.2-P41, DLT-12.2-P47, DLT-12.4-P5 [V4], DLT-12.9-P1, DLT-16.7-P3, DLT-17.6-P1 [step counter], DLT-22.2-P1, DLT-24-P12 [D29], DLT-A-P4 [A3], DLT-B-P3, DLT-B-P8, DLT-B-P9, DLT-B-P31, DLT-B-P48, DLT-B-P51, DLT-B-P56, DLT-C-P2, DLT-C-P3, DLT-C-P4, DLT-C-P5, DLT-C-P6, DLT-C-P7, DLT-C-P17
+depth 4 (13): DLT-5.2-P5 [PT4], DLT-5.2-P14, DLT-6.6-P1 [handle parameter], DLT-7.5-P3, DLT-12.4-P11 [V10], DLT-12.4-P22, DLT-17.5-P11, DLT-17.6-P4, DLT-18.7-P1, DLT-25.1-P8 [Blocker report], DLT-25.3-P12 [LLVM changes needed], DLT-B-P47, DLT-B-P53
+depth 5 (8): DLT-6.9-P3, DLT-7.7-P10, DLT-12.4-P28, DLT-18.6-P1, DLT-19.2-P5, DLT-22.1-P16 [BD-E-REVERSIBLE-MEASURE], DLT-25.1-P5 [BLK-4], DLT-A-P5 [A4]
+depth 6 (4): DLT-7.2-P6 [trap body], DLT-7.7-P11, DLT-8.5-P7 [Build-time snapshots], DLT-B-P12
+depth 7 (1): DLT-7.7-P7
+```
+
+Dialect N21 (`impact clauses/DLT-0.2.10.json N21 --with clauses/ISA-0.8.json`):
+
+```
+impact of DLT-12.2-P23 [N21, vector scalarisation] (closure anchored): 206 dependent clauses
+depth 1 (38): DLT-1.1-P11, DLT-1.5-P3 [P-1], DLT-1.5-P10, DLT-2-P17 [Materialised module, Reference object], DLT-3.1-P2, DLT-4.1-P8 [S7], DLT-5.2-P4 [PT3], DLT-5.2-P16, DLT-8.1-P5, DLT-8.2-P1, DLT-10-P16 [classical twin, slice function], DLT-12.1-P1 [materialised module], DLT-12.2-P2 [N0], DLT-12.2-P17 [N15], DLT-12.2-P34 [N32, floating point], DLT-12.2-P44, DLT-12.4-P5 [V4], DLT-12.4-P9 [V8], DLT-12.4-P26, DLT-12.5-P1, DLT-12.9-P1, DLT-12.9-P2, DLT-12.9-P3, DLT-13.2-P1, DLT-16.1-P1, DLT-16.2-P5, DLT-16.4-P14, DLT-18.1-P2, DLT-21.3-P5 [DN], DLT-A-P16 [A15], DLT-A-P17 [A16], DLT-B-P22, DLT-B-P23, DLT-B-P33, DLT-B-P46, DLT-B-P53, DLT-C-P1, DLT-C-P14
+depth 2 (45): DLT-1.2-P4, DLT-1.5-P12, DLT-4.1-P11, DLT-5.2-P11 [PT10], DLT-5.2-P14, DLT-5.2-P17, DLT-6.2-P1 [bitwise copies], DLT-6.5-P9, DLT-10-P17 [slice invocation], DLT-12.2-P11 [N9], DLT-12.2-P19 [N17], DLT-12.2-P21 [N19], DLT-12.2-P38 [Completeness obligation], DLT-12.2-P41, DLT-12.2-P43, DLT-12.4-P10 [V9], DLT-12.4-P11 [V10], DLT-12.4-P19, DLT-12.4-P22, DLT-12.4-P27, DLT-12.4-P28, DLT-12.6-P5, DLT-12.6-P6 [left fold], DLT-13-P1, DLT-13.1-P24, DLT-13.6-P4, DLT-17.7-P1 [native comparison binary], DLT-18.1-P1, DLT-19.5-P1, DLT-21.1-P2 [L1], DLT-21.4-P1, DLT-A-P7 [A6], DLT-A-P24 [A23], DLT-B-P10, DLT-B-P27, DLT-B-P36, DLT-B-P47, DLT-C-P2, DLT-C-P3, DLT-C-P4, DLT-C-P5, DLT-C-P6, DLT-C-P7, DLT-C-P13, DLT-C-P28
+depth 3 (48): DLT-1.2-P3, DLT-1.4-P2, DLT-5.2-P13 [PT12], DLT-5.2-P18, DLT-6.9-P10, DLT-7.5-P3, DLT-8.8-P2, DLT-10-P28, DLT-10-P30, DLT-10-P31, DLT-10-P36 [TDL-8, declared fault register], DLT-10-P37 [TDL-9], DLT-10-P39, DLT-12.2-P1, DLT-12.2-P48, DLT-12.2-P49, DLT-12.2-P50, DLT-12.9-P11, DLT-16.2-P3, DLT-16.2-P4, DLT-16.2-P15, DLT-16.4-P37, DLT-16.4-P41, DLT-16.4-P42, DLT-16.4-P43, DLT-16.4-P44, DLT-16.4-P45, DLT-16.4-P46, DLT-16.6-P1, DLT-16.6-P2, DLT-16.6-P3, DLT-16.7-P5, DLT-16.7-P7, DLT-16.8-P2, DLT-16.9-P2, DLT-16.10-P1, DLT-16.11-P1, DLT-16.11-P3, DLT-16.11-P4, DLT-17.1-P6 [Single thread], DLT-18.8-P20, DLT-18.8-P21, DLT-20.3-P1, DLT-20.7-P9, DLT-21.1-P6 [L5], DLT-24-P8 [D24], DLT-B-P28, DLT-B-P29
+depth 4 (30): DLT-5.2-P15, DLT-6.5-P5, DLT-6.5-P6, DLT-6.5-P7, DLT-6.5-P14, DLT-7.1-P7 [action region], DLT-7.7-P10, DLT-9.1-P6, DLT-9.3-P2, DLT-9.4-P1, DLT-10-P35 [TDL-7], DLT-10-P47 [TDL-12], DLT-16.5-P4, DLT-17.5-P12, DLT-18.2-P5, DLT-18.2-P10, DLT-18.3-P14, DLT-18.3-P16, DLT-18.4-P1 [Leak rule], DLT-18.6-P1, DLT-18.8-P14, DLT-19.2-P5, DLT-22.1-P16 [BD-E-REVERSIBLE-MEASURE], DLT-25.1-P5 [BLK-4], DLT-A-P5 [A4], DLT-A-P10 [A9], DLT-B-P17, DLT-B-P48, DLT-B-P55, DLT-B-P56
+depth 5 (24): DLT-1.5-P20, DLT-2-P13 [Arena, Coherence state, Coherent slice, Generation], DLT-2-P18 [Blocker], DLT-4.2-P2, DLT-7.2-P6 [trap body], DLT-7.4-P2, DLT-7.4-P4, DLT-7.5-P2 [deferred measurement], DLT-7.7-P11, DLT-8.5-P7 [Build-time snapshots], DLT-10-P1, DLT-10-P2 [TDL-1], DLT-10-P9 [MC2], DLT-10-P14 [TDL-3], DLT-10-P33, DLT-10-P41, DLT-11.1-P6, DLT-14.4-P10, DLT-18.2-P4, DLT-18.8-P24, DLT-22.2-P1, DLT-A-P11 [A10], DLT-A-P12 [A11], DLT-B-P12
+depth 6 (15): DLT-4.2-P4, DLT-7.6-P1, DLT-7.7-P7, DLT-7.7-P9, DLT-10-P3 [TDL-2], DLT-10-P5, DLT-10-P44, DLT-18.2-P7, DLT-18.2-P8, DLT-18.3-P9, DLT-18.8-P3, DLT-22.1-P15 [BD-E-REGION-MEASURE], DLT-25.1-P9, DLT-25.2-P8 [Certificate fields], DLT-A-P21 [A20]
+depth 7 (6): DLT-4.3-P1, DLT-5.4-P5, DLT-7.7-P8, DLT-10-P45, DLT-18.1-P6, DLT-A-P6 [A5]
+```
+
+The same three under `--closure full`:
+
+```
+impact of ISA-5.6 (§5.6 Borrowed systems and borrow frames) (closure full): 1006 dependent clauses
+impact of DLT-5.2-P4 [PT3] (closure full): 866 dependent clauses
+impact of DLT-12.2-P23 [N21, vector scalarisation] (closure full): 866 dependent clauses
+```
+
+### Clauses with the most dependents (anchored)
+
+ISA 0.8, ISA dependents only:
+
+| clause | transitive dependents | direct dependents | aliases |
+|---|---|---|---|
+| ISA-3.7-P8 | 39 | 14 | C2 |
+| ISA-3.7-P9 | 38 | 13 | C3 |
+| ISA-3.7-P10 | 38 | 13 | C4 |
+| ISA-3.7-P11 | 38 | 13 | C5 |
+| ISA-3.7-P14 | 38 | 13 | R1 |
+| ISA-3.7-P16 | 38 | 13 | R3 |
+| ISA-3.7-P17 | 38 | 13 | R4 |
+| ISA-3.7-P18 | 38 | 13 | R5 |
+| ISA-3.7-P3 | 38 | 11 |  |
+| ISA-3.7-P4 | 38 | 11 | Initial allocator state |
+
+ISA 0.8 counting dialect dependents (`--with clauses/DLT-0.2.10.json`): §3.7 is cited
+by the dialect's definition of the L tier (`DLT-2-P7`), which 111 dialect clauses use,
+so every §3.7 clause reaches about 300 clauses:
+
+| clause | transitive dependents | direct dependents | aliases |
+|---|---|---|---|
+| ISA-3.7-P8 | 315 | 22 | C2 |
+| ISA-3.7-P9 | 314 | 21 | C3 |
+| ISA-3.7-P10 | 314 | 21 | C4 |
+| ISA-3.7-P11 | 314 | 21 | C5 |
+| ISA-3.7-P14 | 314 | 21 | R1 |
+| ISA-3.7-P16 | 314 | 21 | R3 |
+| ISA-3.7-P17 | 314 | 21 | R4 |
+| ISA-3.7-P18 | 314 | 21 | R5 |
+| ISA-3.7-P3 | 314 | 19 |  |
+| ISA-3.7-P4 | 314 | 19 | Initial allocator state |
+
+ISA 0.9-draft:
+
+| clause | transitive dependents | direct dependents | aliases |
+|---|---|---|---|
+| ISA-3.7-P13 | 100 | 35 | C2 |
+| ISA-3.7-P14 | 99 | 34 | C3 |
+| ISA-3.7-P16 | 98 | 34 | C5 |
+| ISA-3.7-P15 | 98 | 33 | C4 |
+| ISA-3.7-P19 | 98 | 33 | R1 |
+| ISA-3.7-P21 | 98 | 33 | R3 |
+| ISA-3.7-P22 | 98 | 33 | R4 |
+| ISA-3.7-P23 | 98 | 33 | R5 |
+| ISA-3.7-P3 | 98 | 31 |  |
+| ISA-3.7-P7 | 98 | 31 |  |
+
+Dialect 0.2.10 (with ISA 0.8 loaded):
+
+| clause | transitive dependents | direct dependents | aliases |
+|---|---|---|---|
+| DLT-4.3-P1 | 267 | 8 |  |
+| DLT-2-P7 | 266 | 111 | CC, Tier, variant |
+| DLT-6.1-P1 | 225 | 9 | register tag |
+| DLT-2-P3 | 213 | 116 | Handle, Register tag, register, wire |
+| DLT-12.2-P23 | 206 | 38 | N21, vector scalarisation |
+| DLT-12.6-P1 | 205 | 16 |  |
+| DLT-12.6-P2 | 205 | 16 |  |
+| DLT-12.6-P3 | 205 | 16 |  |
+| DLT-12.6-P4 | 205 | 16 |  |
+| DLT-12.6-P7 | 205 | 16 |  |
+
+## Limits
+
+- **Clause ordinals are positional.** Inserting a paragraph renumbers the rest of its
+  section; ids are stable only within one spec revision. `diff` is the bridge between
+  revisions; anchors in the spec text would be better but accepted bytes are not edited.
+- **Code runs.** All code blocks between two prose blocks join the clause before them,
+  so example-heavy dialect sections produce large clauses (`DLT-12.8-P27` spans 213
+  lines and 6 code blocks).
+- **Table headers are not hashed.** A header change does not change row hashes.
+- **Section granularity.** Most references cite whole sections; a clause citing `§12`
+  depends on all of §12. This is the cause of the full-closure saturation above; the
+  anchored closure is a deliberate approximation, not a proof of independence.
+- **Labels defined only in running prose are not found.** The dialect's rung minis
+  `R1`–`R8` (§21.4: "R1 (an Int8 Rust function …), R2 (a C hashtable …)") have no table,
+  bold or list form; `R2` resolves in the ISA (§3.7 return step), not in the dialect.
+  Ranges written with `to` (`TDL-1 to TDL-12`) are not expanded; en-dash ranges are.
+- **Single-letter labels** (ISA suites `A`–`H`, change entry `V`) are not aliases, so
+  "suite F" mentions create no edge.
+- **Terms are matched literally.** Case-sensitive: `Interface regions` (bolded at a
+  sentence start) does not match `interface regions`; only `s`/`es` plurals are
+  folded; one-word plain terms outside Terminology are dropped (precision over recall);
+  ambiguous terms are dropped (listed in the JSON). Bold emphasis of a multi-word phrase
+  that is not a definition (`exact-permutation only`) still becomes a term; it is rarely
+  repeated, so it rarely produces edges.
+- **Inline enumerators are heuristic.** `(a)` in running text counts as a marker; item
+  references prefer list-item markers, so the heuristic only decides when no list item
+  matches.
+- **Headings carry no references.** No heading in the three specs contains `§`; one that
+  did would contribute no edge.
+- **External documents** (north star, SQLite plan, spike findings, outlines, prior
+  versions) are recorded as unresolved by design. Building the north star into a graph
+  would turn the 105 dialect `NS §` references into edges.
+- **The 0.9 draft moves.** Its graph describes the revision whose sha256 it records.
+- **No SVG.** Graphviz is not installed on the build machine; `build --svg` reports that.
