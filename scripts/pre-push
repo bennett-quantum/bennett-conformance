@@ -10,7 +10,7 @@ root="$(git rev-parse --show-toplevel)"
 cd "$root"
 export TMPDIR="$root/.tmp"; mkdir -p "$TMPDIR"
 unset DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
-mapfile -t manifests < <(find . -name Cargo.toml -not -path './target/*' -not -path '*/target/*' | sort)
+mapfile -t manifests < <(find . -name Cargo.toml -not -path './.tmp/*' -not -path './target/*' -not -path '*/target/*' | sort)
 for m in "${manifests[@]}"; do
   echo "pre-push: cargo test --manifest-path $m"
   cargo test --manifest-path "$m"
