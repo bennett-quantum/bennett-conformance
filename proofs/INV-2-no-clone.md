@@ -88,8 +88,8 @@ ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
         indexed wire `w[i]` (or two indexed operands `w[i]`, `w[i]`) in one
         instruction overlap and are excluded.
         ASSUMED: `ISA-3.3-P3` does not say whether distinctness is judged on
-        names or on the wires they denote; only the wire reading makes (D) of
-        INV-1 and the gate semantics of `ISA-4.4-P1` well-defined (a `cx a a`
+        names or on the wires they denote; only the wire reading makes the gate
+        semantics of `ISA-4.4-P1` well-defined (a `cx a a`
         has no unitary).
   <2>3. A wire of the effective control context may still be read by the
         instruction as a source or `in` operand (it is neither target nor

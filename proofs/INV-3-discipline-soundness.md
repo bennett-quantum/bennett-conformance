@@ -19,7 +19,7 @@ translation lemma) under one ASSUMED reading about controls.
 ## Precise statement
 
 DEFINE `Seg`, `[[S]]_{Π,κ}` as in INV-1. DEFINE a region body Γ is *disciplined*
-iff it is well-formed under `ISA-5.1-P1`, `ISA-5.6-P2`..`ISA-5.6-P6`,
+iff it is well-formed under `ISA-5.1-P1`, `ISA-5.6-P2`, `ISA-5.6-P3`, `ISA-5.6-P4`, `ISA-5.6-P5`, `ISA-5.6-P6`,
 `ISA-6.1`, `ISA-6.2-P1` and `ISA-6.4-P1` (no "ill-formed" verdict).
 
 THEOREM INV-3. For every disciplined action or permutation-action body Γ, every
@@ -118,7 +118,7 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
         so g' = f(r) = g and the qxor clears g.
         BY <1>2, ISA-4.5-P3; algebra
   <2>3. The qxor is block-diagonal on R ∪ G', so the adjoint clears g' by the
-        argument of <1>2 <2>4.
+        argument of 1.2.4.
         BY <2>2, <1>2
   <2>4. QED
         BY <2>2, <2>3
@@ -174,7 +174,7 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
           of every gate of V and W in (i)–(iii), and V⁻¹ runs under the same
           effective control set as V.
           ASSUMED: `ISA-3.5-P1` controls every gate on the active predicate,
-          but `ISA-5.6-P3`..`ISA-5.6-P6` speak of a gate's controls without
+          but `ISA-5.6-P3`, `ISA-5.6-P4`, `ISA-5.6-P5`, `ISA-5.6-P6` speak of a gate's controls without
           saying whether the predicate is included; if V⁻¹ ran under a
           different set, "exact reverse sequence" would hold lexically but not
           as operators.
@@ -213,7 +213,7 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
 <1>8. QED
       BY <1>1, <1>2, <1>3, <1>5, <1>6, <1>7 for (a)–(c) on perm values and
       borrowed bundles; (a) and (c) for `other` values only in the case of
-      <1>4 <2>1 (the general case is OPEN, refuted for the literal text).
+      1.4.1 (the general case is OPEN, refuted for the literal text).
 ```
 
 ## Witnesses

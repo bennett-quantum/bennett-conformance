@@ -46,8 +46,9 @@ wires live at entry of S, and every reference system R:
 ## Hypotheses
 
 ISA-2-P9, ISA-3.1-P2, ISA-3.2-P8, ISA-3.3-P2, ISA-3.3-P3, ISA-3.5-P1, ISA-4.3-P1,
-ISA-4.3-P2, ISA-4.3-P3, ISA-4.3-P4, ISA-4.4-P1, ISA-4.4-P2, ISA-4.5-P1..P5,
-ISA-4.6-P1..P9, ISA-4.7-P1, ISA-5.1-P1, ISA-5.2-P2, ISA-5.2-P4, ISA-5.3-P1,
+ISA-4.3-P2, ISA-4.3-P3, ISA-4.3-P4, ISA-4.4-P1, ISA-4.4-P2, ISA-4.5-P1, ISA-4.5-P2, ISA-4.5-P3, ISA-4.5-P4, ISA-4.5-P5,
+ISA-4.6-P1, ISA-4.6-P2, ISA-4.6-P3,
+ISA-4.6-P4, ISA-4.6-P5, ISA-4.6-P6, ISA-4.6-P7, ISA-4.6-P8, ISA-4.6-P9, ISA-4.7-P1, ISA-5.1-P1, ISA-5.2-P2, ISA-5.2-P4, ISA-5.3-P1,
 ISA-5.3-P2, ISA-5.3-P4, ISA-5.3-P5, ISA-5.4-P1, ISA-5.5-P1, ISA-5.6-P1,
 ISA-5.6-P2, ISA-14.2-P1.
 
@@ -241,17 +242,17 @@ ISA-5.6-P2, ISA-14.2-P1.
 
 | Witness | Steps |
 |---|---|
-| `suite/cases/r9-codex-oracle`, `suite/cases/r9-sol-oracle` (H; O; O; H then borrow/CX/return is identity) | <1>2.5, <1>3 |
-| `suite/cases/r9-sol-qinplace` (B ≥ 1 identity; B = 0 refused) | <1>2.6, <3>3 |
-| `suite/cases/r9-loop` (mixed loop re-allocating c) | <1>3 <2>7, ASSUMED <3>2 |
-| `suite/cases/actions` (load/unload, store pairs, qexchm pairs, adjoint after action is identity) | <1>2.3, <1>2.4, <1>3 |
-| `suite/cases/nested` (`cancel`: call then uncall returns tgt, fr to zero) | <1>5 |
-| `tests/r1_borrow.rs`: `r9_opaque_adjoint_restores_borrow_control`, `r9_matched_opaque_oracle_restores_outer_fact`, `r9_qinplace_adjoint_restores_borrow_control`, `r9_qinplace_zero_budget_rejects_before_mutation`, `r9_mixed_loop_threads_reallocated_bindings`, `r10_equivalent_control_sets_preserve_opaque_inverse` | <1>1, <1>2.5, <1>2.6, <1>3 <2>7 |
-| `tests/r1_qinplace.rs`: `b07_zero_zero_pair_is_rejected_before_mutation`, `b07_not_not_pair_executes_controlled_and_adjoint`, `r2_qinplace_explicit_adjoint_cleans_workspace` | <1>2.6 |
-| `tests/r1_discipline.rs::r2_qif_cross_arm_unconditional_lifetimes_reverse_the_expansion` | <1>3 <2>6 (OPEN <3>4) |
-| `tests/quantum_control.rs::coherent_while_is_prefix_and_padding_with_an_exact_adjoint` | <1>3 <2>8 |
-| `tests/quantum.rs`: `every_gate_and_controlled_global_phase`, `bell_state_born_branches_and_adjoint` | <1>2.1, <1>1 |
-| `tests/r1_fuzz_discipline.rs`: `generated_r9_opaque_histories_match_independent_identity`, `generated_r9_loop_bindings_match_independent_identity`, `generated_r10_effective_control_sets_match_independent_identity` | <1>1, <1>2.5, <1>3 |
+| `suite/cases/r9-codex-oracle`, `suite/cases/r9-sol-oracle` (H; O; O; H then borrow/CX/return is identity) | 1.2.5, 1.3 |
+| `suite/cases/r9-sol-qinplace` (B ≥ 1 identity; B = 0 refused) | 1.2.6, 1.2.6.3 |
+| `suite/cases/r9-loop` (mixed loop re-allocating c) | 1.3.7, 1.3.7.2 (ASSUMED) |
+| `suite/cases/actions` (load/unload, store pairs, qexchm pairs, adjoint after action is identity) | 1.2.3, 1.2.4, 1.3 |
+| `suite/cases/nested` (`cancel`: call then uncall returns tgt, fr to zero) | 1.5 |
+| `tests/r1_borrow.rs`: `r9_opaque_adjoint_restores_borrow_control`, `r9_matched_opaque_oracle_restores_outer_fact`, `r9_qinplace_adjoint_restores_borrow_control`, `r9_qinplace_zero_budget_rejects_before_mutation`, `r9_mixed_loop_threads_reallocated_bindings`, `r10_equivalent_control_sets_preserve_opaque_inverse` | 1.1, 1.2.5, 1.2.6, 1.3.7 |
+| `tests/r1_qinplace.rs`: `b07_zero_zero_pair_is_rejected_before_mutation`, `b07_not_not_pair_executes_controlled_and_adjoint`, `r2_qinplace_explicit_adjoint_cleans_workspace` | 1.2.6 |
+| `tests/r1_discipline.rs::r2_qif_cross_arm_unconditional_lifetimes_reverse_the_expansion` | 1.3.6 (OPEN 1.3.6.4) |
+| `tests/quantum_control.rs::coherent_while_is_prefix_and_padding_with_an_exact_adjoint` | 1.3.8 |
+| `tests/quantum.rs`: `every_gate_and_controlled_global_phase`, `bell_state_born_branches_and_adjoint` | 1.2.1, 1.1 |
+| `tests/r1_fuzz_discipline.rs`: `generated_r9_opaque_histories_match_independent_identity`, `generated_r9_loop_bindings_match_independent_identity`, `generated_r10_effective_control_sets_match_independent_identity` | 1.1, 1.2.5, 1.3 |
 
 ## Council blockers as instances
 
@@ -260,31 +261,31 @@ implementation (the reference checker) failing to *use* a step, so it rejected
 programs that INV-1 proves are the identity.
 
 - SOL-R9-B01, R9-B01 (matched opaque oracle pairs erase the outer H record):
-  the checker did not apply <1>2.5 (oracle involution) inside <1>3. The qinplace
-  half of SOL-R9-B01 is <1>2.6.
+  the checker did not apply 1.2.5 (oracle involution) inside 1.3. The qinplace
+  half of SOL-R9-B01 is 1.2.6.
 - R9-B02 (mixed loop reuses first-visit bindings): the checker violated the
-  reading of <1>3 <2>7 <3>2.
+  reading of 1.3.7.2.
 - R10-B02 (lexical predicate stack vs effective-control set): the checker keyed
-  inverses by ordered stacks, against <1>1 <2>2.
+  inverses by ordered stacks, against 1.1.2.
 - SOL-R11-B03 (fixture comment claimed B = 0 qinplace identity): the comment
-  ignored the precondition of <1>2.6; the runtime refusal matches <3>3.
+  ignored the precondition of 1.2.6; the runtime refusal matches 1.2.6.3.
 
 ## Spec gaps
 
-1. (<1>2.6 <3>3, next to `ISA-4.5-P5`) ASSUMED. Needed sentence: "An executor
+1. (1.2.6.3, next to `ISA-4.5-P5`) ASSUMED. Needed sentence: "An executor
    checks the conditions on `@g` and `@ginv` under the call's token before any
    state change; if they do not hold the call is refused (CC/R trap) and has no
    effect."
-2. (<1>3 <2>6 <3>4, next to `ISA-5.3-P4`) OPEN (refuted). Needed sentence: "The
+2. (1.3.6.4, next to `ISA-5.3-P4`) OPEN (refuted). Needed sentence: "The
    row `qif w {A}{B} ↦ qif w {adj A}{adj B}` applies when each arm's allocations
    and releases are matched within that arm; otherwise the adjoint is the
    adjoint of the complete §4.6 expansion, unconditional lifetime instructions
    included, in reverse order."
-3. (<1>3 <2>7 <3>2, next to `ISA-3.3-P2` and `ISA-4.6-P8`) ASSUMED. Needed
+3. (1.3.7.2, next to `ISA-3.3-P2` and `ISA-4.6-P8`) ASSUMED. Needed
    sentence: "A `qloop` body is threaded like a block: each visit resolves names
    against the bindings live at its entry, and the bindings live at its exit are
    the entry bindings of the next visit; they MUST agree in names and types."
-4. (<1>4 <2>4, next to `ISA-5.3-P4` and `ISA-6.2-P1`) ASSUMED. Needed sentence:
+4. (1.4.4, next to `ISA-5.3-P4` and `ISA-6.2-P1`) ASSUMED. Needed sentence:
    "Two operations form a matched pair iff the second is the §5.3 adjoint of the
    first with the same callee(s), the same classical arguments (token
    included), the same operand wires at the versions the first read or
