@@ -806,7 +806,7 @@ def validate_graph(g, what="graph"):
 class Merged:
     """One or more graphs (e.g. DLT + the ISA graph it was built against) as one digraph."""
 
-    def __init__(self, graphs):
+    def __init__(self, graphs, statements=None):
         self.graphs = graphs
         self.nodes = {}
         self.children = collections.defaultdict(list)
@@ -820,6 +820,20 @@ class Merged:
                 raise UsageError("two graphs for spec %s (%s and %s); load one version per spec"
                                  % (g["spec"], by_spec[g["spec"]]["version"], g["version"]))
             by_spec[g["spec"]] = g
+        st_by_spec = {}
+        for st in statements or ():
+            validate_statements(st)
+            g = by_spec.get(st["spec"])
+            if g is None:
+                raise UsageError("statements of %s-%s given without the %s graph"
+                                 % (st["spec"], st["version"], st["spec"]))
+            if g["version"] != st["version"] or \
+                    g["source"]["sha256"] != st["graph"]["source_sha256"]:
+                raise UsageError("statements file %s-%s is stale for graph %s-%s; rerun "
+                                 "`clausegraph.py statements`" % (st["spec"], st["version"],
+                                                                g["spec"], g["version"]))
+            st_by_spec[st["spec"]] = st
+        self.statements = st_by_spec
         for g in graphs:
             xs = g.get("xspec")
             if xs and xs["spec"] in by_spec:
@@ -836,10 +850,21 @@ class Merged:
                 if n.get("parent"):
                     self.children[n["parent"]].append(n["id"])
             for e in g["edges"]:
-                if e["kind"] in EDGE_DEP_KINDS:
+                # with the statement layer loaded, its statement edges replace clause edges
+                if e["kind"] in EDGE_DEP_KINDS and g["spec"] not in st_by_spec:
                     self.out[e["src"]].add(e["dst"])
                     self.inn[e["dst"]].add(e["src"])
             self.aliases[g["spec"]] = g["aliases"]
+        for st in st_by_spec.values():
+            for x in st["statements"]:
+                par = x["parent"] or x["clause"]
+                self.nodes[x["id"]] = {"id": x["id"], "kind": "statement", "parent": par,
+                                       "stmt_kind": x["kind"], "n": x["n"]}
+                self.children[par].append(x["id"])
+            for x in st["statements"]:
+                for dst in statement_targets(x):
+                    self.out[x["id"]].add(dst)
+                    self.inn[dst].add(x["id"])
         self.by_spec = by_spec
 
     def kind(self, nid):
@@ -863,6 +888,8 @@ class Merged:
         spec = token.split("-", 1)[0]
         hint = "" if spec in self.by_spec else \
             " (spec %s is not loaded; add its graph with --with)" % spec
+        if RE_STMT_ID.match(token) and spec in self.by_spec and spec not in self.statements:
+            hint = " (a statement id: load the statement layer, --statements)"
         raise UsageError("unknown clause, section or alias %r%s" % (token, hint))
 
     def descendants(self, nid):
@@ -897,9 +924,9 @@ class Merged:
         if max_depth is not None and max_depth < 1:
             raise UsageError("max depth must be >= 1, got %r" % max_depth)
 
-    def _reverse(self, nid, closure="anchored", max_depth=None):
+    def _reverse(self, nid, closure="anchored", max_depth=None, skip=()):
         self._check(closure, max_depth)
-        start = set(self.descendants(nid)) | set(self.ancestors(nid))
+        start = (set(self.descendants(nid)) | set(self.ancestors(nid))) - set(skip)
         visited = set(start)
         levels, frontier = [], start
         while frontier and (max_depth is None or len(levels) < max_depth):
@@ -924,13 +951,15 @@ class Merged:
     def impact(self, nid, closure="anchored", max_depth=None):
         """Transitive dependents (clauses), grouped by depth (index 0 = depth 1)."""
         _, levels = self._reverse(nid, closure, max_depth)
-        out = [sorted([x for x in lv if self.kind(x) == "clause"], key=natural_key)
-               for lv in levels]
+        out = [sorted([x for x in lv if self.kind(x) in ("clause", "statement")],
+                      key=natural_key) for lv in levels]
         return [lv for lv in out if lv]
 
-    def reverse_cone(self, nid, closure="anchored", max_depth=None):
-        start, levels = self._reverse(nid, closure, max_depth)
-        allx = set(start).union(*levels) if levels else set(start)
+    def reverse_cone(self, nid, closure="anchored", max_depth=None, skip=()):
+        _, levels = self._reverse(nid, closure, max_depth, skip)
+        # the query's own ancestors (its sections; for a statement also its clause) are
+        # context, not dependents
+        allx = set(self.descendants(nid)).union(*levels)
         return {x for x in allx if self.kind(x) not in ("section", "root")}
 
     def forward_cone(self, nid, closure="anchored", max_depth=None):
@@ -950,11 +979,17 @@ class Merged:
             frontier, depth = nxt, depth + 1
         return {x for x in visited if self.kind(x) not in ("section", "root")}
 
-    def independent(self, a, b, closure="anchored", max_depth=None):
+    def independent(self, a, b, closure="anchored", max_depth=None, containers="count"):
+        """containers='ignore': citations of a section or clause enclosing both a and b do not
+        make them dependent (such a citation cannot tell the two apart)."""
+        if containers not in ("count", "ignore"):
+            raise UsageError("containers must be count or ignore, got %r" % containers)
+        skip = set(self.ancestors(a)) & set(self.ancestors(b)) if containers == "ignore" \
+            else set()
         fa = self.forward_cone(a, closure, max_depth)
         fb = self.forward_cone(b, closure, max_depth)
-        ra = self.reverse_cone(a, closure, max_depth)
-        rb = self.reverse_cone(b, closure, max_depth)
+        ra = self.reverse_cone(a, closure, max_depth, skip)
+        rb = self.reverse_cone(b, closure, max_depth, skip)
         fwd = sorted(fa & fb, key=natural_key)
         rev = sorted(ra & rb, key=natural_key)
         return (not fwd and not rev), fwd, rev
@@ -977,13 +1012,15 @@ def natural_key(s):
 RE_FOREIGN_ID = re.compile(r"^([A-Z][A-Z0-9]*)(?::.+|-(?:front|\d+(?:\.\d+)?|[A-Z])(?:-P\d+)?)$")
 
 
-def coverage(g, tags):
+def coverage(g, tags, statements=None):
     validate_graph(g)
-    m = Merged([g])
+    m = Merged([g], [statements] if statements else None)
     if not isinstance(tags, dict):
         raise UsageError("tags must be a JSON object mapping test/proof names to ids")
     strong = collections.defaultdict(list)
     weak = collections.defaultdict(list)
+    s_strong = collections.defaultdict(list)
+    s_weak = collections.defaultdict(list)
     foreign = []
     for name, targets in tags.items():
         if isinstance(targets, str):
@@ -994,12 +1031,20 @@ def coverage(g, tags):
             try:
                 nid = m.resolve(t)
             except UsageError as e:
-                fm = RE_FOREIGN_ID.match(t)
-                if fm and fm.group(1) != g["spec"]:
+                fm = RE_FOREIGN_ID.match(t) or RE_STMT_ID.match(t)
+                if fm and fm.group(1).split("-")[0] != g["spec"]:
                     foreign.append(t)  # an id or SPEC:alias of another spec: listed, not used
                     continue
                 raise UsageError("tag %r: %s" % (name, e))
             kind = m.kind(nid)
+            if kind == "statement":
+                for d in m.descendants(nid):
+                    s_strong[d].append(name)
+                strong[RE_STMT_ID.match(nid).group("clause")].append(name)
+                continue
+            for d in m.descendants(nid):
+                if m.kind(d) == "statement":
+                    s_weak[d].append(name)
             if kind == "clause":
                 strong[nid].append(name)
             else:
@@ -1024,9 +1069,40 @@ def coverage(g, tags):
         totals["strong"] += len(st)
         totals["weak"] += len(wk)
         totals["uncovered"] += len(un)
-    return {"spec": g["spec"], "version": g["version"], "totals": totals,
-            "sections": sections, "foreign": sorted(set(foreign)),
-            "witnesses": {k: sorted(v) for k, v in sorted(strong.items())}}
+    rep = {"spec": g["spec"], "version": g["version"], "totals": totals,
+           "sections": sections, "foreign": sorted(set(foreign)),
+           "witnesses": {k: sorted(v) for k, v in sorted(strong.items())}}
+    if statements:
+        rep["statements"] = _statement_coverage(statements, s_strong, s_weak)
+    return rep
+
+
+def _statement_coverage(st, s_strong, s_weak):
+    """Statement-granularity coverage: strong = the statement (or its enumerating parent)
+    is tagged; weak = only its clause or a section is tagged."""
+    def status(x):
+        return "strong" if x in s_strong else ("weak" if x in s_weak else "uncovered")
+
+    tot = collections.Counter()
+    by_kind = collections.OrderedDict((k, collections.Counter()) for k in KINDS)
+    by_sec = collections.OrderedDict()
+    for x in st["statements"]:
+        k = status(x["id"])
+        tot["statements"] += 1
+        tot[k] += 1
+        by_kind[x["kind"]]["statements"] += 1
+        by_kind[x["kind"]][k] += 1
+        sec = by_sec.setdefault(x["section"], {"section": x["section"], "statements": 0,
+                                               "strong": [], "weak": 0, "uncovered": 0})
+        sec["statements"] += 1
+        if k == "strong":
+            sec["strong"].append(x["id"])
+        else:
+            sec[k] += 1
+    keys = ("statements", "strong", "weak", "uncovered")
+    return {"totals": {k: tot.get(k, 0) for k in keys},
+            "by_kind": {kd: {k: c.get(k, 0) for k in keys} for kd, c in by_kind.items()},
+            "sections": list(by_sec.values())}
 
 
 # ---------------------------------------------------------------------------
@@ -1035,7 +1111,8 @@ def coverage(g, tags):
 SIMILAR_RATIO = 0.6
 
 
-def diff_graphs(a, b):
+def match_clauses(a, b):
+    """{a clause id: (b clause id, 'hash'|'alias'|'similar')} between two versions."""
     validate_graph(a, "first graph")
     validate_graph(b, "second graph")
     if a["spec"] != b["spec"]:
@@ -1101,6 +1178,15 @@ def diff_graphs(a, b):
                 continue
             pairs[xa] = (yb, "similar")
             used_b.add(yb)
+    return pairs
+
+
+def diff_graphs(a, b):
+    pairs = match_clauses(a, b)
+    ca = [n for n in a["nodes"] if n["kind"] == "clause"]
+    cb = [n for n in b["nodes"] if n["kind"] == "clause"]
+    sec = lambda n: n["parent"][len(a["spec"]) + 1:]  # noqa: E731
+    used_b = {bid for bid, _ in pairs.values()}
     hash_a = {n["id"]: n["hash"] for n in ca}
     hash_b = {n["id"]: n["hash"] for n in cb}
     moved, changed = [], []
@@ -1145,6 +1231,779 @@ def diff_graphs(a, b):
             for k, v in sorted(per_section.items(), key=lambda kv: natural_key(kv[0]))]
     return {"summary": summary, "sections": secs, "added": added, "removed": removed,
             "moved": moved, "changed": changed}
+
+
+# ---------------------------------------------------------------------------
+# Statement layer: clauses -> atomic Lamport-style statements
+# (docs/design/clause-graph.md, "Statement layer"). Derived from a graph JSON; never
+# reads or edits spec bytes.
+
+STMT_SCHEMA = "bennett-statements/1"
+RE_STMT_ID = re.compile(
+    r"^(?P<clause>(?P<spec>[A-Z][A-Z0-9]*)-[A-Za-z0-9.]+-P\d+)\.S(?P<k>\d+)(?:\.(?P<j>\d+))?$")
+RE_DEPS = re.compile(r"\[deps:\s*([^\]]*)\]")
+RE_DEPS_STRIP = re.compile(r"\s*\[deps:[^\]]*\]\s*")
+RE_DEPS_NONE = re.compile(r"^(?:none|-|–|—)?$")
+ABBREVIATIONS = {"e.g", "i.e", "cf", "vs", "viz", "approx", "resp", "al", "incl", "esp",
+                 "Fig", "fig", "Eq", "eq"}
+RE_ABBR = re.compile(r"(?<![\w.])([A-Za-z]+(?:\.[A-Za-z]+)*)$")
+SENT_CLOSERS = "*_\"”’'"
+SENT_OPENERS = "*_(\"“‘'"
+RE_CAPTION = re.compile(r"^\*\*[^*]+\*\*(?:\s*\([^()]*\))?[.:]?$")
+RE_CODE_SPAN = re.compile(r"(`+)(.+?)\1", re.S)
+RE_MODAL = re.compile(r"\b(MUST NOT|MUST|SHOULD NOT|SHOULD|MAY|SHALL NOT|SHALL|REQUIRED|"
+                      r"RECOMMENDED|OPTIONAL)\b")
+RE_LOWER_MODAL = re.compile(r"\b(must not|must|cannot|shall not|shall|may only|may not|never)\b")
+DECL_VERBS = (
+    "is", "are", "was", "were", "be", "been", "has", "have", "had", "holds", "hold", "returns",
+    "rejects", "traps", "faults", "takes", "produces", "emits", "contains", "requires", "means",
+    "denotes", "equals", "matches", "writes", "reads", "sets", "clears", "applies", "ends",
+    "starts", "begins", "consists", "includes", "gives", "records", "follows", "carries",
+    "keeps", "runs", "executes", "computes", "checks", "validates", "accepts", "refuses",
+    "fails", "succeeds", "restores", "releases", "allocates", "frees", "maps", "becomes",
+    "remains", "stays", "exists", "exist", "can", "does", "do", "governs", "defines",
+    "appears", "appear", "counts", "enters", "fixes", "chooses", "reverses", "retains", "may",
+    "should", "will", "gets", "passes", "lifts", "lowers", "rewrites", "replaces", "creates",
+    "adds", "removes", "compiles", "measures", "raises", "treats", "belongs", "differs",
+    "depends", "satisfies", "implies", "precedes", "preserves", "needs", "uses", "lists",
+    "names", "yields", "resolves", "refers", "marks", "enforces", "forbids", "permits",
+    "allows", "selects", "stores", "loads", "calls", "invokes", "owns", "consumes",
+    "enumerates", "describes", "reports", "introduces", "commits", "aborts", "survives",
+    "agree", "agrees", "apply", "hold", "contain", "carry", "occur", "occurs", "reach",
+    "reaches", "rejected", "accepted", "trapped", "faulted", "lie", "lies",
+    # base forms after plural subjects, and further third-person forms seen in the specs
+    "fail", "produce", "retain", "take", "use", "revise", "revises", "append", "appends",
+    "declare", "declares", "supply", "supplies", "return", "reject", "enter", "leave", "keep",
+    "run", "write", "read", "follow", "become", "remain", "release", "allocate", "match",
+    "mean", "denote", "need", "give", "cover", "covers", "require", "emit", "compute",
+    "check", "validate", "accept", "restore", "replace", "create", "add", "remove", "treat",
+    "preserve", "satisfy", "imply", "precede", "yield", "resolve", "refer", "enforce",
+    "forbid", "permit", "allow", "select", "store", "load", "invoke", "own", "consume",
+    "receive", "receives", "share", "shares", "differ", "count", "fix", "choose", "reverse",
+    "admits", "admit", "admitted", "drops", "drop", "ignores", "ignore", "costs", "cost",
+    "wraps", "wrap", "pairs", "sees", "see", "lands", "land", "matters", "states", "state",
+    "says", "say", "lets", "let", "makes", "make", "goes", "go", "comes", "come", "tests",
+    "test", "names", "name", "lists", "list", "maps", "map", "records", "record",
+)
+RE_DECL = re.compile(r"\b(%s)\b" % "|".join(sorted(set(DECL_VERBS))), re.I)
+RE_EXAMPLE_LEAD = re.compile(r"^(?:\*\*|\*|_)?(?:e\.g\.|For example|For instance|Examples?\b)")
+RE_NN_MARK = re.compile(r"^\*?\((?:non-normative|deferred)\b[^)]*\)\*?")
+RE_INLINE_ASIDE = re.compile(r"\*\((?:non-normative|deferred)\b[^)]*\)\*")
+RE_NN_TITLE = re.compile(r"\((?:non-normative|deferred)\)|^Changes from", re.I)
+RE_EXAMPLE_TITLE = re.compile(r"^(?:Examples?\b|Worked examples)|\bExamples$")
+RE_ENUM = re.compile(r"(?:(?<=^)|(?<=[\s;:,—(]))\((\d{1,2}|[ivx]{1,4}|[a-z])\)(?=[\s,.;:)]|$)")
+RE_ENUM_REFWORD = re.compile(
+    r"(?:§\S+|\b(?:parts?|items?|steps?|rules?|cases?|in|of|see|by|from|per))\s*$", re.I)
+RE_ENUM_TAIL = re.compile(r"[\s,;]*(?:\b(?:and|or)\b)?[\s,;]*$")
+ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"]
+KIND_ABBR = collections.OrderedDict([("requirement", "req"), ("definition", "def"),
+                                     ("non-normative", "non"), ("example", "ex"),
+                                     ("uncertain", "unc")])
+KINDS = tuple(KIND_ABBR)
+# Classifier rules, first match wins (listed in the design doc).
+CLASSIFIER_RULES = collections.OrderedDict([
+    ("K1", "example: the statement is a fenced code block"),
+    ("K2", "non-normative: the section or an enclosing section is front matter, a change log "
+           "(title 'Changes from ...') or titled *(non-normative)* / *(deferred)*"),
+    ("K3", "non-normative: the sentence starts with *(non-normative...)* or *(deferred...)*, or "
+           "follows such a sentence in the same paragraph; uncertain if it contains an RFC 2119 "
+           "keyword"),
+    ("K4", "requirement: contains an upper-case RFC 2119 keyword (MUST, MUST NOT, SHOULD, MAY, "
+           "SHALL, REQUIRED, ...)"),
+    ("K5", "definition: introduces a defined term (bold) or a rule label of its clause"),
+    ("K6", "example: starts with e.g. / For example / Example, contains e.g., or lies in an "
+           "examples section"),
+    ("K7", "requirement: lower-case normative word (must, must not, cannot, shall, may only, "
+           "may not, never)"),
+    ("K8", "requirement: a declarative verb from the fixed list (is, are, returns, rejects, "
+           "traps, ...)"),
+    ("K9", "requirement: a table row (normative table: instruction, default, error-code "
+           "rows state their content in columns, not sentences)"),
+    ("K10", "uncertain: none of the above (verbless fragment, list-item fragment)"),
+    ("K11", "sub-statement classified K10 inherits the kind of its enumerating sentence"),
+])
+UNCERTAIN_REASON = {"K3": "RFC 2119 keyword inside a *(non-normative)* passage",
+                    "K10": "no RFC keyword, defined term, example marker or declarative verb"}
+
+
+def _code_spans(s):
+    """[(start, end)] of inline code spans: a backtick run closed by a run of equal length."""
+    out, i, n = [], 0, len(s)
+    while i < n:
+        if s[i] != "`":
+            i += 1
+            continue
+        j = i
+        while j < n and s[j] == "`":
+            j += 1
+        run, k, close = j - i, j, -1
+        while k < n:
+            if s[k] == "`":
+                e = k
+                while e < n and s[e] == "`":
+                    e += 1
+                if e - k == run:
+                    close = e
+                    break
+                k = e
+            else:
+                k += 1
+        if close < 0:
+            i = j
+            continue
+        out.append((i, close))
+        i = close
+    return out
+
+
+def _protected(p):
+    """Mask of positions inside code spans or matched ()/[] pairs (no sentence split there)."""
+    prot = bytearray(len(p))
+    for a, b in _code_spans(p):
+        prot[a:b] = b"\x01" * (b - a)
+    stack = []
+    for i, ch in enumerate(p):
+        if prot[i]:
+            continue
+        if ch in "([":
+            stack.append((ch, i))
+        elif ch in ")]" and stack and stack[-1][0] == ("(" if ch == ")" else "["):
+            _, o = stack.pop()
+            prot[o + 1:i] = b"\x01" * (i - o - 1)
+    return prot
+
+
+def split_sentences(p):
+    """Sentence spans [(start, end)] of one prose paragraph p (rules: design doc)."""
+    n = len(p)
+    prot = _protected(p)
+    cuts = []
+    for m in RE_DEPS.finditer(p):
+        if prot[m.start()]:
+            continue
+        e = m.end()
+        while e < n and p[e] in ".!?":
+            e += 1
+        cuts.append(e)
+    for i, ch in enumerate(p):
+        if ch not in ".!?" or prot[i]:
+            continue
+        if ch == "." and ((i + 1 < n and p[i + 1] == ".") or (i > 0 and p[i - 1] == ".")):
+            continue  # ellipsis
+        j = i + 1
+        while j < n and p[j] in SENT_CLOSERS:
+            j += 1
+        if j >= n or not p[j].isspace():
+            continue
+        k = j
+        while k < n and p[k].isspace():
+            k += 1
+        if k >= n:
+            continue
+        if ch == ".":
+            am = RE_ABBR.search(p[max(0, i - 24):i])
+            if am and am.group(1) in ABBREVIATIONS:
+                continue
+        if p.startswith("[deps:", k):
+            continue  # the marker closes the sentence (cut above)
+        q = k
+        while q < n and p[q] in SENT_OPENERS:
+            q += 1
+        if q < n and (p[q].isupper() or p[q].isdigit() or p[q] in "`§["):
+            cuts.append(j)
+    spans, a = [], 0
+    for c in sorted(set(c for c in cuts if 0 < c < n)) + [n]:
+        s, e = a, c
+        while s < e and p[s].isspace():
+            s += 1
+        while e > s and p[e - 1].isspace():
+            e -= 1
+        if s < e:
+            spans.append((s, e))
+        a = c
+    # a sentence that is only a bold caption ("**Requirement.**") joins the next one
+    out = []
+    for sp in spans:
+        if out and RE_CAPTION.match(norm_ws(p[out[-1][0]:out[-1][1]])) \
+                and out[-1][2] == "caption":
+            out[-1] = (out[-1][0], sp[1], "")
+            continue
+        out.append((sp[0], sp[1], "caption" if RE_CAPTION.match(norm_ws(p[sp[0]:sp[1]])) else ""))
+    return [(s, e) for s, e, _ in out]
+
+
+def _enum_succ(a, style):
+    if style == "num":
+        return str(int(a) + 1)
+    if style == "roman":
+        k = ROMAN.index(a) if a in ROMAN else -1
+        return ROMAN[k + 1] if 0 <= k < len(ROMAN) - 1 else None
+    return chr(ord(a) + 1) if a < "z" else None
+
+
+def split_enumeration(text):
+    """[(start, end)] of the enumerated items (1)…(n) / (a)… / (i)… inside one sentence,
+    or [] when there is no run of at least two consecutive enumerators."""
+    code = _code_spans(text)
+    cands = []
+    for m in RE_ENUM.finditer(text):
+        if any(a <= m.start() < b for a, b in code):
+            continue
+        if RE_ENUM_REFWORD.search(text[max(0, m.start() - 24):m.start()]):
+            continue  # "§9.2 (5b)", "part (4)": a reference, not an enumerator
+        cands.append((m.start(), m.group(1)))
+    for k, (pos, mk) in enumerate(cands):
+        style = {"1": "num", "a": "letter", "i": "roman"}.get(mk)
+        if style is None:
+            continue
+        run, want = [pos], _enum_succ(mk, style)
+        for pos2, mk2 in cands[k + 1:]:
+            if mk2 == want:
+                run.append(pos2)
+                want = _enum_succ(mk2, style)
+        if len(run) >= 2:
+            ends = run[1:] + [len(text)]
+            return [(a, b) for a, b in zip(run, ends)]
+    return []
+
+
+def _clause_blocks(nd):
+    """[(kind 'prose'|'code', start, end, masked_text)] of a clause node's text."""
+    text = nd["text"]
+    lines = text.split("\n")
+    offs, o = [], 0
+    for ln in lines:
+        offs.append(o)
+        o += len(ln) + 1
+    blocks, prose, code, fence = [], [], None, None
+
+    def flush():
+        if prose:
+            blocks.append(("prose", offs[prose[0]], offs[prose[-1]] + len(lines[prose[-1]])))
+            prose.clear()
+
+    for i, ln in enumerate(lines):
+        if fence is not None:
+            m = RE_FENCE.match(ln)
+            if m and m.group(2)[0] == fence[0] and len(m.group(2)) >= len(fence) \
+                    and not m.group(3).strip():
+                blocks.append(("code", code, offs[i] + len(ln)))
+                fence = None
+            continue
+        m = RE_FENCE.match(ln)
+        if m:
+            flush()
+            fence, code = m.group(2), offs[i]
+            continue
+        if not ln.strip():
+            flush()
+            continue
+        prose.append(i)
+    flush()
+    if fence is not None:
+        blocks.append(("code", code, len(text)))
+    out = []
+    for k, (kind, a, b) in enumerate(blocks):
+        p = text[a:b]
+        if kind == "prose" and a == 0 and nd.get("clause_kind") == "item":
+            m = RE_LIST.match(p)
+            if m:
+                p = " " * m.end() + p[m.end():]
+        if kind == "prose" and nd.get("clause_kind") == "row":
+            s, e = p.find("|"), p.rfind("|")
+            if s >= 0 and p[:s].strip() == "":
+                p = p[:s] + " " + p[s + 1:]
+            if e > s and p[e + 1:].strip() == "":
+                p = p[:e] + " " + p[e + 1:]
+        out.append((kind, a, b, p))
+    return out
+
+
+def _clean(raw):
+    t = norm_ws(RE_DEPS_STRIP.sub(" ", raw))
+    return re.sub(r"\s+([.!?])$", r"\1", t)
+
+
+def _plain(text):
+    return RE_INLINE_ASIDE.sub(" ", RE_CODE_SPAN.sub(" ", text))
+
+
+def classify_statement(text, code=False, nn_section=False, nn_passage=False,
+                       example_section=False, defines=(), row=False):
+    """(kind, rule, modal keywords). Rules K1-K10: CLASSIFIER_RULES."""
+    if code:
+        return "example", "K1", []
+    plain = _plain(text)
+    modal = sorted(set(RE_MODAL.findall(plain)))
+    if nn_section:
+        return "non-normative", "K2", modal
+    if nn_passage:
+        return ("uncertain" if modal else "non-normative"), "K3", modal
+    if modal:
+        return "requirement", "K4", modal
+    if defines:
+        return "definition", "K5", modal
+    if RE_EXAMPLE_LEAD.match(plain.lstrip()) or "e.g." in plain or example_section:
+        return "example", "K6", modal
+    if RE_LOWER_MODAL.search(plain):
+        return "requirement", "K7", modal
+    if RE_DECL.search(plain):
+        return "requirement", "K8", modal
+    if row:
+        return "requirement", "K9", modal
+    return "uncertain", "K10", modal
+
+
+def _section_flags(g):
+    """{section id: (non-normative, example section, terminology)} with title inheritance."""
+    secs = {n["id"]: n for n in g["nodes"] if n["kind"] == "section"}
+    out = {}
+    for sid, n in secs.items():
+        nn = n["number"] == "front"
+        ex = False
+        cur = n
+        while cur is not None:
+            t = cur["title"]
+            if RE_NN_TITLE.search(t):
+                nn = True
+            if RE_EXAMPLE_TITLE.search(t) and "(normative" not in t:
+                ex = True
+            cur = secs.get(cur.get("parent"))
+        out[sid] = (nn, ex)
+    return out
+
+
+class _RefCtx:
+    def __init__(self, g, xg):
+        self.spec = g["spec"]
+        self.version = g["version"]
+        self.local = SectionIndex.from_graph(g)
+        self.xspec_name = xg["spec"] if xg else None
+        self.xspec = SectionIndex.from_graph(xg) if xg else None
+
+
+class _Span:
+    """Minimal clause stand-in for scan_refs."""
+
+    def __init__(self, text, start):
+        self.text = text
+        self.start = start
+
+
+def _check_xspec(g, xg):
+    xs = g.get("xspec")
+    if not xs:
+        return None
+    if xg is None:
+        raise UsageError("%s-%s was built against %s-%s; pass that graph with --xspec"
+                         % (g["spec"], g["version"], xs["spec"], xs["version"]))
+    validate_graph(xg, "xspec")
+    if xg["spec"] != xs["spec"] or xg["source"]["sha256"] != xs["sha256"]:
+        raise UsageError("%s-%s was built against %s-%s (sha256 %s...), not against the given "
+                         "%s-%s (sha256 %s...)" % (g["spec"], g["version"], xs["spec"],
+                                                   xs["version"], xs["sha256"][:12], xg["spec"],
+                                                   xg["version"], xg["source"]["sha256"][:12]))
+    return xg
+
+
+def build_statements(g, xg=None):
+    """Statement layer of graph g (and the --xspec graph xg it was resolved against)."""
+    validate_graph(g)
+    xg = _check_xspec(g, xg)
+    spec = g["spec"]
+    secs = collections.OrderedDict((n["id"], n) for n in g["nodes"] if n["kind"] == "section")
+    flags = _section_flags(g)
+    clauses = [n for n in g["nodes"] if n["kind"] == "clause"]
+    nodes = {n["id"]: n for n in g["nodes"]}
+    kinds = g.get("alias_kinds", {})
+    clause_terms = collections.defaultdict(list)
+    clause_labels = collections.defaultdict(list)
+    for al, cid in g["aliases"].items():
+        (clause_labels if kinds.get(al) == "label" else clause_terms)[cid].append(al)
+    for amb in g.get("ambiguous_terms", []):
+        for cid in amb["clauses"]:
+            clause_terms[cid].append(amb["term"])
+    stmts = []
+    for nd in clauses:
+        top = []
+        for kind, a, b, p in _clause_blocks(nd):
+            if kind == "code":
+                top.append({"raw": nd["text"][a:b], "a": a, "code": True, "nn": False})
+                continue
+            nn = False
+            for s, e in split_sentences(p):
+                raw = p[s:e]
+                txt = norm_ws(raw)
+                if RE_NN_MARK.match(txt):
+                    nn = True
+                top.append({"raw": raw, "a": a + s, "code": False, "nn": nn})
+        # defined terms and labels: the first statement of the clause that carries them
+        placed = set()
+        for st in top:
+            st["defines"] = []
+            if st["code"]:
+                continue
+            txt = _clean(st["raw"])
+            bold = {norm_ws(m.group(1)).strip().rstrip(".:,;").strip()
+                    for m in RE_BOLD.finditer(txt)}
+            for t in clause_terms.get(nd["id"], ()):
+                if t in bold and t not in placed:
+                    st["defines"].append(t)
+                    placed.add(t)
+            for lb in clause_labels.get(nd["id"], ()):
+                if lb not in placed and re.search(LABEL_LEFT + re.escape(lb) + LABEL_RIGHT, txt):
+                    st["defines"].append(lb)
+                    placed.add(lb)
+        rest = [x for x in list(clause_terms.get(nd["id"], ())) + list(clause_labels.get(nd["id"], ()))
+                if x not in placed]
+        if rest and top:
+            first = next((x for x in top if not x["code"]), top[0])
+            first["defines"].extend(rest)
+        nn_sec, ex_sec = flags[nd["parent"]]
+        for k, st in enumerate(top, 1):
+            sid = "%s.S%d" % (nd["id"], k)
+            text = st["raw"] if st["code"] else _clean(st["raw"])
+            kind, rule, modal = classify_statement(
+                text, code=st["code"], nn_section=nn_sec, nn_passage=st["nn"],
+                example_section=ex_sec, defines=st["defines"],
+                row=nd.get("clause_kind") == "row")
+            markers = [] if st["code"] else RE_DEPS.findall(st["raw"])
+            line = nd["line"] + nd["text"].count("\n", 0, st["a"])
+            rec = {"id": sid, "clause": nd["id"], "section": nd["parent"], "n": "<1>%d" % k,
+                   "level": 1, "parent": None, "kind": kind, "rule": rule, "modal": modal,
+                   "defines": sorted(set(st["defines"])), "text": text,
+                   "hash": clause_hash(text), "line": line,
+                   "marker": [norm_ws(x) for x in markers] if markers else None,
+                   "_raw": st["raw"], "_code": st["code"]}
+            stmts.append(rec)
+            if st["code"]:
+                continue
+            for j, (ea, eb) in enumerate(split_enumeration(text), 1):
+                sub = text[ea:eb].strip()
+                if eb < len(text):
+                    sub = RE_ENUM_TAIL.sub("", sub)
+                skind, srule, smodal = classify_statement(
+                    sub, nn_section=nn_sec, nn_passage=st["nn"], example_section=ex_sec)
+                if srule == "K10" and kind != "uncertain":
+                    skind, srule = kind, "K11"
+                stmts.append({"id": "%s.%d" % (sid, j), "clause": nd["id"],
+                              "section": nd["parent"], "n": "<2>%d" % j, "level": 2,
+                              "parent": sid, "kind": skind, "rule": srule, "modal": smodal,
+                              "defines": [], "text": sub, "hash": clause_hash(sub),
+                              "line": line, "marker": None, "_raw": sub, "_code": False})
+    for s in stmts:
+        if s["kind"] == "uncertain":
+            s["uncertain"] = UNCERTAIN_REASON[s["rule"]]
+    _statement_deps(g, xg, stmts, nodes)
+    for s in stmts:
+        del s["_raw"], s["_code"]
+    unresolved = [u for s in stmts for u in s.pop("_unresolved")]
+    by_kind = collections.Counter(s["kind"] for s in stmts)
+    by_section = collections.OrderedDict()
+    for sid in secs:
+        c = collections.Counter(s["kind"] for s in stmts if s["section"] == sid)
+        if c:
+            by_section[sid] = {k: c.get(k, 0) for k in KINDS}
+    stats = {"statements": len(stmts), "top_level": sum(1 for s in stmts if s["level"] == 1),
+             "sub_statements": sum(1 for s in stmts if s["level"] == 2),
+             "clauses": len(clauses), "by_kind": {k: by_kind.get(k, 0) for k in KINDS},
+             "by_rule": dict(sorted(collections.Counter(s["rule"] for s in stmts).items(),
+                                    key=lambda kv: natural_key(kv[0]))),
+             "markers": sum(1 for s in stmts if s["marker"] is not None),
+             "declared_edges": sum(len(s["deps"]["declared"]) for s in stmts),
+             "inferred_edges": sum(len(s["deps"]["inferred"]) for s in stmts),
+             "superseded_edges": sum(1 for s in stmts for d in s["deps"]["inferred"]
+                                     if d["status"] == "superseded"),
+             "unresolved_markers": len(unresolved), "by_section": by_section}
+    return {"schema": STMT_SCHEMA, "spec": spec, "version": g["version"],
+            "graph": {"source_file": g["source"]["file"], "source_sha256": g["source"]["sha256"]},
+            "xspec": g.get("xspec"), "rules": CLASSIFIER_RULES, "statements": stmts,
+            "unresolved": unresolved, "stats": stats}
+
+
+def _statement_deps(g, xg, stmts, nodes):
+    """Fill s['deps'] = {declared, inferred} and s['_unresolved'] for every statement."""
+    spec = g["spec"]
+    by_id = {s["id"]: s for s in stmts}
+    defining = {}  # alias -> defining statement id
+    for s in stmts:
+        for al in s["defines"]:
+            defining.setdefault(al, s["id"])
+    for al, cid in g["aliases"].items():
+        defining.setdefault(al, "%s.S1" % cid if "%s.S1" % cid in by_id else cid)
+    kinds = g.get("alias_kinds", {})
+    labels = [a for a, k in kinds.items() if k == "label"]
+    terms = [a for a, k in kinds.items() if k == "term"]
+    rl = alias_regex(labels, LABEL_LEFT, LABEL_RIGHT)
+    rt = alias_regex(terms, TERM_LEFT, TERM_RIGHT)
+    by_prefix = collections.defaultdict(dict)
+    for lb in labels:
+        m = RE_LABEL_SPLIT.match(lb)
+        if m:
+            by_prefix[m.group(1)][int(m.group(2))] = lb
+    ctx = _RefCtx(g, xg)
+    xnodes = {n["id"]: n for n in xg["nodes"]} if xg else {}
+
+    def related(a, b):  # same statement, or one is the other's enumerating parent
+        return a == b or by_id[a]["parent"] == b or by_id.get(b, {}).get("parent") == a
+
+    for s in stmts:
+        inferred = collections.OrderedDict()
+
+        def add(dst, via, name):
+            if dst is None or (dst in by_id and related(s["id"], dst)):
+                return
+            if dst not in inferred:
+                inferred[dst] = {"dst": dst, "via": via, "name": name, "status": "inferred"}
+
+        # the marker is metadata, not spec prose: never infer from its own ids
+        text = RE_DEPS.sub(lambda m: " " * len(m.group(0)), s["_raw"])
+        if rl:
+            for m in rl.finditer(text):
+                hits = [m.group(1)]
+                rm = re.match(r"–(%s)" % LABEL, text[m.end():m.end() + 24])
+                if rm:
+                    a, b = RE_LABEL_SPLIT.match(m.group(1)), RE_LABEL_SPLIT.match(rm.group(1))
+                    if a and b and a.group(1) == b.group(1):
+                        hits.extend(by_prefix[a.group(1)][k]
+                                    for k in range(int(a.group(2)) + 1, int(b.group(2)))
+                                    if k in by_prefix[a.group(1)])
+                for h in hits:
+                    add(defining[h], "label", h)
+        if rt and not s["_code"]:
+            for m in rt.finditer(text):
+                add(defining[m.group(1)], "term", m.group(1))
+        for kind, dst, _line, _unres in scan_refs(_Span(text, s["line"]), ctx):
+            if dst is not None:
+                add(dst, kind, None)
+        declared, unresolved = [], []
+        if s["marker"] is not None:
+            for body in s["marker"]:
+                body = body.strip()
+                if RE_DEPS_NONE.match(body):
+                    continue
+                for tok in [t.strip().strip("`") for t in body.split(",")]:
+                    dst, why = _resolve_declared(tok, spec, by_id, nodes, g["aliases"],
+                                                 defining, xg, xnodes)
+                    if dst is not None and dst == s["id"]:
+                        dst, why = None, "self"
+                    if dst is None:
+                        unresolved.append({"src": s["id"], "line": s["line"], "ref": tok,
+                                           "reason": why})
+                    elif dst not in [d["dst"] for d in declared]:
+                        declared.append({"dst": dst, "ref": tok})
+            dset = [d["dst"] for d in declared]
+            for d in inferred.values():
+                covered = any(d["dst"] == x or d["dst"].startswith(x + ".")
+                              or d["dst"].startswith(x + "-") for x in dset)
+                d["status"] = "confirmed" if covered else "superseded"
+        for d in inferred.values():
+            if d["name"] is None:
+                del d["name"]
+        s["deps"] = {"declared": declared, "inferred": list(inferred.values())}
+        s["_unresolved"] = unresolved
+
+
+def _resolve_declared(tok, spec, by_id, nodes, aliases, defining, xg, xnodes):
+    """Declared dependency token -> (target id, None) or (None, reason)."""
+    if not tok:
+        return None, "empty"
+    if tok in by_id:
+        return tok, None
+    if tok in nodes and nodes[tok]["kind"] in ("clause", "section"):
+        return tok, None
+    if ":" in tok:
+        sp, al = tok.split(":", 1)
+        if sp == spec and al in aliases:
+            return defining[al], None
+        if xg and sp == xg["spec"] and al in xg["aliases"]:
+            return xg["aliases"][al], None
+        return None, "unknown-alias"
+    if tok in aliases:
+        return defining[tok], None
+    m = RE_STMT_ID.match(tok)
+    head = tok.split("-", 1)[0]
+    if xg and head == xg["spec"]:
+        if tok in xnodes or (m and m.group("clause") in xnodes):
+            return tok, None
+        return None, "no-such-id"
+    if head != spec and re.match(r"^[A-Z][A-Z0-9]*$", head) and "-" in tok:
+        return None, "xspec-not-loaded"
+    if m and m.group("clause") in nodes:
+        return None, "no-such-statement"
+    return None, "no-such-id"
+
+
+def validate_statements(st, what="statements"):
+    if not isinstance(st, dict) or st.get("schema") != STMT_SCHEMA:
+        raise UsageError("%s is not a %s file" % (what, STMT_SCHEMA))
+    for k in ("spec", "version", "graph", "statements"):
+        if k not in st:
+            raise UsageError("%s lacks key %r" % (what, k))
+
+
+def statement_targets(s):
+    """Dependency targets a query follows: declared, plus inferred not superseded."""
+    out = [d["dst"] for d in s["deps"]["declared"]]
+    out.extend(d["dst"] for d in s["deps"]["inferred"] if d["status"] != "superseded")
+    return out
+
+
+def _md_text(s):
+    if s["rule"] == "K1":
+        body = [ln for ln in s["text"].split("\n") if ln.strip() and not RE_FENCE.match(ln)]
+        first = norm_ws(body[0]) if body else ""
+        return "(code block, %d lines) %s" % (s["text"].count("\n") + 1,
+                                              first[:80] + ("…" if len(first) > 80 else ""))
+    return s["text"]
+
+
+def statements_markdown(st, g):
+    secs = collections.OrderedDict((n["id"], n) for n in g["nodes"] if n["kind"] == "section")
+    name = "%s-%s" % (st["spec"], st["version"])
+    out = ["# Statements of %s" % name, "",
+           "Generated by `python3 -I clauses/clausegraph.py statements clauses/%s.json` from "
+           "`%s` (sha256 %s...). Do not edit; rebuild. Rules and ids: "
+           "`docs/design/clause-graph.md`, \"Statement layer\"."
+           % (name, st["graph"]["source_file"], st["graph"]["source_sha256"][:12]), "",
+           "Kinds: `[req]` requirement, `[def]` definition, `[non]` non-normative, `[ex]` "
+           "example, `[unc]` uncertain. `deps:` inferred dependencies with the term, label or "
+           "`§` reference behind each (`~` = superseded by a declared marker); `declared:` the "
+           "spec's own `[deps: ...]` markers.", "", "## Counts", ""]
+    t = st["stats"]
+    out.append("%d statements (%d top-level, %d enumerated sub-statements) in %d clauses; "
+               "%s; %d declared markers, %d unresolved."
+               % (t["statements"], t["top_level"], t["sub_statements"], t["clauses"],
+                  ", ".join("%s %d" % (k, t["by_kind"][k]) for k in KINDS), t["markers"],
+                  t["unresolved_markers"]))
+    out += ["", "| section | %s | total |" % " | ".join(KIND_ABBR.values()),
+            "|---|%s---|" % ("---|" * len(KINDS))]
+    for sid, c in t["by_section"].items():
+        out.append("| %s | %s | %d |" % (sid, " | ".join(str(c[k]) for k in KINDS),
+                                         sum(c.values())))
+    if st["unresolved"]:
+        out += ["", "Unresolved markers: " + "; ".join(
+            "%s `%s` (%s)" % (u["src"], u["ref"], u["reason"]) for u in st["unresolved"])]
+    out += ["", "## Listing", ""]
+    by_sec = collections.defaultdict(list)
+    for s in st["statements"]:
+        by_sec[s["section"]].append(s)
+    for sid, sec in secs.items():
+        if sid not in by_sec:
+            continue
+        head = "Front matter" if sec["number"] == "front" else "§%s %s" % (sec["number"],
+                                                                         sec["title"])
+        out += ["### %s   [%s]" % (head, sid), "", "````text"]
+        cur = None
+        for s in by_sec[sid]:
+            if s["clause"] != cur:
+                cur = s["clause"]
+                out.append(cur)
+            line = "%s%s [%s] %s" % ("  " * s["level"], s["n"], KIND_ABBR[s["kind"]],
+                                     _md_text(s))
+            inf = ["%s%s%s" % ("~" if d["status"] == "superseded" else "", d["dst"],
+                               " (%s)" % d["name"] if d.get("name") else "")
+                   for d in s["deps"]["inferred"]]
+            if inf:
+                line += "   deps: " + ", ".join(inf)
+            if s["deps"]["declared"]:
+                line += "   declared: " + ", ".join(d["dst"] for d in s["deps"]["declared"])
+            out.append(line)
+        out += ["````", ""]
+    return "\n".join(out)
+
+
+def statements_path(graph_path):
+    if not graph_path.endswith(".json") or graph_path.endswith(".statements.json"):
+        raise UsageError("expected a graph .json path, got %s" % graph_path)
+    return graph_path[:-len(".json")] + ".statements.json"
+
+
+def load_statements(graph_path, required=True):
+    path = statements_path(graph_path)
+    if not os.path.exists(path):
+        if required:
+            raise UsageError("%s not found; run `clausegraph.py statements %s` first"
+                             % (path, graph_path))
+        return None
+    st = load_json(path)
+    validate_statements(st, path)
+    return st
+
+
+def match_statements(a, b, sa, sb):
+    """Statement pairs between two versions: hash, then similar text inside matched clauses."""
+    pairs_c = match_clauses(a, b)
+    la, lb = sa["statements"], sb["statements"]
+    pairs, used = {}, set()
+    hb = collections.defaultdict(list)
+    for s in lb:
+        hb[s["hash"]].append(s["id"])
+    for s in la:
+        lst = hb.get(s["hash"])
+        if lst:
+            pairs[s["id"]] = (lst.pop(0), "hash")
+            used.add(pairs[s["id"]][0])
+    ra, rb = collections.defaultdict(list), collections.defaultdict(list)
+    for s in la:
+        if s["id"] not in pairs:
+            ra[s["clause"]].append(s)
+    for s in lb:
+        if s["id"] not in used:
+            rb[s["clause"]].append(s)
+    cands = []
+    for ca, (cb, _) in pairs_c.items():
+        for x in ra.get(ca, ()):
+            for y in rb.get(cb, ()):
+                sm = difflib.SequenceMatcher(None, norm_ws(x["text"]), norm_ws(y["text"]),
+                                             autojunk=False)
+                if sm.real_quick_ratio() < SIMILAR_RATIO or sm.quick_ratio() < SIMILAR_RATIO:
+                    continue
+                r = sm.ratio()
+                if r >= SIMILAR_RATIO:
+                    cands.append((-r, natural_key(x["id"]), natural_key(y["id"]), x["id"],
+                                  y["id"]))
+    cands.sort()
+    for _, _, _, xa, yb in cands:
+        if xa in pairs or yb in used:
+            continue
+        pairs[xa] = (yb, "similar")
+        used.add(yb)
+    return pairs, used
+
+
+def diff_statements(a, b, sa, sb):
+    for st, g, what in ((sa, a, "first"), (sb, b, "second")):
+        validate_statements(st, "%s statements" % what)
+        if st["graph"]["source_sha256"] != g["source"]["sha256"]:
+            raise UsageError("%s statements file is stale for %s-%s; rerun `statements`"
+                             % (what, g["spec"], g["version"]))
+    pairs, used = match_statements(a, b, sa, sb)
+    ka = {s["id"]: s for s in sa["statements"]}
+    kb = {s["id"]: s for s in sb["statements"]}
+    moved, changed, unchanged = [], [], 0
+    for aid in sorted(pairs, key=natural_key):
+        bid, how = pairs[aid]
+        same_id, same_hash = aid == bid, ka[aid]["hash"] == kb[bid]["hash"]
+        if same_id and same_hash:
+            unchanged += 1
+        if not same_id:
+            moved.append([aid, bid, how])
+        if not same_hash:
+            changed.append([aid, bid, how])
+    added = sorted((x for x in kb if x not in used), key=natural_key)
+    removed = sorted((x for x in ka if x not in pairs), key=natural_key)
+    kc = lambda ids, k: dict(sorted(collections.Counter(k[x]["kind"] for x in ids).items()))  # noqa
+    summary = {"statements_a": len(ka), "statements_b": len(kb), "matched": len(pairs),
+               "matched_by": dict(sorted(collections.Counter(h for _, h in pairs.values())
+                                         .items())),
+               "unchanged": unchanged, "moved": len(moved), "changed": len(changed),
+               "moved_only": sum(1 for x in moved if ka[x[0]]["hash"] == kb[x[1]]["hash"]),
+               "added": len(added), "removed": len(removed),
+               "added_by_kind": kc(added, kb), "removed_by_kind": kc(removed, ka),
+               "changed_by_kind": kc([x[1] for x in changed], kb)}
+    return {"summary": summary, "added": added, "removed": removed, "moved": moved,
+            "changed": changed}
 
 
 # ---------------------------------------------------------------------------
@@ -1264,8 +2123,40 @@ def cmd_build(args):
     return 0
 
 
-def merged_from(args):
-    return Merged([load_graph(args.graph)] + [load_graph(p) for p in (args.with_ or [])])
+def merged_from(args, ids=()):
+    graphs = [load_graph(args.graph)] + [load_graph(p) for p in (args.with_ or [])]
+    sts = None
+    if getattr(args, "statements", False) or any(RE_STMT_ID.match(x) for x in ids):
+        sts = [load_statements(args.graph)]
+        sts += [x for x in (load_statements(p, required=False) for p in (args.with_ or []))
+                if x is not None]
+    return Merged(graphs, sts)
+
+
+def cmd_statements(args):
+    g = load_graph(args.graph)
+    xpath = args.xspec
+    if g.get("xspec") and not xpath:
+        xpath = os.path.join(os.path.dirname(os.path.abspath(args.graph)),
+                             "%s-%s.json" % (g["xspec"]["spec"], g["xspec"]["version"]))
+    xg = load_graph(xpath) if xpath else None
+    st = build_statements(g, xg)
+    out_dir = args.out_dir or os.path.dirname(os.path.abspath(args.graph))
+    os.makedirs(out_dir, exist_ok=True)
+    stem = os.path.join(out_dir, "%s-%s.statements" % (g["spec"], g["version"]))
+    write_text(stem + ".json", json.dumps(st, indent=1, ensure_ascii=False) + "\n")
+    write_text(stem + ".md", statements_markdown(st, g) + "\n")
+    t = st["stats"]
+    print("%s-%s: %d statements (%d top-level, %d sub) in %d clauses; %s; %d declared "
+          "markers (%d edges, %d inferred edges superseded), %d unresolved"
+          % (g["spec"], g["version"], t["statements"], t["top_level"], t["sub_statements"],
+             t["clauses"], json.dumps(t["by_kind"]), t["markers"], t["declared_edges"],
+             t["superseded_edges"], t["unresolved_markers"]))
+    for u in st["unresolved"]:
+        print("warning: %s: unresolved declared dependency %r (%s)"
+              % (u["src"], u["ref"], u["reason"]), file=sys.stderr)
+    print("wrote %s.json and %s.md" % (stem, stem))
+    return 0
 
 
 def describe(m, nid):
@@ -1275,11 +2166,13 @@ def describe(m, nid):
         extra = " [%s]" % ", ".join(nd["aliases"])
     if nd.get("kind") == "section":
         extra = " (§%s %s)" % (nd["number"], nd["title"])
+    if nd.get("kind") == "statement":
+        extra = " [%s]" % KIND_ABBR[nd["stmt_kind"]]
     return nid + extra
 
 
 def cmd_impact(args):
-    m = merged_from(args)
+    m = merged_from(args, [args.id])
     nid = m.resolve(args.id)
     levels = m.impact(nid, args.closure, args.max_depth)
     total = sum(len(x) for x in levels)
@@ -1287,18 +2180,26 @@ def cmd_impact(args):
         print(json.dumps({"id": nid, "closure": args.closure, "max_depth": args.max_depth,
                           "total": total, "levels": levels}, indent=1))
         return 0
-    print("impact of %s (closure %s%s): %d dependent clauses"
+    what = "dependent clauses"
+    if m.statements:
+        flat = [x for lv in levels for x in lv]
+        nst = sum(1 for x in flat if m.kind(x) == "statement")
+        ncl = len({RE_STMT_ID.match(x).group("clause") if m.kind(x) == "statement" else x
+                   for x in flat})
+        what = "dependents (%d statements, %d clauses without a statement layer; %d clauses " \
+               "in all)" % (nst, total - nst, ncl)
+    print("impact of %s (closure %s%s): %d %s"
           % (describe(m, nid), args.closure,
-             ", max depth %d" % args.max_depth if args.max_depth else "", total))
+             ", max depth %d" % args.max_depth if args.max_depth else "", total, what))
     for d, lv in enumerate(levels, 1):
         print("depth %d (%d): %s" % (d, len(lv), ", ".join(describe(m, x) for x in lv)))
     return 0
 
 
 def cmd_independent(args):
-    m = merged_from(args)
+    m = merged_from(args, [args.a, args.b])
     a, b = m.resolve(args.a), m.resolve(args.b)
-    ok, fwd, rev = m.independent(a, b, args.closure, args.max_depth)
+    ok, fwd, rev = m.independent(a, b, args.closure, args.max_depth, args.containers)
     if ok:
         print("independent")
         return 0
@@ -1310,7 +2211,12 @@ def cmd_independent(args):
 
 def cmd_coverage(args):
     g = load_graph(args.graph)
-    rep = coverage(g, load_json(args.tags))
+    tags = load_json(args.tags)
+    want = args.statements or (isinstance(tags, dict) and any(
+        RE_STMT_ID.match(t) for v in tags.values() for t in ([v] if isinstance(v, str) else
+                                                              v if isinstance(v, list) else [])
+        if isinstance(t, str)))
+    rep = coverage(g, tags, load_statements(args.graph) if want else None)
     if args.json:
         print(json.dumps(rep, indent=1))
         return 0
@@ -1319,6 +2225,15 @@ def cmd_coverage(args):
           % (rep["spec"], rep["version"], t["clauses"], t["strong"], t["weak"], t["uncovered"]))
     if rep["foreign"]:
         print("ignored tags for other specs: %s" % ", ".join(rep["foreign"]))
+    if "statements" in rep:
+        st = rep["statements"]
+        t = st["totals"]
+        print("statements of %s-%s: %d; strong %d, weak (clause or section tag) %d, "
+              "uncovered %d" % (rep["spec"], rep["version"], t["statements"], t["strong"],
+                                t["weak"], t["uncovered"]))
+        print("by kind: " + "; ".join("%s %d (strong %d, weak %d, uncovered %d)"
+                                      % (k, c["statements"], c["strong"], c["weak"],
+                                         c["uncovered"]) for k, c in st["by_kind"].items()))
     for s_ in rep["sections"]:
         line = "%s %s: %d clauses, strong %d, weak %d, uncovered %d" % (
             s_["section"], s_["title"], s_["clauses"], len(s_["strong"]), len(s_["weak"]),
@@ -1348,7 +2263,11 @@ def diff_table(d):
 
 
 def cmd_diff(args):
-    d = diff_graphs(load_graph(args.a), load_graph(args.b))
+    ga, gb = load_graph(args.a), load_graph(args.b)
+    d = diff_graphs(ga, gb)
+    if args.statements:
+        d["statements"] = diff_statements(ga, gb, load_statements(args.a),
+                                          load_statements(args.b))
     if args.json:
         print(json.dumps(d, indent=1))
         return 0
@@ -1365,6 +2284,23 @@ def cmd_diff(args):
             print("%s: %s" % (k, ", ".join(d[k])))
         for k in ("moved", "changed"):
             print("%s: %s" % (k, ", ".join("%s->%s(%s)" % tuple(x) for x in d[k])))
+    if "statements" in d:
+        sd, t = d["statements"], d["statements"]["summary"]
+        print()
+        print("statements %s -> %s: %d -> %d; matched %d %s; unchanged %d; moved %d "
+              "(renumbered only %d); changed %d; added %d; removed %d"
+              % (s_["a"], s_["b"], t["statements_a"], t["statements_b"], t["matched"],
+                 json.dumps(t["matched_by"]), t["unchanged"], t["moved"], t["moved_only"],
+                 t["changed"], t["added"], t["removed"]))
+        print("by kind: added %s; removed %s; changed %s"
+              % (json.dumps(t["added_by_kind"]), json.dumps(t["removed_by_kind"]),
+                 json.dumps(t["changed_by_kind"])))
+        if args.list:
+            for k in ("added", "removed"):
+                print("statements %s: %s" % (k, ", ".join(sd[k])))
+            for k in ("moved", "changed"):
+                print("statements %s: %s" % (k, ", ".join("%s->%s(%s)" % tuple(x)
+                                                          for x in sd[k])))
     return 0
 
 
@@ -1403,7 +2339,15 @@ def make_parser():
     d.add_argument("b")
     d.add_argument("--json", action="store_true")
     d.add_argument("--list", action="store_true", help="list every added/removed/moved/changed id")
+    d.add_argument("--statements", action="store_true",
+                   help="also diff the statement layers (<graph>.statements.json siblings)")
     d.set_defaults(fn=cmd_diff)
+    s = sub.add_parser("statements", help="split clauses into Lamport-style statements; write "
+                                          "<SPEC>-<version>.statements.json/.md")
+    s.add_argument("graph")
+    s.add_argument("--xspec", help="graph the input was built against (default: sibling file)")
+    s.add_argument("--out-dir", default=None, help="default: the graph's directory")
+    s.set_defaults(fn=cmd_statements)
     for name, fn, hlp in (("impact", cmd_impact, "transitive dependents by depth"),
                           ("independent", cmd_independent, "are two clauses' cones disjoint")):
         q = sub.add_parser(name, help=hlp)
@@ -1414,14 +2358,21 @@ def make_parser():
         else:
             q.add_argument("a")
             q.add_argument("b")
+            q.add_argument("--containers", choices=("count", "ignore"), default="count",
+                           help="count (default): a citation of a section or clause enclosing "
+                                "both ids makes them dependent; ignore: it does not")
         q.add_argument("--with", dest="with_", action="append",
                        help="also load this graph (e.g. the ISA graph for a DLT query)")
+        q.add_argument("--statements", action="store_true",
+                       help="query the statement layer (implied by a statement id)")
         add_closure_args(q)
         q.set_defaults(fn=fn)
     c = sub.add_parser("coverage", help="clauses with zero witnesses per section")
     c.add_argument("graph")
     c.add_argument("--tags", required=True, help="JSON {test-or-proof-name: id | [ids]}")
     c.add_argument("--json", action="store_true")
+    c.add_argument("--statements", action="store_true",
+                   help="also report statement-level coverage (implied by a statement id tag)")
     c.set_defaults(fn=cmd_coverage)
     t = sub.add_parser("top", help="clauses ranked by number of transitive dependents")
     t.add_argument("graph")
