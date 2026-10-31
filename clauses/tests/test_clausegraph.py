@@ -181,6 +181,14 @@ class TestAliases(unittest.TestCase):
         self.assertIn("three b", node(g, "DLT-5-P2")["text"])
         self.assertEqual(node(g, "DLT-5-P2")["aliases"], ["PT3"])
 
+    def test_label_list_cell(self):
+        txt = "## 21. S\n\n| Suite | Class |\n|---|---|\n| DA | P |\n| DR, DF | R |\n\nSee DF.\n"
+        g = build(txt, spec="DLT")
+        self.assertEqual(g["aliases"]["DA"], "DLT-21-P1")
+        self.assertEqual(g["aliases"]["DR"], "DLT-21-P2")
+        self.assertEqual(g["aliases"]["DF"], "DLT-21-P2")
+        self.assertIn(("DLT-21-P3", "DLT-21-P2"), edges(g, "uses"))
+
     def test_non_defining_table(self):
         # header not a definition header, and a mixed table: no aliases
         txt = ("## 5. R\n\n| Tier | x |\n|---|---|\n| CC | a |\n\n"
@@ -622,6 +630,116 @@ class TestCli(unittest.TestCase):
         r = run_cli("impact", os.path.join(self.tmp, "ISA-0.8.json"), "NOPE-1")
         self.assertEqual(r.returncode, 2)
         self.assertIn("NOPE-1", r.stderr)
+
+
+ISA08 = os.path.join(WORKSPACE, "bennett-isa-spec", "spec", "Bennett-ISA-Spec.md")
+ISA09 = os.path.join(WORKSPACE, "bennett-isa-spec", "spec", "Bennett-ISA-Spec-0.9-draft.md")
+DLT = os.path.join(WORKSPACE, "bennett-dialect-spec", "spec", "Bennett-Dialect-Spec.md")
+HAVE_SPECS = all(os.path.exists(p) for p in (ISA08, ISA09, DLT))
+
+
+def read(p):
+    with open(p, encoding="utf-8") as f:
+        return f.read()
+
+
+@unittest.skipUnless(HAVE_SPECS, "sibling spec repositories not checked out next to this repo")
+class TestRealSpecs(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.isa = cg.build_graph(read(ISA08), "ISA", "0.8", ISA08)
+        cls.isa9 = cg.build_graph(read(ISA09), "ISA", "0.9-draft", ISA09)
+        cls.dlt = cg.build_graph(read(DLT), "DLT", "0.2.10", DLT, xspec=cls.isa)
+
+    def test_isa_sizes(self):
+        st = self.isa["stats"]
+        self.assertTrue(60 <= st["sections"] <= 90, st)
+        self.assertTrue(250 <= st["clauses"] <= 700, st)
+        st9 = self.isa9["stats"]
+        self.assertTrue(70 <= st9["sections"] <= 110, st9)
+        self.assertTrue(400 <= st9["clauses"] <= 1200, st9)
+
+    def test_isa_section_ref_5_6_resolves(self):
+        srcs = {e["src"] for e in self.isa["edges"]
+                if e["kind"] == "refs" and e["dst"] == "ISA-5.6"}
+        self.assertIn("ISA-5.2-P2", srcs)  # "borrowed bundles returned (§5.6)"
+        self.assertGreaterEqual(len(srcs), 3)
+
+    def test_isa_unresolved_are_external_only(self):
+        reasons = {u["reason"] for u in self.isa["unresolved"]}
+        self.assertTrue(all(r.startswith("external:") for r in reasons), reasons)
+
+    def test_isa_labels_and_terms(self):
+        a = self.isa["aliases"]
+        for lb in ("T3", "C1", "R2"):
+            self.assertIn(lb, a)
+        self.assertTrue(a["T3"].startswith("ISA-14.3-"))
+        self.assertTrue(a["R2"].startswith("ISA-3.7-"))
+        self.assertTrue(a["borrow frames"].startswith("ISA-5.6-"))
+        self.assertTrue(a["lproc"].startswith("ISA-2-"))
+
+    def test_isa_item_ref(self):
+        r = {(e["src"], e["dst"]) for e in self.isa["edges"] if e["kind"] == "refs"}
+        self.assertIn(("ISA-6.4-P1", "ISA-17-P7"), r)  # "§17 item 6"
+
+    def test_dialect_sizes(self):
+        st = self.dlt["stats"]
+        self.assertTrue(150 <= st["sections"] <= 220, st)
+        self.assertTrue(900 <= st["clauses"] <= 4000, st)
+
+    def test_dialect_labels_resolve(self):
+        a = self.dlt["aliases"]
+        self.assertTrue(a["PT3"].startswith("DLT-5.2-"), a["PT3"])
+        self.assertTrue(a["N21"].startswith("DLT-12.2-"), a["N21"])
+        self.assertTrue(a["TDL-5"].startswith("DLT-10-"), a["TDL-5"])
+        self.assertTrue(a["BD-E-RESIDUAL"].startswith("DLT-22.1-"), a["BD-E-RESIDUAL"])
+        self.assertTrue(a["S2"].startswith("DLT-4.1-"), a["S2"])
+        self.assertTrue(a["BLK-1"].startswith("DLT-25.1-"), a["BLK-1"])
+        uses = collections_count(self.dlt, "uses")
+        for lb in ("PT3", "N21", "TDL-5"):
+            self.assertGreaterEqual(uses[a[lb]], 3, lb)
+
+    def test_dialect_xspec(self):
+        x = [e for e in self.dlt["edges"] if e["kind"] == "xspec"]
+        self.assertGreaterEqual(len(x), 100)
+        isa_ids = {n["id"] for n in self.isa["nodes"]}
+        self.assertTrue(all(e["dst"] in isa_ids for e in x))
+        self.assertIn("ISA-5.6", {e["dst"] for e in x})
+        self.assertFalse(any(u["reason"] == "xspec-not-loaded" for u in self.dlt["unresolved"]))
+
+    def test_dialect_without_xspec_records_unresolved(self):
+        d = cg.build_graph(read(DLT), "DLT", "0.2.10", DLT)
+        n = sum(1 for u in d["unresolved"] if u["reason"] == "xspec-not-loaded")
+        self.assertGreaterEqual(n, 100)
+
+    def test_cross_spec_impact(self):
+        m = cg.Merged([self.isa, self.dlt])
+        deps = {x for lv in m.impact("ISA-5.6") for x in lv}
+        self.assertTrue(any(x.startswith("DLT-") for x in deps))
+
+    def test_deterministic(self):
+        again = cg.build_graph(read(ISA08), "ISA", "0.8", ISA08)
+        self.assertEqual(json.dumps(again), json.dumps(self.isa))
+
+    def test_diff_08_09(self):
+        d = cg.diff_graphs(self.isa, self.isa9)
+        s = d["summary"]
+        self.assertGreater(s["matched"], 0.5 * s["clauses_a"], s)
+        self.assertGreater(s["added"], 0)
+
+    def test_committed_isa_08_graph_is_current(self):
+        p = os.path.join(CLAUSES, "ISA-0.8.json")
+        if not os.path.exists(p):
+            self.skipTest("clauses/ISA-0.8.json not built yet")
+        with open(p, encoding="utf-8") as f:
+            g = json.load(f)
+        self.assertEqual(json.dumps(g), json.dumps(self.isa),
+                         "clauses/ISA-0.8.json is stale; rebuild it (see clauses/README.md)")
+
+
+def collections_count(g, kind):
+    import collections
+    return collections.Counter(e["dst"] for e in g["edges"] if e["kind"] == kind)
 
 
 if __name__ == "__main__":

@@ -52,7 +52,8 @@ RE_TABLE_SEP = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$")
 LABEL = r"[A-Z][A-Z0-9]*(?:[-.][A-Z0-9]+)*"
 RE_LABEL_FULL = re.compile(r"^%s$" % LABEL)
 # Table first cell that names a label: PT3, `BD-E-X`, **BLK-1** = ISA-4
-RE_LABEL_CELL = re.compile(r"^(?:\*\*)?`?(%s)`?(?:\*\*)?(?:\s*=\s*.*)?$" % LABEL)
+_CELL1 = r"(?:\*\*)?`?%s`?(?:\*\*)?" % LABEL
+RE_LABEL_CELL = re.compile(r"^(%s(?:,\s*%s)*)(?:\s*=\s*.*)?$" % (_CELL1, _CELL1))
 DEFINING_HEADERS = {"Id", "Rule", "Step", "Code", "Check", "Suite", "#"}
 # Bold lead label: **TDL-5 Title.** / **C1 capture**: / **P-1.** / **BLOCK-IMAGE**
 RE_BOLD_LEAD = re.compile(r"^\*\*(%s)(?=[\s.:*(])([^*]*)\*\*" % LABEL)
@@ -299,7 +300,7 @@ def parse_markdown(text, filename):
             labels = []
             for rl, rt in rows:
                 m = RE_LABEL_CELL.match(split_cells(rt)[0])
-                labels.append(m.group(1) if m else None)
+                labels.append(tuple(re.findall(LABEL, m.group(1))) if m else None)
             defining = (header[0] in DEFINING_HEADERS and rows
                         and all(lb is not None for lb in labels))
             prev = None
@@ -453,12 +454,14 @@ def define_aliases(spec, clauses, sections, filename):
     primary = {}    # label -> clause (defining table rows)
     secondary = collections.OrderedDict()  # label -> [(clause, lead_text)]
     for c in clauses:
-        if c.kind == "row" and c.table_defining and c.row_label and len(c.row_label) >= 2:
-            lb = c.row_label
-            if lb in primary:
-                raise SpecError("duplicate label %s: defined at line %d and line %d"
-                                % (lb, primary[lb].start, c.start), c.start, filename)
-            primary[lb] = c
+        if c.kind == "row" and c.table_defining and c.row_label:
+            for lb in c.row_label:
+                if len(lb) < 2:
+                    continue  # single letters (ISA suites A-H) collide with prose
+                if lb in primary:
+                    raise SpecError("duplicate label %s: defined at line %d and line %d"
+                                    % (lb, primary[lb].start, c.start), c.start, filename)
+                primary[lb] = c
             continue
         if c.kind == "row":
             continue
