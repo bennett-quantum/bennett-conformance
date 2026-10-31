@@ -974,6 +974,9 @@ def natural_key(s):
     return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
 
 
+RE_FOREIGN_ID = re.compile(r"^([A-Z][A-Z0-9]*)(?::.+|-(?:front|\d+(?:\.\d+)?|[A-Z])(?:-P\d+)?)$")
+
+
 def coverage(g, tags):
     validate_graph(g)
     m = Merged([g])
@@ -988,13 +991,13 @@ def coverage(g, tags):
         if not isinstance(targets, list) or not all(isinstance(t, str) for t in targets):
             raise UsageError("tag %r: value must be an id or a list of ids" % name)
         for t in targets:
-            spec = t.split(":", 1)[0] if ":" in t else t.split("-", 1)[0]
-            if spec != g["spec"] and spec.isupper() and t not in g["aliases"]:
-                foreign.append(t)
-                continue
             try:
                 nid = m.resolve(t)
             except UsageError as e:
+                fm = RE_FOREIGN_ID.match(t)
+                if fm and fm.group(1) != g["spec"]:
+                    foreign.append(t)  # an id or SPEC:alias of another spec: listed, not used
+                    continue
                 raise UsageError("tag %r: %s" % (name, e))
             kind = m.kind(nid)
             if kind == "clause":

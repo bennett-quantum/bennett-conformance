@@ -512,6 +512,10 @@ class TestQueries(unittest.TestCase):
             cg.coverage(g, {"t": ["ISA-7-P1"]})
         with self.assertRaises(cg.UsageError):
             cg.coverage(g, {"t": 5})
+        with self.assertRaises(cg.UsageError):
+            cg.coverage(g, {"t": ["PT33"]})  # unknown alias, not a foreign id
+        with self.assertRaises(cg.UsageError):
+            cg.coverage(g, {"t": ["BD-E-NOPE"]})
 
 
 class TestXspecMerged(unittest.TestCase):
