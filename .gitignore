@@ -18,3 +18,9 @@ build/
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# generated on demand (process review 2026-10-31): dialect statements and Graphviz outputs
+clauses/*.dot
+clauses/DLT-*.statements.*
+clauses/__pycache__/
+clauses/tests/__pycache__/
