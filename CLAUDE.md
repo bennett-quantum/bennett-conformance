@@ -63,7 +63,9 @@ The specs live in `../bennett-isa-spec/spec/Bennett-ISA-Spec.md` and
    Batch and agent commands run with DISPLAY, WAYLAND_DISPLAY, DBUS_SESSION_BUS_ADDRESS and BROWSER
    unset and TMPDIR set to a project-local or job directory (2026-10-28: ~80,000 .dot files reached
    the maintainer's editor via xdg-open).
-12. EVERY TEST, PROOF AND DEFECT NAMES THE CLAUSES IT WITNESSES (clause IDs from clauses/); a case or proof without clause tags fails the suite runner.
+12. EVERY SUITE CASE CARRIES CLAUSE TAGS (`clauses` in expect.json, IDs from clauses/); suite/run.py
+   rejects a case without them. Defects are beads with labels `defect`, `isa`|`dialect`, and one of
+   `open|ready|resolved|errata|editorial|not-a-defect`; a proposal for new semantics is not a defect.
 
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:1105d646 -->
