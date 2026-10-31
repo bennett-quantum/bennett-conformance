@@ -91,8 +91,41 @@ digraph "ISA-0.9-draft" {
       "ISA-0.2-P26" [label="P26\nK26"];
       "ISA-0.2-P27" [label="P27\nK27"];
       "ISA-0.2-P28" [label="P28\nK28"];
-      "ISA-0.2-P29" [label="P29"];
-      "ISA-0.2-P30" [label="P30"];
+      "ISA-0.2-P29" [label="P29\nK29"];
+      "ISA-0.2-P30" [label="P30\nK30"];
+      "ISA-0.2-P31" [label="P31\nK31"];
+      "ISA-0.2-P32" [label="P32\nK32"];
+      "ISA-0.2-P33" [label="P33\nK33"];
+      "ISA-0.2-P34" [label="P34\nK34"];
+      "ISA-0.2-P35" [label="P35\nK35"];
+      "ISA-0.2-P36" [label="P36\nK36"];
+      "ISA-0.2-P37" [label="P37\nK37"];
+      "ISA-0.2-P38" [label="P38\nK38"];
+      "ISA-0.2-P39" [label="P39\nK39"];
+      "ISA-0.2-P40" [label="P40\nK40"];
+      "ISA-0.2-P41" [label="P41\nK41"];
+      "ISA-0.2-P42" [label="P42\nK42"];
+      "ISA-0.2-P43" [label="P43\nK43"];
+      "ISA-0.2-P44" [label="P44\nK44"];
+      "ISA-0.2-P45" [label="P45\nK45"];
+      "ISA-0.2-P46" [label="P46\nK46"];
+      "ISA-0.2-P47" [label="P47\nK47"];
+      "ISA-0.2-P48" [label="P48\nK48"];
+      "ISA-0.2-P49" [label="P49\nK49"];
+      "ISA-0.2-P50" [label="P50\nK50"];
+      "ISA-0.2-P51" [label="P51\nK51"];
+      "ISA-0.2-P52" [label="P52\nK52"];
+      "ISA-0.2-P53" [label="P53\nK53"];
+      "ISA-0.2-P54" [label="P54\nK54"];
+      "ISA-0.2-P55" [label="P55\nK55"];
+      "ISA-0.2-P56" [label="P56\nK56"];
+      "ISA-0.2-P57" [label="P57\nK57"];
+      "ISA-0.2-P58" [label="P58\nK58"];
+      "ISA-0.2-P59" [label="P59\nK59"];
+      "ISA-0.2-P60" [label="P60\nK60"];
+      "ISA-0.2-P61" [label="P61\nK61"];
+      "ISA-0.2-P62" [label="P62"];
+      "ISA-0.2-P63" [label="P63"];
     }
     subgraph "cluster_ISA-0.3" {
       label="§0.3 Group 3: optional efficiency semantics (deferred)";
@@ -208,7 +241,8 @@ digraph "ISA-0.9-draft" {
       "ISA-3.3-P17" [label="P17"];
       "ISA-3.3-P18" [label="P18"];
       "ISA-3.3-P19" [label="P19"];
-      "ISA-3.3-P20" [label="P20\nStatic and run-time verdicts"];
+      "ISA-3.3-P20" [label="P20"];
+      "ISA-3.3-P21" [label="P21\nStatic and run-time verdicts"];
     }
     subgraph "cluster_ISA-3.4" {
       label="§3.4 Execution in CC and R";
@@ -271,6 +305,7 @@ digraph "ISA-0.9-draft" {
       "ISA-3.7-P23" [label="P23\nR5"];
       "ISA-3.7-P24" [label="P24"];
       "ISA-3.7-P25" [label="P25"];
+      "ISA-3.7-P26" [label="P26"];
     }
   }
   subgraph "cluster_ISA-4" {
@@ -342,6 +377,7 @@ digraph "ISA-0.9-draft" {
       "ISA-4.3-P2" [label="P2"];
       "ISA-4.3-P3" [label="P3"];
       "ISA-4.3-P4" [label="P4"];
+      "ISA-4.3-P5" [label="P5"];
     }
     subgraph "cluster_ISA-4.4" {
       label="§4.4 Gates";
@@ -370,6 +406,7 @@ digraph "ISA-0.9-draft" {
       "ISA-4.6-P7" [label="P7"];
       "ISA-4.6-P8" [label="P8"];
       "ISA-4.6-P9" [label="P9"];
+      "ISA-4.6-P10" [label="P10"];
     }
     subgraph "cluster_ISA-4.7" {
       label="§4.7 Region calls (structured code, CC and R)";
@@ -438,6 +475,8 @@ digraph "ISA-0.9-draft" {
       "ISA-5.3-P3" [label="P3"];
       "ISA-5.3-P4" [label="P4\nAdjoint table"];
       "ISA-5.3-P5" [label="P5"];
+      "ISA-5.3-P6" [label="P6"];
+      "ISA-5.3-P7" [label="P7\nmatched pair"];
     }
     subgraph "cluster_ISA-5.4" {
       label="§5.4 Budgets and fault codes";
@@ -463,6 +502,7 @@ digraph "ISA-0.9-draft" {
       "ISA-5.6-P5" [label="P5"];
       "ISA-5.6-P6" [label="P6"];
       "ISA-5.6-P7" [label="P7"];
+      "ISA-5.6-P8" [label="P8"];
     }
     subgraph "cluster_ISA-5.7" {
       label="§5.7 Executor transformations";
@@ -492,6 +532,8 @@ digraph "ISA-0.9-draft" {
       "ISA-6.1-P14" [label="P14"];
       "ISA-6.1-P15" [label="P15"];
       "ISA-6.1-P16" [label="P16"];
+      "ISA-6.1-P17" [label="P17"];
+      "ISA-6.1-P18" [label="P18\nOutstanding dependence, depend on g"];
     }
     subgraph "cluster_ISA-6.2" {
       label="§6.2 Window and obligations";
@@ -616,6 +658,8 @@ digraph "ISA-0.9-draft" {
       "ISA-9.2-P1" [label="P1"];
       "ISA-9.2-P2" [label="P2\nCanonical function bytes, Semantic envelope"];
       "ISA-9.2-P3" [label="P3\nAction / permutation action, Acyclic and cyclic symbols, CC / R function"];
+      "ISA-9.2-P4" [label="P4"];
+      "ISA-9.2-P5" [label="P5\nEnvelope boundary lemma"];
     }
     subgraph "cluster_ISA-9.3" {
       label="§9.3 Linking";
@@ -712,6 +756,9 @@ digraph "ISA-0.9-draft" {
     "ISA-11-P3" [label="P3\nSchedule document"];
     "ISA-11-P4" [label="P4"];
     "ISA-11-P5" [label="P5\ninvocation chain"];
+    "ISA-11-P6" [label="P6"];
+    "ISA-11-P7" [label="P7\nobject-derivable"];
+    "ISA-11-P8" [label="P8\nSelection witnesses"];
   }
   subgraph "cluster_ISA-12" {
     label="§12 Certificate (cert 0.9; JCS)";
@@ -1027,19 +1074,58 @@ digraph "ISA-0.9-draft" {
   "ISA-0.2-P26" -> "ISA-11.1";
   "ISA-0.2-P27" -> "ISA-11.1";
   "ISA-0.2-P28" -> "ISA-11.1";
-  "ISA-0.2-P29" -> "ISA-3.7";
-  "ISA-0.2-P29" -> "ISA-4.2";
-  "ISA-0.2-P29" -> "ISA-4.7";
-  "ISA-0.2-P29" -> "ISA-16.2";
-  "ISA-0.2-P29" -> "ISA-3.6";
-  "ISA-0.2-P29" -> "ISA-5.4";
-  "ISA-0.2-P29" -> "ISA-9.1";
-  "ISA-0.2-P29" -> "ISA-9.2";
-  "ISA-0.2-P29" -> "ISA-15";
-  "ISA-0.2-P29" -> "ISA-16.3";
-  "ISA-0.2-P30" -> "ISA-16.3";
-  "ISA-0.2-P30" -> "ISA-8.3";
-  "ISA-0.2-P30" -> "ISA-9.4";
+  "ISA-0.2-P29" -> "ISA-5.3";
+  "ISA-0.2-P29" -> "ISA-5.1";
+  "ISA-0.2-P30" -> "ISA-4.6";
+  "ISA-0.2-P31" -> "ISA-5.3";
+  "ISA-0.2-P32" -> "ISA-3.7";
+  "ISA-0.2-P33" -> "ISA-3.3";
+  "ISA-0.2-P34" -> "ISA-3.3";
+  "ISA-0.2-P35" -> "ISA-3.3";
+  "ISA-0.2-P36" -> "ISA-6.1";
+  "ISA-0.2-P37" -> "ISA-6.2";
+  "ISA-0.2-P38" -> "ISA-6.2";
+  "ISA-0.2-P39" -> "ISA-6.2";
+  "ISA-0.2-P40" -> "ISA-6.2";
+  "ISA-0.2-P41" -> "ISA-6.1";
+  "ISA-0.2-P42" -> "ISA-5.6";
+  "ISA-0.2-P43" -> "ISA-5.6";
+  "ISA-0.2-P44" -> "ISA-4.3";
+  "ISA-0.2-P45" -> "ISA-9.2";
+  "ISA-0.2-P46" -> "ISA-9.2";
+  "ISA-0.2-P47" -> "ISA-9.2";
+  "ISA-0.2-P47" -> "ISA-16.3";
+  "ISA-0.2-P47" -> "ISA-12";
+  "ISA-0.2-P48" -> "ISA-9.2";
+  "ISA-0.2-P48" -> "ISA-16.2";
+  "ISA-0.2-P49" -> "ISA-11";
+  "ISA-0.2-P50" -> "ISA-11";
+  "ISA-0.2-P51" -> "ISA-11";
+  "ISA-0.2-P52" -> "ISA-11";
+  "ISA-0.2-P53" -> "ISA-11";
+  "ISA-0.2-P54" -> "ISA-11";
+  "ISA-0.2-P55" -> "ISA-11";
+  "ISA-0.2-P56" -> "ISA-11";
+  "ISA-0.2-P57" -> "ISA-17-P8";
+  "ISA-0.2-P57" -> "ISA-11.1";
+  "ISA-0.2-P58" -> "ISA-17-P10";
+  "ISA-0.2-P59" -> "ISA-17-P10";
+  "ISA-0.2-P59" -> "ISA-8.1";
+  "ISA-0.2-P60" -> "ISA-11";
+  "ISA-0.2-P61" -> "ISA-11";
+  "ISA-0.2-P62" -> "ISA-3.7";
+  "ISA-0.2-P62" -> "ISA-4.2";
+  "ISA-0.2-P62" -> "ISA-4.7";
+  "ISA-0.2-P62" -> "ISA-16.2";
+  "ISA-0.2-P62" -> "ISA-3.6";
+  "ISA-0.2-P62" -> "ISA-5.4";
+  "ISA-0.2-P62" -> "ISA-9.1";
+  "ISA-0.2-P62" -> "ISA-9.2";
+  "ISA-0.2-P62" -> "ISA-15";
+  "ISA-0.2-P62" -> "ISA-16.3";
+  "ISA-0.2-P63" -> "ISA-16.3";
+  "ISA-0.2-P63" -> "ISA-8.3";
+  "ISA-0.2-P63" -> "ISA-9.4";
   "ISA-0.3-P1" -> "ISA-17-P18";
   "ISA-0.3-P1" -> "ISA-3.6";
   "ISA-0.3-P2" -> "ISA-17-P19";
@@ -1114,7 +1200,7 @@ digraph "ISA-0.9-draft" {
   "ISA-3.3-P18" -> "ISA-7.4";
   "ISA-3.3-P18" -> "ISA-10";
   "ISA-3.3-P18" -> "ISA-12.3";
-  "ISA-3.3-P20" -> "ISA-3.3";
+  "ISA-3.3-P21" -> "ISA-3.3";
   "ISA-3.4-P1" -> "ISA-7.4";
   "ISA-3.4-P2" -> "ISA-7.4";
   "ISA-3.4-P2" -> "ISA-4.9";
@@ -1166,6 +1252,8 @@ digraph "ISA-0.9-draft" {
   "ISA-4.2-P29" -> "ISA-9.2";
   "ISA-4.2-P29" -> "ISA-14.1";
   "ISA-4.3-P2" -> "ISA-5.6";
+  "ISA-4.3-P5" -> "ISA-3.3";
+  "ISA-4.3-P5" -> "ISA-6.4";
   "ISA-4.4-P2" -> "ISA-12";
   "ISA-4.5-P5" -> "ISA-3.3";
   "ISA-4.5-P5" -> "ISA-11";
@@ -1220,6 +1308,8 @@ digraph "ISA-0.9-draft" {
   "ISA-5.2-P2" -> "ISA-5.6";
   "ISA-5.3-P1" -> "ISA-5.6";
   "ISA-5.3-P4" -> "ISA-4.6";
+  "ISA-5.3-P7" -> "ISA-5.3";
+  "ISA-5.3-P7" -> "ISA-6.2";
   "ISA-5.4-P1" -> "ISA-3.7";
   "ISA-5.4-P2" -> "ISA-7.2";
   "ISA-5.4-P2" -> "ISA-4.5";
@@ -1238,6 +1328,9 @@ digraph "ISA-0.9-draft" {
   "ISA-5.6-P2" -> "ISA-12";
   "ISA-5.7-P1" -> "ISA-5.2";
   "ISA-5.7-P1" -> "ISA-17-P19";
+  "ISA-6.1-P18" -> "ISA-14.2";
+  "ISA-6.2-P1" -> "ISA-5.3";
+  "ISA-6.2-P1" -> "ISA-6.1";
   "ISA-6.4-P1" -> "ISA-6.2";
   "ISA-6.4-P1" -> "ISA-17-P7";
   "ISA-7.2-P2" -> "ISA-5.4";
@@ -1282,6 +1375,8 @@ digraph "ISA-0.9-draft" {
   "ISA-9.2-P1" -> "ISA-9.3";
   "ISA-9.2-P3" -> "ISA-12.3";
   "ISA-9.2-P3" -> "ISA-12";
+  "ISA-9.2-P5" -> "ISA-16.2";
+  "ISA-9.2-P5" -> "ISA-4";
   "ISA-9.3-P1" -> "ISA-12.3";
   "ISA-9.4-P1" -> "ISA-7.4";
   "ISA-9.4-P3" -> "ISA-17-P19";
@@ -1316,7 +1411,9 @@ digraph "ISA-0.9-draft" {
   "ISA-11-P4" -> "ISA-8.3";
   "ISA-11-P4" -> "ISA-9.4";
   "ISA-11-P4" -> "ISA-17-P16";
-  "ISA-11-P5" -> "ISA-6";
+  "ISA-11-P6" -> "ISA-6";
+  "ISA-11-P7" -> "ISA-11";
+  "ISA-11-P7" -> "ISA-12.3";
   "ISA-11.1-P1" -> "ISA-11";
   "ISA-11.1-P2" -> "ISA-4";
   "ISA-11.1-P2" -> "ISA-3.6";
@@ -1532,13 +1629,16 @@ digraph "ISA-0.9-draft" {
   "ISA-0.2-P18" -> "ISA-8.1-P3" [style=dashed, color=gray40];
   "ISA-0.2-P18" -> "ISA-7.3-P6" [style=dashed, color=gray40];
   "ISA-0.2-P19" -> "ISA-11.1-P28" [style=dashed, color=gray40];
-  "ISA-0.2-P29" -> "ISA-2-P4" [style=dashed, color=gray40];
-  "ISA-0.2-P30" -> "ISA-8.1-P3" [style=dashed, color=gray40];
-  "ISA-0.2-P30" -> "ISA-0.2-P9" [style=dashed, color=gray40];
-  "ISA-0.2-P30" -> "ISA-7.3-P6" [style=dashed, color=gray40];
-  "ISA-0.2-P30" -> "ISA-0.2-P10" [style=dashed, color=gray40];
-  "ISA-0.2-P30" -> "ISA-0.2-P17" [style=dashed, color=gray40];
-  "ISA-0.2-P30" -> "ISA-0.2-P5" [style=dashed, color=gray40];
+  "ISA-0.2-P32" -> "ISA-2-P2" [style=dashed, color=gray40];
+  "ISA-0.2-P32" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-0.2-P49" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-0.2-P62" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-0.2-P63" -> "ISA-8.1-P3" [style=dashed, color=gray40];
+  "ISA-0.2-P63" -> "ISA-0.2-P9" [style=dashed, color=gray40];
+  "ISA-0.2-P63" -> "ISA-7.3-P6" [style=dashed, color=gray40];
+  "ISA-0.2-P63" -> "ISA-0.2-P10" [style=dashed, color=gray40];
+  "ISA-0.2-P63" -> "ISA-0.2-P17" [style=dashed, color=gray40];
+  "ISA-0.2-P63" -> "ISA-0.2-P5" [style=dashed, color=gray40];
   "ISA-0.3-P1" -> "ISA-17-P18" [style=dashed, color=gray40];
   "ISA-0.3-P4" -> "ISA-0.2-P5" [style=dashed, color=gray40];
   "ISA-0.3-P5" -> "ISA-0.1-P13" [style=dashed, color=gray40];
@@ -1567,9 +1667,10 @@ digraph "ISA-0.9-draft" {
   "ISA-3.3-P6" -> "ISA-2-P4" [style=dashed, color=gray40];
   "ISA-3.3-P6" -> "ISA-3.6-P1" [style=dashed, color=gray40];
   "ISA-3.3-P9" -> "ISA-2-P9" [style=dashed, color=gray40];
+  "ISA-3.3-P15" -> "ISA-4.9-P1" [style=dashed, color=gray40];
   "ISA-3.3-P18" -> "ISA-14.3-P4" [style=dashed, color=gray40];
   "ISA-3.3-P18" -> "ISA-5.5-P1" [style=dashed, color=gray40];
-  "ISA-3.3-P20" -> "ISA-4.9-P1" [style=dashed, color=gray40];
+  "ISA-3.3-P21" -> "ISA-4.9-P1" [style=dashed, color=gray40];
   "ISA-3.4-P2" -> "ISA-4.9-P1" [style=dashed, color=gray40];
   "ISA-3.6-P1" -> "ISA-2-P4" [style=dashed, color=gray40];
   "ISA-3.6-P1" -> "ISA-9.2-P3" [style=dashed, color=gray40];
@@ -1615,6 +1716,7 @@ digraph "ISA-0.9-draft" {
   "ISA-3.7-P24" -> "ISA-3.7-P20" [style=dashed, color=gray40];
   "ISA-3.7-P24" -> "ISA-3.7-P19" [style=dashed, color=gray40];
   "ISA-3.7-P25" -> "ISA-3.6-P2" [style=dashed, color=gray40];
+  "ISA-3.7-P26" -> "ISA-2-P4" [style=dashed, color=gray40];
   "ISA-4.1-P3" -> "ISA-4.9-P1" [style=dashed, color=gray40];
   "ISA-4.1-P8" -> "ISA-4.9-P1" [style=dashed, color=gray40];
   "ISA-4.1-P11" -> "ISA-6.2-P1" [style=dashed, color=gray40];
@@ -1670,6 +1772,7 @@ digraph "ISA-0.9-draft" {
   "ISA-5.7-P1" -> "ISA-14.3-P6" [style=dashed, color=gray40];
   "ISA-5.7-P1" -> "ISA-4.2-P29" [style=dashed, color=gray40];
   "ISA-6.1-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
+  "ISA-6.2-P1" -> "ISA-5.3-P7" [style=dashed, color=gray40];
   "ISA-6.4-P1" -> "ISA-2-P1" [style=dashed, color=gray40];
   "ISA-6.4-P1" -> "ISA-17-P7" [style=dashed, color=gray40];
   "ISA-7.1-P1" -> "ISA-4.9-P1" [style=dashed, color=gray40];
@@ -1699,6 +1802,8 @@ digraph "ISA-0.9-draft" {
   "ISA-9.2-P1" -> "ISA-9.2-P3" [style=dashed, color=gray40];
   "ISA-9.2-P3" -> "ISA-0.2-P13" [style=dashed, color=gray40];
   "ISA-9.2-P3" -> "ISA-7.2-P1" [style=dashed, color=gray40];
+  "ISA-9.2-P4" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-9.2-P5" -> "ISA-2-P4" [style=dashed, color=gray40];
   "ISA-9.3-P1" -> "ISA-9.2-P3" [style=dashed, color=gray40];
   "ISA-9.4-P2" -> "ISA-2-P3" [style=dashed, color=gray40];
   "ISA-9.4-P2" -> "ISA-2-P1" [style=dashed, color=gray40];
@@ -1717,6 +1822,14 @@ digraph "ISA-0.9-draft" {
   "ISA-10.1-P3" -> "ISA-11-P2" [style=dashed, color=gray40];
   "ISA-10.1-P7" -> "ISA-10.1-P1" [style=dashed, color=gray40];
   "ISA-11-P2" -> "ISA-14.3-P6" [style=dashed, color=gray40];
+  "ISA-11-P5" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-11-P7" -> "ISA-0.2-P55" [style=dashed, color=gray40];
+  "ISA-11-P7" -> "ISA-11-P5" [style=dashed, color=gray40];
+  "ISA-11-P7" -> "ISA-11-P2" [style=dashed, color=gray40];
+  "ISA-11-P8" -> "ISA-3.7-P12" [style=dashed, color=gray40];
+  "ISA-11-P8" -> "ISA-3.7-P13" [style=dashed, color=gray40];
+  "ISA-11-P8" -> "ISA-2-P4" [style=dashed, color=gray40];
+  "ISA-11-P8" -> "ISA-11-P7" [style=dashed, color=gray40];
   "ISA-11.1-P1" -> "ISA-0.2-P11" [style=dashed, color=gray40];
   "ISA-11.1-P2" -> "ISA-8.2-P2" [style=dashed, color=gray40];
   "ISA-11.1-P5" -> "ISA-0.2-P23" [style=dashed, color=gray40];
