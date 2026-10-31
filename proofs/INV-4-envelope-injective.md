@@ -18,13 +18,14 @@ the failure as a refuted step with the sentence 0.9 needs.
 
 ## Precise statement
 
-DEFINE for a legal `layout` object L (`ISA-9.1-P1`): `Leaves(L)` = the set of
+DEFINE for a legal `layout` object L (`ISA-9.1-P1.S1`, `ISA-9.1-P1.S3`): `Leaves(L)` = the set of
 pairs (k, v) where k = (k_1, …, k_m) is the tuple of JSON keys from the root to
-a leaf at "the deepest level the schema lists" and v its value (`ISA-9.2-P2`).
+a leaf at "the deepest level the schema lists" and v its value (`ISA-9.2-P2.S7`).
 DEFINE `dot(k)` = k_1 "." … "." k_m. DEFINE `line(k, v)` = "layout " dot(k) " "
 JCS(v) LF. DEFINE for a symbol f: `CS(f) ⊆ Leaves(L)` its closure-set leaves by
-kind (`ISA-9.2-P2`), and `E5b(f)` = the concatenation of line(ℓ), ℓ ∈ CS(f),
-"sorted by dotted path bytewise" (`ISA-9.2-P1`).
+kind (`ISA-9.2-P2.S1`, `ISA-9.2-P2.S2`, `ISA-9.2-P2.S3`,
+`ISA-9.2-P2.S4`, `ISA-9.2-P2.S5`, `ISA-9.2-P2.S6`), and `E5b(f)` = the concatenation of line(ℓ), ℓ ∈ CS(f),
+"sorted by dotted path bytewise" (`ISA-9.2-P1.S3`).
 
 THEOREM INV-4 (as intended). For every symbol kind K and all legal objects O,
 O' defining a symbol f of kind K:
@@ -39,7 +40,9 @@ symbols.
 
 ## Hypotheses
 
-ISA-9.1-P1, ISA-9.1-P2, ISA-9.2-P1, ISA-9.2-P2, ISA-16.1-P1.
+ISA-9.1-P1.S1, ISA-9.1-P1.S3, ISA-9.1-P2.S1, ISA-9.2-P1.S3, ISA-9.2-P2.S1,
+ISA-9.2-P2.S2, ISA-9.2-P2.S3, ISA-9.2-P2.S4, ISA-9.2-P2.S5, ISA-9.2-P2.S6,
+ISA-9.2-P2.S7, ISA-16.1-P1.S2, ISA-16.1-P1.S3, ISA-16.2-P1.S1.
 
 ## Proof
 
@@ -48,16 +51,16 @@ ISA-9.1-P1, ISA-9.1-P2, ISA-9.2-P1, ISA-9.2-P2, ISA-16.1-P1.
       PROOF:
   <2>1. dot(k) contains no space and no LF: schema keys are fixed identifiers
         and every free key is a NAME, `[A-Za-z_][A-Za-z0-9_.]*`.
-        BY ISA-9.1-P1, ISA-16.1-P1
+        BY ISA-9.1-P1.S3, ISA-16.1-P1.S2
   <2>2. JCS(v) contains no raw LF (RFC 8785 escapes control characters in
         strings and emits no insignificant whitespace); for a scalar the value
         is "its decimal text", fixed per field because "Integers that may
         exceed 2^53 are decimal strings" is a per-field rule.
-        BY ISA-16.1-P1, ISA-9.1-P2, ISA-9.2-P2
+        BY ISA-16.1-P1.S3, ISA-9.1-P2.S1, ISA-9.2-P2.S7
   <2>3. Hence the first space after the fixed prefix "layout " ends dot(k),
         the rest up to LF is JCS(v), and JCS is a canonical serialisation, so
         v is recovered.
-        BY <2>1, <2>2, ISA-16.1-P1
+        BY <2>1, <2>2, ISA-16.1-P1.S3
   <2>4. QED
         BY <2>3
 <1>2. dot is injective on each leaf family except interface_regions, and
@@ -67,12 +70,12 @@ ISA-9.1-P1, ISA-9.1-P2, ISA-9.2-P1, ISA-9.2-P2, ISA-16.1-P1.
         `S_cells`, `null_size`, `heap_base`, `heap_limit_max`, `block_image`);
         `globals.<name>`; `interface_regions.<oracle>.<region>`. "Unknown
         sections or fields are errors".
-        BY ISA-9.1-P1, ISA-9.2-P2
+        BY ISA-9.1-P1.S1, ISA-9.1-P1.S3, ISA-9.2-P2.S7
   <2>2. Top-level scalar paths are fixed, dot-free and pairwise distinct.
-        BY ISA-9.1-P1
+        BY ISA-9.1-P1.S3
   <2>3. `globals.<name>` has one free component behind a fixed prefix, so
         dot(k) = "globals." ‖ name determines name.
-        BY ISA-9.1-P1, ISA-16.1-P1; algebra
+        BY ISA-9.1-P1.S3, ISA-16.1-P1.S2; algebra
   <2>4. Paths of different families differ in their first component, which
         is dot-free ("globals", "interface_regions", the scalar names), so the
         prefix up to the first "." identifies the family.
@@ -80,14 +83,14 @@ ISA-9.1-P1, ISA-9.1-P2, ISA-9.2-P1, ISA-9.2-P2, ISA-16.1-P1.
   <2>5. `interface_regions.<oracle>.<region>` has two free components, each a
         NAME that may contain ".": ("a", "c.db") and ("a.c", "db") both give
         "interface_regions.a.c.db". dot is not injective on this family.
-        BY ISA-9.1-P1, ISA-9.2-P2, ISA-16.1-P1
+        BY ISA-9.1-P1.S3, ISA-9.2-P2.S7, ISA-16.1-P1.S2
   <2>6. QED
         BY <2>2, <2>3, <2>4, <2>5
 <1>3. If dot is injective on CS(f), then (W) and (I) hold.
       PROOF:
   <2>1. Sorting by an injective key is a total order on CS(f), so E5b(f) is
         unique.
-        BY ISA-9.2-P1; algebra
+        BY ISA-9.2-P1.S3; algebra
   <2>2. E5b(f) splits at LF into lines; by <1>1 each line gives (dot(k), v);
         by injectivity of dot it gives k; hence CS(f).
         BY <1>1, <2>1; algebra
@@ -101,27 +104,27 @@ ISA-9.1-P1, ISA-9.1-P2, ISA-9.2-P1, ISA-9.2-P2, ISA-16.1-P1.
         `interface_regions.<oracle>.*` leaves"; all interface-region leaves in
         it share the first free component (the oracle), so only the region
         component is free.
-        BY ISA-9.2-P2, <1>2
+        BY ISA-9.2-P2.S2, <1>2
   <2>2. "Its own" and "other oracles" are decided on the structural key
         k_2 = the oracle's name, not on a prefix of the rendered path.
-        ASSUMED: `ISA-9.2-P2` writes the selection as the path pattern
+        ASSUMED: `ISA-9.2-P2.S2` writes the selection as the path pattern
         `interface_regions.<oracle>.*`; on rendered paths, oracle "a" would
         capture the leaves of oracle "a.b" (council SOL-R11-B02, R11-B02).
   <2>3. Lproc: only `globals.<g>` leaves (and images); action, permutation
         action, data: no layout leaves.
-        BY ISA-9.2-P2, <1>2
+        BY ISA-9.2-P2.S3, ISA-9.2-P2.S4, ISA-9.2-P2.S6, <1>2
   <2>4. QED
         BY <2>1, <2>2, <2>3, <1>2
 <1>5. For CC and R functions, (W) and (I) fail.
       PROOF:
   <2>1. A CC/R closure set has "all `layout` leaves", so it contains every
         interface-region leaf of every oracle.
-        BY ISA-9.2-P2
+        BY ISA-9.2-P2.S5
   <2>2. (W) fails: an object with oracle "a" (region "c.db", base 32) and
         oracle "a.c" (region "db", base 48) is legal and gives a CC function
         two lines with the same dotted path; "sorted by dotted path bytewise"
         does not order them, so two envelopes (and closure hashes) conform.
-        OPEN (refuted): `ISA-9.2-P1` (5b) gives no tie order; council
+        OPEN (refuted): `ISA-9.2-P1.S3` (5b) gives no tie order; council
         SOL-R12-B01, R12-B01; SPEC-QUESTIONS 31.
   <2>3. (I) fails even with any tie order: object O1 with oracle "a", region
         "c.db" and object O2 with oracle "a.c", region "db", both base 32, give
@@ -145,7 +148,7 @@ ISA-9.1-P1, ISA-9.1-P2, ISA-9.2-P1, ISA-9.2-P2, ISA-16.1-P1.
 ```
 
 Not covered: injectivity of the whole envelope (parts (1)–(6) as one byte
-string). It needs a grammar argument over `ISA-16.2` that no canonical function
+string). It needs a grammar argument over `ISA-16.2-P1.S1` that no canonical function
 line has the form of a (5a)/(5b)/(5c) line or of a 64-hex part-(6) line, so that
 the part boundaries are recoverable. OPEN; listed as gap 4.
 
@@ -173,26 +176,27 @@ compares envelopes within one object.
 
 ## Spec gaps
 
-1. (1.4.2, next to `ISA-9.2-P2`) ASSUMED. Needed sentence: "An oracle's own
+1. (1.4.2, next to `ISA-9.2-P2` (`ISA-9.2-P2.S2`)) ASSUMED. Needed sentence: "An oracle's own
    interface-region leaves, and the interface-region entries of other oracles,
    are selected by the exact JSON key under `interface_regions`, never by a
    prefix of the dotted path."
-2. (1.5.2, next to `ISA-9.2-P1` part (5b)) OPEN (refuted). Needed sentence
+2. (1.5.2, next to `ISA-9.2-P1` (`ISA-9.2-P1.S3`) part (5b)) OPEN (refuted). Needed sentence
    (SPEC-QUESTIONS 31, sol's wording): "Emit one line for every structured layout
    leaf, including leaves with coincident dotted renderings. Sort by the rendered
    dotted path bytewise; break ties bytewise by the sequence of original JSON
    key components."
-3. (1.5.3, next to `ISA-9.2-P1` part (5b) and `ISA-16.1-P1`) OPEN (refuted); gap 2
+3. (1.5.3, next to `ISA-9.2-P1` (`ISA-9.2-P1.S3`) part (5b) and
+   `ISA-16.1-P1` (`ISA-16.1-P1.S2`)) OPEN (refuted); gap 2
    does not close it. Needed sentence, one of: (a) "The path of a layout leaf is
    rendered as the JCS array of its key components, e.g. `layout
    ["interface_regions","a","c.db"] {"base":32}`"; or (b) "Oracle names and
    region names that appear as keys of `layout.interface_regions` MUST NOT
    contain `.`" (a narrowing of NAME, to be checked against the dialect's name
    mangling before choosing it).
-4. (whole envelope, next to `ISA-9.2-P1`) OPEN. Needed: either a lemma that
-   canonical function lines (`ISA-16.2`) never begin with `data `, `layout `,
+4. (whole envelope, next to `ISA-9.2-P1` (`ISA-9.2-P1.S3`)) OPEN. Needed: either a lemma that
+   canonical function lines (`ISA-16.2`, `ISA-16.2-P1.S1`) never begin with `data `, `layout `,
    `device ` and are never 64 hex digits, or a length prefix per part.
-5. (1.5.4, next to `ISA-9.2-P2`) OPEN. Not a missing sentence but an unfinished
+5. (1.5.4, next to `ISA-9.2-P2` (`ISA-9.2-P2.S5`)) OPEN. Not a missing sentence but an unfinished
    analysis: whether a CC/R function's semantics can depend on an interface
    region's `base` without a part-(6) reference to the oracle. Gap 3 makes the
    question moot.

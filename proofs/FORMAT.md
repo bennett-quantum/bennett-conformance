@@ -53,7 +53,8 @@ never justification.
 ## File layout
 
 Statement (informal, precise); Hypotheses; Proof; Witnesses; Spec gaps; Council
-blockers as instances. `proofs/tags.json` maps `INV-n` to its cited clause ids.
+blockers as instances. `proofs/tags.json` maps `INV-n` to its cited statement ids (clause or section ids only for
+whole-clause citations).
 
 ## Mapping to af
 

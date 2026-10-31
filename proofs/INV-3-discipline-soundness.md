@@ -10,7 +10,7 @@ If a region body passes the static checks of §5.1 (explicit cleanup), §5.6
 under any inherited control, every `qfree` releases a bundle that is |0⟩ on every
 branch and factorises from the rest of the state, every borrowed bundle comes
 back with the identity applied to it and to anything entangled with it, and the
-region exits with clean workspace. This is the content of T5 (`ISA-14.3-P5`, "As
+region exits with clean workspace. This is the content of T5 (`ISA-14.3-P5.S1`, "As
 §6.3") extended to borrowing. The result: proved for `perm` values under three
 ASSUMED readings; **false for `other` values under the literal 0.8 text** (a
 known counterexample); proved for borrow frames (both the T3 route and the
@@ -19,8 +19,10 @@ translation lemma) under one ASSUMED reading about controls.
 ## Precise statement
 
 DEFINE `Seg`, `[[S]]_{Π,κ}` as in INV-1. DEFINE a region body Γ is *disciplined*
-iff it is well-formed under `ISA-5.1-P1`, `ISA-5.6-P2`, `ISA-5.6-P3`, `ISA-5.6-P4`, `ISA-5.6-P5`, `ISA-5.6-P6`,
-`ISA-6.1`, `ISA-6.2-P1` and `ISA-6.4-P1` (no "ill-formed" verdict).
+iff it is well-formed under `ISA-5.1-P1` (whole clause), `ISA-5.6-P2.S1`,
+`ISA-5.6-P2.S2`, `ISA-5.6-P3.S1`, `ISA-5.6-P4.S1`, `ISA-5.6-P5.S1`, `ISA-5.6-P6.S1`,
+`ISA-6.1` (whole section), `ISA-6.2-P1` (whole clause) and `ISA-6.4-P1.S1`,
+`ISA-6.4-P1.S2` (no "ill-formed" verdict).
 
 THEOREM INV-3. For every disciplined action or permutation-action body Γ, every
 inherited control context Π, classical arguments κ, entry state ψ and reference
@@ -31,15 +33,19 @@ system R (entangled with ψ's borrowed and external parts):
   is X ⊗ I_b ⊗ I_R for some X;
 - (c) at exit the workspace, locations and local regions are clean / at image
   and the region's operation is its declared operation ⊗ identity on borrowed
-  bundles and R (`ISA-5.3-P1`, `ISA-5.6-P1`).
+  bundles and R (`ISA-5.3-P1.S1`, `ISA-5.6-P1.S1`).
 
 ## Hypotheses
 
-ISA-2-P9, ISA-3.3-P3, ISA-3.5-P1, ISA-4.3-P3, ISA-4.4-P1, ISA-4.6-P1,
-ISA-5.1-P1, ISA-5.2-P2, ISA-5.3-P1, ISA-5.3-P5, ISA-5.6-P1, ISA-5.6-P2,
-ISA-5.6-P3, ISA-5.6-P4, ISA-5.6-P5, ISA-5.6-P6, ISA-5.6-P7, ISA-6.1-P1,
-ISA-6.1-P2, ISA-6.1-P3, ISA-6.1-P9, ISA-6.1-P10, ISA-6.1-P11, ISA-6.1-P14,
-ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
+ISA-2-P9.S1, ISA-3.3-P3.S1, ISA-3.5-P1.S1, ISA-3.5-P1.S3, ISA-4.3-P3.S1, ISA-4.4-P1.S1,
+ISA-4.5-P3.S1, ISA-4.6-P1.S1, ISA-5.1-P1 (whole clause), ISA-5.1-P1.S5, ISA-5.2-P2.S1,
+ISA-5.3-P1.S1, ISA-5.3-P5.S1, ISA-5.6-P1.S1, ISA-5.6-P2.S1, ISA-5.6-P2.S2,
+ISA-5.6-P3.S1, ISA-5.6-P4.S1, ISA-5.6-P5.S1, ISA-5.6-P6.S1, ISA-5.6-P7.S1,
+ISA-6.1 (whole section), ISA-6.1-P1.S1, ISA-6.1-P1.S2, ISA-6.1-P1.S3, ISA-6.1-P2.S1,
+ISA-6.1-P3.S1, ISA-6.1-P9.S1, ISA-6.1-P10.S1, ISA-6.1-P11.S1, ISA-6.1-P14.S1,
+ISA-6.2-P1 (whole clause), ISA-6.2-P1.S1, ISA-6.2-P1.S2, ISA-6.2-P1.S4, ISA-6.3-P1.S1,
+ISA-6.4-P1.S1, ISA-6.4-P1.S2, ISA-6.4-P1.S4, ISA-14.2-P1.S1, ISA-14.3-P3.S1,
+ISA-14.3-P5.S1.
 
 ## Proof
 
@@ -50,14 +56,14 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
   <2>1. The §6.1 table assigns provenance to qalloc, qcopy, qload, qxor, qexch,
         qstore, qexchm, permutation/diagonal/non-diagonal gates, oracle_call,
         permutation and non-permutation action calls, qinplace and lifted rows.
-        BY ISA-6.1-P1, ISA-6.1-P2, ISA-6.1-P3, ISA-6.1-P9, ISA-6.1-P10,
-        ISA-6.1-P11, ISA-6.1-P14
+        BY ISA-6.1-P1.S1, ISA-6.1-P2.S1, ISA-6.1-P3.S1, ISA-6.1-P9.S1,
+        ISA-6.1-P10.S1, ISA-6.1-P11.S1, ISA-6.1-P14.S1
   <2>2. `quncopy`, `qunload` and the release instructions are cleanups, not
         computations, and need no row.
-        BY ISA-6.2-P1, ISA-6.4-P1, ISA-5.1-P1
+        BY ISA-6.2-P1.S2, ISA-6.4-P1.S1, ISA-5.1-P1.S5
   <2>3. A local `qregion` cell starts at version 0 with provenance perm and
         S = ∅ (its image gates are X gates on clean wires).
-        ASSUMED: `ISA-4.6-P1` creates the cells and `ISA-6.1-P1` says "cell
+        ASSUMED: `ISA-4.6-P1.S1` creates the cells and `ISA-6.1-P1.S2` says "cell
         versions advance on every write", but the table has no row for
         `qregion` creation.
   <2>4. QED
@@ -68,55 +74,55 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
       PROOF:
   <2>1. DEFINE R = the wires of S, G = g's wires, C the exact computing
         sequence, a permutation with C|r⟩|0⟩_G = |r⟩|f(r)⟩ (controlled on Π).
-        BY ISA-6.1-P1, ISA-6.1-P2, ISA-6.1-P9, <1>1
+        BY ISA-6.1-P1.S1, ISA-6.1-P1.S3, ISA-6.1-P2.S1, ISA-6.1-P9.S1, <1>1
   <2>2. Every operation O between C and its cleanup is block-diagonal in the
         computational basis of R ∪ G: O = Σ_{r,x} |r,x⟩⟨r,x| ⊗ O_{r,x}.
         PROOF:
     <3>1. Diagonal gates leave values unchanged; a non-diagonal gate on a wire
           of S or g closes the window.
-          BY ISA-6.1-P10, ISA-6.1-P11, ISA-6.2-P1
+          BY ISA-6.1-P10.S1, ISA-6.1-P11.S1, ISA-6.2-P1.S1
     <3>2. A version advance of a cell in S, or a non-permutation action call
           touching S, closes the window.
-          BY ISA-6.2-P1, ISA-6.1-P14
+          BY ISA-6.2-P1.S1, ISA-6.1-P14.S1
     <3>3. Oracle calls and permutation action calls with wires of R ∪ G only as
           `ins` or `in` regions are block-diagonal on them ("ins unchanged";
           "block-diagonal in the computational basis of `ins`").
-          BY ISA-5.2-P2, ISA-5.3-P1
+          BY ISA-5.2-P2.S1, ISA-5.3-P1.S1
     <3>4. A permutation change to a wire of S that is "undone before g's
           cleanup" yields, together with its undoing, a block-diagonal operator.
-          ASSUMED: `ISA-6.2-P1` does not define "undone"; we read it as: the
+          ASSUMED: `ISA-6.2-P1.S1` does not define "undone"; we read it as: the
           change and its undoing form a matched pair (INV-1 (B)) with only
           R∪G-block-diagonal operations between them.
     <3>5. A permutation gate targeting a wire of g produces a new version of g;
           the cleanup of the old version requires g's current version to be the
           one C produced.
-          ASSUMED: `ISA-6.2-P1` requires "the versions that sequence read to be
+          ASSUMED: `ISA-6.2-P1.S2` requires "the versions that sequence read to be
           current", which taken literally includes g's pre-computation version
           (C reads its own targets) and can then never hold; we read it as: the
           versions of S that C read, and the version of g that C produced.
     <3>6. QED
           BY <3>1, <3>2, <3>3, <3>4, <3>5
   <2>3. The cleanup runs C† under the same effective control set Π.
-        ASSUMED: `ISA-6.2-P1` binds a cleanup "to its exact computing
+        ASSUMED: `ISA-6.2-P1.S2` binds a cleanup "to its exact computing
         sequence" but does not say that the effective control set is part of
         that sequence; with Π' ≠ Π, g survives on the branch Π = 1, Π' = 0.
         (Π ⊆ S fixes the control *values*, not the control *context* of the
         cleanup.) Same gap as INV-1 gap 4.
   <2>4. C† O C |r,0⟩_G|χ⟩ = |r,0⟩_G O_{r,f(r)}|χ⟩; by linearity G is |0⟩ in
         every term, so G factorises; the remaining O_{r,f(r)} are the
-        "corresponding diagonal phases" of `ISA-6.3-P1`.
-        BY <2>1, <2>2, <2>3, ISA-14.2-P1; algebra
+        "corresponding diagonal phases" of `ISA-6.3-P1.S1`.
+        BY <2>1, <2>2, <2>3, ISA-14.2-P1.S1; algebra
   <2>5. QED
-        BY <2>4, ISA-6.3-P1
+        BY <2>4, ISA-6.3-P1.S1
 <1>3. A perm value cleaned by the `recompute` realisation within its window is
       |0⟩ on every branch and factorises.
       PROOF:
   <2>1. `recompute` computes g' by the same sequence into a fresh clean bundle,
         `qxor`s it into g and uncomputes g' by the adjoint.
-        BY ISA-6.4-P1
+        BY ISA-6.4-P1.S1
   <2>2. Within the window R holds its computation-time values on every branch,
         so g' = f(r) = g and the qxor clears g.
-        BY <1>2, ISA-4.5-P3; algebra
+        BY <1>2, ISA-4.5-P3.S1; algebra
   <2>3. The qxor is block-diagonal on R ∪ G', so the adjoint clears g' by the
         argument of 1.2.4.
         BY <2>2, <1>2
@@ -127,11 +133,11 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
       PROOF:
   <2>1. If no operation between the producing sequence A and adj(A) writes a
         wire A writes or reads one, adj(A) restores it.
-        BY INV-1:1.4, ISA-6.2-P1
+        BY INV-1:1.4, ISA-6.2-P1.S4
   <2>2. ISA 0.8 does not require that hypothesis, and without it the claim is
         false: `h d0; ccx d0 p d1; cx d1 t; ccx d0 p d1; h d0; qfree d0`
         (t a `mut` interface wire) passes §6 literally (d0 other by
-        `ISA-6.1-P11`; d1 perm with d0 ∈ S by `ISA-6.1-P9`, cleaned within its
+        `ISA-6.1-P11.S1`; d1 perm with d0 ∈ S by `ISA-6.1-P9.S1`, cleaned within its
         window; interface wires carry no obligation; d0 released by the adjoint
         `h d0`). For p = 1, t = 0 the state before release is
         (|0⟩(|0⟩+|1⟩) + |1⟩(|0⟩−|1⟩))/2 on (d0, t): d0 is not clean.
@@ -147,34 +153,35 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
       PROOF:
   <2>1. Borrowed wires are touched only inside borrow frames, each
         permutation-only; outside frames the lifetime does not touch b.
-        BY ISA-5.6-P2
+        BY ISA-5.6-P2.S1
   <2>2. A frame established by a T3 claim over its full domain (every value
         of b included) satisfies P_F = P' ⊗ I_B on span(D), hence on every
         state of b, entangled with R or not.
-        BY ISA-5.6-P2, ISA-14.3-P3; algebra
+        BY ISA-5.6-P2.S2, ISA-14.3-P3.S1; algebra
   <2>3. A frame of the form V; W; V⁻¹; W satisfying (i)–(iv) satisfies
         P_F = P' ⊗ I_B.
         PROOF:
     <3>1. V's gates are X-family flips with targets in B and controls in X,
           X ∩ B = ∅; they commute and are involutions; V maps b ↦ b ⊕ v(X) and
           leaves X fixed; V⁻¹ (exact reverse) undoes it.
-          BY ISA-5.6-P3, ISA-5.6-P6, ISA-4.4-P1; algebra
+          BY ISA-5.6-P3.S1, ISA-5.6-P6.S1, ISA-4.4-P1.S1; algebra
     <3>2. No target of W is a control of W, in X or in B, so W's gates
           commute, each is an involution, and every control value is constant
           during W.
-          BY ISA-5.6-P4; algebra
+          BY ISA-5.6-P4.S1; algebra
     <3>3. Each W gate g does t_g ⊕= c_g(Y, X)·b_{j(g)} (one B control) or
           t_g ⊕= c_g(Y, X) (none).
-          BY ISA-5.6-P5, <3>2; algebra
+          BY ISA-5.6-P5.S1, <3>2; algebra
     <3>4. Over V; W; V⁻¹; W the net map is t_g ⊕= c_g(Y, X)·v_{j(g)}(X) (the
           terms without a B control cancel), b and X are restored, and nothing
-          depends on b: the dirty-ancilla identity of `ISA-5.6-P7`.
-          BY <3>1, <3>2, <3>3, ISA-5.6-P7; algebra
+          depends on b: the dirty-ancilla identity of `ISA-5.6-P7.S1`.
+          BY <3>1, <3>2, <3>3, ISA-5.6-P7.S1; algebra
     <3>5. The active predicate and inherited control context count as controls
           of every gate of V and W in (i)–(iii), and V⁻¹ runs under the same
           effective control set as V.
-          ASSUMED: `ISA-3.5-P1` controls every gate on the active predicate,
-          but `ISA-5.6-P3`, `ISA-5.6-P4`, `ISA-5.6-P5`, `ISA-5.6-P6` speak of a gate's controls without
+          ASSUMED: `ISA-3.5-P1.S1` controls every gate on the active predicate,
+          but `ISA-5.6-P3.S1`, `ISA-5.6-P4.S1`,
+          `ISA-5.6-P5.S1`, `ISA-5.6-P6.S1` speak of a gate's controls without
           saying whether the predicate is included; if V⁻¹ ran under a
           different set, "exact reverse sequence" would hold lexically but not
           as operators.
@@ -182,7 +189,7 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
           BY <3>4, <3>5
   <2>4. Maximality of a frame inside a `qloop`/`qif` body is judged within the
         body's static instruction sequence.
-        ASSUMED: "maximal contiguous" in `ISA-5.6-P2` does not say whether it
+        ASSUMED: "maximal contiguous" in `ISA-5.6-P2.S1` does not say whether it
         is judged on the unrolled execution or on the static sequence
         (SPEC-QUESTIONS 30); either reading gives a factorising frame, but the
         frames differ, so certificate keys must agree on one.
@@ -196,18 +203,18 @@ ISA-6.2-P1, ISA-6.3-P1, ISA-6.4-P1, ISA-14.2-P1, ISA-14.3-P3, ISA-14.3-P5.
   <2>1. In `ctl w @a`, workspace, regions and flags are allocated
         unconditionally and every gate of the body and its cleanup runs under
         w; on the branch w = 0 no gate acts, so workspace stays |0⟩ / at image.
-        BY ISA-5.3-P5, ISA-3.5-P1
+        BY ISA-5.3-P5.S1, ISA-3.5-P1.S1, ISA-3.5-P1.S3
   <2>2. On the branch w = 1 the body runs with Π ∪ {w}; apply <1>2–<1>5.
-        BY <1>2, <1>3, <1>4, <1>5, ISA-2-P9
+        BY <1>2, <1>3, <1>4, <1>5, ISA-2-P9.S1
   <2>3. Cleanup schedules are keyed by inherited control count and every
         admitted realisation is unitary.
-        BY ISA-6.4-P1
+        BY ISA-6.4-P1.S1, ISA-6.4-P1.S4
   <2>4. QED
         BY <2>1, <2>2, <2>3; algebra (block-diagonal in w)
 <1>7. Every `qfree d` in a disciplined body releases a bundle whose current
       version is its `qalloc` version or the output of a §6.4 cleanup.
-      ASSUMED: `ISA-4.3-P3` states the dynamic precondition ("clean on every
-      basis configuration") and `ISA-5.1-P1` requires matching by "explicit
+      ASSUMED: `ISA-4.3-P3.S1` states the dynamic precondition ("clean on every
+      basis configuration") and `ISA-5.1-P1.S5` requires matching by "explicit
       cleanup instructions", but no clause states how the static discipline
       decides that a particular `qfree` meets the precondition.
 <1>8. QED
@@ -241,29 +248,31 @@ fuzz finding is the one known *soundness* failure, step 1.4.2.
 
 ## Spec gaps
 
-1. (1.1.3, next to `ISA-6.1-P1`, `ISA-4.6-P1`) ASSUMED. Needed row: "| `qregion`
+1. (1.1.3, next to `ISA-6.1-P1` (`ISA-6.1-P1.S1`), `ISA-4.6-P1`
+   (`ISA-4.6-P1.S1`)) ASSUMED. Needed row: "| `qregion`
    creation | every cell: version 0, perm, S = ∅ |".
-2. (1.2.2.4, next to `ISA-6.2-P1`) ASSUMED. Needed sentence: "A permutation change
+2. (1.2.2.4, next to `ISA-6.2-P1` (`ISA-6.2-P1.S1`)) ASSUMED. Needed sentence: "A permutation change
    to a wire of S is undone when it and its undoing form a matched pair (§5.3)
    and every operation between them leaves the computational-basis values of S
    and g unchanged."
-3. (1.2.2.5, next to `ISA-6.2-P1`) ASSUMED. Needed sentence: "A cleanup requires
+3. (1.2.2.5, next to `ISA-6.2-P1` (`ISA-6.2-P1.S2`)) ASSUMED. Needed sentence: "A cleanup requires
    the versions of S that the computing sequence read, and the version of g that
    it produced, to be current."
-4. (1.2.3, next to `ISA-6.2-P1`) ASSUMED. Needed sentence: "A cleanup runs under
+4. (1.2.3, next to `ISA-6.2-P1` (`ISA-6.2-P1.S2`)) ASSUMED. Needed sentence: "A cleanup runs under
    the effective control set (§2) of its computing sequence."
-5. (1.4.2, next to `ISA-6.2-P1`) OPEN (refuted). Needed sentence (SPEC-QUESTIONS 25):
+5. (1.4.2, next to `ISA-6.2-P1` (`ISA-6.2-P1.S4`)) OPEN (refuted). Needed sentence (SPEC-QUESTIONS 25):
    "An `other` value is released only by the adjoint of its computing sequence,
    and only while no other live value, interface wire or outstanding diagonal
    phase depends on it."
-6. (1.4.3, next to `ISA-6.1-P1`) OPEN. Needed: a definition of "depends on" that
+6. (1.4.3, next to `ISA-6.1-P1` (`ISA-6.1-P1.S1`)) OPEN. Needed: a definition of "depends on" that
    extends dependency sets to interface `mut` wires and to diagonal phases.
-7. (1.5.3.5, next to `ISA-5.6-P3`) ASSUMED. Needed sentence: "In (i)–(iii) a
+7. (1.5.3.5, next to `ISA-5.6-P3` (`ISA-5.6-P3.S1`)) ASSUMED. Needed sentence: "In (i)–(iii) a
    gate's controls include the effective control context; V⁻¹ runs under the
    same effective control set as V."
-8. (1.5.4, next to `ISA-5.6-P2`) ASSUMED. Needed sentence (SPEC-QUESTIONS 30):
+8. (1.5.4, next to `ISA-5.6-P2` (`ISA-5.6-P2.S1`)) ASSUMED. Needed sentence (SPEC-QUESTIONS 30):
    "Maximality of a frame inside a `qloop` or `qif` body is judged within that
    body's instruction sequence."
-9. (1.7, next to `ISA-4.3-P3`, `ISA-5.1-P1`) ASSUMED. Needed sentence: "`qfree d`
+9. (1.7, next to `ISA-4.3-P3` (`ISA-4.3-P3.S1`), `ISA-5.1-P1`
+   (`ISA-5.1-P1.S5`)) ASSUMED. Needed sentence: "`qfree d`
    is well-formed iff the current version of every wire of d is its `qalloc`
    version or the output of a §6.4 cleanup of the value that occupied it."

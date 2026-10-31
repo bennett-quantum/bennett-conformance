@@ -18,8 +18,8 @@ value bound to be uncomputed before the region exits.
 
 DEFINE `Seg`, `[[S]]_{Π,κ}` as in INV-1. DEFINE for a program point p of a
 well-formed region body: `Live(p)` = the set of live linear wire values
-(`ISA-3.3-P2`), and `wires(v)` = the physical wires of value v. DEFINE for a CC
-program point: a handle is *usable* iff it is live (`ISA-3.3-P6`).
+(`ISA-3.3-P2.S1`), and `wires(v)` = the physical wires of value v. DEFINE for a CC
+program point: a handle is *usable* iff it is live (`ISA-3.3-P6.S2`).
 
 THEOREM INV-2.
 
@@ -43,11 +43,13 @@ THEOREM INV-2.
 
 ## Hypotheses
 
-ISA-2-P2, ISA-2-P9, ISA-3.3-P1, ISA-3.3-P2, ISA-3.3-P3, ISA-3.3-P6, ISA-3.3-P7,
-ISA-3.3-P8, ISA-3.3-P9, ISA-3.3-P10, ISA-3.3-P11, ISA-3.3-P12, ISA-3.3-P13,
-ISA-3.3-P14, ISA-3.5-P1, ISA-3.7-P2, ISA-4.3-P1, ISA-4.3-P2, ISA-4.4-P1,
-ISA-4.5-P1, ISA-4.6-P1, ISA-5.1-P1, ISA-5.2-P2, ISA-5.3-P1, ISA-6.1-P3,
-ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
+ISA-2-P2.S1, ISA-2-P9.S1, ISA-3.2-P1.S1, ISA-3.3-P1.S1, ISA-3.3-P2.S1, ISA-3.3-P2.S2,
+ISA-3.3-P3.S1, ISA-3.3-P3.S2, ISA-3.3-P6.S2, ISA-3.3-P7.S1, ISA-3.3-P8.S1,
+ISA-3.3-P9.S1, ISA-3.3-P10.S1, ISA-3.3-P11.S1, ISA-3.3-P12.S1, ISA-3.3-P13.S1,
+ISA-3.3-P13.S2, ISA-3.3-P14.S2, ISA-3.5-P1.S1, ISA-3.7-P2.S1, ISA-4.3-P1.S1,
+ISA-4.3-P2.S1, ISA-4.4-P1.S1, ISA-4.5-P1.S1, ISA-4.6-P1.S1, ISA-4.7-P1.S2,
+ISA-5.1-P1.S1, ISA-5.1-P1.S3, ISA-5.1-P1.S5, ISA-5.1-P1.S6, ISA-5.2-P2.S3,
+ISA-5.3-P1.S1, ISA-6.1-P3.S1, ISA-6.2-P1.S3, ISA-10-P3.S2, ISA-14.2-P1.S2.
 
 ## Proof
 
@@ -56,26 +58,26 @@ ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
       PROOF:
   <2>1. At entry, Live = the interface values, and "A region's interface
         bundles and regions are pairwise disjoint".
-        BY ISA-3.3-P3, ISA-5.1-P1
+        BY ISA-3.3-P3.S2, ISA-5.1-P1.S1
   <2>2. A value is "produced once and consumed once"; `in` mode consumes and
         re-produces a successor on the same wires; "a name is not used after
         `consume`".
-        BY ISA-3.3-P2
+        BY ISA-3.3-P2.S1
   <2>3. `qalloc` and `qborrow` add new tensor factors to the region state, so
         their wires are disjoint from every live value's wires; `qregion`
         cells likewise at function entry.
-        BY ISA-14.2-P1, ISA-4.3-P1, ISA-4.3-P2, ISA-4.6-P1
+        BY ISA-14.2-P1.S2, ISA-4.3-P1.S1, ISA-4.3-P2.S1, ISA-4.6-P1.S1
   <2>4. The producers listed in (A) are the only producers; in particular a
         `regs` declaration in an action or permutation action produces no
         wire value.
-        ASSUMED: `ISA-3.3-P1` says `reg[N]` is "a location (oracle bodies,
-        lprocs); not linear" and `ISA-3.7-P2` says oracles and lprocs declare
+        ASSUMED: `ISA-3.3-P1.S1` says `reg[N]` is "a location (oracle bodies,
+        lprocs); not linear" and `ISA-3.7-P2.S1` says oracles and lprocs declare
         `regs`, but the `regs` grammar admits any type in any function and no
         clause forbids a wire-typed `regs` entry in an action (council
         SOL-R11-B01).
   <2>5. An indexed operand `w[i]` "borrows wire i for one instruction" and
         creates no new live value.
-        BY ISA-3.3-P2
+        BY ISA-3.3-P2.S2
   <2>6. QED
         BY <2>1, <2>2, <2>3, <2>4, <2>5; induction over program points
 <1>2. (B) holds for every instruction of a well-formed body.
@@ -83,18 +85,18 @@ ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
   <2>1. "The wire operands of one instruction are pairwise distinct; every
         wire of the effective control context is distinct from every target
         and from every consumed or produced operand".
-        BY ISA-3.3-P3, ISA-2-P9
+        BY ISA-3.3-P3.S1, ISA-2-P9.S1
   <2>2. "Distinct" is about wires, not operand spellings: a bundle `w` and its
         indexed wire `w[i]` (or two indexed operands `w[i]`, `w[i]`) in one
         instruction overlap and are excluded.
-        ASSUMED: `ISA-3.3-P3` does not say whether distinctness is judged on
+        ASSUMED: `ISA-3.3-P3.S1` does not say whether distinctness is judged on
         names or on the wires they denote; only the wire reading makes the gate
-        semantics of `ISA-4.4-P1` well-defined (a `cx a a`
+        semantics of `ISA-4.4-P1.S1` well-defined (a `cx a a`
         has no unitary).
   <2>3. A wire of the effective control context may still be read by the
         instruction as a source or `in` operand (it is neither target nor
         consumed nor produced).
-        BY ISA-3.3-P3
+        BY ISA-3.3-P3.S1
   <2>4. QED
         BY <2>1, <2>2, <2>3 (reads of control wires are not aliases: no wire
         is both written and read under two names)
@@ -102,33 +104,33 @@ ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
       PROOF:
   <2>1. "A handle is in exactly one state: live, viewed … or consumed"; an
         instruction whose precondition fails is a CC trap.
-        BY ISA-3.3-P6
+        BY ISA-3.3-P6.S2
   <2>2. Each transition preserves disjointness of usable wire sets:
         `qreg.new` gives fresh wires; `qreg.slice` makes the parent viewed
         (unusable: "any use of q while viewed is ill-formed") and the view
         live over a subset; after its one region call the view is consumed and
         the parent live again; `qreg.concat` consumes both parts;
         `qreg.free` and `measure` consume; a region call leaves q unchanged.
-        BY ISA-3.3-P7, ISA-3.3-P8, ISA-3.3-P9, ISA-3.3-P10, ISA-3.3-P11,
-        ISA-3.3-P12
+        BY ISA-3.3-P7.S1, ISA-3.3-P8.S1, ISA-3.3-P9.S1, ISA-3.3-P10.S1,
+        ISA-3.3-P11.S1, ISA-3.3-P12.S1
   <2>3. Reversal of a `qreg.*` frame restores the handle states before that
         frame, where disjointness held; a `measure` frame is never reversed.
-        BY ISA-3.3-P13
+        BY ISA-3.3-P13.S1, ISA-3.3-P13.S2
   <2>4. `qreg.new` wires are distinct from the wires of every other live or
         viewed handle, and host-supplied register ids name pairwise disjoint
         registers.
-        ASSUMED: `ISA-3.3-P7` says only "q live, clean"; `ISA-3.3-P14` makes
-        host ids `qreg` values and `ISA-10-P3` gives a run exclusive ownership
+        ASSUMED: `ISA-3.3-P7.S1` says only "q live, clean"; `ISA-3.3-P14.S2` makes
+        host ids `qreg` values and `ISA-10-P3.S2` gives a run exclusive ownership
         of the registers it touches, but no clause says two ids passed to one
         run denote disjoint wires.
   <2>5. Handle *values* can be duplicated by classical dataflow (CC is dynamic
         SSA), so the same handle can reach two operand slots of one region
         call; this is an alias of the call's interface bundles.
-        BY ISA-3.2-P1, ISA-4.7-P1, ISA-3.3-P11
+        BY ISA-3.2-P1.S1, ISA-4.7-P1.S2, ISA-3.3-P11.S1
   <2>6. Such a call is a CC trap with no effect.
-        ASSUMED: `ISA-3.3-P3` makes overlapping interface bundles ill-formed
-        in Q, and `ISA-3.3-P6` traps failed handle preconditions, but the
-        region-call row `ISA-3.3-P11` lists only "q live (a view included)" as
+        ASSUMED: `ISA-3.3-P3.S2` makes overlapping interface bundles ill-formed
+        in Q, and `ISA-3.3-P6.S2` traps failed handle preconditions, but the
+        region-call row `ISA-3.3-P11.S1` lists only "q live (a view included)" as
         precondition; disjointness of the call's qreg operands is not stated
         as a CC precondition.
   <2>7. QED
@@ -139,7 +141,8 @@ ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
         is of a clean bundle: gates are unitary, `qalloc` tensors |0⟩,
         `qfree` removes clean factors, borrowed factors see U ⊗ I, oracle and
         action calls are unitary, and no region contains `measure`.
-        BY ISA-14.2-P1, ISA-4.4-P1, ISA-5.2-P2, ISA-5.3-P1, ISA-5.1-P1, ISA-3.5-P1
+        BY ISA-14.2-P1.S2, ISA-4.4-P1.S1, ISA-5.2-P2.S3, ISA-5.3-P1.S1,
+        ISA-5.1-P1.S3, ISA-3.5-P1.S1
   <2>2. If [[S]](ψi ⊗ 0 ⊗ e) = ψi ⊗ ψi ⊗ e_i for i = 1, 2 then
         ⟨ψ1|ψ2⟩ = ⟨ψ1|ψ2⟩² ⟨e_1|e_2⟩, so |⟨ψ1|ψ2⟩| ≤ |⟨ψ1|ψ2⟩|², i.e.
         |⟨ψ1|ψ2⟩| ∈ {0} or ≥ 1.
@@ -151,17 +154,17 @@ ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
   <2>1. `d = qcopy s` allocates d clean and applies `cx s[i] d[i]` under the
         predicate, giving Σ α_x |x⟩|x⟩; this is a product state iff at most
         one α_x ≠ 0.
-        BY ISA-4.5-P1, ISA-3.5-P1; algebra
+        BY ISA-4.5-P1.S1, ISA-3.5-P1.S1; algebra
   <2>2. d has provenance perm with S = {s} ∪ Π.
-        BY ISA-6.1-P3
+        BY ISA-6.1-P3.S1
   <2>3. "Every perm value MUST be cleaned within its window and before its
         region exits", and every `qalloc` is matched by a `qfree` of a clean
         bundle; so no workspace copy survives the region.
-        BY ISA-6.2-P1, ISA-5.1-P1, ISA-5.3-P1
+        BY ISA-6.2-P1.S3, ISA-5.1-P1.S5, ISA-5.3-P1.S1
   <2>4. `in` wires of actions are readable only as controls, diagonal targets,
         `qcopy`/`qxor` sources or `in` call arguments, so a copy never
         modifies its source.
-        BY ISA-5.1-P1
+        BY ISA-5.1-P1.S6
   <2>5. QED
         BY <2>1, <2>2, <2>3, <2>4
 <1>6. QED
@@ -187,19 +190,21 @@ ISA-6.2-P1, ISA-10-P3, ISA-14.2-P1.
   because step 1.1.4 is not in the spec.
 - R11-B01 (an action `regs` name used as a rotation angle): not an alias, but
   the same missing kind restriction as 1.1.4, on the classical side
-  (`ISA-3.1-P2` "classical arguments fixed at region entry").
+  (`ISA-3.1-P2.S3` "classical arguments fixed at region entry").
 
 ## Spec gaps
 
-1. (1.1.4, next to `ISA-3.7-P2` and `ISA-3.3-P1`) ASSUMED. Needed sentence: "Only
+1. (1.1.4, next to `ISA-3.7-P2` (`ISA-3.7-P2.S1`) and
+   `ISA-3.3-P1` (`ISA-3.3-P1.S1`)) ASSUMED. Needed sentence: "Only
    oracles and lprocs declare locations; the `regs` list of an action, permutation
    action, CC or R function MUST be empty (it may carry `bounds`)."
-2. (1.2.2, next to `ISA-3.3-P3`) ASSUMED. Needed sentence: "Distinctness is
+2. (1.2.2, next to `ISA-3.3-P3` (`ISA-3.3-P3.S1`)) ASSUMED. Needed sentence: "Distinctness is
    judged on wires: a bundle operand and an indexed operand of it, or two
    indexed operands naming the same wire, are not distinct."
-3. (1.3.4, next to `ISA-3.3-P7` and `ISA-3.3-P14`) ASSUMED. Needed sentence:
+3. (1.3.4, next to `ISA-3.3-P7` (`ISA-3.3-P7.S1`) and `ISA-3.3-P14`
+   (`ISA-3.3-P14.S2`)) ASSUMED. Needed sentence:
    "`qreg.new` yields wires disjoint from every live or viewed register; the
    register ids passed to one run MUST denote pairwise disjoint registers, else
    `bennett_run` fails with `E_ARG`."
-4. (1.3.6, next to `ISA-3.3-P11`) ASSUMED. Needed sentence: "A region call in CC
+4. (1.3.6, next to `ISA-3.3-P11` (`ISA-3.3-P11.S1`)) ASSUMED. Needed sentence: "A region call in CC
    or R whose `qreg` operands share a wire is a CC trap before any effect."
