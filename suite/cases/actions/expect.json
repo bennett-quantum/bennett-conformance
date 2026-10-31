@@ -1,0 +1,387 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.4",
+  "ISA-4.2",
+  "ISA-4.5",
+  "ISA-4.6",
+  "ISA-5.3",
+  "ISA-10",
+  "ISA-14.2"
+ ],
+ "hashes": {
+  "object": "1b4250b0ee0885b06d4b6b2f8de10df88aebcd2efd830dd32d15ab37f7c25437",
+  "symbols": {
+   "bell": {
+    "interface": "3b0881575762fa4e1fd5b2a160cd6abfcbfe60f011df3b1968df7e44de11e1d3",
+    "closure": "3b0881575762fa4e1fd5b2a160cd6abfcbfe60f011df3b1968df7e44de11e1d3"
+   },
+   "flip": {
+    "interface": "7b3212f6647103050fa24c34e767afd19fbe3009134d6f5c7280a400ff9ef398",
+    "closure": "7b3212f6647103050fa24c34e767afd19fbe3009134d6f5c7280a400ff9ef398"
+   },
+   "image": {
+    "interface": "90dbeda2a04d9f5ac10570fa079aaf22540fb1bf8da780415dcd238334996aa4",
+    "closure": "90dbeda2a04d9f5ac10570fa079aaf22540fb1bf8da780415dcd238334996aa4"
+   },
+   "lifted": {
+    "interface": "2acd73fbb764d1a278bcba54e7a13c99ddd1d159e8f63ea59f3af7338e313f67",
+    "closure": "2acd73fbb764d1a278bcba54e7a13c99ddd1d159e8f63ea59f3af7338e313f67"
+   },
+   "loop": {
+    "interface": "56ab73b8a0938e882c2a3293d4fb401a07bbbb931485b88948973ba1c3dc1597",
+    "closure": "56ab73b8a0938e882c2a3293d4fb401a07bbbb931485b88948973ba1c3dc1597"
+   },
+   "memory": {
+    "interface": "62c70737b8fcae09329da78eed2ed48aad61dfe0137e2d8d02c1e1ffb9dc5f76",
+    "closure": "62c70737b8fcae09329da78eed2ed48aad61dfe0137e2d8d02c1e1ffb9dc5f76"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "flip",
+    "--mut",
+    "1",
+    "--in",
+    "2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "flip",
+    "adjoint": false,
+    "in": [
+     2
+    ],
+    "mem": {},
+    "mut": [
+     3
+    ],
+    "state": {
+     "1101": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "flip",
+    "--basis",
+    "1001"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "flip",
+    "adjoint": false,
+    "in": [
+     2
+    ],
+    "mem": {},
+    "mut": [
+     3
+    ],
+    "state": {
+     "1101": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "flip",
+    "--mut",
+    "3",
+    "--in",
+    "2",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "flip",
+    "adjoint": true,
+    "in": [
+     2
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1001": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "memory",
+    "--mut",
+    "1",
+    "--in",
+    "2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "memory",
+    "adjoint": false,
+    "in": [
+     2
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1001": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "loop",
+    "--mut",
+    "0",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "loop",
+    "adjoint": false,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1000": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--mut",
+    "0",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "bell",
+    "adjoint": false,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     null
+    ],
+    "state": {
+     "0000": [
+      0.7071067811865476,
+      0
+     ],
+     "1100": [
+      0.7071067811865476,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--mut",
+    "0",
+    "--in",
+    "0",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "bell",
+    "adjoint": true,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     null
+    ],
+    "state": {
+     "0000": [
+      0.7071067811865476,
+      0
+     ],
+     "1000": [
+      0.7071067811865476,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "bell",
+    "--mut",
+    "0",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "bell",
+    "adjoint": false,
+    "equals_entry": true,
+    "first_difference": null,
+    "forward_state": {
+     "0000": [
+      0.7071067811865476,
+      0
+     ],
+     "1100": [
+      0.7071067811865476,
+      0
+     ]
+    },
+    "in": [
+     0
+    ],
+    "mut": [
+     0
+    ],
+    "state": {
+     "0000": [
+      1,
+      0
+     ]
+    },
+    "status": "REVERSED",
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "lifted",
+    "--input",
+    "0",
+    "--budget",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "lifted",
+    "--input",
+    "1",
+    "--budget",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "lifted",
+    "--input",
+    "2",
+    "--budget",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 3,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "lifted",
+    "--input",
+    "3",
+    "--budget",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 2,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "bell",
+    "--args",
+    ""
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§3.4"
+   ]
+  }
+ ]
+}

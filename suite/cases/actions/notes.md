@@ -1,0 +1,2 @@
+Hand derivations: flip computes d=p, XORs d into t and uncomputes d, so t XOR p with no garbage. memory has an all-zero 4x2-bit local image; load/unload cancels, two stores cancel and two memory exchanges cancel, so it is identity. loop flips t[0] three times, hence once. bell maps |00> to (|00>+|11>)/sqrt(2). Each adjoint composed after its action is identity including phase.
+lifted starts r=1, then flip(r,x) computes r XOR x, so the oracle payload is x XOR 1 in three rows.

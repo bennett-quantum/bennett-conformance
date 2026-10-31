@@ -1,0 +1,390 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-16.3",
+  "ISA-3.7",
+  "ISA-5.4",
+  "ISA-7.2",
+  "ISA-14.1",
+  "ISA-17"
+ ],
+ "hashes": {
+  "object": "ce1a10eb007786b5a1675892154ec4ac30663a051eeeeee41057596b1db26240",
+  "symbols": {
+   "sum": {
+    "interface": "74f110bbafde68a4785025e7e571ef871ddd83a09465ab9c1604f653a0cfcd92",
+    "closure": "74f110bbafde68a4785025e7e571ef871ddd83a09465ab9c1604f653a0cfcd92"
+   },
+   "sum_db": {
+    "interface": "68225d213c44812fe844cd295d8821127c3cf31682be4eb19303cb53f9b147f7",
+    "closure": "68225d213c44812fe844cd295d8821127c3cf31682be4eb19303cb53f9b147f7"
+   },
+   "zero": {
+    "interface": "7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6",
+    "closure": "7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "0",
+    "--budget",
+    "1000,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 10
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "1",
+    "--budget",
+    "1000,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 24
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "3",
+    "--budget",
+    "1000,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 6,
+    "steps": 52
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "8",
+    "--budget",
+    "1000,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 36,
+    "steps": 122
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "16",
+    "--budget",
+    "1000,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 136,
+    "steps": 234
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "17",
+    "--budget",
+    "1000,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 7,
+    "payload": 0,
+    "steps": 13
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "23",
+    "--budget",
+    "1000,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 7,
+    "payload": 0,
+    "steps": 13
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "3",
+    "--budget",
+    "1000,4080,64,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 6,
+    "steps": 52
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "3",
+    "--budget",
+    "1000,4080,63,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 3,
+    "payload": 0,
+    "steps": 42
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "3",
+    "--budget",
+    "1000,4080,512,3",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 3,
+    "payload": 0,
+    "steps": 42
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "3",
+    "--budget",
+    "1000,4080,512,4",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 6,
+    "steps": 52
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "3",
+    "--budget",
+    "51,4080,512,64",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 51
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "0",
+    "--budget",
+    "9,4080,16,1",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 9
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "0",
+    "--budget",
+    "10,4080,16,1",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 10
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "2",
+    "--budget",
+    "38,4080,48,3",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 3,
+    "steps": 38
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "2",
+    "--budget",
+    "37,4080,48,3",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 37
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sum_db",
+    "--input",
+    "2",
+    "--budget",
+    "38,4080,47,3",
+    "--mem",
+    "db=0102030405060708090a0b0c0d0e0f10"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 3,
+    "payload": 0,
+    "steps": 29
+   }
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "sum_db",
+    "--samples",
+    "40",
+    "--budget",
+    "300,4080,512,64"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "cases": 40,
+    "fixed_regions": [],
+    "input_and_memory_bits": 136,
+    "mode": "sampled",
+    "status": "ok",
+    "target_fault": "XOR delivery is independent of their entry values"
+   }
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "sum_db",
+    "--exhaustive",
+    "--budget",
+    "300,4080,512,64"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§17.13"
+   ]
+  }
+ ]
+}

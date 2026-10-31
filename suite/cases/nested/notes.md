@@ -1,0 +1,1 @@
+Hand derivation: inc8(8)=9 in three rows. nested calls it, compares fr to zero, and raises FAULT_CALLEE=9 on an unsuccessful inner budget. cancel calls then uncalls with identical ins/mem/token, so target and fr return to zero even for a callee fault. ignore returns a zero payload when the callee faults without automatic propagation. inc8(255)=0 by 8-bit wrap.

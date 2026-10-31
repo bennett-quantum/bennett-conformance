@@ -1,0 +1,801 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.6",
+  "ISA-5.4",
+  "ISA-7.2",
+  "ISA-14.1"
+ ],
+ "hashes": {
+  "object": "6482f75d540939467db373f7cba4be2e687d4f2e0c8dddfd6b00799993494f6a",
+  "symbols": {
+   "tiny": {
+    "interface": "be21636357102b2a324f99db1bd058ad82f1c2eb3337d99f22a2533a32436142",
+    "closure": "be21636357102b2a324f99db1bd058ad82f1c2eb3337d99f22a2533a32436142"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "3",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "4",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "7",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "8",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "9",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "3",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "4",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "7",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "8",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "9",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "3",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "4",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "7",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "8",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "9",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "3",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "4",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "7",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "8",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "0",
+    "--budget",
+    "9",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "3",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "4",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "7",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 7
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "8",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "9",
+    "--mem",
+    "db=00"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "3",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "4",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "7",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 7
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "8",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "9",
+    "--mem",
+    "db=01"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "3",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "4",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "7",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 7
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "8",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "9",
+    "--mem",
+    "db=fe"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "3",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "4",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "7",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 7
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "8",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "tiny",
+    "--input",
+    "1",
+    "--budget",
+    "9",
+    "--mem",
+    "db=ff"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "tiny",
+    "--exhaustive",
+    "--budget",
+    "9"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "cases": 512,
+    "fixed_regions": [],
+    "input_and_memory_bits": 9,
+    "mode": "exhaustive",
+    "status": "ok",
+    "target_fault": "XOR delivery is independent of their entry values"
+   }
+  }
+ ]
+}

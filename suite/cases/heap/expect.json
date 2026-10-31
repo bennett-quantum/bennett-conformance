@@ -1,0 +1,241 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-4.2",
+  "ISA-5.4",
+  "ISA-7.2"
+ ],
+ "hashes": {
+  "object": "253a11b5bbe907f120dd326a72b7b5e9bf185c7caf6103c6911b85800b703a59",
+  "symbols": {
+   "afterfree": {
+    "interface": "b4e19ac0b85b4c81d01de0e0e8f15b5a631fdaec8dca6680c17175e81ea945d7",
+    "closure": "b4e19ac0b85b4c81d01de0e0e8f15b5a631fdaec8dca6680c17175e81ea945d7"
+   },
+   "badstore": {
+    "interface": "b4147fd646bdfdc270596c04cb445561fe401774e1fdd178fcde3e77a5699725",
+    "closure": "b4147fd646bdfdc270596c04cb445561fe401774e1fdd178fcde3e77a5699725"
+   },
+   "doublefree": {
+    "interface": "86f87b18056089dd5ab1648a9843bb8f69d3cb6ac70755866be63ef068c425d4",
+    "closure": "86f87b18056089dd5ab1648a9843bb8f69d3cb6ac70755866be63ef068c425d4"
+   },
+   "faultif": {
+    "interface": "3ef6c026118750eebb4c309eadf18c20eab4daab5aa5ef05b25dd7861238cd50",
+    "closure": "3ef6c026118750eebb4c309eadf18c20eab4daab5aa5ef05b25dd7861238cd50"
+   },
+   "g": {
+    "interface": "f5c5556f79f032f7a0607387d69cab7bbb21988ca15461645340abb11e562813",
+    "closure": "f5c5556f79f032f7a0607387d69cab7bbb21988ca15461645340abb11e562813"
+   },
+   "heap": {
+    "interface": "30660357457354b768b86e153f366ead95aeac5d125e860d8e6cb8743f8d35a8",
+    "closure": "30660357457354b768b86e153f366ead95aeac5d125e860d8e6cb8743f8d35a8"
+   },
+   "outoftable": {
+    "interface": "a06203de444a4a9a9a34a6781efee8e6290b27d79ed102165e5e2edd571fd56f",
+    "closure": "a06203de444a4a9a9a34a6781efee8e6290b27d79ed102165e5e2edd571fd56f"
+   },
+   "pinned": {
+    "interface": "7fbc54ee4a45cf4ebaeb84b5d9344b3fa04906b125784404342055b075509197",
+    "closure": "7fbc54ee4a45cf4ebaeb84b5d9344b3fa04906b125784404342055b075509197"
+   },
+   "zeroalloc": {
+    "interface": "415e0ce86806f048d197ed864b321091a00cc27575e56b7661a85958ad17b20d",
+    "closure": "415e0ce86806f048d197ed864b321091a00cc27575e56b7661a85958ad17b20d"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "heap",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 4660,
+    "steps": 7
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "zeroalloc",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "afterfree",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 7,
+    "payload": 0,
+    "steps": 5
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "pinned",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 7,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "doublefree",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 7,
+    "payload": 0,
+    "steps": 5
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "badstore",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 7,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "outoftable",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 2,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "faultif",
+    "--input",
+    "",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 9,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "heap",
+    "--input",
+    "",
+    "--budget",
+    "100,1,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 2,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "heap",
+    "--input",
+    "",
+    "--budget",
+    "100,33,0,0"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§5.4"
+   ]
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "heap",
+    "--exhaustive",
+    "--budget",
+    "100,32,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "cases": 1,
+    "fixed_regions": [],
+    "input_and_memory_bits": 0,
+    "mode": "exhaustive",
+    "status": "ok",
+    "target_fault": "XOR delivery is independent of their entry values"
+   }
+  }
+ ]
+}

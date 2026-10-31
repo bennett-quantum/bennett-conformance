@@ -1,0 +1,347 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-16.3",
+  "ISA-3.6",
+  "ISA-4.2",
+  "ISA-5.4",
+  "ISA-14.1",
+  "ISA-9.2"
+ ],
+ "hashes": {
+  "object": "8093da48bad04d6564325faf01ea1304a84b5ac5a120e685eee9951f5daec5d9",
+  "symbols": {
+   "inc8": {
+    "interface": "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93",
+    "closure": "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "255",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "255",
+    "--budget",
+    "2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "255",
+    "--budget",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 0
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "8",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 9,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "0",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "127",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 128,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "128",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 129,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "254",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 255,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "256"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§"
+   ]
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "inc8",
+    "--exhaustive",
+    "--budget",
+    "4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "cases": 256,
+    "fixed_regions": [],
+    "input_and_memory_bits": 8,
+    "mode": "exhaustive",
+    "status": "ok",
+    "target_fault": "XOR delivery is independent of their entry values"
+   }
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "inc8",
+    "--suite",
+    "--budget",
+    "4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "cases": 256,
+    "fixed_regions": [],
+    "input_and_memory_bits": 8,
+    "mode": "exhaustive",
+    "status": "ok",
+    "target_fault": "XOR delivery is independent of their entry values"
+   }
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "inc8",
+    "--exhaustive",
+    "--max-bits",
+    "40",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "cases": 256,
+    "fixed_regions": [],
+    "input_and_memory_bits": 8,
+    "mode": "exhaustive",
+    "status": "ok",
+    "target_fault": "XOR delivery is independent of their entry values"
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "8",
+    "--budget",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budget": {
+     "depth": 0,
+     "heap": 0,
+     "stack": 0,
+     "steps": 3
+    },
+    "code": 0,
+    "equals_entry": true,
+    "first_difference": null,
+    "forward_steps": 3,
+    "frames_clean": true,
+    "oracle": "inc8",
+    "payload": 9,
+    "reverse_steps": 3,
+    "state_after_reversal": {
+     "counters": [
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "faulted": false,
+     "locations": {
+      "inc8.one": 0,
+      "inc8.r": 0,
+      "inc8.x": 8
+     },
+     "pc": 0,
+     "pc_prime": 0
+    },
+    "status": "REVERSED",
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "8",
+    "--budget",
+    "3",
+    "--steps",
+    "2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budget": {
+     "depth": 0,
+     "heap": 0,
+     "stack": 0,
+     "steps": 3
+    },
+    "code": 1,
+    "equals_entry": true,
+    "first_difference": null,
+    "forward_steps": 2,
+    "frames_clean": true,
+    "oracle": "inc8",
+    "payload": 0,
+    "reverse_steps": 2,
+    "state_after_reversal": {
+     "counters": [
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "faulted": false,
+     "locations": {
+      "inc8.one": 0,
+      "inc8.r": 0,
+      "inc8.x": 8
+     },
+     "pc": 0,
+     "pc_prime": 0
+    },
+    "status": "REVERSED",
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "inc8",
+    "--input",
+    "8",
+    "--budget",
+    "2",
+    "--steps",
+    "3"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§5.4"
+   ]
+  }
+ ]
+}

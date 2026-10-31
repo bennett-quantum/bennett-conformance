@@ -1,0 +1,31 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93","kind":"oracle","name":"inc8","signature":{"abi":"0.8","args":[],"fault":4,"in":[8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"1":{"interface_hash":"562ad89a1befd9629409f21362684d92dc9d57b93968b1d6d5a868e6e2bc6afd","kind":"oracle","name":"nested","signature":{"abi":"0.8","args":["token"],"fault":4,"in":[8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"2":{"interface_hash":"c98f82615ce05c7f82ee89d9106ae0655f3396332ad2a6616f63266c03043c34","kind":"oracle","name":"cancel","signature":{"abi":"0.8","args":["token"],"fault":4,"in":[8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"3":{"interface_hash":"9687f21af62158ff87ab8a974e056774ee75b531e158cc4538a11d4631f89012","kind":"oracle","name":"ignore","signature":{"abi":"0.8","args":["token"],"fault":4,"in":[8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}}}
+
+section functions
+oracle @inc8 (x:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { one:reg[8], r:reg[8] }
+^entry():
+one = lift.const.i8 1
+r = lift.add x one
+lift.retval r
+oracle @nested (x:wire[8] in) (t:wire[8]) (f:wire[4]) () (tk:token)
+regs { r:reg[8], fr:reg[4], zero:reg[4], p:reg[1] }
+^entry():
+lift.oracle_call @inc8 tk (x) r fr () ()
+zero = lift.const.i4 0
+p = lift.icmp.ne fr zero
+lift.faultif p 9
+lift.retval r
+oracle @cancel (x:wire[8] in) (t:wire[8]) (f:wire[4]) () (tk:token)
+regs { r:reg[8], fr:reg[4], zero:reg[4], p:reg[1] }
+^entry():
+lift.oracle_call @inc8 tk (x) r fr () ()
+lift.oracle_uncall @inc8 tk (x) r fr () ()
+lift.retval r
+oracle @ignore (x:wire[8] in) (t:wire[8]) (f:wire[4]) () (tk:token)
+regs { r:reg[8], fr:reg[4], zero:reg[4], p:reg[1] }
+^entry():
+lift.oracle_call @inc8 tk (x) r fr () ()
+lift.retval r

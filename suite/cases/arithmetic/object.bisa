@@ -1,0 +1,194 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"7c80a06412db38f658cf0441a0f64529cbfb8b903814f239cad3ba770f99308a","kind":"oracle","name":"add","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"1":{"interface_hash":"080d1d22642a043ef267f4f6814af1591511d8f746ecb494b087878ce8397e7c","kind":"oracle","name":"sub","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"10":{"interface_hash":"47ca0d92dc35e402faca3b1bce44bc6b9d2f047bdf5921cd40093eeca9aa3f45","kind":"oracle","name":"urem","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"11":{"interface_hash":"115fb415f346d9066d5edd800ec3710fea7d6e5da3baf10491341d097f900fae","kind":"oracle","name":"sdiv","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"12":{"interface_hash":"02a4afa08d8a425d1d7a3737c8da3a2c27b5d9fcaf528ba17f46e4bcaa4b87e2","kind":"oracle","name":"srem","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"13":{"interface_hash":"2f2605b2208e04ed6f91cf3f8375b9c70839038c0c8209cac79bee33280d152c","kind":"oracle","name":"eq","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"14":{"interface_hash":"8ec6f6ce7f64dc1bfb699e6166c919b59de152d8b7227783c89eb1f87b87886c","kind":"oracle","name":"ne","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"15":{"interface_hash":"84f277fc86190b7d3986429b5f8958057c574dccbb5a652ca9a6de7e827702b4","kind":"oracle","name":"ult","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"16":{"interface_hash":"89739797986f1edc445035af8de35eedfe4495fe9d1e7e91ae626ae9004c2f11","kind":"oracle","name":"ule","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"17":{"interface_hash":"c77dfe5f449851d9c44b4f06070166c6f1161f5ff42e6ebe9824776dca18ee31","kind":"oracle","name":"slt","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"18":{"interface_hash":"fad9f7b527b8a6142f938078be56cedf05333583633636031027cd0286352e42","kind":"oracle","name":"sle","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"19":{"interface_hash":"8666f45532a3e411d9b74245fbac9d868d9bb74b58c35cf48dc507f38c0fb8df","kind":"oracle","name":"select","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"2":{"interface_hash":"3201940a9efdc65fe248f48883412904740b49486dba3bce20b2c75230ce80f7","kind":"oracle","name":"mul","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"20":{"interface_hash":"df2e1f2c1b24610d7e868f6f8a4cb1865e7c05f9637ae1e0438f93636eed4f11","kind":"oracle","name":"casts","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"21":{"interface_hash":"dfa3e93a694fd26506ab85fdb5c91cc2f7240e5c67ac2f96489aff4415ae43cd","kind":"oracle","name":"parmov","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"22":{"interface_hash":"0dc6f86ee00be08f2a9a93b13c3bb15f10fd6c5fb7724afc50d818525b2ca908","kind":"oracle","name":"jump","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"23":{"interface_hash":"0b0f368147c4bf9c5fcffc84abb37ee1775504d13204ed6fcd6b19b735c00abf","kind":"oracle","name":"badjump","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"24":{"interface_hash":"1f5780fc3ed3345fb966ec20479590f11403222b2889dc8a76ad6e2cb9026f25","kind":"oracle","name":"fault0","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"25":{"interface_hash":"569088300ff8a05a82e69a1fa7af2569c976892b46f33cf4256debbe49f28c88","kind":"oracle","name":"fault1","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"26":{"interface_hash":"8012e4889e407a4fd174d943b4ca9cd3281a008c50ceaccb24a8566529fd2a18","kind":"oracle","name":"fault2","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"27":{"interface_hash":"64962111607ff89d5875a2044ee582d558ff1e51570a1703d8541eb15b0aef67","kind":"oracle","name":"fault3","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"28":{"interface_hash":"1025848f6bd2dcf9697b2bf1933aa9b4ce8293ec7c252538c92d5d04a295d2e8","kind":"oracle","name":"fault4","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"29":{"interface_hash":"7e21c6f8f21d6746da6357344ca5aaf21e84d50f6352970744eb052a21158c16","kind":"oracle","name":"fault5","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"3":{"interface_hash":"bf8e3bb2f7c71c884f5632c3ae27be18ba6854bac45ec83d3d7b5ab42d9160ac","kind":"oracle","name":"and","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"30":{"interface_hash":"e3174365e07ee50aea728a15c1529eb69d3dd71ee0189e86135ce59336b99654","kind":"oracle","name":"fault6","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"31":{"interface_hash":"feee076120be5fb4b5c60870794a5951fc02bd764996b00b5a98fcf4df7c21b7","kind":"oracle","name":"fault7","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"32":{"interface_hash":"3f9151ece9237c1ffc912095056f4e03331d1b4e05d77b0f64985f95d07248ee","kind":"oracle","name":"fault8","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"33":{"interface_hash":"a953e00368a00f72dd71de2f704258d4c4ede6e46a11c43400f117277befbd3d","kind":"oracle","name":"fault9","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"34":{"interface_hash":"9331bcea7de7b1492be6918c6e29e5635a5f9faf6d54cce3a498cae23b7e83e3","kind":"oracle","name":"fault10","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"4":{"interface_hash":"fbfd5ca4f0d388fd3e9c51f7be47eac64bbd208760ee23b77778c2d793c28391","kind":"oracle","name":"or","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"5":{"interface_hash":"c2d37f0c1c6740bb8ca00e7a0cd766101a34953e97353e9bc883b27a654e8adf","kind":"oracle","name":"xor","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"6":{"interface_hash":"f58b391c05e70784bbb6da613f5a690282026fca38f7a3409bb07e1bb527bc5a","kind":"oracle","name":"shl","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"7":{"interface_hash":"c5e57c21e06831cfcfb142078cb72ef2366f1c5bc591808001eb7ea3601594c4","kind":"oracle","name":"lshr","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"8":{"interface_hash":"2dc127ee704b144c5ff8110fbce24ebfc8ae148670deb64dbb7c458de84ff5ca","kind":"oracle","name":"ashr","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"9":{"interface_hash":"394b35c6548da71eb06f4ebbdf620c7fe900eff4359464c51216f3dc07a9cc62","kind":"oracle","name":"udiv","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}}}
+
+section functions
+oracle @add (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.add x y
+lift.retval r
+oracle @sub (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.sub x y
+lift.retval r
+oracle @mul (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.mul x y
+lift.retval r
+oracle @and (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.and x y
+lift.retval r
+oracle @or (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.or x y
+lift.retval r
+oracle @xor (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.xor x y
+lift.retval r
+oracle @shl (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.shl x y
+lift.retval r
+oracle @lshr (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.lshr x y
+lift.retval r
+oracle @ashr (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.ashr x y
+lift.retval r
+oracle @udiv (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.udiv x y
+lift.retval r
+oracle @urem (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.urem x y
+lift.retval r
+oracle @sdiv (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.sdiv x y
+lift.retval r
+oracle @srem (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.srem x y
+lift.retval r
+oracle @eq (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { p:reg[1], r:reg[8] }
+^entry():
+p = lift.icmp.eq x y
+r = lift.zext.i8 p
+lift.retval r
+oracle @ne (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { p:reg[1], r:reg[8] }
+^entry():
+p = lift.icmp.ne x y
+r = lift.zext.i8 p
+lift.retval r
+oracle @ult (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { p:reg[1], r:reg[8] }
+^entry():
+p = lift.icmp.ult x y
+r = lift.zext.i8 p
+lift.retval r
+oracle @ule (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { p:reg[1], r:reg[8] }
+^entry():
+p = lift.icmp.ule x y
+r = lift.zext.i8 p
+lift.retval r
+oracle @slt (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { p:reg[1], r:reg[8] }
+^entry():
+p = lift.icmp.slt x y
+r = lift.zext.i8 p
+lift.retval r
+oracle @sle (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { p:reg[1], r:reg[8] }
+^entry():
+p = lift.icmp.sle x y
+r = lift.zext.i8 p
+lift.retval r
+oracle @select (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { p:reg[1], r:reg[8] }
+^entry():
+p = lift.const.i1 1
+r = lift.select p x y
+lift.retval r
+oracle @casts (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { wide:reg[16], eight:reg[16], r:reg[8] }
+^entry():
+wide = lift.sext.i16 x
+eight = lift.const.i16 8
+wide = lift.lshr wide eight
+r = lift.trunc.i8 wide
+lift.retval r
+oracle @parmov (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8], s:reg[8] }
+^entry():
+r = lift.mov x
+s = lift.mov y
+(r, s) = lift.parmov (s, r)
+lift.retval r
+oracle @jump (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { z:reg[8], p:reg[1], idx:reg[32], r:reg[8] }
+^entry():
+z = lift.const.i8 0
+p = lift.icmp.ne x z
+qbranch p ^yes ^no
+^yes():
+r = lift.mov y
+qjump ^done
+^no():
+idx = lift.label ^fortytwo
+qjumpr idx
+^fortytwo():
+r = lift.const.i8 42
+qjump ^done
+^done():
+lift.retval r
+oracle @badjump (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { idx:reg[32] }
+^entry():
+idx = lift.const.i32 4294967295
+qjumpr idx
+oracle @fault0 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 0
+oracle @fault1 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 1
+oracle @fault2 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 2
+oracle @fault3 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 3
+oracle @fault4 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 4
+oracle @fault5 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 5
+oracle @fault6 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 6
+oracle @fault7 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 7
+oracle @fault8 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 8
+oracle @fault9 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 9
+oracle @fault10 (x:wire[8] in, y:wire[8] in) (t:wire[8]) (f:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+fault 10

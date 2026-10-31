@@ -1,0 +1,855 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.3",
+  "ISA-3.6",
+  "ISA-4.2",
+  "ISA-5.4"
+ ],
+ "hashes": {
+  "object": "d11afe460bf7a0e68ee7c1de6eeb3223650a79bb927c25e1caf9423b8f3662c9",
+  "symbols": {
+   "add": {
+    "interface": "7c80a06412db38f658cf0441a0f64529cbfb8b903814f239cad3ba770f99308a",
+    "closure": "7c80a06412db38f658cf0441a0f64529cbfb8b903814f239cad3ba770f99308a"
+   },
+   "and": {
+    "interface": "bf8e3bb2f7c71c884f5632c3ae27be18ba6854bac45ec83d3d7b5ab42d9160ac",
+    "closure": "bf8e3bb2f7c71c884f5632c3ae27be18ba6854bac45ec83d3d7b5ab42d9160ac"
+   },
+   "ashr": {
+    "interface": "2dc127ee704b144c5ff8110fbce24ebfc8ae148670deb64dbb7c458de84ff5ca",
+    "closure": "2dc127ee704b144c5ff8110fbce24ebfc8ae148670deb64dbb7c458de84ff5ca"
+   },
+   "badjump": {
+    "interface": "0b0f368147c4bf9c5fcffc84abb37ee1775504d13204ed6fcd6b19b735c00abf",
+    "closure": "0b0f368147c4bf9c5fcffc84abb37ee1775504d13204ed6fcd6b19b735c00abf"
+   },
+   "casts": {
+    "interface": "df2e1f2c1b24610d7e868f6f8a4cb1865e7c05f9637ae1e0438f93636eed4f11",
+    "closure": "df2e1f2c1b24610d7e868f6f8a4cb1865e7c05f9637ae1e0438f93636eed4f11"
+   },
+   "eq": {
+    "interface": "2f2605b2208e04ed6f91cf3f8375b9c70839038c0c8209cac79bee33280d152c",
+    "closure": "2f2605b2208e04ed6f91cf3f8375b9c70839038c0c8209cac79bee33280d152c"
+   },
+   "fault0": {
+    "interface": "1f5780fc3ed3345fb966ec20479590f11403222b2889dc8a76ad6e2cb9026f25",
+    "closure": "1f5780fc3ed3345fb966ec20479590f11403222b2889dc8a76ad6e2cb9026f25"
+   },
+   "fault1": {
+    "interface": "569088300ff8a05a82e69a1fa7af2569c976892b46f33cf4256debbe49f28c88",
+    "closure": "569088300ff8a05a82e69a1fa7af2569c976892b46f33cf4256debbe49f28c88"
+   },
+   "fault10": {
+    "interface": "9331bcea7de7b1492be6918c6e29e5635a5f9faf6d54cce3a498cae23b7e83e3",
+    "closure": "9331bcea7de7b1492be6918c6e29e5635a5f9faf6d54cce3a498cae23b7e83e3"
+   },
+   "fault2": {
+    "interface": "8012e4889e407a4fd174d943b4ca9cd3281a008c50ceaccb24a8566529fd2a18",
+    "closure": "8012e4889e407a4fd174d943b4ca9cd3281a008c50ceaccb24a8566529fd2a18"
+   },
+   "fault3": {
+    "interface": "64962111607ff89d5875a2044ee582d558ff1e51570a1703d8541eb15b0aef67",
+    "closure": "64962111607ff89d5875a2044ee582d558ff1e51570a1703d8541eb15b0aef67"
+   },
+   "fault4": {
+    "interface": "1025848f6bd2dcf9697b2bf1933aa9b4ce8293ec7c252538c92d5d04a295d2e8",
+    "closure": "1025848f6bd2dcf9697b2bf1933aa9b4ce8293ec7c252538c92d5d04a295d2e8"
+   },
+   "fault5": {
+    "interface": "7e21c6f8f21d6746da6357344ca5aaf21e84d50f6352970744eb052a21158c16",
+    "closure": "7e21c6f8f21d6746da6357344ca5aaf21e84d50f6352970744eb052a21158c16"
+   },
+   "fault6": {
+    "interface": "e3174365e07ee50aea728a15c1529eb69d3dd71ee0189e86135ce59336b99654",
+    "closure": "e3174365e07ee50aea728a15c1529eb69d3dd71ee0189e86135ce59336b99654"
+   },
+   "fault7": {
+    "interface": "feee076120be5fb4b5c60870794a5951fc02bd764996b00b5a98fcf4df7c21b7",
+    "closure": "feee076120be5fb4b5c60870794a5951fc02bd764996b00b5a98fcf4df7c21b7"
+   },
+   "fault8": {
+    "interface": "3f9151ece9237c1ffc912095056f4e03331d1b4e05d77b0f64985f95d07248ee",
+    "closure": "3f9151ece9237c1ffc912095056f4e03331d1b4e05d77b0f64985f95d07248ee"
+   },
+   "fault9": {
+    "interface": "a953e00368a00f72dd71de2f704258d4c4ede6e46a11c43400f117277befbd3d",
+    "closure": "a953e00368a00f72dd71de2f704258d4c4ede6e46a11c43400f117277befbd3d"
+   },
+   "jump": {
+    "interface": "0dc6f86ee00be08f2a9a93b13c3bb15f10fd6c5fb7724afc50d818525b2ca908",
+    "closure": "0dc6f86ee00be08f2a9a93b13c3bb15f10fd6c5fb7724afc50d818525b2ca908"
+   },
+   "lshr": {
+    "interface": "c5e57c21e06831cfcfb142078cb72ef2366f1c5bc591808001eb7ea3601594c4",
+    "closure": "c5e57c21e06831cfcfb142078cb72ef2366f1c5bc591808001eb7ea3601594c4"
+   },
+   "mul": {
+    "interface": "3201940a9efdc65fe248f48883412904740b49486dba3bce20b2c75230ce80f7",
+    "closure": "3201940a9efdc65fe248f48883412904740b49486dba3bce20b2c75230ce80f7"
+   },
+   "ne": {
+    "interface": "8ec6f6ce7f64dc1bfb699e6166c919b59de152d8b7227783c89eb1f87b87886c",
+    "closure": "8ec6f6ce7f64dc1bfb699e6166c919b59de152d8b7227783c89eb1f87b87886c"
+   },
+   "or": {
+    "interface": "fbfd5ca4f0d388fd3e9c51f7be47eac64bbd208760ee23b77778c2d793c28391",
+    "closure": "fbfd5ca4f0d388fd3e9c51f7be47eac64bbd208760ee23b77778c2d793c28391"
+   },
+   "parmov": {
+    "interface": "dfa3e93a694fd26506ab85fdb5c91cc2f7240e5c67ac2f96489aff4415ae43cd",
+    "closure": "dfa3e93a694fd26506ab85fdb5c91cc2f7240e5c67ac2f96489aff4415ae43cd"
+   },
+   "sdiv": {
+    "interface": "115fb415f346d9066d5edd800ec3710fea7d6e5da3baf10491341d097f900fae",
+    "closure": "115fb415f346d9066d5edd800ec3710fea7d6e5da3baf10491341d097f900fae"
+   },
+   "select": {
+    "interface": "8666f45532a3e411d9b74245fbac9d868d9bb74b58c35cf48dc507f38c0fb8df",
+    "closure": "8666f45532a3e411d9b74245fbac9d868d9bb74b58c35cf48dc507f38c0fb8df"
+   },
+   "shl": {
+    "interface": "f58b391c05e70784bbb6da613f5a690282026fca38f7a3409bb07e1bb527bc5a",
+    "closure": "f58b391c05e70784bbb6da613f5a690282026fca38f7a3409bb07e1bb527bc5a"
+   },
+   "sle": {
+    "interface": "fad9f7b527b8a6142f938078be56cedf05333583633636031027cd0286352e42",
+    "closure": "fad9f7b527b8a6142f938078be56cedf05333583633636031027cd0286352e42"
+   },
+   "slt": {
+    "interface": "c77dfe5f449851d9c44b4f06070166c6f1161f5ff42e6ebe9824776dca18ee31",
+    "closure": "c77dfe5f449851d9c44b4f06070166c6f1161f5ff42e6ebe9824776dca18ee31"
+   },
+   "srem": {
+    "interface": "02a4afa08d8a425d1d7a3737c8da3a2c27b5d9fcaf528ba17f46e4bcaa4b87e2",
+    "closure": "02a4afa08d8a425d1d7a3737c8da3a2c27b5d9fcaf528ba17f46e4bcaa4b87e2"
+   },
+   "sub": {
+    "interface": "080d1d22642a043ef267f4f6814af1591511d8f746ecb494b087878ce8397e7c",
+    "closure": "080d1d22642a043ef267f4f6814af1591511d8f746ecb494b087878ce8397e7c"
+   },
+   "udiv": {
+    "interface": "394b35c6548da71eb06f4ebbdf620c7fe900eff4359464c51216f3dc07a9cc62",
+    "closure": "394b35c6548da71eb06f4ebbdf620c7fe900eff4359464c51216f3dc07a9cc62"
+   },
+   "ule": {
+    "interface": "89739797986f1edc445035af8de35eedfe4495fe9d1e7e91ae626ae9004c2f11",
+    "closure": "89739797986f1edc445035af8de35eedfe4495fe9d1e7e91ae626ae9004c2f11"
+   },
+   "ult": {
+    "interface": "84f277fc86190b7d3986429b5f8958057c574dccbb5a652ca9a6de7e827702b4",
+    "closure": "84f277fc86190b7d3986429b5f8958057c574dccbb5a652ca9a6de7e827702b4"
+   },
+   "urem": {
+    "interface": "47ca0d92dc35e402faca3b1bce44bc6b9d2f047bdf5921cd40093eeca9aa3f45",
+    "closure": "47ca0d92dc35e402faca3b1bce44bc6b9d2f047bdf5921cd40093eeca9aa3f45"
+   },
+   "xor": {
+    "interface": "c2d37f0c1c6740bb8ca00e7a0cd766101a34953e97353e9bc883b27a654e8adf",
+    "closure": "c2d37f0c1c6740bb8ca00e7a0cd766101a34953e97353e9bc883b27a654e8adf"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "add",
+    "--input",
+    "255,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sub",
+    "--input",
+    "0,1",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 255,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "mul",
+    "--input",
+    "128,3",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 128,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "and",
+    "--input",
+    "170,240",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 160,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "or",
+    "--input",
+    "170,240",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 250,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "xor",
+    "--input",
+    "170,240",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 90,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "shl",
+    "--input",
+    "1,7",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 128,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "shl",
+    "--input",
+    "1,8",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "lshr",
+    "--input",
+    "128,7",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ashr",
+    "--input",
+    "128,7",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 255,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ashr",
+    "--input",
+    "128,8",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "udiv",
+    "--input",
+    "255,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 127,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "urem",
+    "--input",
+    "255,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sdiv",
+    "--input",
+    "249,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 253,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "srem",
+    "--input",
+    "249,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 255,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "udiv",
+    "--input",
+    "3,0",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sdiv",
+    "--input",
+    "128,255",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 6,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "srem",
+    "--input",
+    "128,255",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 6,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "eq",
+    "--input",
+    "2,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ne",
+    "--input",
+    "2,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ult",
+    "--input",
+    "255,0",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ule",
+    "--input",
+    "2,2",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "slt",
+    "--input",
+    "255,0",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "sle",
+    "--input",
+    "128,128",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 1,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "select",
+    "--input",
+    "2,9",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 2,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "casts",
+    "--input",
+    "128,0",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 255,
+    "steps": 5
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "parmov",
+    "--input",
+    "3,9",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 9,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "jump",
+    "--input",
+    "0,0",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 42,
+    "steps": 8
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "jump",
+    "--input",
+    "1,9",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 9,
+    "steps": 6
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "badjump",
+    "--input",
+    "0,0",
+    "--budget",
+    "100"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 4,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault0",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault1",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault2",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 2,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault3",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 3,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault4",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 4,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault5",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 5,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault6",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 6,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault7",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 7,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault8",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 8,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault9",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 9,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault10",
+    "--input",
+    "0,0",
+    "--budget",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 10,
+    "payload": 0,
+    "steps": 1
+   }
+  }
+ ]
+}

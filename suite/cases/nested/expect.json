@@ -1,0 +1,339 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-4.2",
+  "ISA-5.2",
+  "ISA-5.4",
+  "ISA-5.5",
+  "ISA-3.7"
+ ],
+ "hashes": {
+  "object": "8e6e852c4717ad55763ec2162b0582896a948c073b649c40002a8aa64dd0f815",
+  "symbols": {
+   "cancel": {
+    "interface": "c98f82615ce05c7f82ee89d9106ae0655f3396332ad2a6616f63266c03043c34",
+    "closure": "c98f82615ce05c7f82ee89d9106ae0655f3396332ad2a6616f63266c03043c34"
+   },
+   "ignore": {
+    "interface": "9687f21af62158ff87ab8a974e056774ee75b531e158cc4538a11d4631f89012",
+    "closure": "9687f21af62158ff87ab8a974e056774ee75b531e158cc4538a11d4631f89012"
+   },
+   "inc8": {
+    "interface": "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93",
+    "closure": "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93"
+   },
+   "nested": {
+    "interface": "562ad89a1befd9629409f21362684d92dc9d57b93968b1d6d5a868e6e2bc6afd",
+    "closure": "562ad89a1befd9629409f21362684d92dc9d57b93968b1d6d5a868e6e2bc6afd"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 9,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "cancel",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ignore",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "8",
+    "--budget",
+    "20",
+    "--arg",
+    "token:0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 9,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 9,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "cancel",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ignore",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "8",
+    "--budget",
+    "20",
+    "--arg",
+    "token:2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 9,
+    "payload": 0,
+    "steps": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 5
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "cancel",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ignore",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "8",
+    "--budget",
+    "20",
+    "--arg",
+    "token:3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 9,
+    "steps": 5
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 5
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "cancel",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "ignore",
+    "--input",
+    "255",
+    "--budget",
+    "20",
+    "--arg",
+    "token:4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 0,
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "nested",
+    "--input",
+    "8",
+    "--budget",
+    "20",
+    "--arg",
+    "token:4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 9,
+    "steps": 5
+   }
+  }
+ ]
+}

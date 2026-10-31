@@ -1,0 +1,33 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"19caea9bf13ee820b20984eb202af22e98854338922cb4ee16067f8a1ea6e3d9","kind":"oracle","name":"add257","signature":{"abi":"0.8","args":[],"fault":4,"in":[257,257],"kind":"oracle","mem":[],"tgt":257,"tier":"q"}},"1":{"interface_hash":"612b674cafa8e7a4035dbb8fcd7fa9ff214438e85280d8fdfdb7de8bb6e98f00","kind":"oracle","name":"div257","signature":{"abi":"0.8","args":[],"fault":4,"in":[257,257],"kind":"oracle","mem":[],"tgt":257,"tier":"q"}},"2":{"interface_hash":"894aacbd0118f47d7f7ed3775d41d9195ac9b1ea06145285a60b8de41df39f89","kind":"oracle","name":"call257","signature":{"abi":"0.8","args":[],"fault":4,"in":[257],"kind":"oracle","mem":[],"tgt":257,"tier":"q"}},"3":{"interface_hash":"0755279a5f665b6bb03930ed4b5a7fb376aafa5bc3cebb737a1b20d3d8139332","kind":"lproc","name":"id257","signature":{"abi":"0.8","kind":"lproc","params":[257],"result":257,"tier":"q"}},"4":{"interface_hash":"a6ea0a70d8b01bb10a013ea440b7cd323dab09f30b1c63fcee4419c96230c8fe","kind":"oracle","name":"fault257","signature":{"abi":"0.8","args":[],"fault":257,"in":[257],"kind":"oracle","mem":[],"tgt":257,"tier":"q"}},"5":{"interface_hash":"ec67bbabf748db355d4bd498848fc8743a7b01516c6fa0acbf3c69a24e3827f1","kind":"oracle","name":"fault_small257","signature":{"abi":"0.8","args":[],"fault":257,"in":[1],"kind":"oracle","mem":[],"tgt":257,"tier":"q"}}}
+
+section functions
+oracle @add257 (x:wire[257] in, y:wire[257] in) (t:wire[257]) (f:wire[4]) () ()
+regs { r:reg[257] }
+^entry():
+r = lift.add x y
+lift.retval r
+oracle @div257 (x:wire[257] in, y:wire[257] in) (t:wire[257]) (f:wire[4]) () ()
+regs { r:reg[257] }
+^entry():
+r = lift.udiv x y
+lift.retval r
+oracle @call257 (x:wire[257] in) (t:wire[257]) (f:wire[4]) () ()
+regs { r:reg[257] }
+^entry():
+r = lift.call @id257 (x)
+lift.retval r
+lproc @id257 (p:reg[257]) (r:reg[257]) () () ()
+^entry():
+lift.ret p
+oracle @fault257 (x:wire[257] in) (t:wire[257]) (f:wire[257]) () ()
+^entry():
+fault 1606938044258990275541962092341162602522202993782792835301379
+oracle @fault_small257 (x:wire in) (t:wire[257]) (f:wire[257]) () ()
+^entry():
+fault 1606938044258990275541962092341162602522202993782792835301379
+
+section layout
+{"A_tab":0,"H":8,"S_cells":4,"globals":{},"heap_base":1,"heap_limit_max":0,"interface_regions":{},"null_size":1,"ptr_width":32}

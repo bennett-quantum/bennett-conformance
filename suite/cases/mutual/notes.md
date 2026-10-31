@@ -1,0 +1,1 @@
+Hand derivation: main has indices 0..2. The f,g SCC is ordered by names, hence f has indices 2..4 and g starts at 4. g always takes done and returns lift.label ^entry = 4, in six total executed rows. The fixture deliberately has hash(f)>hash(g), so sorting individual closure hashes gives the wrong label value 2.

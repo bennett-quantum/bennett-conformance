@@ -1,0 +1,29 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=16
+
+section symbols
+{"0":{"interface_hash":"598fdf171d0a201d52e8fbe2339c70d1a26b36a72dcd60503c87c51dff88039b","kind":"oracle","name":"main","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"1":{"interface_hash":"e4028cf7347c2779e19c8193ef1039837944acebd4784e9c3a42fbe236e737ec","kind":"lproc","name":"f","signature":{"abi":"0.8","kind":"lproc","params":[],"result":16,"tier":"q"}},"2":{"interface_hash":"7dc9c25aff5230a46ae697edf187d34ba72a03f7a3c1a520c6fc6bf5462c6374","kind":"lproc","name":"g","signature":{"abi":"0.8","kind":"lproc","params":[],"result":16,"tier":"q"}}}
+
+section functions
+oracle @main () (t:wire[16]) (fault:wire[4]) () ()
+regs { r:reg[16] }
+^entry():
+r = lift.call @g ()
+lift.retval r
+lproc @f () (r:reg[16]) () () ()
+^entry():
+r = lift.call @g ()
+lift.ret r
+lproc @g () (r:reg[16]) () () ()
+regs { p:reg[1] }
+^entry():
+p = lift.const.i1 1
+qbranch p ^done ^recurse
+^done():
+r = lift.label ^entry
+lift.ret r
+^recurse():
+r = lift.call @f ()
+lift.ret r
+
+section layout
+{"A_tab":0,"H":8,"S_cells":5,"globals":{},"heap_base":16,"heap_limit_max":0,"interface_regions":{},"null_size":1,"ptr_width":16}

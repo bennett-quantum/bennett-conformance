@@ -1,0 +1,73 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=16
+
+section symbols
+{"0":{"interface_hash":"30660357457354b768b86e153f366ead95aeac5d125e860d8e6cb8743f8d35a8","kind":"oracle","name":"heap","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"1":{"interface_hash":"415e0ce86806f048d197ed864b321091a00cc27575e56b7661a85958ad17b20d","kind":"oracle","name":"zeroalloc","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"2":{"interface_hash":"b4e19ac0b85b4c81d01de0e0e8f15b5a631fdaec8dca6680c17175e81ea945d7","kind":"oracle","name":"afterfree","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"3":{"interface_hash":"7fbc54ee4a45cf4ebaeb84b5d9344b3fa04906b125784404342055b075509197","kind":"oracle","name":"pinned","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"4":{"interface_hash":"86f87b18056089dd5ab1648a9843bb8f69d3cb6ac70755866be63ef068c425d4","kind":"oracle","name":"doublefree","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"5":{"interface_hash":"b4147fd646bdfdc270596c04cb445561fe401774e1fdd178fcde3e77a5699725","kind":"oracle","name":"badstore","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"6":{"interface_hash":"a06203de444a4a9a9a34a6781efee8e6290b27d79ed102165e5e2edd571fd56f","kind":"oracle","name":"outoftable","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"7":{"interface_hash":"3ef6c026118750eebb4c309eadf18c20eab4daab5aa5ef05b25dd7861238cd50","kind":"oracle","name":"faultif","signature":{"abi":"0.8","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":16,"tier":"q"}},"8":{"interface_hash":"f5c5556f79f032f7a0607387d69cab7bbb21988ca15461645340abb11e562813","kind":"data","name":"g","signature":{"abi":"0.8","kind":"data","size":1,"tier":"-"}}}
+
+section functions
+oracle @heap () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+n = lift.const.i16 2
+p = lift.alloc n
+v = lift.const.i16 4660
+lift.store.i16 p v
+r = lift.load.i16 p
+lift.free p
+lift.retval r
+oracle @zeroalloc () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+p = lift.alloc 0
+q = lift.alloc 0
+r = lift.sub q p
+lift.retval r
+oracle @afterfree () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+n = lift.const.i16 2
+p = lift.alloc n
+v = lift.const.i16 4660
+lift.free p
+r = lift.load.i16 p
+lift.retval r
+oracle @pinned () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+p = lift.addr @g
+lift.free p
+lift.retval r
+oracle @doublefree () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+n = lift.const.i16 2
+p = lift.alloc n
+v = lift.const.i16 4660
+lift.free p
+lift.free p
+lift.retval r
+oracle @badstore () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+p = lift.const.i16 0
+lift.store.i16 p v
+lift.retval r
+oracle @outoftable () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+p = lift.alloc 0
+p = lift.alloc 0
+p = lift.alloc 0
+p = lift.alloc 0
+lift.retval r
+oracle @faultif () (t:wire[16]) (f:wire[4]) () ()
+regs { p:reg[16], q:reg[16], n:reg[16], v:reg[16], r:reg[16], c:reg[1] }
+^entry():
+c = lift.const.i1 1
+lift.faultif c 9
+lift.retval r
+
+section data
+g 00
+
+section layout
+{"A_tab":2,"H":8,"S_cells":0,"globals":{"g":{"base":16,"image":"g","size":1}},"heap_base":32,"heap_limit_max":32,"interface_regions":{},"null_size":1,"ptr_width":16}

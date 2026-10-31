@@ -1,0 +1,56 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"70c70c733a7c87eeedb2b9d3a77fea16cb1240041dddcfb865e8149b50769883","kind":"perm_action","name":"while3","signature":{"abi":"0.8","args":[],"bounds":[3],"in":[3],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}},"1":{"interface_hash":"9a71ebdeed0fcf79499b855cf2d7dfc747680ba58c06ebe130eb9576562205c9","kind":"action","name":"conditional","signature":{"abi":"0.8","args":[],"bounds":[],"in":[1],"kind":"action","mem":[],"mut":[1],"tier":"q"}},"2":{"interface_hash":"eb4b8c89a878e6fb8c514214417d0827f809fe0fd6b155e2f395ec19f5f31271","kind":"action","name":"phase","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}},"3":{"interface_hash":"9d9c349c97df952f56700426fc92bc1c1f7937d144f868f2f2287d7ec243f3cb","kind":"action","name":"controlled_phase","signature":{"abi":"0.8","args":[],"bounds":[],"in":[1],"kind":"action","mem":[],"mut":[1],"tier":"q"}},"4":{"interface_hash":"bf13912ffa2d6932f730622105f5a243eec9a3c01554a034e0e97d0ca7a195f2","kind":"perm_action","name":"exchange","signature":{"abi":"0.8","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[{"A":1,"W":2,"role":"mut"}],"mut":[2],"tier":"q"}},"5":{"interface_hash":"fd66ff5ee2580e4f999e4e85e74e2e24de2b54ffa1c70c4a6b90dc63e56a8e90","kind":"perm_action","name":"image","signature":{"abi":"0.8","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[8],"tier":"q"}},"6":{"interface_hash":"4e3eba45f290de3007ae1ee11cd6ceb1e90cd9d64391e163255edd90eee78ef8","kind":"perm_action","name":"borrowed","signature":{"abi":"0.8","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}},"7":{"interface_hash":"f7f06a09d59c31dcbff6f80485ab1c7fc3974bbdfb9e1e6b813bede211a94a6f","kind":"data","name":"bytes","signature":{"abi":"0.8","kind":"data","size":2,"tier":"-"}},"8":{"interface_hash":"caec1fe67f4d082c9e4c9286aa43c12ffb3ba5baa75db05769bb451b8fbae443","kind":"action","name":"minus_i","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}}
+
+section functions
+perm_action @while3 (t:wire mut) (p:wire[3] in) () () ()
+regs {  } bounds {3}
+^entry():
+qloop 3 while p {
+x t
+}
+action @conditional (t:wire mut) (p:wire in) () () ()
+^entry():
+qif p {
+h t
+} {
+x t
+}
+action @phase (t:wire mut) () () () ()
+^entry():
+rz 6.283185307179586 t
+action @minus_i (t:wire mut) () () () ()
+^entry():
+s t
+s t
+x t
+s t
+s t
+x t
+action @controlled_phase (t:wire mut) (p:wire in) () () ()
+^entry():
+ctl p action_call @minus_i (t) () () ()
+perm_action @exchange (t:wire[2] mut) (a:wire in) (m:region[1,2] mut) () ()
+^entry():
+qexchm m a t
+perm_action @image (t:wire[8] mut) (p:wire in) () () ()
+^entry():
+qregion scratch 1 8 @bytes
+d = qload scratch p
+qxor d t
+qunload scratch p d
+perm_action @borrowed (t:wire mut) (x:wire in) () () ()
+^entry():
+b = qborrow any 1
+cx x b
+cx b t
+cx x b
+cx b t
+qreturn b
+
+section data
+bytes dead
+
+section layout
+{"A_tab":0,"H":4,"S_cells":0,"globals":{},"heap_base":1,"heap_limit_max":0,"interface_regions":{},"null_size":1,"ptr_width":32}

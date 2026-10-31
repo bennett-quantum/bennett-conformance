@@ -1,0 +1,50 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"de3621c3dee0d970a86479e38ff4088730604a5b4d16429b71af2ec85ab0f42f","kind":"perm_action","name":"toggle","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}},"1":{"interface_hash":"0f633b7a5f72475dc249883c0b8c6a3c91bfe62d40de642013afb5bd2015f149","kind":"action","name":"bell","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[2],"tier":"q"}},"2":{"interface_hash":"20449c3d1c45ec590a7f7b356ed59719e2daaec9bbaa18f8da2eaa43dfab0008","kind":"cc","name":"allocation","signature":{"abi":"0.8","kind":"cc","params":[],"results":[],"tier":"cc"}},"3":{"interface_hash":"6ea78656c92cd787bea86133572e2c9766d3f70208676cad0c043731c0fd6102","kind":"cc","name":"views","signature":{"abi":"0.8","kind":"cc","params":[],"results":[],"tier":"cc"}},"4":{"interface_hash":"fe0d76be58a95d67e2619cd08f33cd9e25ba530a09d6fa848d6bf955e162f56b","kind":"cc","name":"unclean","signature":{"abi":"0.8","kind":"cc","params":[],"results":[],"tier":"cc"}},"5":{"interface_hash":"dfc970cdea49da3834707362043d64ff084bcb641da635034e4cce0271b2943f","kind":"cc","name":"measurement","signature":{"abi":"0.8","kind":"cc","params":[],"results":["i2"],"tier":"cc"}},"6":{"interface_hash":"f587dd8342b03b99c80772b046c324dfe63872a8c58604264d73605dbecf505b","kind":"cc","name":"measuring","signature":{"abi":"0.8","kind":"cc","params":[],"results":["i2"],"tier":"cc"}},"7":{"interface_hash":"1a392c2bfb917334f6ed3266c24b5d1a638d08371985d3d4c4def835cad24d74","kind":"cc","name":"bad_uncall","signature":{"abi":"0.8","kind":"cc","params":[],"results":["i2"],"tier":"cc"}}}
+
+section functions
+perm_action @toggle (t:wire mut) () () () ()
+^entry():
+x t
+action @bell (t:wire[2] mut) () () () ()
+^entry():
+h t[0]
+cx t[0] t[1]
+fn cc @allocation () () () () ()
+^entry():
+a = qreg.new any 1
+b = qreg.new any 1
+q = qreg.concat a b
+qreg.free q
+ret
+fn cc @views () () () () ()
+^entry():
+q = qreg.new any 2
+s = qreg.slice q 0 1
+action_call @toggle (s) () () ()
+s2 = qreg.slice q 0 1
+action_call @toggle (s2) () () ()
+qreg.free q
+ret
+fn cc @unclean () () () () ()
+^entry():
+q = qreg.new any 1
+action_call @toggle (q) () () ()
+qreg.free q
+ret
+fn cc @measurement () (r:i2) () () ()
+^entry():
+q = qreg.new any 2
+action_call @bell (q) () () ()
+r = measure q
+ret r
+fn cc @measuring () (r:i2) () () ()
+^entry():
+r = call @measurement
+ret r
+fn cc @bad_uncall () (r:i2) () () ()
+^entry():
+r = call @measuring
+uncall @measuring () (r)
+ret r

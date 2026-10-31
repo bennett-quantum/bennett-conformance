@@ -1,0 +1,39 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"7b3212f6647103050fa24c34e767afd19fbe3009134d6f5c7280a400ff9ef398","kind":"perm_action","name":"flip","signature":{"abi":"0.8","args":[],"bounds":[],"in":[2],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}},"1":{"interface_hash":"62c70737b8fcae09329da78eed2ed48aad61dfe0137e2d8d02c1e1ffb9dc5f76","kind":"perm_action","name":"memory","signature":{"abi":"0.8","args":[],"bounds":[],"in":[2],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}},"2":{"interface_hash":"56ab73b8a0938e882c2a3293d4fb401a07bbbb931485b88948973ba1c3dc1597","kind":"perm_action","name":"loop","signature":{"abi":"0.8","args":[],"bounds":[3],"in":[2],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}},"3":{"interface_hash":"3b0881575762fa4e1fd5b2a160cd6abfcbfe60f011df3b1968df7e44de11e1d3","kind":"action","name":"bell","signature":{"abi":"0.8","args":[],"bounds":[],"in":[2],"kind":"action","mem":[],"mut":[2],"tier":"q"}},"4":{"interface_hash":"90dbeda2a04d9f5ac10570fa079aaf22540fb1bf8da780415dcd238334996aa4","kind":"data","name":"image","signature":{"abi":"0.8","kind":"data","size":1,"tier":"-"}},"5":{"interface_hash":"2acd73fbb764d1a278bcba54e7a13c99ddd1d159e8f63ea59f3af7338e313f67","kind":"oracle","name":"lifted","signature":{"abi":"0.8","args":[],"fault":4,"in":[2],"kind":"oracle","mem":[],"tgt":2,"tier":"q"}}}
+
+section functions
+perm_action @flip (t:wire[2] mut) (p:wire[2] in) () () ()
+^entry():
+d = qcopy p
+qxor d t
+quncopy p d
+perm_action @memory (t:wire[2] mut) (p:wire[2] in) () () ()
+^entry():
+qregion r 2 2 @image
+d = qload r p
+qunload r p d
+qstore r p t
+qstore r p t
+qexchm r p t
+qexchm r p t
+perm_action @loop (t:wire[2] mut) (p:wire[2] in) () () ()
+regs {  } bounds {3}
+^entry():
+qloop 3 {
+x t[0]
+}
+action @bell (t:wire[2] mut) (p:wire[2] in) () () ()
+^entry():
+h t[0]
+cx t[0] t[1]
+oracle @lifted (x:wire[2] in) (t:wire[2]) (f:wire[4]) () ()
+regs { r:reg[2] }
+^entry():
+r = lift.const.i2 1
+lift.perm_call @flip (r) (x) () ()
+lift.retval r
+
+section data
+image 00

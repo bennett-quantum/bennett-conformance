@@ -1,0 +1,22 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"a8f4a15663aead9ecb6618fe3847deba546cf3172f645ffc7e763f551e529e27","kind":"oracle","name":"o","signature":{"abi":"0.8","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}},"1":{"interface_hash":"4cabd490b0d1a8dfe31489ec234e91867e66b54c6c4d030eb4e8d1cf6f84bb38","kind":"action","name":"a","signature":{"abi":"0.8","args":["token"],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}}
+
+section functions
+oracle @o (p:wire in) (v:wire) (fr:wire[4]) () ()
+^entry():
+lift.retval p
+action @a (t:wire mut) () () (tk:token) ()
+^entry():
+c = qalloc any 1
+f = qalloc any 4
+h c
+oracle_call @o tk (c) t f () ()
+oracle_call @o tk (c) t f () ()
+h c
+b = qborrow any 1
+cx c b
+qreturn b
+qfree f
+qfree c

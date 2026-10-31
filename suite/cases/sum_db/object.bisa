@@ -1,0 +1,39 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"68225d213c44812fe844cd295d8821127c3cf31682be4eb19303cb53f9b147f7","kind":"oracle","name":"sum_db","signature":{"abi":"0.8","args":[],"fault":4,"in":[8],"kind":"oracle","mem":[{"A":4,"W":8,"role":"in"}],"tgt":8,"tier":"q"}},"1":{"interface_hash":"74f110bbafde68a4785025e7e571ef871ddd83a09465ab9c1604f653a0cfcd92","kind":"lproc","name":"sum","signature":{"abi":"0.8","kind":"lproc","params":[8,8,32],"result":8,"tier":"q"}},"2":{"interface_hash":"7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6","kind":"data","name":"zero","signature":{"abi":"0.8","kind":"data","size":1,"tier":"-"}}}
+
+section functions
+oracle @sum_db (n:wire[8] in) (t:wire[8]) (f:wire[4]) (db:region[4,8] in) ()
+regs { base:reg[32], acc:reg[8], r:reg[8] }
+^entry():
+base = lift.addr @db
+acc = lift.const.i8 0
+r = lift.call @sum (n, acc, base)
+lift.retval r
+lproc @sum (n:reg[8], acc:reg[8], base:reg[32]) (r:reg[8]) () () ()
+regs { zp:reg[32], zv:reg[8], z:reg[1], one:reg[8], n2:reg[8], idx:reg[32], p:reg[32], v:reg[8], acc2:reg[8] }
+^entry():
+zp = lift.addr @zero
+lift.boundscheck zp 1
+zv = lift.load.i8 zp
+z = lift.icmp.eq n zv
+qbranch z ^done ^more
+^more():
+one = lift.const.i8 1
+n2 = lift.sub n one
+idx = lift.zext.i32 n2
+p = lift.add base idx
+lift.boundscheck p 1
+v = lift.load.i8 p
+acc2 = lift.add acc v
+r = lift.call @sum (n2, acc2, base)
+lift.ret r
+^done():
+lift.ret acc
+
+section data
+zero 00
+
+section layout
+{"A_tab":4,"H":13,"S_cells":9,"globals":{"zero":{"base":16,"image":"zero","size":1}},"heap_base":4112,"heap_limit_max":4080,"interface_regions":{"sum_db":{"db":{"base":4096}}},"null_size":16,"ptr_width":32}

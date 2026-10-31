@@ -1,0 +1,46 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.7",
+  "ISA-4.2",
+  "ISA-9.2"
+ ],
+ "hashes": {
+  "object": "ba0df453b2ada3a402fc6ab4f884c82311067f3c0df66e0249c83b29109accf8",
+  "symbols": {
+   "f": {
+    "interface": "e4028cf7347c2779e19c8193ef1039837944acebd4784e9c3a42fbe236e737ec",
+    "closure": "e4028cf7347c2779e19c8193ef1039837944acebd4784e9c3a42fbe236e737ec"
+   },
+   "g": {
+    "interface": "7dc9c25aff5230a46ae697edf187d34ba72a03f7a3c1a520c6fc6bf5462c6374",
+    "closure": "7dc9c25aff5230a46ae697edf187d34ba72a03f7a3c1a520c6fc6bf5462c6374"
+   },
+   "main": {
+    "interface": "598fdf171d0a201d52e8fbe2339c70d1a26b36a72dcd60503c87c51dff88039b",
+    "closure": "598fdf171d0a201d52e8fbe2339c70d1a26b36a72dcd60503c87c51dff88039b"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "main",
+    "--input",
+    "",
+    "--budget",
+    "20,0,32,8"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 4,
+    "steps": 6
+   }
+  }
+ ]
+}

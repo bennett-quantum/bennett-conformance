@@ -1,0 +1,249 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.3",
+  "ISA-3.6",
+  "ISA-3.7",
+  "ISA-5.4",
+  "ISA-14.1"
+ ],
+ "hashes": {
+  "object": "0e7a614e989d53939c586dac6e40e84fd6440579634d9f1fed794f1b25078397",
+  "symbols": {
+   "add257": {
+    "interface": "19caea9bf13ee820b20984eb202af22e98854338922cb4ee16067f8a1ea6e3d9",
+    "closure": "19caea9bf13ee820b20984eb202af22e98854338922cb4ee16067f8a1ea6e3d9"
+   },
+   "call257": {
+    "interface": "894aacbd0118f47d7f7ed3775d41d9195ac9b1ea06145285a60b8de41df39f89",
+    "closure": "894aacbd0118f47d7f7ed3775d41d9195ac9b1ea06145285a60b8de41df39f89"
+   },
+   "div257": {
+    "interface": "612b674cafa8e7a4035dbb8fcd7fa9ff214438e85280d8fdfdb7de8bb6e98f00",
+    "closure": "612b674cafa8e7a4035dbb8fcd7fa9ff214438e85280d8fdfdb7de8bb6e98f00"
+   },
+   "fault257": {
+    "interface": "a6ea0a70d8b01bb10a013ea440b7cd323dab09f30b1c63fcee4419c96230c8fe",
+    "closure": "a6ea0a70d8b01bb10a013ea440b7cd323dab09f30b1c63fcee4419c96230c8fe"
+   },
+   "fault_small257": {
+    "interface": "ec67bbabf748db355d4bd498848fc8743a7b01516c6fa0acbf3c69a24e3827f1",
+    "closure": "ec67bbabf748db355d4bd498848fc8743a7b01516c6fa0acbf3c69a24e3827f1"
+   },
+   "id257": {
+    "interface": "0755279a5f665b6bb03930ed4b5a7fb376aafa5bc3cebb737a1b20d3d8139332",
+    "closure": "0755279a5f665b6bb03930ed4b5a7fb376aafa5bc3cebb737a1b20d3d8139332"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "div257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379,1267650600228229401496703205381",
+    "--budget",
+    "2,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": "1267650600228229401496703205371",
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "div257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379,1267650600228229401496703205381",
+    "--budget",
+    "1,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 1,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "add257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379,1267650600228229401496703205381",
+    "--budget",
+    "2,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": "1606938044258990275541962092342430253122431223184289538506760",
+    "steps": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "call257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379",
+    "--budget",
+    "3,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": "1606938044258990275541962092341162602522202993782792835301379",
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "call257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379",
+    "--budget",
+    "3,0,4,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 3,
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "call257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379",
+    "--budget",
+    "3,0,5,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": "1606938044258990275541962092341162602522202993782792835301379",
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "call257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379",
+    "--budget",
+    "3,0,16,1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": "1606938044258990275541962092341162602522202993782792835301379",
+    "steps": 3
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault257",
+    "--input",
+    "1606938044258990275541962092341162602522202993782792835301379",
+    "--budget",
+    "1,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": "1606938044258990275541962092341162602522202993782792835301379",
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault_small257",
+    "--input",
+    "0",
+    "--budget",
+    "1,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": "1606938044258990275541962092341162602522202993782792835301379",
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "fault_small257",
+    "--input",
+    "1",
+    "--budget",
+    "1,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": "1606938044258990275541962092341162602522202993782792835301379",
+    "payload": 0,
+    "steps": 1
+   }
+  },
+  {
+   "cmd": [
+    "step-check",
+    "$OBJECT",
+    "fault_small257",
+    "--exhaustive",
+    "--budget",
+    "2,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "cases": 2,
+    "fixed_regions": [],
+    "input_and_memory_bits": 1,
+    "mode": "exhaustive",
+    "status": "ok",
+    "target_fault": "XOR delivery is independent of their entry values"
+   }
+  },
+  {
+   "cmd": [
+    "run-oracle",
+    "$OBJECT",
+    "add257",
+    "--input",
+    "3,5",
+    "--budget",
+    "2,0,16,4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "code": 0,
+    "payload": 8,
+    "steps": 2
+   }
+  }
+ ]
+}

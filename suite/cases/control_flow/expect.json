@@ -1,0 +1,1055 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.5",
+  "ISA-4.4",
+  "ISA-4.6",
+  "ISA-5.3",
+  "ISA-5.6",
+  "ISA-14.2"
+ ],
+ "hashes": {
+  "object": "e7e0acadaebf638a1adb34adb61efc2c79b43f0ec90b786582d2fdb6db7634d8",
+  "symbols": {
+   "borrowed": {
+    "interface": "4e3eba45f290de3007ae1ee11cd6ceb1e90cd9d64391e163255edd90eee78ef8",
+    "closure": "4e3eba45f290de3007ae1ee11cd6ceb1e90cd9d64391e163255edd90eee78ef8"
+   },
+   "bytes": {
+    "interface": "f7f06a09d59c31dcbff6f80485ab1c7fc3974bbdfb9e1e6b813bede211a94a6f",
+    "closure": "f7f06a09d59c31dcbff6f80485ab1c7fc3974bbdfb9e1e6b813bede211a94a6f"
+   },
+   "conditional": {
+    "interface": "9a71ebdeed0fcf79499b855cf2d7dfc747680ba58c06ebe130eb9576562205c9",
+    "closure": "9a71ebdeed0fcf79499b855cf2d7dfc747680ba58c06ebe130eb9576562205c9"
+   },
+   "controlled_phase": {
+    "interface": "9d9c349c97df952f56700426fc92bc1c1f7937d144f868f2f2287d7ec243f3cb",
+    "closure": "9d9c349c97df952f56700426fc92bc1c1f7937d144f868f2f2287d7ec243f3cb"
+   },
+   "exchange": {
+    "interface": "bf13912ffa2d6932f730622105f5a243eec9a3c01554a034e0e97d0ca7a195f2",
+    "closure": "bf13912ffa2d6932f730622105f5a243eec9a3c01554a034e0e97d0ca7a195f2"
+   },
+   "image": {
+    "interface": "fd66ff5ee2580e4f999e4e85e74e2e24de2b54ffa1c70c4a6b90dc63e56a8e90",
+    "closure": "fd66ff5ee2580e4f999e4e85e74e2e24de2b54ffa1c70c4a6b90dc63e56a8e90"
+   },
+   "minus_i": {
+    "interface": "caec1fe67f4d082c9e4c9286aa43c12ffb3ba5baa75db05769bb451b8fbae443",
+    "closure": "caec1fe67f4d082c9e4c9286aa43c12ffb3ba5baa75db05769bb451b8fbae443"
+   },
+   "phase": {
+    "interface": "eb4b8c89a878e6fb8c514214417d0827f809fe0fd6b155e2f395ec19f5f31271",
+    "closure": "eb4b8c89a878e6fb8c514214417d0827f809fe0fd6b155e2f395ec19f5f31271"
+   },
+   "while3": {
+    "interface": "70c70c733a7c87eeedb2b9d3a77fea16cb1240041dddcfb865e8149b50769883",
+    "closure": "70c70c733a7c87eeedb2b9d3a77fea16cb1240041dddcfb865e8149b50769883"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0000": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1000": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1100": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0100": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     2
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0010": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "2"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     2
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1010": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     3
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0110": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     3
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1110": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     4
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0001": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "4"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     4
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1001": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     5
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1101": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     5
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0101": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "6"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     6
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0011": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "6"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     6
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1011": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "7"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     7
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1111": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "1",
+    "--in",
+    "7"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": false,
+    "in": [
+     7
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0111": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "while3",
+    "--mut",
+    "0",
+    "--in",
+    "5",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "while3",
+    "adjoint": true,
+    "in": [
+     5
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1101": [
+      1,
+      0
+     ]
+    },
+    "wires": 4
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "conditional",
+    "--state",
+    "00=0.7071067811865475,0;01=0.7071067811865475,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "conditional",
+    "adjoint": false,
+    "in": [
+     null
+    ],
+    "mem": {},
+    "mut": [
+     null
+    ],
+    "state": {
+     "01": [
+      0.5,
+      0
+     ],
+     "10": [
+      0.7071067811865475,
+      0
+     ],
+     "11": [
+      0.5,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "conditional",
+    "--state",
+    "01=0.5,0;10=0.7071067811865475,0;11=0.5,0",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "conditional",
+    "adjoint": true,
+    "in": [
+     null
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "00": [
+      0.7071067811865475,
+      0
+     ],
+     "01": [
+      0.7071067811865476,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "minus_i",
+    "--mut",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "minus_i",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0": [
+      -1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "minus_i",
+    "--mut",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "minus_i",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1": [
+      -1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "minus_i",
+    "--mut",
+    "1",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "minus_i",
+    "adjoint": true,
+    "in": [],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1": [
+      -1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "phase",
+    "--mut",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "phase",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0": [
+      -1,
+      -1.224647646678556e-16
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "controlled_phase",
+    "--state",
+    "00=0.7071067811865475,0;01=0.7071067811865475,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "controlled_phase",
+    "adjoint": false,
+    "in": [
+     null
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "00": [
+      0.7071067811865475,
+      0
+     ],
+     "01": [
+      -0.7071067811865475,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "exchange",
+    "--mut",
+    "2",
+    "--in",
+    "1",
+    "--mem",
+    "m=0103"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "exchange",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {
+     "m": [
+      1,
+      2
+     ]
+    },
+    "mut": [
+     3
+    ],
+    "state": {
+     "1111001": [
+      1,
+      0
+     ]
+    },
+    "wires": 7
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "exchange",
+    "--mut",
+    "2",
+    "--in",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "exchange",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {
+     "m": [
+      0,
+      2
+     ]
+    },
+    "mut": [
+     0
+    ],
+    "state": {
+     "0010001": [
+      1,
+      0
+     ]
+    },
+    "wires": 7
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "image",
+    "--mut",
+    "53",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "image",
+    "adjoint": false,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     235
+    ],
+    "state": {
+     "110101110": [
+      1,
+      0
+     ]
+    },
+    "wires": 9
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "image",
+    "--mut",
+    "53",
+    "--in",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "image",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {},
+    "mut": [
+     152
+    ],
+    "state": {
+     "000110011": [
+      1,
+      0
+     ]
+    },
+    "wires": 9
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "borrowed",
+    "--mut",
+    "0",
+    "--in",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "borrowed",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "11": [
+      1,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "borrowed",
+    "--mut",
+    "0",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "borrowed",
+    "adjoint": false,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "00": [
+      1,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "borrowed",
+    "--mut",
+    "0",
+    "--in",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "borrowed",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "11": [
+      1,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "borrowed",
+    "--mut",
+    "1",
+    "--in",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "borrowed",
+    "adjoint": false,
+    "in": [
+     0
+    ],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "10": [
+      1,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "borrowed",
+    "--mut",
+    "1",
+    "--in",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "borrowed",
+    "adjoint": false,
+    "in": [
+     1
+    ],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "01": [
+      1,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  }
+ ]
+}

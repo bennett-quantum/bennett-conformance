@@ -1,0 +1,105 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=16
+
+section symbols
+{"0":{"interface_hash":"0fe8c7991be189017d08024a7b880f04646a46bd0831a4de093cd99a063918ab","kind":"r","name":"sum","signature":{"abi":"0.8","kind":"r","params":["i8"],"results":["i8"],"tier":"r"}},"1":{"interface_hash":"e8a3dc5429049b16559aa6a4262779e3dcd37a758967def4e08c371a5b765fff","kind":"r","name":"g","signature":{"abi":"0.8","kind":"r","params":["ptr"],"results":[],"tier":"r"}},"10":{"interface_hash":"6ef7b54c8ab5641636211b2d43f0df86cfbc129916db3b25b805e7ad33b97774","kind":"cc","name":"host","signature":{"abi":"0.8","kind":"cc","params":[],"results":["i16"],"tier":"cc"}},"11":{"interface_hash":"cd54f756eb0a65f3c2881453c9c7e03d44e1ae9c651ca01efdeede661b3fb573","kind":"cc","name":"host_invalid","signature":{"abi":"0.8","kind":"cc","params":[],"results":["i16"],"tier":"cc"}},"2":{"interface_hash":"564cbe6a49414643ca03211d12c78f3cf431ba3d2ecf0c8b06ea1aafc0392389","kind":"r","name":"f","signature":{"abi":"0.8","kind":"r","params":["ptr"],"results":[],"tier":"r"}},"3":{"interface_hash":"e0db43691a75656b7a37a8156ca44cfa17523a63c0e2a36e20433869c7b1112b","kind":"r","name":"nested","signature":{"abi":"0.8","kind":"r","params":[],"results":["i64"],"tier":"r"}},"4":{"interface_hash":"f1344e767c6ce40993c3c6164eba4d58ac6bb8bbbfdba33de7400aa795d4c0b9","kind":"r","name":"effects","signature":{"abi":"0.8","kind":"r","params":[],"results":["i64"],"tier":"r"}},"5":{"interface_hash":"c8b90ca42cbf14f0ac90c4395b94100ddbe1319688931014e900acb2a4694840","kind":"r","name":"impure","signature":{"abi":"0.8","kind":"r","params":[],"results":[],"tier":"r"}},"6":{"interface_hash":"260aa61d5d96b991e946e2fd4986fe9e319e2c43ef374e8f90d85c112b3d5b88","kind":"r","name":"entropy_short","signature":{"abi":"0.8","kind":"r","params":[],"results":[],"tier":"r"}},"7":{"interface_hash":"9ccebed66dd2a159125d50818ef06c82b8512612940a695605826fd3452d3524","kind":"r","name":"unknown_effect","signature":{"abi":"0.8","kind":"r","params":[],"results":[],"tier":"r"}},"8":{"interface_hash":"818b6f38c57d9afe5fbad77a00457a7f9f3484af7f3d25e3b6238b6ea301ba7e","kind":"r","name":"memfault","signature":{"abi":"0.8","kind":"r","params":[],"results":["i8"],"tier":"r"}},"9":{"interface_hash":"30fd03864fe91c61b0c8aa2ce72a158e1647c02a9dc655fa1018c5196b4efbfd","kind":"r","name":"divzero","signature":{"abi":"0.8","kind":"r","params":[],"results":["i8"],"tier":"r"}}}
+
+section functions
+fn r @sum (n:i8) (answer:i8) () () ()
+^entry():
+zero = const.i8 0
+one = const.i8 1
+br ^loop(n, zero)
+^loop(i:i8, acc:i8):
+p = icmp.eq i zero
+br p ^done(acc) ^more(i, acc)
+^more(ii:i8, aa:i8):
+next = sub ii one
+s = add aa ii
+br ^loop(next, s)
+^done(answer:i8):
+ret answer
+fn r @g (p:ptr) () () () ()
+^entry():
+effect clock.read p
+ret
+fn r @f (p:ptr) () () () ()
+^entry():
+call @g p
+uncall @g (p) ()
+ret
+fn r @nested () (r:i64) () () ()
+^entry():
+n = const.i16 1024
+p = alloc n
+call @f p
+r = load.i64 p
+uncall @f (p) ()
+ret r
+fn r @effects () (r:i64) () () ()
+^entry():
+n = const.i16 1024
+p = alloc n
+len = const.i16 3
+effect entropy.read p len
+effect console.write p len
+effect clock.read p
+sector = const.i64 7
+effect block.write sector p
+effect block.read sector p
+r = load.i64 p
+ret r
+fn r @impure () () () () ()
+^entry():
+n = const.i16 1024
+p = alloc n
+call @g p
+v = const.i64 0
+store.i64 p v
+uncall @g (p) ()
+ret
+fn r @entropy_short () () () () ()
+^entry():
+n = const.i16 1024
+p = alloc n
+len = const.i16 3
+effect entropy.read p len
+ret
+fn r @unknown_effect () () () () ()
+^entry():
+n = const.i16 1024
+p = alloc n
+effect missing.op p
+ret
+fn r @memfault () (r:i8) () () ()
+^entry():
+z = const.i16 0
+p = inttoptr z
+r = load.i8 p
+ret r
+fn r @divzero () (r:i8) () () ()
+^entry():
+a = const.i8 3
+b = const.i8 0
+r = udiv a b
+ret r
+fn cc @host () (len:i16) () () ()
+^entry():
+n = const.i16 3
+p = alloc n
+v = const.i8 165
+store.i8 p v
+len = hostcall org.bennett.test p n
+ret len
+fn cc @host_invalid () (len:i16) () () ()
+^entry():
+n = const.i16 3
+z = const.i16 0
+p = inttoptr z
+len = hostcall org.bennett.test p n
+ret len
+
+section devices
+{"models":{"block":{"version":"0.8"},"clock":{"version":"0.8"},"console":{"version":"0.8"},"entropy":{"version":"0.8"}},"services":{"org.bennett.test":{"version":"1"}}}
+
+section layout
+{"A_tab":4,"H":12,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":1024,"interface_regions":{},"null_size":1,"ptr_width":16}

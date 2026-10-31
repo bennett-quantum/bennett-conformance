@@ -1,0 +1,835 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.1",
+  "ISA-3.3",
+  "ISA-4.7",
+  "ISA-7.4",
+  "ISA-10",
+  "ISA-14.2"
+ ],
+ "hashes": {
+  "object": "469feb77cf7625a22c2aee8fcd42478b892a7f17f2d94af4cd6e7d8d7c6dfffa",
+  "symbols": {
+   "allocation": {
+    "interface": "20449c3d1c45ec590a7f7b356ed59719e2daaec9bbaa18f8da2eaa43dfab0008",
+    "closure": "20449c3d1c45ec590a7f7b356ed59719e2daaec9bbaa18f8da2eaa43dfab0008"
+   },
+   "bad_uncall": {
+    "interface": "1a392c2bfb917334f6ed3266c24b5d1a638d08371985d3d4c4def835cad24d74",
+    "closure": "1a392c2bfb917334f6ed3266c24b5d1a638d08371985d3d4c4def835cad24d74"
+   },
+   "bell": {
+    "interface": "0f633b7a5f72475dc249883c0b8c6a3c91bfe62d40de642013afb5bd2015f149",
+    "closure": "0f633b7a5f72475dc249883c0b8c6a3c91bfe62d40de642013afb5bd2015f149"
+   },
+   "measurement": {
+    "interface": "dfc970cdea49da3834707362043d64ff084bcb641da635034e4cce0271b2943f",
+    "closure": "dfc970cdea49da3834707362043d64ff084bcb641da635034e4cce0271b2943f"
+   },
+   "measuring": {
+    "interface": "f587dd8342b03b99c80772b046c324dfe63872a8c58604264d73605dbecf505b",
+    "closure": "f587dd8342b03b99c80772b046c324dfe63872a8c58604264d73605dbecf505b"
+   },
+   "toggle": {
+    "interface": "de3621c3dee0d970a86479e38ff4088730604a5b4d16429b71af2ec85ab0f42f",
+    "closure": "de3621c3dee0d970a86479e38ff4088730604a5b4d16429b71af2ec85ab0f42f"
+   },
+   "unclean": {
+    "interface": "fe0d76be58a95d67e2619cd08f33cd9e25ba530a09d6fa848d6bf955e162f56b",
+    "closure": "fe0d76be58a95d67e2619cd08f33cd9e25ba530a09d6fa848d6bf955e162f56b"
+   },
+   "views": {
+    "interface": "6ea78656c92cd787bea86133572e2c9766d3f70208676cad0c043731c0fd6102",
+    "closure": "6ea78656c92cd787bea86133572e2c9766d3f70208676cad0c043731c0fd6102"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--mut",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "bell",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     null
+    ],
+    "state": {
+     "00": [
+      0.7071067811865476,
+      0
+     ],
+     "11": [
+      0.7071067811865476,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "toggle",
+    "--mut",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "toggle",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1": [
+      1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--state",
+    "00=0.7071067811865475,0;11=0.7071067811865475,0",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "bell",
+    "adjoint": true,
+    "in": [],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "00": [
+      1,
+      0
+     ]
+    },
+    "wires": 2
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--mut",
+    "0",
+    "--basis",
+    "00"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "exactly one of --mut, --basis, --state"
+   ]
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "exactly one of --mut, --basis, --state"
+   ]
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--basis",
+    "00",
+    "--in",
+    "0"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "--in accompanies --mut only"
+   ]
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--basis",
+    "000"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§14.2"
+   ]
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "bell",
+    "--state",
+    "00=0,0"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§14.2"
+   ]
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "missing",
+    "--mut",
+    "0"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§5.3"
+   ]
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "allocation",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "allocation",
+    "entry_memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "equals_entry": false,
+    "fault": null,
+    "faults": [],
+    "first_difference": "instances of (0, \"a\"): None differs from Some(Qreg(1))",
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "memory_equals_entry": true,
+    "results": [],
+    "reversed": false,
+    "run_state": "CLOSED",
+    "status": "COMPLETED",
+    "steps": 5,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "allocation",
+    "--args",
+    "",
+    "--reverse"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "allocation",
+    "entry_memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "memory_equals_entry": true,
+    "results": [],
+    "reversed": true,
+    "run_state": "CLOSED",
+    "status": "REVERSED",
+    "steps": 5,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "views",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "views",
+    "entry_memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "equals_entry": false,
+    "fault": null,
+    "faults": [],
+    "first_difference": "instances of (0, \"q\"): None differs from Some(Qreg(1))",
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "memory_equals_entry": true,
+    "results": [],
+    "reversed": false,
+    "run_state": "CLOSED",
+    "status": "COMPLETED",
+    "steps": 7,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "views",
+    "--args",
+    "",
+    "--reverse"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "views",
+    "entry_memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "memory_equals_entry": true,
+    "results": [],
+    "reversed": true,
+    "run_state": "CLOSED",
+    "status": "REVERSED",
+    "steps": 7,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "unclean",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "unclean",
+    "entry_memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "equals_entry": false,
+    "fault": 4,
+    "faults": [
+     {
+      "code": 4,
+      "name": "FAULT_UB_TRAP"
+     }
+    ],
+    "first_difference": "instances of (0, \"q\"): None differs from Some(Qreg(1))",
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "memory_equals_entry": true,
+    "results": [],
+    "reversed": false,
+    "run_state": "CLOSED",
+    "status": "FAILED",
+    "steps": 3,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "unclean",
+    "--args",
+    "",
+    "--reverse"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "E_INVALID_STATE"
+   ]
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "measurement",
+    "--args",
+    "",
+    "--draws",
+    "0.1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "measurement",
+    "entry_memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "equals_entry": false,
+    "fault": null,
+    "faults": [],
+    "first_difference": "instances of (0, \"q\"): None differs from Some(Qreg(1))",
+    "host_requests": [],
+    "measurements": [
+     {
+      "bits": "00",
+      "reg": 1,
+      "value": 0
+     }
+    ],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i2",
+      "value": "0"
+     }
+    ],
+    "reversed": false,
+    "run_state": "CLOSED",
+    "status": "COMPLETED",
+    "steps": 4,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "measurement",
+    "--args",
+    "",
+    "--draws",
+    "0.9"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "measurement",
+    "entry_memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "equals_entry": false,
+    "fault": null,
+    "faults": [],
+    "first_difference": "instances of (0, \"q\"): None differs from Some(Qreg(1))",
+    "host_requests": [],
+    "measurements": [
+     {
+      "bits": "11",
+      "reg": 1,
+      "value": 3
+     }
+    ],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i2",
+      "value": "3"
+     }
+    ],
+    "reversed": false,
+    "run_state": "CLOSED",
+    "status": "COMPLETED",
+    "steps": 4,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-program",
+    "$OBJECT",
+    "measurement",
+    "--args",
+    "",
+    "--draws",
+    "0.1",
+    "--reverse"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "E_NOT_REVERSIBLE"
+   ]
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "measurement",
+    "--args",
+    "",
+    "--draws",
+    "0.1"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "E_NOT_REVERSIBLE"
+   ]
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "bad_uncall",
+    "--args",
+    "",
+    "--draws",
+    "0.1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "bad_uncall",
+    "fault": 4,
+    "faults": [
+     {
+      "code": 4,
+      "name": "FAULT_UB_TRAP"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [
+     {
+      "bits": "00",
+      "reg": 1,
+      "value": 0
+     }
+    ],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "results": [],
+    "status": "FAILED",
+    "steps": 8,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "bad_uncall",
+      "index": 0,
+      "lhs": [
+       "r"
+      ],
+      "line": 48,
+      "memory": [],
+      "op": "call",
+      "operands": [
+       "@measuring"
+      ],
+      "registers": [],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "measuring",
+      "index": 0,
+      "lhs": [
+       "r"
+      ],
+      "line": 44,
+      "memory": [],
+      "op": "call",
+      "operands": [
+       "@measurement"
+      ],
+      "registers": [],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "measurement",
+      "index": 0,
+      "lhs": [
+       "q"
+      ],
+      "line": 38,
+      "memory": [],
+      "op": "qreg.new",
+      "operands": [
+       "any",
+       "2"
+      ],
+      "registers": [
+       {
+        "activation": 2,
+        "name": "q",
+        "post": {
+         "type": "qreg",
+         "value": 1
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "entry",
+      "function": "measurement",
+      "index": 1,
+      "lhs": [],
+      "line": 39,
+      "memory": [],
+      "op": "action_call",
+      "operands": [
+       "@bell",
+       "(q)",
+       "()",
+       "()",
+       "()"
+      ],
+      "registers": [],
+      "step": 3
+     },
+     {
+      "block": "entry",
+      "function": "measurement",
+      "index": 2,
+      "lhs": [
+       "r"
+      ],
+      "line": 40,
+      "memory": [],
+      "op": "measure",
+      "operands": [
+       "q"
+      ],
+      "registers": [
+       {
+        "activation": 2,
+        "name": "r",
+        "post": {
+         "type": "i2",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "entry",
+      "function": "measurement",
+      "index": 3,
+      "lhs": [],
+      "line": 41,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "r"
+      ],
+      "registers": [
+       {
+        "activation": 1,
+        "name": "r",
+        "post": {
+         "type": "i2",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 5
+     },
+     {
+      "block": "entry",
+      "function": "measuring",
+      "index": 1,
+      "lhs": [],
+      "line": 45,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "r"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "r",
+        "post": {
+         "type": "i2",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "entry",
+      "function": "bad_uncall",
+      "index": 1,
+      "lhs": [],
+      "line": 49,
+      "memory": [],
+      "op": "uncall",
+      "operands": [
+       "@measuring",
+       "()",
+       "(r)"
+      ],
+      "registers": [],
+      "step": 7
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "unclean",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "unclean",
+    "fault": 4,
+    "faults": [
+     {
+      "code": 4,
+      "name": "FAULT_UB_TRAP"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "4b922dee8937df5dcf1e86c6d9c904afdd9f28ee91703cfc1d96f8f28204aae5",
+    "results": [],
+    "status": "FAILED",
+    "steps": 3,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "unclean",
+      "index": 0,
+      "lhs": [
+       "q"
+      ],
+      "line": 32,
+      "memory": [],
+      "op": "qreg.new",
+      "operands": [
+       "any",
+       "1"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "q",
+        "post": {
+         "type": "qreg",
+         "value": 1
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "unclean",
+      "index": 1,
+      "lhs": [],
+      "line": 33,
+      "memory": [],
+      "op": "action_call",
+      "operands": [
+       "@toggle",
+       "(q)",
+       "()",
+       "()",
+       "()"
+      ],
+      "registers": [],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "unclean",
+      "index": 2,
+      "lhs": [],
+      "line": 34,
+      "memory": [],
+      "op": "qreg.free",
+      "operands": [
+       "q"
+      ],
+      "registers": [],
+      "step": 2
+     }
+    ]
+   }
+  }
+ ]
+}

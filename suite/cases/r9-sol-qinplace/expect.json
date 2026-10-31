@@ -1,0 +1,337 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-4.5",
+  "ISA-5.6",
+  "ISA-6.4",
+  "ISA-9.2"
+ ],
+ "hashes": {
+  "object": "77664ac9392aec50b0415027771ae7ef49dcea7762b70025f0cd918d53a6ee1e",
+  "symbols": {
+   "a": {
+    "interface": "bc6e5d89276a62eec7074a716d8dbce40e94a2c80c287ad8fc5b5e5c6c756fbf",
+    "closure": "bc6e5d89276a62eec7074a716d8dbce40e94a2c80c287ad8fc5b5e5c6c756fbf"
+   },
+   "o": {
+    "interface": "a8f4a15663aead9ecb6618fe3847deba546cf3172f645ffc7e763f551e529e27",
+    "closure": "a8f4a15663aead9ecb6618fe3847deba546cf3172f645ffc7e763f551e529e27"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "a",
+    "--mut",
+    "0",
+    "--arg",
+    "token:1,0,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0": [
+      1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "a",
+    "--mut",
+    "0",
+    "--arg",
+    "token:1,0,0,0",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": true,
+    "in": [],
+    "mem": {},
+    "mut": [
+     0
+    ],
+    "state": {
+     "0": [
+      1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "a",
+    "--mut",
+    "0",
+    "--arg",
+    "token:1,0,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": false,
+    "equals_entry": true,
+    "first_difference": null,
+    "forward_state": {
+     "0": [
+      1,
+      0
+     ]
+    },
+    "in": [],
+    "mut": [
+     0
+    ],
+    "state": {
+     "0": [
+      1,
+      0
+     ]
+    },
+    "status": "REVERSED",
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "a",
+    "--mut",
+    "1",
+    "--arg",
+    "token:1,0,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1": [
+      1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "a",
+    "--mut",
+    "1",
+    "--arg",
+    "token:1,0,0,0",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": true,
+    "in": [],
+    "mem": {},
+    "mut": [
+     1
+    ],
+    "state": {
+     "1": [
+      1,
+      0
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "a",
+    "--mut",
+    "1",
+    "--arg",
+    "token:1,0,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": false,
+    "equals_entry": true,
+    "first_difference": null,
+    "forward_state": {
+     "1": [
+      1,
+      0
+     ]
+    },
+    "in": [],
+    "mut": [
+     1
+    ],
+    "state": {
+     "1": [
+      1,
+      0
+     ]
+    },
+    "status": "REVERSED",
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "a",
+    "--state",
+    "0=0.6,0;1=0,0.8",
+    "--arg",
+    "token:1,0,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": false,
+    "in": [],
+    "mem": {},
+    "mut": [
+     null
+    ],
+    "state": {
+     "0": [
+      0.6,
+      0
+     ],
+     "1": [
+      0,
+      0.8
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "a",
+    "--state",
+    "0=0.6,0;1=0,0.8",
+    "--arg",
+    "token:1,0,0,0",
+    "--adjoint"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": true,
+    "in": [],
+    "mem": {},
+    "mut": [
+     null
+    ],
+    "state": {
+     "0": [
+      0.6,
+      0
+     ],
+     "1": [
+      0,
+      0.8
+     ]
+    },
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "a",
+    "--state",
+    "0=0.6,0;1=0,0.8",
+    "--arg",
+    "token:1,0,0,0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "action": "a",
+    "adjoint": false,
+    "equals_entry": true,
+    "first_difference": null,
+    "forward_state": {
+     "0": [
+      0.6,
+      0
+     ],
+     "1": [
+      0,
+      0.8
+     ]
+    },
+    "in": [],
+    "mut": [
+     null
+    ],
+    "state": {
+     "0": [
+      0.6,
+      0
+     ],
+     "1": [
+      0,
+      0.8
+     ]
+    },
+    "status": "REVERSED",
+    "wires": 1
+   }
+  },
+  {
+   "cmd": [
+    "run-action",
+    "$OBJECT",
+    "a",
+    "--mut",
+    "0",
+    "--arg",
+    "token:0,0,0,0"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§4.5"
+   ]
+  }
+ ]
+}

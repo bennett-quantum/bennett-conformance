@@ -1,0 +1,20 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=8
+
+section symbols
+{"0":{"interface_hash":"be21636357102b2a324f99db1bd058ad82f1c2eb3337d99f22a2533a32436142","kind":"oracle","name":"tiny","signature":{"abi":"0.8","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[{"A":0,"W":8,"role":"in"}],"tgt":1,"tier":"q"}}}
+
+section functions
+oracle @tiny (x:wire in) (t:wire) (f:wire[4]) (db:region[0,8] in) ()
+regs { p:reg[8], b:reg[8], v:reg[8], q:reg[8], one:reg[8], zero:reg[8], bit:reg[1] }
+^entry():
+p = lift.addr @db
+b = lift.zext.i8 x
+v = lift.load.i8 p
+q = lift.udiv v b
+one = lift.const.i8 1
+q = lift.and q one
+bit = lift.icmp.ne q zero
+lift.retval bit
+
+section layout
+{"A_tab":0,"H":5,"S_cells":0,"globals":{},"heap_base":24,"heap_limit_max":0,"interface_regions":{"tiny":{"db":{"base":16}}},"null_size":1,"ptr_width":8}

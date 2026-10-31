@@ -1,0 +1,6737 @@
+{
+ "spec": "isa-0.8",
+ "source": "reference-interpreter@09fc712d065703a623ba38cafa31979b95ff604c",
+ "clauses": [
+  "ISA-3.4",
+  "ISA-4.1",
+  "ISA-5.4",
+  "ISA-7.1",
+  "ISA-7.3",
+  "ISA-7.4",
+  "ISA-10"
+ ],
+ "hashes": {
+  "object": "b8d9aab471f0d17191452f849e4052aa6afd0ea878316ba9db9f36126510a467",
+  "symbols": {
+   "divzero": {
+    "interface": "30fd03864fe91c61b0c8aa2ce72a158e1647c02a9dc655fa1018c5196b4efbfd",
+    "closure": "30fd03864fe91c61b0c8aa2ce72a158e1647c02a9dc655fa1018c5196b4efbfd"
+   },
+   "effects": {
+    "interface": "f1344e767c6ce40993c3c6164eba4d58ac6bb8bbbfdba33de7400aa795d4c0b9",
+    "closure": "f1344e767c6ce40993c3c6164eba4d58ac6bb8bbbfdba33de7400aa795d4c0b9"
+   },
+   "entropy_short": {
+    "interface": "260aa61d5d96b991e946e2fd4986fe9e319e2c43ef374e8f90d85c112b3d5b88",
+    "closure": "260aa61d5d96b991e946e2fd4986fe9e319e2c43ef374e8f90d85c112b3d5b88"
+   },
+   "f": {
+    "interface": "564cbe6a49414643ca03211d12c78f3cf431ba3d2ecf0c8b06ea1aafc0392389",
+    "closure": "564cbe6a49414643ca03211d12c78f3cf431ba3d2ecf0c8b06ea1aafc0392389"
+   },
+   "g": {
+    "interface": "e8a3dc5429049b16559aa6a4262779e3dcd37a758967def4e08c371a5b765fff",
+    "closure": "e8a3dc5429049b16559aa6a4262779e3dcd37a758967def4e08c371a5b765fff"
+   },
+   "host": {
+    "interface": "6ef7b54c8ab5641636211b2d43f0df86cfbc129916db3b25b805e7ad33b97774",
+    "closure": "6ef7b54c8ab5641636211b2d43f0df86cfbc129916db3b25b805e7ad33b97774"
+   },
+   "host_invalid": {
+    "interface": "cd54f756eb0a65f3c2881453c9c7e03d44e1ae9c651ca01efdeede661b3fb573",
+    "closure": "cd54f756eb0a65f3c2881453c9c7e03d44e1ae9c651ca01efdeede661b3fb573"
+   },
+   "impure": {
+    "interface": "c8b90ca42cbf14f0ac90c4395b94100ddbe1319688931014e900acb2a4694840",
+    "closure": "c8b90ca42cbf14f0ac90c4395b94100ddbe1319688931014e900acb2a4694840"
+   },
+   "memfault": {
+    "interface": "818b6f38c57d9afe5fbad77a00457a7f9f3484af7f3d25e3b6238b6ea301ba7e",
+    "closure": "818b6f38c57d9afe5fbad77a00457a7f9f3484af7f3d25e3b6238b6ea301ba7e"
+   },
+   "nested": {
+    "interface": "e0db43691a75656b7a37a8156ca44cfa17523a63c0e2a36e20433869c7b1112b",
+    "closure": "e0db43691a75656b7a37a8156ca44cfa17523a63c0e2a36e20433869c7b1112b"
+   },
+   "sum": {
+    "interface": "0fe8c7991be189017d08024a7b880f04646a46bd0831a4de093cd99a063918ab",
+    "closure": "0fe8c7991be189017d08024a7b880f04646a46bd0831a4de093cd99a063918ab"
+   },
+   "unknown_effect": {
+    "interface": "9ccebed66dd2a159125d50818ef06c82b8512612940a695605826fd3452d3524",
+    "closure": "9ccebed66dd2a159125d50818ef06c82b8512612940a695605826fd3452d3524"
+   }
+  }
+ },
+ "check": "ok",
+ "runs": [
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [
+     {
+      "type": "i8",
+      "value": "6"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 21,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "zero"
+      ],
+      "line": 9,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "zero",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "one"
+      ],
+      "line": 10,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "1"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "one",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 11,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(n, zero)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 3
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": null
+       }
+      ],
+      "step": 5
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 7
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 8
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 9
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 10
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 11
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 12
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 13
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 14
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 15
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 16
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 17
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 18
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "answer",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": null
+       }
+      ],
+      "step": 19
+     },
+     {
+      "block": "done",
+      "function": "sum",
+      "index": 0,
+      "lhs": [],
+      "line": 20,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "answer"
+      ],
+      "registers": [],
+      "step": 20
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--input",
+    "3"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [
+     {
+      "type": "i8",
+      "value": "6"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 21,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "zero"
+      ],
+      "line": 9,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "zero",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "one"
+      ],
+      "line": 10,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "1"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "one",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 11,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(n, zero)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 3
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": null
+       }
+      ],
+      "step": 5
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 7
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 8
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 9
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 10
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 11
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 12
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 13
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 14
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 15
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 16
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 17
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 18
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "answer",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": null
+       }
+      ],
+      "step": 19
+     },
+     {
+      "block": "done",
+      "function": "sum",
+      "index": 0,
+      "lhs": [],
+      "line": 20,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "answer"
+      ],
+      "registers": [],
+      "step": 20
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [
+     {
+      "type": "i8",
+      "value": "0"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 6,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "zero"
+      ],
+      "line": 9,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "zero",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "one"
+      ],
+      "line": 10,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "1"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "one",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 11,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(n, zero)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 3
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "answer",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "done",
+      "function": "sum",
+      "index": 0,
+      "lhs": [],
+      "line": 20,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "answer"
+      ],
+      "registers": [],
+      "step": 5
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "0"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i8",
+      "value": "0"
+     }
+    ],
+    "status": "REVERSED",
+    "steps": 6,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [
+     {
+      "type": "i8",
+      "value": "1"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 11,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "zero"
+      ],
+      "line": 9,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "zero",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "one"
+      ],
+      "line": 10,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "1"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "one",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 11,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(n, zero)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 3
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 5
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 7
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 8
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "answer",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 9
+     },
+     {
+      "block": "done",
+      "function": "sum",
+      "index": 0,
+      "lhs": [],
+      "line": 20,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "answer"
+      ],
+      "registers": [],
+      "step": 10
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "1"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i8",
+      "value": "1"
+     }
+    ],
+    "status": "REVERSED",
+    "steps": 11,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [
+     {
+      "type": "i8",
+      "value": "15"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 31,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "zero"
+      ],
+      "line": 9,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "zero",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "one"
+      ],
+      "line": 10,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "1"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "one",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 11,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(n, zero)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 3
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "4"
+        },
+        "pre": null
+       }
+      ],
+      "step": 5
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": null
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "4"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 7
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 8
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "4"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 9
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "4"
+        }
+       }
+      ],
+      "step": 10
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "9"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 11
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "9"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "4"
+        }
+       }
+      ],
+      "step": 12
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 13
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "9"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "4"
+        }
+       }
+      ],
+      "step": 14
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 15
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "12"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "9"
+        }
+       }
+      ],
+      "step": 16
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "12"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "9"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 17
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 18
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "12"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "9"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 19
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 20
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "14"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "12"
+        }
+       }
+      ],
+      "step": 21
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "14"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "12"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 22
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 23
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "14"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "12"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 24
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 25
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "15"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "14"
+        }
+       }
+      ],
+      "step": 26
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "15"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "14"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 27
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 28
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "answer",
+        "post": {
+         "type": "i8",
+         "value": "15"
+        },
+        "pre": null
+       }
+      ],
+      "step": 29
+     },
+     {
+      "block": "done",
+      "function": "sum",
+      "index": 0,
+      "lhs": [],
+      "line": 20,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "answer"
+      ],
+      "registers": [],
+      "step": 30
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i8",
+      "value": "15"
+     }
+    ],
+    "status": "REVERSED",
+    "steps": 31,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "8"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [
+     {
+      "type": "i8",
+      "value": "36"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 46,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "zero"
+      ],
+      "line": 9,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "zero",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "one"
+      ],
+      "line": 10,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "1"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "one",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 11,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(n, zero)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "8"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 3
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "8"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "7"
+        },
+        "pre": null
+       }
+      ],
+      "step": 5
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "8"
+        },
+        "pre": null
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "8"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "7"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "8"
+        }
+       }
+      ],
+      "step": 7
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 8
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "8"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "0"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "7"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "8"
+        }
+       }
+      ],
+      "step": 9
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "7"
+        }
+       }
+      ],
+      "step": 10
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "15"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "8"
+        }
+       }
+      ],
+      "step": 11
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "15"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "8"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "7"
+        }
+       }
+      ],
+      "step": 12
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 13
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "15"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "8"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "6"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "7"
+        }
+       }
+      ],
+      "step": 14
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "6"
+        }
+       }
+      ],
+      "step": 15
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "21"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "15"
+        }
+       }
+      ],
+      "step": 16
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "21"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "15"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "6"
+        }
+       }
+      ],
+      "step": 17
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 18
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "21"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "15"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "5"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "6"
+        }
+       }
+      ],
+      "step": 19
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "4"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 20
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "26"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "21"
+        }
+       }
+      ],
+      "step": 21
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "26"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "21"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "4"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 22
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 23
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "26"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "21"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "4"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "5"
+        }
+       }
+      ],
+      "step": 24
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "4"
+        }
+       }
+      ],
+      "step": 25
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "30"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "26"
+        }
+       }
+      ],
+      "step": 26
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "30"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "26"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "4"
+        }
+       }
+      ],
+      "step": 27
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 28
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "30"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "26"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "4"
+        }
+       }
+      ],
+      "step": 29
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 30
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "33"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "30"
+        }
+       }
+      ],
+      "step": 31
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "33"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "30"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 32
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 33
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "33"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "30"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "2"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "3"
+        }
+       }
+      ],
+      "step": 34
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 35
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "35"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "33"
+        }
+       }
+      ],
+      "step": 36
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "35"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "33"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 37
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 38
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "aa",
+        "post": {
+         "type": "i8",
+         "value": "35"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "33"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "ii",
+        "post": {
+         "type": "i8",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "2"
+        }
+       }
+      ],
+      "step": 39
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "next"
+      ],
+      "line": 16,
+      "memory": [],
+      "op": "sub",
+      "operands": [
+       "ii",
+       "one"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "next",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 40
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 1,
+      "lhs": [
+       "s"
+      ],
+      "line": 17,
+      "memory": [],
+      "op": "add",
+      "operands": [
+       "aa",
+       "ii"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "s",
+        "post": {
+         "type": "i8",
+         "value": "36"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "35"
+        }
+       }
+      ],
+      "step": 41
+     },
+     {
+      "block": "more",
+      "function": "sum",
+      "index": 2,
+      "lhs": [],
+      "line": 18,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "^loop(next, s)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "acc",
+        "post": {
+         "type": "i8",
+         "value": "36"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "35"
+        }
+       },
+       {
+        "activation": 0,
+        "name": "i",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": {
+         "type": "i8",
+         "value": "1"
+        }
+       }
+      ],
+      "step": 42
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 0,
+      "lhs": [
+       "p"
+      ],
+      "line": 13,
+      "memory": [],
+      "op": "icmp.eq",
+      "operands": [
+       "i",
+       "zero"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "i1",
+         "value": "1"
+        },
+        "pre": {
+         "type": "i1",
+         "value": "0"
+        }
+       }
+      ],
+      "step": 43
+     },
+     {
+      "block": "loop",
+      "function": "sum",
+      "index": 1,
+      "lhs": [],
+      "line": 14,
+      "memory": [],
+      "op": "br",
+      "operands": [
+       "p",
+       "^done(acc)",
+       "^more(i, acc)"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "answer",
+        "post": {
+         "type": "i8",
+         "value": "36"
+        },
+        "pre": null
+       }
+      ],
+      "step": 44
+     },
+     {
+      "block": "done",
+      "function": "sum",
+      "index": 0,
+      "lhs": [],
+      "line": 20,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "answer"
+      ],
+      "registers": [],
+      "step": 45
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "8"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i8",
+      "value": "36"
+     }
+    ],
+    "status": "REVERSED",
+    "steps": 46,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "3",
+    "--steps",
+    "5"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "sum",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [],
+    "status": "REVERSED",
+    "steps": 5,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "effects",
+    "--args",
+    "",
+    "--entropy",
+    "0b1621"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 1,
+    "console": "\u000b\u0016!",
+    "console_hex": "0b1621",
+    "effect_tape_length": 5,
+    "entry": "effects",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "b03dd9abfaa9147a679f62dccc8115c72639d0201ac989a541d642985f26254d",
+    "results": [
+     {
+      "type": "i64",
+      "value": "0"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 11,
+    "tape": [
+     {
+      "args": [
+       16,
+       3
+      ],
+      "bytes": "0b1621",
+      "dev": "entropy",
+      "op": "read"
+     },
+     {
+      "args": [
+       16,
+       3
+      ],
+      "bytes": "0b1621",
+      "dev": "console",
+      "op": "write"
+     },
+     {
+      "args": [
+       16
+      ],
+      "bytes": "0000000000000000",
+      "dev": "clock",
+      "op": "read"
+     },
+     {
+      "args": [
+       7,
+       16
+      ],
+      "bytes": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "dev": "block",
+      "op": "write"
+     },
+     {
+      "args": [
+       7,
+       16
+      ],
+      "bytes": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "dev": "block",
+      "op": "read"
+     }
+    ],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 0,
+      "lhs": [
+       "n"
+      ],
+      "line": 40,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "1024"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "n",
+        "post": {
+         "type": "i16",
+         "value": "1024"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 1,
+      "lhs": [
+       "p"
+      ],
+      "line": 41,
+      "memory": [],
+      "op": "alloc",
+      "operands": [
+       "n"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 2,
+      "lhs": [
+       "len"
+      ],
+      "line": 42,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "3"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "len",
+        "post": {
+         "type": "i16",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 3,
+      "lhs": [],
+      "line": 43,
+      "memory": [
+       {
+        "address": 16,
+        "post": 11,
+        "pre": 0
+       },
+       {
+        "address": 17,
+        "post": 22,
+        "pre": 0
+       },
+       {
+        "address": 18,
+        "post": 33,
+        "pre": 0
+       }
+      ],
+      "op": "effect",
+      "operands": [
+       "entropy.read",
+       "p",
+       "len"
+      ],
+      "registers": [],
+      "step": 3
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 4,
+      "lhs": [],
+      "line": 44,
+      "memory": [],
+      "op": "effect",
+      "operands": [
+       "console.write",
+       "p",
+       "len"
+      ],
+      "registers": [],
+      "step": 4
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 5,
+      "lhs": [],
+      "line": 45,
+      "memory": [
+       {
+        "address": 16,
+        "post": 0,
+        "pre": 11
+       },
+       {
+        "address": 17,
+        "post": 0,
+        "pre": 22
+       },
+       {
+        "address": 18,
+        "post": 0,
+        "pre": 33
+       }
+      ],
+      "op": "effect",
+      "operands": [
+       "clock.read",
+       "p"
+      ],
+      "registers": [],
+      "step": 5
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 6,
+      "lhs": [
+       "sector"
+      ],
+      "line": 46,
+      "memory": [],
+      "op": "const.i64",
+      "operands": [
+       "7"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "sector",
+        "post": {
+         "type": "i64",
+         "value": "7"
+        },
+        "pre": null
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 7,
+      "lhs": [],
+      "line": 47,
+      "memory": [],
+      "op": "effect",
+      "operands": [
+       "block.write",
+       "sector",
+       "p"
+      ],
+      "registers": [],
+      "step": 7
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 8,
+      "lhs": [],
+      "line": 48,
+      "memory": [],
+      "op": "effect",
+      "operands": [
+       "block.read",
+       "sector",
+       "p"
+      ],
+      "registers": [],
+      "step": 8
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 9,
+      "lhs": [
+       "r"
+      ],
+      "line": 49,
+      "memory": [],
+      "op": "load.i64",
+      "operands": [
+       "p"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "r",
+        "post": {
+         "type": "i64",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 9
+     },
+     {
+      "block": "entry",
+      "function": "effects",
+      "index": 10,
+      "lhs": [],
+      "line": 50,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "r"
+      ],
+      "registers": [],
+      "step": 10
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "effects",
+    "--args",
+    "",
+    "--entropy",
+    "0b1621"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "effects",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i64",
+      "value": "0"
+     }
+    ],
+    "status": "REVERSED",
+    "steps": 11,
+    "tape": [
+     {
+      "args": [
+       16,
+       3
+      ],
+      "bytes": "0b1621",
+      "dev": "entropy",
+      "op": "read"
+     },
+     {
+      "args": [
+       16,
+       3
+      ],
+      "bytes": "0b1621",
+      "dev": "console",
+      "op": "write"
+     },
+     {
+      "args": [
+       16
+      ],
+      "bytes": "0000000000000000",
+      "dev": "clock",
+      "op": "read"
+     },
+     {
+      "args": [
+       7,
+       16
+      ],
+      "bytes": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "dev": "block",
+      "op": "write"
+     },
+     {
+      "args": [
+       7,
+       16
+      ],
+      "bytes": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "dev": "block",
+      "op": "read"
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "nested",
+    "--args",
+    "",
+    "--entropy",
+    "0b1621"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "nested",
+    "fault": null,
+    "faults": [],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "b03dd9abfaa9147a679f62dccc8115c72639d0201ac989a541d642985f26254d",
+    "results": [
+     {
+      "type": "i64",
+      "value": "0"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 11,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "nested",
+      "index": 0,
+      "lhs": [
+       "n"
+      ],
+      "line": 32,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "1024"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "n",
+        "post": {
+         "type": "i16",
+         "value": "1024"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "nested",
+      "index": 1,
+      "lhs": [
+       "p"
+      ],
+      "line": 33,
+      "memory": [],
+      "op": "alloc",
+      "operands": [
+       "n"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "nested",
+      "index": 2,
+      "lhs": [],
+      "line": 34,
+      "memory": [],
+      "op": "call",
+      "operands": [
+       "@f",
+       "p"
+      ],
+      "registers": [
+       {
+        "activation": 1,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "entry",
+      "function": "f",
+      "index": 0,
+      "lhs": [],
+      "line": 27,
+      "memory": [],
+      "op": "call",
+      "operands": [
+       "@g",
+       "p"
+      ],
+      "registers": [
+       {
+        "activation": 2,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 3
+     },
+     {
+      "block": "entry",
+      "function": "g",
+      "index": 0,
+      "lhs": [],
+      "line": 23,
+      "memory": [],
+      "op": "effect",
+      "operands": [
+       "clock.read",
+       "p"
+      ],
+      "registers": [],
+      "step": 4
+     },
+     {
+      "block": "entry",
+      "function": "g",
+      "index": 1,
+      "lhs": [],
+      "line": 24,
+      "memory": [],
+      "op": "ret",
+      "operands": [],
+      "registers": [],
+      "step": 5
+     },
+     {
+      "block": "entry",
+      "function": "f",
+      "index": 1,
+      "lhs": [],
+      "line": 28,
+      "memory": [],
+      "op": "uncall",
+      "operands": [
+       "@g",
+       "(p)",
+       "()"
+      ],
+      "registers": [
+       {
+        "activation": 2,
+        "name": "p",
+        "post": null,
+        "pre": {
+         "type": "ptr",
+         "value": "16"
+        }
+       }
+      ],
+      "step": 6
+     },
+     {
+      "block": "entry",
+      "function": "f",
+      "index": 2,
+      "lhs": [],
+      "line": 29,
+      "memory": [],
+      "op": "ret",
+      "operands": [],
+      "registers": [],
+      "step": 7
+     },
+     {
+      "block": "entry",
+      "function": "nested",
+      "index": 3,
+      "lhs": [
+       "r"
+      ],
+      "line": 35,
+      "memory": [],
+      "op": "load.i64",
+      "operands": [
+       "p"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "r",
+        "post": {
+         "type": "i64",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 8
+     },
+     {
+      "block": "entry",
+      "function": "nested",
+      "index": 4,
+      "lhs": [],
+      "line": 36,
+      "memory": [],
+      "op": "uncall",
+      "operands": [
+       "@f",
+       "(p)",
+       "()"
+      ],
+      "registers": [
+       {
+        "activation": 1,
+        "name": "p",
+        "post": null,
+        "pre": {
+         "type": "ptr",
+         "value": "16"
+        }
+       }
+      ],
+      "step": 9
+     },
+     {
+      "block": "entry",
+      "function": "nested",
+      "index": 5,
+      "lhs": [],
+      "line": 37,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "r"
+      ],
+      "registers": [],
+      "step": 10
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "nested",
+    "--args",
+    "",
+    "--entropy",
+    "0b1621"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "nested",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i64",
+      "value": "0"
+     }
+    ],
+    "status": "REVERSED",
+    "steps": 11,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "impure",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 1,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 1,
+    "entry": "impure",
+    "fault": 4,
+    "faults": [
+     {
+      "code": 4,
+      "name": "FAULT_UB_TRAP"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "b03dd9abfaa9147a679f62dccc8115c72639d0201ac989a541d642985f26254d",
+    "results": [],
+    "status": "FAILED",
+    "steps": 8,
+    "tape": [
+     {
+      "args": [
+       16
+      ],
+      "bytes": "0000000000000000",
+      "dev": "clock",
+      "op": "read"
+     }
+    ],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "impure",
+      "index": 0,
+      "lhs": [
+       "n"
+      ],
+      "line": 53,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "1024"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "n",
+        "post": {
+         "type": "i16",
+         "value": "1024"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "impure",
+      "index": 1,
+      "lhs": [
+       "p"
+      ],
+      "line": 54,
+      "memory": [],
+      "op": "alloc",
+      "operands": [
+       "n"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "impure",
+      "index": 2,
+      "lhs": [],
+      "line": 55,
+      "memory": [],
+      "op": "call",
+      "operands": [
+       "@g",
+       "p"
+      ],
+      "registers": [
+       {
+        "activation": 1,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "entry",
+      "function": "g",
+      "index": 0,
+      "lhs": [],
+      "line": 23,
+      "memory": [],
+      "op": "effect",
+      "operands": [
+       "clock.read",
+       "p"
+      ],
+      "registers": [],
+      "step": 3
+     },
+     {
+      "block": "entry",
+      "function": "g",
+      "index": 1,
+      "lhs": [],
+      "line": 24,
+      "memory": [],
+      "op": "ret",
+      "operands": [],
+      "registers": [],
+      "step": 4
+     },
+     {
+      "block": "entry",
+      "function": "impure",
+      "index": 3,
+      "lhs": [
+       "v"
+      ],
+      "line": 56,
+      "memory": [],
+      "op": "const.i64",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "v",
+        "post": {
+         "type": "i64",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 5
+     },
+     {
+      "block": "entry",
+      "function": "impure",
+      "index": 4,
+      "lhs": [],
+      "line": 57,
+      "memory": [],
+      "op": "store.i64",
+      "operands": [
+       "p",
+       "v"
+      ],
+      "registers": [],
+      "step": 6
+     },
+     {
+      "block": "entry",
+      "function": "impure",
+      "index": 5,
+      "lhs": [],
+      "line": 58,
+      "memory": [],
+      "op": "uncall",
+      "operands": [
+       "@g",
+       "(p)",
+       "()"
+      ],
+      "registers": [],
+      "step": 7
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "impure",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "impure",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": 4,
+    "faults": [
+     {
+      "code": 4,
+      "name": "FAULT_UB_TRAP"
+     }
+    ],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [],
+    "status": "REVERSED",
+    "steps": 8,
+    "tape": [
+     {
+      "args": [
+       16
+      ],
+      "bytes": "0000000000000000",
+      "dev": "clock",
+      "op": "read"
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "entropy_short",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "entropy_short",
+    "fault": 10,
+    "faults": [
+     {
+      "code": 10,
+      "name": "FAULT_ENTROPY_EXHAUSTED"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "b03dd9abfaa9147a679f62dccc8115c72639d0201ac989a541d642985f26254d",
+    "results": [],
+    "status": "FAILED",
+    "steps": 4,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "entropy_short",
+      "index": 0,
+      "lhs": [
+       "n"
+      ],
+      "line": 62,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "1024"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "n",
+        "post": {
+         "type": "i16",
+         "value": "1024"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "entropy_short",
+      "index": 1,
+      "lhs": [
+       "p"
+      ],
+      "line": 63,
+      "memory": [],
+      "op": "alloc",
+      "operands": [
+       "n"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "entropy_short",
+      "index": 2,
+      "lhs": [
+       "len"
+      ],
+      "line": 64,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "3"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "len",
+        "post": {
+         "type": "i16",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "entry",
+      "function": "entropy_short",
+      "index": 3,
+      "lhs": [],
+      "line": 65,
+      "memory": [],
+      "op": "effect",
+      "operands": [
+       "entropy.read",
+       "p",
+       "len"
+      ],
+      "registers": [],
+      "step": 3
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "entropy_short",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "entropy_short",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": 10,
+    "faults": [
+     {
+      "code": 10,
+      "name": "FAULT_ENTROPY_EXHAUSTED"
+     }
+    ],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [],
+    "status": "REVERSED",
+    "steps": 4,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "unknown_effect",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "unknown_effect",
+    "fault": 8,
+    "faults": [
+     {
+      "code": 8,
+      "name": "FAULT_EFFECT_UNMODELLED"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "b03dd9abfaa9147a679f62dccc8115c72639d0201ac989a541d642985f26254d",
+    "results": [],
+    "status": "FAILED",
+    "steps": 3,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "unknown_effect",
+      "index": 0,
+      "lhs": [
+       "n"
+      ],
+      "line": 69,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "1024"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "n",
+        "post": {
+         "type": "i16",
+         "value": "1024"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "unknown_effect",
+      "index": 1,
+      "lhs": [
+       "p"
+      ],
+      "line": 70,
+      "memory": [],
+      "op": "alloc",
+      "operands": [
+       "n"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "unknown_effect",
+      "index": 2,
+      "lhs": [],
+      "line": 71,
+      "memory": [],
+      "op": "effect",
+      "operands": [
+       "missing.op",
+       "p"
+      ],
+      "registers": [],
+      "step": 2
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "unknown_effect",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "unknown_effect",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": 8,
+    "faults": [
+     {
+      "code": 8,
+      "name": "FAULT_EFFECT_UNMODELLED"
+     }
+    ],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [],
+    "status": "REVERSED",
+    "steps": 3,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "memfault",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "memfault",
+    "fault": 7,
+    "faults": [
+     {
+      "code": 7,
+      "name": "FAULT_UB_MEMFAULT"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [],
+    "status": "FAILED",
+    "steps": 3,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "memfault",
+      "index": 0,
+      "lhs": [
+       "z"
+      ],
+      "line": 75,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "z",
+        "post": {
+         "type": "i16",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "memfault",
+      "index": 1,
+      "lhs": [
+       "p"
+      ],
+      "line": 76,
+      "memory": [],
+      "op": "inttoptr",
+      "operands": [
+       "z"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "memfault",
+      "index": 2,
+      "lhs": [
+       "r"
+      ],
+      "line": 77,
+      "memory": [],
+      "op": "load.i8",
+      "operands": [
+       "p"
+      ],
+      "registers": [],
+      "step": 2
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "memfault",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "memfault",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": 7,
+    "faults": [
+     {
+      "code": 7,
+      "name": "FAULT_UB_MEMFAULT"
+     }
+    ],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [],
+    "status": "REVERSED",
+    "steps": 3,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "divzero",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "divzero",
+    "fault": 5,
+    "faults": [
+     {
+      "code": 5,
+      "name": "FAULT_UB_DIV0"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [],
+    "status": "FAILED",
+    "steps": 3,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "divzero",
+      "index": 0,
+      "lhs": [
+       "a"
+      ],
+      "line": 81,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "3"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "a",
+        "post": {
+         "type": "i8",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "divzero",
+      "index": 1,
+      "lhs": [
+       "b"
+      ],
+      "line": 82,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "b",
+        "post": {
+         "type": "i8",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "divzero",
+      "index": 2,
+      "lhs": [
+       "r"
+      ],
+      "line": 83,
+      "memory": [],
+      "op": "udiv",
+      "operands": [
+       "a",
+       "b"
+      ],
+      "registers": [],
+      "step": 2
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "divzero",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "divzero",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": 5,
+    "faults": [
+     {
+      "code": 5,
+      "name": "FAULT_UB_DIV0"
+     }
+    ],
+    "first_difference": null,
+    "host_requests": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [],
+    "status": "REVERSED",
+    "steps": 3,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "host",
+    "--args",
+    "",
+    "--replies",
+    "$CASE/replies-host.json"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "host",
+    "fault": null,
+    "faults": [],
+    "host_requests": [
+     {
+      "address": 16,
+      "capacity": 3,
+      "payload": "a50000",
+      "reply": "1122334455",
+      "service": "org.bennett.test"
+     }
+    ],
+    "measurements": [],
+    "memory_digest": "7057cd6d1694a293645c85797ee456f28abd5095c464d35f677b6c3cbb93aee7",
+    "results": [
+     {
+      "type": "i16",
+      "value": "5"
+     }
+    ],
+    "status": "COMPLETED",
+    "steps": 6,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "host",
+      "index": 0,
+      "lhs": [
+       "n"
+      ],
+      "line": 87,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "3"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "n",
+        "post": {
+         "type": "i16",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "host",
+      "index": 1,
+      "lhs": [
+       "p"
+      ],
+      "line": 88,
+      "memory": [],
+      "op": "alloc",
+      "operands": [
+       "n"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "16"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "host",
+      "index": 2,
+      "lhs": [
+       "v"
+      ],
+      "line": 89,
+      "memory": [],
+      "op": "const.i8",
+      "operands": [
+       "165"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "v",
+        "post": {
+         "type": "i8",
+         "value": "165"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "entry",
+      "function": "host",
+      "index": 3,
+      "lhs": [],
+      "line": 90,
+      "memory": [
+       {
+        "address": 16,
+        "post": 165,
+        "pre": 0
+       }
+      ],
+      "op": "store.i8",
+      "operands": [
+       "p",
+       "v"
+      ],
+      "registers": [],
+      "step": 3
+     },
+     {
+      "block": "entry",
+      "function": "host",
+      "index": 4,
+      "lhs": [
+       "len"
+      ],
+      "line": 91,
+      "memory": [
+       {
+        "address": 16,
+        "post": 17,
+        "pre": 165
+       },
+       {
+        "address": 17,
+        "post": 34,
+        "pre": 0
+       },
+       {
+        "address": 18,
+        "post": 51,
+        "pre": 0
+       }
+      ],
+      "op": "hostcall",
+      "operands": [
+       "org.bennett.test",
+       "p",
+       "n"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "len",
+        "post": {
+         "type": "i16",
+         "value": "5"
+        },
+        "pre": null
+       }
+      ],
+      "step": 4
+     },
+     {
+      "block": "entry",
+      "function": "host",
+      "index": 5,
+      "lhs": [],
+      "line": 92,
+      "memory": [],
+      "op": "ret",
+      "operands": [
+       "len"
+      ],
+      "registers": [],
+      "step": 5
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "host",
+    "--args",
+    "",
+    "--replies",
+    "$CASE/replies-host.json"
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "host",
+    "entry_memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "equals_entry": true,
+    "fault": null,
+    "faults": [],
+    "first_difference": null,
+    "host_requests": [
+     {
+      "address": 16,
+      "capacity": 3,
+      "payload": "a50000",
+      "reply": "1122334455",
+      "service": "org.bennett.test"
+     }
+    ],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "memory_equals_entry": true,
+    "results": [
+     {
+      "type": "i16",
+      "value": "5"
+     }
+    ],
+    "status": "REVERSED",
+    "steps": 6,
+    "tape": []
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "host",
+    "--args",
+    "",
+    "--replies",
+    "$CASE/replies-host-wrong.json"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§10"
+   ]
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "host",
+    "--args",
+    ""
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "HOST_REQUEST"
+   ]
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "host_invalid",
+    "--args",
+    ""
+   ],
+   "exit": 0,
+   "stdout_json": {
+    "budgets": [],
+    "clock": 0,
+    "console": "",
+    "console_hex": "",
+    "effect_tape_length": 0,
+    "entry": "host_invalid",
+    "fault": 7,
+    "faults": [
+     {
+      "code": 7,
+      "name": "FAULT_UB_MEMFAULT"
+     }
+    ],
+    "host_requests": [],
+    "measurements": [],
+    "memory_digest": "d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c",
+    "results": [],
+    "status": "FAILED",
+    "steps": 4,
+    "tape": [],
+    "trace": [
+     {
+      "block": "entry",
+      "function": "host_invalid",
+      "index": 0,
+      "lhs": [
+       "n"
+      ],
+      "line": 95,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "3"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "n",
+        "post": {
+         "type": "i16",
+         "value": "3"
+        },
+        "pre": null
+       }
+      ],
+      "step": 0
+     },
+     {
+      "block": "entry",
+      "function": "host_invalid",
+      "index": 1,
+      "lhs": [
+       "z"
+      ],
+      "line": 96,
+      "memory": [],
+      "op": "const.i16",
+      "operands": [
+       "0"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "z",
+        "post": {
+         "type": "i16",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 1
+     },
+     {
+      "block": "entry",
+      "function": "host_invalid",
+      "index": 2,
+      "lhs": [
+       "p"
+      ],
+      "line": 97,
+      "memory": [],
+      "op": "inttoptr",
+      "operands": [
+       "z"
+      ],
+      "registers": [
+       {
+        "activation": 0,
+        "name": "p",
+        "post": {
+         "type": "ptr",
+         "value": "0"
+        },
+        "pre": null
+       }
+      ],
+      "step": 2
+     },
+     {
+      "block": "entry",
+      "function": "host_invalid",
+      "index": 3,
+      "lhs": [
+       "len"
+      ],
+      "line": 98,
+      "memory": [],
+      "op": "hostcall",
+      "operands": [
+       "org.bennett.test",
+       "p",
+       "n"
+      ],
+      "registers": [],
+      "step": 3
+     }
+    ]
+   }
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "256"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "E_ARG"
+   ]
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    ""
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "E_ARG"
+   ]
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "missing",
+    "--args",
+    ""
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§3.4"
+   ]
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "3",
+    "--input",
+    "3"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "--args"
+   ]
+  },
+  {
+   "cmd": [
+    "run-cc",
+    "$OBJECT",
+    "sum",
+    "--args",
+    "3",
+    "--steps",
+    "2"
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "--steps is a reverse option"
+   ]
+  },
+  {
+   "cmd": [
+    "reverse",
+    "$OBJECT",
+    "missing",
+    "--args",
+    ""
+   ],
+   "exit": 1,
+   "stdout": "",
+   "stderr_contains": [
+    "§"
+   ]
+  }
+ ]
+}
