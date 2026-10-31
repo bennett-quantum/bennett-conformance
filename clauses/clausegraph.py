@@ -83,15 +83,15 @@ RE_REF = re.compile(
     r"|(?:\s?\((?P<pitem>%(i)s)\))"
     r"|(?:(?P<litem>[a-z])(?![\w']))"
     r"|(?:\s+(?:items?|rules?|parts?)\s+\(?(?P<witem>\d{1,2}[a-z]?)\)?"
-    r"(?:(?:\s*(?:,|and|–)\s*)(?P<witem2>\d{1,2}[a-z]?))?)"
+    r"(?:(?P<wsep>\s*(?:,|and|–)\s*)(?P<witem2>\d{1,2}[a-z]?))?)"
     r")?" % {"n": NUM, "i": ITEM})
 RE_SEP_CARRY = re.compile(r"^\s*(?:,|/|–|and|or|,\s*and)\s*$")
-RE_PREV_WORD = re.compile(r"(`[^`\s]+`|[A-Za-z][\w.\-]*|\d+(?:\.\d+)+)[\s(]*$")
+RE_PREV_WORD = re.compile(r"(`[^`\s]+`|[A-Za-z][\w.\-]*?(?:['’]s)?|§*\d+(?:\.\d+)+)[\s(]*$")
 SPEC_PREFIX = {"ISA": "ISA", "bennett-isa-spec": "ISA",
                "dialect": "DLT", "bennett-dialect-spec": "DLT"}
 EXTERNAL_PREFIX = {"NS": "NS", "star": "north-star", "Bennett-NorthStar.md": "north-star",
                    "NorthStar": "north-star", "SQLite": "SQLite", "findings": "spike-findings",
-                   "outline": "outline"}
+                   "outline": "outline", "DL": "dialect-outline"}
 RE_VERSION = re.compile(r"^\d+\.\d+(?:\.\d+)?$")
 
 EDGE_DEP_KINDS = ("refs", "uses", "xspec")
@@ -538,6 +538,11 @@ def term_of(raw, at_start, in_terminology):
         return None
     if t.count("`") % 2:
         return None
+    if len(t) < 2 or t.split()[0].lower() in TERM_STOP:
+        return None
+    if not in_terminology and " " not in t and re.match(r"^[A-Za-z]+$", t) \
+            and not re.match(r"^[A-Z][A-Z0-9]+s?$", t):
+        return None  # single plain word outside Terminology: emphasis or caption
     return t
 
 
@@ -623,10 +628,16 @@ def classify_prefix(text, pos, spec, version):
     m = RE_PREV_WORD.search(before)
     if not m:
         return "local", None
-    w = m.group(1).strip("`")
+    w = re.sub(r"['’]s$", "", m.group(1).strip("`"))
+    if w.startswith("§"):
+        return "local", None  # "§3.3 (§3.1": the previous token is a reference itself
     if RE_VERSION.match(w):
-        m2 = RE_PREV_WORD.search(before[:m.start()])
+        head = before[:m.start()]
+        m2 = RE_PREV_WORD.search(head)
         w2 = m2.group(1).strip("`") if m2 else None
+        if w2 == "draft" and m2:
+            m3 = RE_PREV_WORD.search(head[:m2.start()])
+            w2 = m3.group(1).strip("`") if m3 else None
         if w2 in SPEC_PREFIX:
             target = SPEC_PREFIX[w2]
             if target == spec:
@@ -678,7 +689,11 @@ def scan_refs(c, ctx):
             item = m.group("pitem") or m.group("litem") or m.group("witem")
             targets = [(one, item)]
             if m.group("witem2"):
-                targets.append((one, m.group("witem2")))
+                a, b = m.group("witem"), m.group("witem2")
+                if "–" in m.group("wsep") and a.isdigit() and b.isdigit() and int(a) < int(b):
+                    targets.extend((one, str(k)) for k in range(int(a) + 1, int(b) + 1))
+                else:
+                    targets.append((one, b))
             if m.group("rng"):
                 rng = idx.range(one, m.group("rng").rstrip("."))
                 if rng is None:
@@ -778,3 +793,618 @@ def validate_graph(g, what="graph"):
     for k in ("spec", "version", "nodes", "edges", "aliases", "unresolved"):
         if k not in g:
             raise UsageError("%s lacks key %r" % (what, k))
+
+
+# ---------------------------------------------------------------------------
+# Loaded graphs and queries
+
+
+class Merged:
+    """One or more graphs (e.g. DLT + the ISA graph it was built against) as one digraph."""
+
+    def __init__(self, graphs):
+        self.graphs = graphs
+        self.nodes = {}
+        self.children = collections.defaultdict(list)
+        self.out = collections.defaultdict(set)
+        self.inn = collections.defaultdict(set)
+        self.aliases = {}
+        by_spec = {}
+        for g in graphs:
+            validate_graph(g)
+            if g["spec"] in by_spec:
+                raise UsageError("two graphs for spec %s (%s and %s); load one version per spec"
+                                 % (g["spec"], by_spec[g["spec"]]["version"], g["version"]))
+            by_spec[g["spec"]] = g
+        for g in graphs:
+            xs = g.get("xspec")
+            if xs and xs["spec"] in by_spec:
+                other = by_spec[xs["spec"]]
+                if other["source"]["sha256"] != xs["sha256"]:
+                    raise UsageError(
+                        "%s-%s was built against %s-%s with source sha256 %s..., but the loaded "
+                        "%s graph is %s-%s with sha256 %s...; rebuild with the matching --xspec"
+                        % (g["spec"], g["version"], xs["spec"], xs["version"], xs["sha256"][:12],
+                           xs["spec"], other["spec"], other["version"],
+                           other["source"]["sha256"][:12]))
+            for n in g["nodes"]:
+                self.nodes[n["id"]] = n
+                if n.get("parent"):
+                    self.children[n["parent"]].append(n["id"])
+            for e in g["edges"]:
+                if e["kind"] in EDGE_DEP_KINDS:
+                    self.out[e["src"]].add(e["dst"])
+                    self.inn[e["dst"]].add(e["src"])
+            self.aliases[g["spec"]] = g["aliases"]
+        self.by_spec = by_spec
+
+    def kind(self, nid):
+        n = self.nodes.get(nid)
+        return n["kind"] if n else "external"
+
+    def resolve(self, token):
+        if token in self.nodes:
+            return token
+        if ":" in token:
+            spec, alias = token.split(":", 1)
+            if spec in self.aliases and alias in self.aliases[spec]:
+                return self.aliases[spec][alias]
+            raise UsageError("unknown alias %r in spec %s" % (alias, spec))
+        hits = [a[token] for a in self.aliases.values() if token in a]
+        if len(hits) == 1:
+            return hits[0]
+        if len(hits) > 1:
+            raise UsageError("alias %r is defined in several loaded specs (%s); write SPEC:%s"
+                             % (token, ", ".join(sorted(hits)), token))
+        spec = token.split("-", 1)[0]
+        hint = "" if spec in self.by_spec else \
+            " (spec %s is not loaded; add its graph with --with)" % spec
+        raise UsageError("unknown clause, section or alias %r%s" % (token, hint))
+
+    def descendants(self, nid):
+        out, stack = [], [nid]
+        while stack:
+            x = stack.pop()
+            out.append(x)
+            stack.extend(self.children.get(x, ()))
+        return out
+
+    def ancestors(self, nid):
+        out = []
+        n = self.nodes.get(nid)
+        while n is not None and n.get("parent"):
+            p = self.nodes.get(n["parent"])
+            if p is None or p["kind"] == "root":
+                break
+            out.append(p["id"])
+            n = p
+        return out
+
+    def _reverse(self, nid):
+        start = set(self.descendants(nid)) | set(self.ancestors(nid))
+        visited = set(start)
+        levels, frontier = [], start
+        while frontier:
+            nxt = set()
+            for x in frontier:
+                for m in self.inn.get(x, ()):
+                    if m in visited:
+                        continue
+                    visited.add(m)
+                    nxt.add(m)
+                    for a in self.ancestors(m):
+                        if a not in visited:
+                            visited.add(a)
+                            nxt.add(a)
+            if not nxt:
+                break
+            levels.append(nxt)
+            frontier = nxt
+        return start, levels
+
+    def impact(self, nid):
+        """Transitive dependents (clauses), grouped by depth (index 0 = depth 1)."""
+        _, levels = self._reverse(nid)
+        out = [sorted([x for x in lv if self.kind(x) == "clause"], key=natural_key)
+               for lv in levels]
+        return [lv for lv in out if lv]
+
+    def reverse_cone(self, nid):
+        start, levels = self._reverse(nid)
+        allx = set(start).union(*levels) if levels else set(start)
+        return {x for x in allx if self.kind(x) != "section"}
+
+    def forward_cone(self, nid):
+        visited = set(self.descendants(nid))
+        frontier = list(visited)
+        while frontier:
+            nxt = []
+            for x in frontier:
+                for m in self.out.get(x, ()):
+                    for k in self.descendants(m):
+                        if k not in visited:
+                            visited.add(k)
+                            nxt.append(k)
+            frontier = nxt
+        return {x for x in visited if self.kind(x) not in ("section", "root")}
+
+    def independent(self, a, b):
+        fa, fb = self.forward_cone(a), self.forward_cone(b)
+        ra, rb = self.reverse_cone(a), self.reverse_cone(b)
+        fwd = sorted(fa & fb, key=natural_key)
+        rev = sorted(ra & rb, key=natural_key)
+        return (not fwd and not rev), fwd, rev
+
+    def top(self, spec, n):
+        rows = []
+        for nid, nd in self.nodes.items():
+            if nd["kind"] == "clause" and nid.startswith(spec + "-"):
+                cnt = sum(len(lv) for lv in self.impact(nid))
+                direct = len({m for m in self.inn.get(nid, ())})
+                rows.append((nid, cnt, direct))
+        rows.sort(key=lambda r: (-r[1], -r[2], natural_key(r[0])))
+        return rows[:n]
+
+
+def natural_key(s):
+    return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
+
+
+def coverage(g, tags):
+    validate_graph(g)
+    m = Merged([g])
+    if not isinstance(tags, dict):
+        raise UsageError("tags must be a JSON object mapping test/proof names to ids")
+    strong = collections.defaultdict(list)
+    weak = collections.defaultdict(list)
+    foreign = []
+    for name, targets in tags.items():
+        if isinstance(targets, str):
+            targets = [targets]
+        if not isinstance(targets, list) or not all(isinstance(t, str) for t in targets):
+            raise UsageError("tag %r: value must be an id or a list of ids" % name)
+        for t in targets:
+            spec = t.split(":", 1)[0] if ":" in t else t.split("-", 1)[0]
+            if spec != g["spec"] and spec.isupper() and t not in g["aliases"]:
+                foreign.append(t)
+                continue
+            try:
+                nid = m.resolve(t)
+            except UsageError as e:
+                raise UsageError("tag %r: %s" % (name, e))
+            kind = m.kind(nid)
+            if kind == "clause":
+                strong[nid].append(name)
+            else:
+                for d in m.descendants(nid):
+                    if m.kind(d) == "clause":
+                        weak[d].append(name)
+    sections = []
+    totals = {"clauses": 0, "strong": 0, "weak": 0, "uncovered": 0}
+    for nd in g["nodes"]:
+        if nd["kind"] != "section":
+            continue
+        cl = [c for c in m.children.get(nd["id"], ()) if m.kind(c) == "clause"]
+        if not cl:
+            continue
+        cl.sort(key=natural_key)
+        st = [c for c in cl if c in strong]
+        wk = [c for c in cl if c not in strong and c in weak]
+        un = [c for c in cl if c not in strong and c not in weak]
+        sections.append({"section": nd["id"], "title": nd["title"], "clauses": len(cl),
+                         "strong": st, "weak": wk, "uncovered": un})
+        totals["clauses"] += len(cl)
+        totals["strong"] += len(st)
+        totals["weak"] += len(wk)
+        totals["uncovered"] += len(un)
+    return {"spec": g["spec"], "version": g["version"], "totals": totals,
+            "sections": sections, "foreign": sorted(set(foreign)),
+            "witnesses": {k: sorted(v) for k, v in sorted(strong.items())}}
+
+
+# ---------------------------------------------------------------------------
+# Diff between two versions of one spec
+
+SIMILAR_RATIO = 0.6
+
+
+def diff_graphs(a, b):
+    validate_graph(a, "first graph")
+    validate_graph(b, "second graph")
+    if a["spec"] != b["spec"]:
+        raise UsageError("diff needs two graphs of the same spec, got %s and %s"
+                         % (a["spec"], b["spec"]))
+    ca = [n for n in a["nodes"] if n["kind"] == "clause"]
+    cb = [n for n in b["nodes"] if n["kind"] == "clause"]
+    sec = lambda n: n["parent"][len(a["spec"]) + 1:]  # noqa: E731
+    pairs = {}  # a_id -> (b_id, how)
+    used_b = set()
+    # 1. identical hash, paired in document order
+    hb = collections.defaultdict(list)
+    for n in cb:
+        hb[n["hash"]].append(n["id"])
+    for n in ca:
+        lst = hb.get(n["hash"])
+        if lst:
+            bid = lst.pop(0)
+            pairs[n["id"]] = (bid, "hash")
+            used_b.add(bid)
+    # 2. (section, alias), then alias alone (labels are unique per spec)
+    for same_section in (True, False):
+        idx = {}
+        for n in cb:
+            if n["id"] in used_b:
+                continue
+            for al in n.get("aliases", []):
+                idx.setdefault((sec(n) if same_section else None, al), n["id"])
+        for n in ca:
+            if n["id"] in pairs:
+                continue
+            for al in n.get("aliases", []):
+                bid = idx.get((sec(n) if same_section else None, al))
+                if bid and bid not in used_b:
+                    pairs[n["id"]] = (bid, "alias")
+                    used_b.add(bid)
+                    break
+    # 3. similar text within the same section number
+    ra = collections.defaultdict(list)
+    rb = collections.defaultdict(list)
+    for n in ca:
+        if n["id"] not in pairs:
+            ra[sec(n)].append(n)
+    for n in cb:
+        if n["id"] not in used_b:
+            rb[sec(n)].append(n)
+    for s_, lst in ra.items():
+        cands = []
+        for x in lst:
+            tx = norm_ws(x["text"])
+            for y in rb.get(s_, ()):
+                ty = norm_ws(y["text"])
+                sm = difflib.SequenceMatcher(None, tx, ty, autojunk=False)
+                if sm.real_quick_ratio() < SIMILAR_RATIO or sm.quick_ratio() < SIMILAR_RATIO:
+                    continue
+                r = sm.ratio()
+                if r >= SIMILAR_RATIO:
+                    cands.append((-r, natural_key(x["id"]), natural_key(y["id"]),
+                                  x["id"], y["id"]))
+        cands.sort()
+        for _, _, _, xa, yb in cands:
+            if xa in pairs or yb in used_b:
+                continue
+            pairs[xa] = (yb, "similar")
+            used_b.add(yb)
+    hash_a = {n["id"]: n["hash"] for n in ca}
+    hash_b = {n["id"]: n["hash"] for n in cb}
+    moved, changed = [], []
+    unchanged = 0
+    for aid in sorted(pairs, key=natural_key):
+        bid, how = pairs[aid]
+        same_id, same_hash = aid == bid, hash_a[aid] == hash_b[bid]
+        if same_id and same_hash:
+            unchanged += 1
+        if not same_id:
+            moved.append([aid, bid, how])
+        if not same_hash:
+            changed.append([aid, bid, how])
+    added = sorted((n["id"] for n in cb if n["id"] not in used_b), key=natural_key)
+    removed = sorted((n["id"] for n in ca if n["id"] not in pairs), key=natural_key)
+    per_section = collections.OrderedDict()
+
+    def bump(secid, key):
+        top = secid.split(".")[0]
+        per_section.setdefault(top, collections.Counter())[key] += 1
+
+    for aid, (bid, how) in pairs.items():
+        same_id, same_hash = aid == bid, hash_a[aid] == hash_b[bid]
+        k = "unchanged" if same_id and same_hash else (
+            "moved" if same_hash else ("changed" if same_id else "moved+changed"))
+        bump(sec(next(n for n in cb if n["id"] == bid)), k)
+    for x in added:
+        bump(x.rsplit("-P", 1)[0][len(a["spec"]) + 1:], "added")
+    for x in removed:
+        bump(x.rsplit("-P", 1)[0][len(a["spec"]) + 1:], "removed")
+    how = collections.Counter(h for _, h in pairs.values())
+    summary = {"a": "%s-%s" % (a["spec"], a["version"]), "b": "%s-%s" % (b["spec"], b["version"]),
+               "clauses_a": len(ca), "clauses_b": len(cb), "matched": len(pairs),
+               "matched_by": dict(sorted(how.items())), "unchanged": unchanged,
+               "moved": len(moved), "changed": len(changed),
+               "moved_only": sum(1 for x in moved if hash_a[x[0]] == hash_b[x[1]]),
+               "changed_in_place": sum(1 for x in changed if x[0] == x[1]),
+               "added": len(added), "removed": len(removed)}
+    secs = [{"section": k, **{c: v.get(c, 0) for c in
+                              ("unchanged", "moved", "changed", "moved+changed", "added",
+                               "removed")}}
+            for k, v in sorted(per_section.items(), key=lambda kv: natural_key(kv[0]))]
+    return {"summary": summary, "sections": secs, "added": added, "removed": removed,
+            "moved": moved, "changed": changed}
+
+
+# ---------------------------------------------------------------------------
+# DOT output
+
+
+def dot_q(s):
+    return '"%s"' % s.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def to_dot(g):
+    m = Merged([g])
+    spec = g["spec"]
+    out = ["digraph %s {" % dot_q("%s-%s" % (spec, g["version"])),
+           "  graph [rankdir=LR, compound=true, fontsize=10, label=%s];"
+           % dot_q("%s %s clause graph" % (spec, g["version"])),
+           "  node [shape=box, fontsize=8, height=0.2];",
+           "  edge [arrowsize=0.5];"]
+
+    def emit(nid, indent):
+        nd = m.nodes[nid]
+        pad = "  " * indent
+        if nd["kind"] == "section":
+            out.append("%ssubgraph %s {" % (pad, dot_q("cluster_" + nid)))
+            out.append("%s  label=%s;" % (pad, dot_q("§%s %s" % (nd["number"], nd["title"]))))
+            out.append("%s  %s [shape=folder, label=%s];"
+                       % (pad, dot_q(nid), dot_q("§" + nd["number"])))
+            for c in m.children.get(nid, ()):
+                emit(c, indent + 1)
+            out.append("%s}" % pad)
+        elif nd["kind"] == "clause":
+            lab = nid[len(nd["parent"]) + 1:]
+            if nd.get("aliases"):
+                lab += "\\n" + ", ".join(nd["aliases"][:3]).replace('"', "'")
+            out.append("%s%s [label=\"%s\"];" % (pad, dot_q(nid), lab.replace("\\n", "\\n")))
+
+    for c in m.children.get(spec, ()):
+        emit(c, 1)
+    externals = sorted({e["dst"] for e in g["edges"] if e["kind"] == "xspec"}, key=natural_key)
+    for x in externals:
+        out.append("  %s [shape=ellipse, style=filled, fillcolor=lightblue];" % dot_q(x))
+    style = {"refs": "", "uses": " [style=dashed, color=gray40]",
+             "xspec": " [color=blue, penwidth=1.5]"}
+    for e in g["edges"]:
+        if e["kind"] in style:
+            out.append("  %s -> %s%s;" % (dot_q(e["src"]), dot_q(e["dst"]), style[e["kind"]]))
+    out.append("}")
+    return "\n".join(out) + "\n"
+
+
+# ---------------------------------------------------------------------------
+# CLI
+
+
+def load_json(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except OSError as e:
+        raise UsageError("cannot read %s: %s" % (path, e.strerror))
+    except json.JSONDecodeError as e:
+        raise UsageError("%s:%d: invalid JSON: %s" % (path, e.lineno, e.msg))
+
+
+def load_graph(path):
+    g = load_json(path)
+    try:
+        validate_graph(g, path)
+    except UsageError as e:
+        raise UsageError(str(e))
+    return g
+
+
+def write_text(path, text):
+    tmp = path + ".part"
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(text)
+    os.replace(tmp, path)
+
+
+def cmd_build(args):
+    try:
+        with open(args.file, encoding="utf-8") as f:
+            text = f.read()
+    except OSError as e:
+        raise UsageError("cannot read %s: %s" % (args.file, e.strerror))
+    xs = load_graph(args.xspec) if args.xspec else None
+    g = build_graph(text, args.spec, args.version, args.file, xspec=xs)
+    os.makedirs(args.out_dir, exist_ok=True)
+    stem = os.path.join(args.out_dir, "%s-%s" % (args.spec, args.version))
+    write_text(stem + ".json", json.dumps(g, indent=1, ensure_ascii=False) + "\n")
+    write_text(stem + ".dot", to_dot(g))
+    st = g["stats"]
+    print("%s-%s: %d nodes (%d sections, %d clauses), %d edges %s, %d unresolved %s, "
+          "%d aliases (%d labels, %d terms), %d ambiguous terms"
+          % (args.spec, args.version, st["nodes"], st["sections"], st["clauses"], st["edges"],
+             json.dumps(st["edges_by_kind"]), st["unresolved"],
+             json.dumps(st["unresolved_by_reason"]), st["aliases"], st["labels"], st["terms"],
+             st["ambiguous_terms"]))
+    for t in g["ambiguous_terms"]:
+        print("warning: bold term %r is bolded in %s (lines %s); not an alias"
+              % (t["term"], ", ".join(t["clauses"]), ", ".join(map(str, t["lines"]))),
+              file=sys.stderr)
+    print("wrote %s.json and %s.dot" % (stem, stem))
+    if args.svg:
+        import shutil
+        import subprocess
+        if shutil.which("dot") is None:
+            print("dot not found on PATH; skipped SVG rendering")
+        else:
+            try:
+                subprocess.run(["dot", "-Tsvg", "-o", stem + ".svg", stem + ".dot"], check=True,
+                               timeout=args.svg_timeout)
+                print("wrote %s.svg" % stem)
+            except subprocess.TimeoutExpired:
+                print("dot -Tsvg exceeded %ds; skipped SVG" % args.svg_timeout)
+    return 0
+
+
+def merged_from(args):
+    return Merged([load_graph(args.graph)] + [load_graph(p) for p in (args.with_ or [])])
+
+
+def describe(m, nid):
+    nd = m.nodes.get(nid, {})
+    extra = ""
+    if nd.get("aliases"):
+        extra = " [%s]" % ", ".join(nd["aliases"])
+    if nd.get("kind") == "section":
+        extra = " (§%s %s)" % (nd["number"], nd["title"])
+    return nid + extra
+
+
+def cmd_impact(args):
+    m = merged_from(args)
+    nid = m.resolve(args.id)
+    levels = m.impact(nid)
+    total = sum(len(x) for x in levels)
+    if args.json:
+        print(json.dumps({"id": nid, "total": total, "levels": levels}, indent=1))
+        return 0
+    print("impact of %s: %d dependent clauses" % (describe(m, nid), total))
+    for d, lv in enumerate(levels, 1):
+        print("depth %d (%d): %s" % (d, len(lv), ", ".join(describe(m, x) for x in lv)))
+    return 0
+
+
+def cmd_independent(args):
+    m = merged_from(args)
+    a, b = m.resolve(args.a), m.resolve(args.b)
+    ok, fwd, rev = m.independent(a, b)
+    if ok:
+        print("independent")
+        return 0
+    print("dependent")
+    print("shared forward cone (%d): %s" % (len(fwd), ", ".join(fwd)))
+    print("shared reverse cone (%d): %s" % (len(rev), ", ".join(rev)))
+    return 1
+
+
+def cmd_coverage(args):
+    g = load_graph(args.graph)
+    rep = coverage(g, load_json(args.tags))
+    if args.json:
+        print(json.dumps(rep, indent=1))
+        return 0
+    t = rep["totals"]
+    print("coverage of %s-%s: %d clauses; strong %d, weak (section tag only) %d, uncovered %d"
+          % (rep["spec"], rep["version"], t["clauses"], t["strong"], t["weak"], t["uncovered"]))
+    if rep["foreign"]:
+        print("ignored tags for other specs: %s" % ", ".join(rep["foreign"]))
+    for s_ in rep["sections"]:
+        line = "%s %s: %d clauses, strong %d, weak %d, uncovered %d" % (
+            s_["section"], s_["title"], s_["clauses"], len(s_["strong"]), len(s_["weak"]),
+            len(s_["uncovered"]))
+        if s_["weak"]:
+            line += "; weak: " + ", ".join(s_["weak"])
+        if s_["uncovered"]:
+            line += "; uncovered: " + ", ".join(s_["uncovered"])
+        print(line)
+    return 0
+
+
+def diff_table(d):
+    rows = ["| § | unchanged | moved | changed | moved+changed | added | removed |",
+            "|---|---|---|---|---|---|---|"]
+    tot = collections.Counter()
+    for s_ in d["sections"]:
+        rows.append("| %s | %d | %d | %d | %d | %d | %d |" % (
+            s_["section"], s_["unchanged"], s_["moved"], s_["changed"], s_["moved+changed"],
+            s_["added"], s_["removed"]))
+        for k in ("unchanged", "moved", "changed", "moved+changed", "added", "removed"):
+            tot[k] += s_[k]
+    rows.append("| total | %d | %d | %d | %d | %d | %d |" % (
+        tot["unchanged"], tot["moved"], tot["changed"], tot["moved+changed"], tot["added"],
+        tot["removed"]))
+    return "\n".join(rows)
+
+
+def cmd_diff(args):
+    d = diff_graphs(load_graph(args.a), load_graph(args.b))
+    if args.json:
+        print(json.dumps(d, indent=1))
+        return 0
+    s_ = d["summary"]
+    print("diff %s -> %s: %d -> %d clauses; matched %d %s; unchanged %d; moved %d "
+          "(renumbered only %d); changed %d (in place %d); added %d; removed %d"
+          % (s_["a"], s_["b"], s_["clauses_a"], s_["clauses_b"], s_["matched"],
+             json.dumps(s_["matched_by"]), s_["unchanged"], s_["moved"], s_["moved_only"],
+             s_["changed"], s_["changed_in_place"], s_["added"], s_["removed"]))
+    print()
+    print(diff_table(d))
+    if args.list:
+        for k in ("added", "removed"):
+            print("%s: %s" % (k, ", ".join(d[k])))
+        for k in ("moved", "changed"):
+            print("%s: %s" % (k, ", ".join("%s->%s(%s)" % tuple(x) for x in d[k])))
+    return 0
+
+
+def cmd_top(args):
+    m = merged_from(args)
+    spec = args.spec or m.graphs[0]["spec"]
+    print("| clause | transitive dependents | direct dependents | aliases |")
+    print("|---|---|---|---|")
+    for nid, cnt, direct in m.top(spec, args.n):
+        print("| %s | %d | %d | %s |" % (nid, cnt, direct,
+                                        ", ".join(m.nodes[nid].get("aliases", [])[:4])))
+    return 0
+
+
+def make_parser():
+    p = argparse.ArgumentParser(prog="clausegraph", description=__doc__.splitlines()[0])
+    sub = p.add_subparsers(dest="cmd", required=True)
+    b = sub.add_parser("build", help="parse a spec into <out-dir>/<SPEC>-<version>.json/.dot")
+    b.add_argument("--spec", required=True, help="spec code, e.g. ISA or DLT")
+    b.add_argument("--version", required=True, help="e.g. 0.8, 0.9-draft, 0.2.10")
+    b.add_argument("--file", required=True, help="spec markdown file")
+    b.add_argument("--xspec", help="graph JSON of the spec this one cites (resolves 'ISA §x')")
+    b.add_argument("--out-dir", default=os.path.dirname(os.path.abspath(__file__)))
+    b.add_argument("--svg", action="store_true", help="also run dot -Tsvg if dot exists")
+    b.add_argument("--svg-timeout", type=int, default=120)
+    b.set_defaults(fn=cmd_build)
+    d = sub.add_parser("diff", help="match clauses between two versions of one spec")
+    d.add_argument("a")
+    d.add_argument("b")
+    d.add_argument("--json", action="store_true")
+    d.add_argument("--list", action="store_true", help="list every added/removed/moved/changed id")
+    d.set_defaults(fn=cmd_diff)
+    for name, fn, hlp in (("impact", cmd_impact, "transitive dependents by depth"),
+                          ("independent", cmd_independent, "are two clauses' cones disjoint")):
+        q = sub.add_parser(name, help=hlp)
+        q.add_argument("graph")
+        if name == "impact":
+            q.add_argument("id")
+            q.add_argument("--json", action="store_true")
+        else:
+            q.add_argument("a")
+            q.add_argument("b")
+        q.add_argument("--with", dest="with_", action="append",
+                       help="also load this graph (e.g. the ISA graph for a DLT query)")
+        q.set_defaults(fn=fn)
+    c = sub.add_parser("coverage", help="clauses with zero witnesses per section")
+    c.add_argument("graph")
+    c.add_argument("--tags", required=True, help="JSON {test-or-proof-name: id | [ids]}")
+    c.add_argument("--json", action="store_true")
+    c.set_defaults(fn=cmd_coverage)
+    t = sub.add_parser("top", help="clauses ranked by number of transitive dependents")
+    t.add_argument("graph")
+    t.add_argument("-n", type=int, default=10)
+    t.add_argument("--spec", help="rank clauses of this spec (default: the first graph's)")
+    t.add_argument("--with", dest="with_", action="append")
+    t.set_defaults(fn=cmd_top)
+    return p
+
+
+def main(argv=None):
+    args = make_parser().parse_args(argv)
+    try:
+        return args.fn(args)
+    except SpecError as e:
+        print("clausegraph: error: %s" % e, file=sys.stderr)
+        return 2
+    except UsageError as e:
+        print("clausegraph: error: %s" % e, file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

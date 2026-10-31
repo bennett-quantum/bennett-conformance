@@ -228,7 +228,7 @@ class TestAliases(unittest.TestCase):
                "- **lproc**: a lifted procedure.\n\n"
                "## 5. Regions\n\nOnly inside **borrow frames**: maximal subcircuits.\n\n"
                "Uses an **lproc** again.\n\n**Requirement.** A caption, not a term.\n\n"
-               "**Body**: one.\n\n**Body**: two.\n\nSay **every** thing.\n")
+               "**Frame layout**: one.\n\n**Frame layout**: two.\n\nSay **every** thing.\n")
         g = build(txt)
         a = g["aliases"]
         self.assertEqual(a["Tier"], "ISA-2-P1")
@@ -237,11 +237,24 @@ class TestAliases(unittest.TestCase):
         self.assertEqual(a["lproc"], "ISA-2-P2")  # terminology wins over re-bolding
         self.assertEqual(a["borrow frames"], "ISA-5-P1")
         self.assertNotIn("Requirement", a)
-        self.assertNotIn("Body", a)  # ambiguous
+        self.assertNotIn("Frame layout", a)  # ambiguous
         self.assertNotIn("every", a)  # stopword
         amb = {t["term"] for t in g["ambiguous_terms"]}
-        self.assertIn("Body", amb)
+        self.assertIn("Frame layout", amb)
 
+
+    def test_single_plain_word_terms_only_in_terminology(self):
+        txt = ("## 2. Terminology\n\n- **register**: n qubits. **C**: a set.\n\n"
+               "## 3. M\n\nA **constant** operand. **Binding**: one. **self-disjoint** s.\n\n"
+               "**Closure set**, by kind. **no `measure` frame** here.\n")
+        a = build(txt)["aliases"]
+        self.assertIn("register", a)
+        self.assertNotIn("C", a)
+        self.assertNotIn("constant", a)
+        self.assertNotIn("Binding", a)
+        self.assertIn("self-disjoint", a)
+        self.assertIn("Closure set", a)
+        self.assertNotIn("no `measure` frame", a)
 
 class TestRefs(unittest.TestCase):
     SPEC = ("## 4. I\n\n### 4.5 Copy\n\nCopy.\n\n### 4.6 Mem\n\nMem.\n\n### 4.7 Calls\n\nCalls.\n\n"
@@ -320,6 +333,26 @@ class TestRefs(unittest.TestCase):
         g = self.g("Motivation (0.8 §5.6).\n", version="0.9-draft")
         self.assertEqual([u["reason"] for u in g["unresolved"]], ["external:ISA-0.8"])
 
+    def test_section_number_before_paren_is_not_a_version_prefix(self):
+        g = self.g("per §4.5\n(§5.6: yes) and outside §4.6 (§17 item 1).\n")
+        r = edges(g, "refs")
+        self.assertIn(("ISA-20-P1", "ISA-5.6"), r)
+        self.assertIn(("ISA-20-P1", "ISA-17-P1"), r)
+        self.assertEqual(g["unresolved"], [])
+
+    def test_possessive_and_draft_prefixes(self):
+        g = self.g("the dialect 0.2 outline's §25 list; dialect draft 0.2.1 §25.1; DL §17.6.\n")
+        reasons = sorted(u["reason"] for u in g["unresolved"])
+        self.assertEqual(reasons, ["external:dialect-outline", "external:outline",
+                                   "xspec-not-loaded"])
+
+    def test_item_range(self):
+        g = build("## 6. H\n\n1. a\n2. b\n3. c\n4. d\n\n## 7. U\n\nSee §6 items 2–4.\n")
+        r = edges(g, "refs")
+        for p in ("ISA-6-P2", "ISA-6-P3", "ISA-6-P4"):
+            self.assertIn(("ISA-7-P1", p), r)
+        self.assertNotIn(("ISA-7-P1", "ISA-6-P1"), r)
+
     def test_letter_suffix_item(self):
         txt = "## 7. R\n\n### 7.5 W\n\n- **(a) M.** x\n- **(b) R.** y\n\n## 8. U\n\nSee §7.5b and §7.5(a).\n"
         g = build(txt)
@@ -366,6 +399,229 @@ class TestUses(unittest.TestCase):
                "```\ncommit x\n```\n")
         g = build(txt)
         self.assertNotIn(("ISA-3-P1", "ISA-2-P1"), edges(g, "uses"))
+
+
+QSPEC = """## 1. Base
+
+Def of **borrow frames**: things.
+
+Other text.
+
+| Rule | Effect |
+|---|---|
+| PT3 | copies |
+
+## 2. Mid
+
+Uses borrow frames here.
+
+See §1.
+
+## 3. Top
+
+See §2 and stuff.
+
+Independent text.
+
+## 4. Iso
+
+Lone.
+"""
+
+
+def qgraph():
+    return build(QSPEC)
+
+
+class TestQueries(unittest.TestCase):
+    def setUp(self):
+        self.m = cg.Merged([qgraph()])
+
+    def test_resolve(self):
+        self.assertEqual(self.m.resolve("ISA-1-P1"), "ISA-1-P1")
+        self.assertEqual(self.m.resolve("PT3"), "ISA-1-P3")
+        self.assertEqual(self.m.resolve("ISA:PT3"), "ISA-1-P3")
+        self.assertEqual(self.m.resolve("ISA-2"), "ISA-2")
+        with self.assertRaises(cg.UsageError):
+            self.m.resolve("ISA-9-P1")
+
+    def test_impact_depths(self):
+        lv = self.m.impact("ISA-1-P1")
+        self.assertEqual(lv[0], ["ISA-2-P1", "ISA-2-P2"])
+        self.assertEqual(lv[1], ["ISA-3-P1"])
+        self.assertEqual(len(lv), 2)
+
+    def test_impact_via_section_ref_only(self):
+        lv = self.m.impact("ISA-1-P2")
+        self.assertEqual(lv, [["ISA-2-P2"], ["ISA-3-P1"]])
+
+    def test_impact_of_section(self):
+        lv = self.m.impact("ISA-2")
+        self.assertEqual(lv, [["ISA-3-P1"]])
+
+    def test_independent(self):
+        ok, fwd, rev = self.m.independent("ISA-3-P2", "ISA-4-P1")
+        self.assertTrue(ok)
+        ok, fwd, rev = self.m.independent("ISA-1-P1", "ISA-1-P2")
+        self.assertFalse(ok)
+        self.assertEqual(rev, ["ISA-2-P2", "ISA-3-P1"])
+        ok, fwd, rev = self.m.independent("ISA-2-P1", "ISA-2-P2")
+        self.assertFalse(ok)
+        self.assertIn("ISA-1-P1", fwd)
+
+    def test_top(self):
+        top = self.m.top("ISA", 2)
+        self.assertEqual(top[0][0], "ISA-1-P1")
+        self.assertEqual(top[0][1], 3)
+
+    def test_coverage(self):
+        g = qgraph()
+        rep = cg.coverage(g, {"t1": ["ISA-1-P1"], "t2": "ISA-2", "t3": ["PT3"],
+                              "t4": ["DLT-5-P1"]})
+        sec = {s["section"]: s for s in rep["sections"]}
+        self.assertEqual(sec["ISA-1"]["strong"], ["ISA-1-P1", "ISA-1-P3"])
+        self.assertEqual(sec["ISA-1"]["uncovered"], ["ISA-1-P2"])
+        self.assertEqual(sec["ISA-2"]["weak"], ["ISA-2-P1", "ISA-2-P2"])
+        self.assertEqual(sec["ISA-3"]["uncovered"], ["ISA-3-P1", "ISA-3-P2"])
+        self.assertEqual(rep["foreign"], ["DLT-5-P1"])
+        self.assertEqual(rep["totals"]["uncovered"], 4)
+        with self.assertRaises(cg.UsageError):
+            cg.coverage(g, {"t": ["ISA-7-P1"]})
+        with self.assertRaises(cg.UsageError):
+            cg.coverage(g, {"t": 5})
+
+
+class TestXspecMerged(unittest.TestCase):
+    def test_cross_spec_impact_and_stale_check(self):
+        isa = qgraph()
+        dlt = build("## 1. D\n\nPer ISA §1 (borrow).\n\nAnd DLT-local.\n", spec="DLT",
+                    version="0.2.10", xspec=isa)
+        m = cg.Merged([isa, dlt])
+        self.assertEqual(m.impact("ISA-1-P2"), [["DLT-1-P1", "ISA-2-P2"], ["ISA-3-P1"]])
+        stale = build(QSPEC + "\nextra\n")
+        with self.assertRaises(cg.UsageError):
+            cg.Merged([stale, dlt])
+        with self.assertRaises(cg.UsageError):
+            cg.Merged([dlt]).resolve("ISA-1-P2")
+
+
+class TestDiff(unittest.TestCase):
+    A = """## 1. A
+
+Alpha paragraph stays.
+
+| Id | What |
+|---|---|
+| K1 | first meaning |
+
+Beta paragraph goes away.
+
+The quick brown fox jumps over the lazy dog near the river bank today.
+"""
+    B = """## 1. A
+
+Inserted paragraph.
+
+Alpha paragraph stays.
+
+| Id | What |
+|---|---|
+| K1 | second meaning |
+
+The quick brown fox jumps over the lazy cat near the river bank today.
+
+## 2. New
+
+Brand new.
+"""
+
+    def test_diff(self):
+        d = cg.diff_graphs(build(self.A), build(self.B, version="0.9-draft"))
+        self.assertEqual(sorted(d["added"]), ["ISA-1-P1", "ISA-2-P1"])
+        self.assertEqual(d["removed"], ["ISA-1-P3"])
+        moved = {(a, b, h) for a, b, h in d["moved"]}
+        self.assertIn(("ISA-1-P1", "ISA-1-P2", "hash"), moved)
+        self.assertIn(("ISA-1-P2", "ISA-1-P3", "alias"), moved)
+        changed = {(a, b, h) for a, b, h in d["changed"]}
+        self.assertIn(("ISA-1-P2", "ISA-1-P3", "alias"), changed)
+        self.assertIn(("ISA-1-P4", "ISA-1-P4", "similar"), changed)
+        self.assertEqual(d["summary"]["unchanged"], 0)
+        self.assertEqual(d["summary"]["added"], 2)
+
+    def test_diff_rejects_different_specs(self):
+        with self.assertRaises(cg.UsageError):
+            cg.diff_graphs(build(self.A), build(self.A, spec="DLT"))
+
+
+class TestDot(unittest.TestCase):
+    def test_dot(self):
+        dot = cg.to_dot(qgraph())
+        self.assertTrue(dot.startswith('digraph "ISA-0.8" {'))
+        self.assertIn('subgraph "cluster_ISA-1"', dot)
+        self.assertIn('"ISA-2-P1" -> "ISA-1-P1"', dot)
+        self.assertNotIn("contains", dot)
+
+
+def run_cli(*args, cwd=None):
+    env = {k: v for k, v in os.environ.items()
+           if k not in ("DISPLAY", "WAYLAND_DISPLAY", "DBUS_SESSION_BUS_ADDRESS", "BROWSER")}
+    return subprocess.run([sys.executable, "-I", os.path.join(CLAUSES, "clausegraph.py")]
+                          + list(args), capture_output=True, text=True, env=env, cwd=cwd)
+
+
+class TestCli(unittest.TestCase):
+    def setUp(self):
+        base = os.environ.get("TMPDIR") or os.path.join(REPO, ".tmp")
+        os.makedirs(base, exist_ok=True)
+        self.tmp = tempfile.mkdtemp(dir=base)
+        self.spec = os.path.join(self.tmp, "s.md")
+        with open(self.spec, "w", encoding="utf-8") as f:
+            f.write(QSPEC)
+
+    def test_build_and_queries(self):
+        r = run_cli("build", "--spec", "ISA", "--version", "0.8", "--file", self.spec,
+                    "--out-dir", self.tmp)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        gj = os.path.join(self.tmp, "ISA-0.8.json")
+        self.assertTrue(os.path.exists(gj))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "ISA-0.8.dot")))
+        with open(gj, encoding="utf-8") as f:
+            g = json.load(f)
+        self.assertEqual(g["stats"]["clauses"], 8)
+        r = run_cli("impact", gj, "ISA-1-P1")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("depth 1", r.stdout)
+        self.assertIn("ISA-3-P1", r.stdout)
+        r = run_cli("independent", gj, "ISA-3-P2", "ISA-4-P1")
+        self.assertEqual((r.returncode, r.stdout.strip()), (0, "independent"))
+        r = run_cli("independent", gj, "ISA-1-P1", "ISA-1-P2")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("ISA-3-P1", r.stdout)
+        tags = os.path.join(self.tmp, "tags.json")
+        with open(tags, "w") as f:
+            json.dump({"t": ["ISA-1-P1"], "s": "ISA-2"}, f)
+        r = run_cli("coverage", gj, "--tags", tags)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("weak", r.stdout)
+        r = run_cli("diff", gj, gj)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("unchanged", r.stdout)
+
+    def test_malformed_input_exit_code_and_line(self):
+        bad = os.path.join(self.tmp, "bad.md")
+        with open(bad, "w") as f:
+            f.write("## 1. A\n\n```\nnever closed\n")
+        r = run_cli("build", "--spec", "ISA", "--version", "0.8", "--file", bad,
+                    "--out-dir", self.tmp)
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("bad.md:3:", r.stderr)
+
+    def test_unknown_id_is_an_error(self):
+        run_cli("build", "--spec", "ISA", "--version", "0.8", "--file", self.spec,
+                "--out-dir", self.tmp)
+        r = run_cli("impact", os.path.join(self.tmp, "ISA-0.8.json"), "NOPE-1")
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("NOPE-1", r.stderr)
 
 
 if __name__ == "__main__":
