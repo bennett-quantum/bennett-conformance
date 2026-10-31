@@ -1,0 +1,31 @@
+--- hashtable.c
++++ hashtable_marked.c
+@@ -52,6 +52,10 @@
+ 
+ #include <stdint.h>
+ #include <stdlib.h>
++
++/* Dialect 0.2.10 §3.8: direct C calls; §4.2: mark both driver closures CC. */
++extern void *__bennett_qalloc(uint64_t, uint64_t);
++extern void __bennett_qfree(void *);
+ 
+ /* Sentinels. Real keys must avoid these two values; the drivers below never
+  * produce them (keys are derived from small non-negative arithmetic on n). */
+@@ -219,6 +223,8 @@
+  * third, re-insert a deterministic subset (third pass), then sum surviving
+  * lookups into a checksum. Pure function of n. */
+ int64_t ht_demo_basic(int64_t n) {
++    void *rung2_marker = __bennett_qalloc(0, 1);
++    __bennett_qfree(rung2_marker);
+     ht *t = ht_new(2048);                 /* fixed cap; drivers keep n small */
+     for (int64_t j = 0; j < n; j++) ht_put(t, demo_key(j), demo_val(j));
+     for (int64_t j = 0; j < n; j += 3) ht_del(t, demo_key(j));
+@@ -238,6 +244,8 @@
+ /* Driver B: same shape but the table GROWS. Start small (cap 4) and grow
+  * whenever load factor would exceed ~0.7, exercising rehash/realloc-by-hand. */
+ int64_t ht_demo_grow(int64_t n) {
++    void *rung2_marker = __bennett_qalloc(0, 1);
++    __bennett_qfree(rung2_marker);
+     ht *t = ht_new(4);
+     for (int64_t j = 0; j < n; j++) {
+         if ((t->len + 1) * 10 > t->cap * 7) ht_grow(t);

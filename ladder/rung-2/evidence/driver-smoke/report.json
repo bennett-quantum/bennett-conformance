@@ -1,0 +1,449 @@
+{
+  "manifest": {
+    "time_utc": "2026-10-31T21:54:49.028526+00:00",
+    "dialect_commit": "023f5a771a814270634db3be9cfde88ded69f975",
+    "isa": "0.8",
+    "budget": "10000000,1048576,65536,256",
+    "inputs": [
+      0,
+      1,
+      7,
+      64,
+      1000
+    ],
+    "drivers": [
+      "basic",
+      "grow"
+    ],
+    "commands": [
+      {
+        "tag": "build/plugin-configure",
+        "argv": [
+          "cmake",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16",
+          "-B",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.089,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "build/plugin-build",
+        "argv": [
+          "cmake",
+          "--build",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build",
+          "-j",
+          "4"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.303,
+        "timeout_seconds": 1800
+      },
+      {
+        "tag": "build/vm-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-eb7ca3ab3bf21eef9d418b037ecaeed3a471cf82/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-eb7ca3ab3bf21eef9d418b037ecaeed3a471cf82/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.027,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/native-build-O2",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O2",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O2"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.211,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "23/native-run-O2",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O2"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.002,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "18/native-build-O2",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O2",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O2"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.242,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "18/native-run-O2",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O2"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.002,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "23/native-build-O0",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O0",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O0"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.31,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "23/native-run-O0",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O0"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.016,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "18/native-build-O0",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O0",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O0"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.347,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "18/native-run-O0",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O0"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.017,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "23/frontend",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable_marked.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.082,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "23/postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/input.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.058,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "18/frontend",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable_marked.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.108,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "18/postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/input.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.047,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "23/production",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build/libbennett-plugin-23.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-budget-default=10000000,1048576,65536,256,65536",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/postlink.ll"
+        ],
+        "exit": 124,
+        "elapsed_seconds": 5.013,
+        "timeout_seconds": 5
+      },
+      {
+        "tag": "18/production",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build/libbennett-plugin-18.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-budget-default=10000000,1048576,65536,256,65536",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/postlink.ll"
+        ],
+        "exit": 124,
+        "elapsed_seconds": 5.011,
+        "timeout_seconds": 5
+      }
+    ],
+    "environment": {
+      "DISPLAY": null,
+      "WAYLAND_DISPLAY": null,
+      "DBUS_SESSION_BUS_ADDRESS": null,
+      "BROWSER": null,
+      "TMPDIR": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp"
+    },
+    "fixture_sha256": {
+      "hashtable.c": "8cbd5a3698aea0da1f7187b97be34a0ed33743394f045c49c943323f94abd4b9",
+      "main_golden.c": "83c6d020567460b10e0f70aec25399b34f5dda8e2c2feb47f157f71fff0e8820",
+      "hashtable_marked.c": "4b93ea1b3d9b481c2b043e8f7db6658fb5096e83f330ec8161e8a13504d4d189"
+    },
+    "plugin_commit": "fafc40508598c34173aa2c295213536d13078a16",
+    "plugin_sha256": {
+      "18": "f2b647f7543fae395865935cc3fdbd5fa2ddd8e4eb58474cafddec9cd229d48b",
+      "23": "687a2e2e93006d6e5d33ed6163d37f15fb6f256c0070fd99e3490c3f0f0d372d"
+    },
+    "vm_commit": "eb7ca3ab3bf21eef9d418b037ecaeed3a471cf82",
+    "vm_sha256": "caf5a93cbec8c578ba7455098a492b6afc78c6f71f343dbced7a7acaef4d8c49"
+  },
+  "stages": {
+    "18": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "native reference": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "post-link LTO": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "S1\u2013S9 production": {
+        "status": "FAIL",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "18/production: exit 124\n\ntimeout after 5 seconds\n"
+      },
+      "launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires S1\u2013S9 production"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires launch artefacts"
+      },
+      "reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires native reference, reference admission"
+      },
+      "reference byte-exact reverse": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires reference forward = native"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires launch artefacts, VM build"
+      },
+      "VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires native reference, VM admission"
+      },
+      "VM byte-exact reverse": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires VM forward = native"
+      }
+    },
+    "23": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "native reference": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "post-link LTO": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "S1\u2013S9 production": {
+        "status": "FAIL",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "23/production: exit 124\n\ntimeout after 5 seconds\n"
+      },
+      "launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires S1\u2013S9 production"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires launch artefacts"
+      },
+      "reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires native reference, reference admission"
+      },
+      "reference byte-exact reverse": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires reference forward = native"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires launch artefacts, VM build"
+      },
+      "VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires native reference, VM admission"
+      },
+      "VM byte-exact reverse": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-au6"
+        ],
+        "error": "Not run; requires VM forward = native"
+      }
+    }
+  }
+}

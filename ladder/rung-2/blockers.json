@@ -1,0 +1,20 @@
+[
+  {
+    "id": "brt-3sa",
+    "repo": "bennett-runtimes",
+    "pattern": "missing runtimes bitcode for LLVM (?:18|23):",
+    "stage": "runtime bitcode link",
+    "determining_sentence": "The driver links all bitcode inputs (\u00a719.8), links bennett-runtimes and bennett-arith bitcode of the link's major M, runs the post-link pipeline (lto<O3> by default, or any envelope pipeline of \u00a721.1 the user selects), then runs the plugin on the whole program (NS \u00a73.3).",
+    "clause": "Dialect 0.2.10 @023f5a7 \u00a719.1",
+    "size": "medium"
+  },
+  {
+    "id": "bp-au6",
+    "repo": "bennett-plugin",
+    "pattern": "(?s)(?:18|23)/(?:production(?:-probe)?|analysis): exit 124.*timeout",
+    "stage": "S2 reference analysis",
+    "determining_sentence": "The analysis is the least fixpoint of the following rules over AV.",
+    "clause": "Dialect 0.2.10 @023f5a7 \u00a75.2",
+    "size": "medium"
+  }
+]

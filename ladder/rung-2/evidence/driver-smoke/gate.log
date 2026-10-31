@@ -1,0 +1,44 @@
++ cmake -S /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16 -B /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build
++ cmake --build /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build -j 4
++ cargo build --offline --manifest-path /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-eb7ca3ab3bf21eef9d418b037ecaeed3a471cf82/Cargo.toml --target-dir /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-eb7ca3ab3bf21eef9d418b037ecaeed3a471cf82/target
++ /usr/lib/llvm-18/bin/clang -O2 /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O2
++ /usr/lib/llvm-23/bin/clang -O2 /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O2
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O2
++ /usr/lib/llvm-23/bin/clang -O0 -fsanitize=address,undefined -fno-omit-frame-pointer /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O0
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O2
++ /usr/lib/llvm-18/bin/clang -O0 -fsanitize=address,undefined -fno-omit-frame-pointer /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable.c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/main_golden.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O0
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/native-O0
++ /usr/lib/llvm-23/bin/clang -O2 -flto -emit-llvm -c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable_marked.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/input.bc
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/native-O0
++ /usr/lib/llvm-18/bin/clang -O2 -flto -emit-llvm -c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/fixtures/hashtable_marked.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/input.bc
++ /usr/lib/llvm-23/bin/opt -passes=lto<O3> -S /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/input.bc -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/postlink.ll
++ /usr/lib/llvm-23/bin/opt -load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build/libbennett-plugin-23.so -passes=bennett -bennett-dialect=0.2.10 -bennett-isa=0.8 -bennett-budget-default=10000000,1048576,65536,256,65536 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/out -disable-output /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/23/postlink.ll
++ /usr/lib/llvm-18/bin/opt -passes=lto<O3> -S /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/input.bc -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/postlink.ll
++ /usr/lib/llvm-18/bin/opt -load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung2-plugin-fafc40508598c34173aa2c295213536d13078a16/build/libbennett-plugin-18.so -passes=bennett -bennett-dialect=0.2.10 -bennett-isa=0.8 -bennett-budget-default=10000000,1048576,65536,256,65536 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/out -disable-output /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z/18/postlink.ll
+23/production: exit 124
+
+timeout after 5 seconds
+
+18/production: exit 124
+
+timeout after 5 seconds
+
+
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures | PASS | PASS |
+| plugin build | PASS | PASS |
+| VM build | PASS | PASS |
+| native reference | PASS | PASS |
+| C front end | PASS | PASS |
+| post-link LTO | PASS | PASS |
+| S1–S9 production | FAIL · bp-au6 | FAIL · bp-au6 |
+| launch artefacts | BLOCKED · bp-au6 | BLOCKED · bp-au6 |
+| reference admission | BLOCKED · bp-au6 | BLOCKED · bp-au6 |
+| VM admission | BLOCKED · bp-au6 | BLOCKED · bp-au6 |
+| reference forward = native | BLOCKED · bp-au6 | BLOCKED · bp-au6 |
+| VM forward = native | BLOCKED · bp-au6 | BLOCKED · bp-au6 |
+| reference byte-exact reverse | BLOCKED · bp-au6 | BLOCKED · bp-au6 |
+| VM byte-exact reverse | BLOCKED · bp-au6 | BLOCKED · bp-au6 |
+
+Evidence: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-2/20261031T215449.028318Z
