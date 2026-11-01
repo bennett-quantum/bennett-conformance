@@ -9,6 +9,7 @@
 
 pub mod cert;
 pub mod domain;
+pub mod fault;
 pub mod eval;
 pub mod json;
 pub mod numeric;
