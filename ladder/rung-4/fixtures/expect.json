@@ -1,0 +1,9 @@
+{
+  "clauses": ["DLT-7.5", "DLT-8.2", "DLT-8.5", "DLT-9.1", "DLT-9.4", "DLT-16.7", "DLT-17.7", "DLT-19.1", "DLT-19.3", "DLT-25.2",
+              "ISA-3.7", "ISA-5.2", "ISA-7.2", "ISA-10", "ISA-12.2", "ISA-14.2", "ISA-14.3"],
+  "scope": "unmodified SQLite amalgamation; real SQL predicate; memdb over MEM_IN; both majors, both executors; the published reduced rung4-mini is a diagnostic control only and cannot satisfy a required row",
+  "provenance": {
+    "rung4.h": "query and schema text restate bennett-dialect-spec@023f5a7 docs/spikes/sqlite/REPORT.md §1.1 so budgets stay comparable",
+    "os_shim.c": "application side of SQLITE_OS_OTHER=1, written for this gate per sqlite.org/vfs.html"
+  }
+}
