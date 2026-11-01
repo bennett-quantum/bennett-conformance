@@ -658,7 +658,7 @@ class TestCli(unittest.TestCase):
 
 
 ISA08 = os.path.join(WORKSPACE, "bennett-isa-spec", "spec", "Bennett-ISA-Spec.md")
-ISA09 = os.path.join(WORKSPACE, "bennett-isa-spec", "spec", "Bennett-ISA-Spec-0.9-draft.md")
+ISA09 = os.path.join(WORKSPACE, "bennett-isa-spec", "spec", "Bennett-ISA-Spec-0.9.md")
 DLT = os.path.join(WORKSPACE, "bennett-dialect-spec", "spec", "Bennett-Dialect-Spec.md")
 HAVE_SPECS = all(os.path.exists(p) for p in (ISA08, ISA09, DLT))
 
@@ -673,7 +673,7 @@ class TestRealSpecs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.isa = cg.build_graph(read(ISA08), "ISA", "0.8", ISA08)
-        cls.isa9 = cg.build_graph(read(ISA09), "ISA", "0.9-draft", ISA09)
+        cls.isa9 = cg.build_graph(read(ISA09), "ISA", "0.9", ISA09)
         cls.dlt = cg.build_graph(read(DLT), "DLT", "0.2.10", DLT, xspec=cls.isa)
 
     def test_isa_sizes(self):

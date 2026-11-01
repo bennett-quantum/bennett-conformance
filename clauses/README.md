@@ -12,7 +12,7 @@ it as `python3 -I`. Design, parser rules, measured results and limits:
 | File | Source | Built with |
 |---|---|---|
 | `ISA-0.8.json`, `.dot` | `bennett-isa-spec/spec/Bennett-ISA-Spec.md` (accepted 0.8) | `build --spec ISA --version 0.8` |
-| `ISA-0.9-draft.json`, `.dot` | `bennett-isa-spec/spec/Bennett-ISA-Spec-0.9-draft.md` (working draft) | `build --spec ISA --version 0.9-draft` |
+| `ISA-0.9.json`, `.dot` | `bennett-isa-spec/spec/Bennett-ISA-Spec-0.9.md` (published 0.9) | `build --spec ISA --version 0.9` |
 | `DLT-0.2.10.json`, `.dot` | `bennett-dialect-spec/spec/Bennett-Dialect-Spec.md` (0.2.10) | `build --spec DLT --version 0.2.10 --xspec clauses/ISA-0.8.json` |
 | `<SPEC>-<version>.statements.json`, `.md` | the graph JSON of the same name | `statements clauses/<SPEC>-<version>.json` |
 
@@ -33,16 +33,16 @@ Run from the repository root, headless:
 W=..   # the workspace holding the spec repositories
 python3 -I clauses/clausegraph.py build --spec ISA --version 0.8 \
     --file $W/bennett-isa-spec/spec/Bennett-ISA-Spec.md
-python3 -I clauses/clausegraph.py build --spec ISA --version 0.9-draft \
-    --file $W/bennett-isa-spec/spec/Bennett-ISA-Spec-0.9-draft.md
+python3 -I clauses/clausegraph.py build --spec ISA --version 0.9 \
+    --file $W/bennett-isa-spec/spec/Bennett-ISA-Spec-0.9.md
 python3 -I clauses/clausegraph.py build --spec DLT --version 0.2.10 \
     --file $W/bennett-dialect-spec/spec/Bennett-Dialect-Spec.md --xspec clauses/ISA-0.8.json
 
-for g in ISA-0.8 ISA-0.9-draft DLT-0.2.10; do
+for g in ISA-0.8 ISA-0.9 DLT-0.2.10; do
     python3 -I clauses/clausegraph.py statements clauses/$g.json   # DLT: --xspec defaults to clauses/ISA-0.8.json
 done
 
-python3 -I clauses/clausegraph.py diff clauses/ISA-0.8.json clauses/ISA-0.9-draft.json [--list] [--json] [--statements]
+python3 -I clauses/clausegraph.py diff clauses/ISA-0.8.json clauses/ISA-0.9.json [--list] [--json] [--statements]
 python3 -I clauses/clausegraph.py impact clauses/DLT-0.2.10.json PT3 --with clauses/ISA-0.8.json
 python3 -I clauses/clausegraph.py impact clauses/ISA-0.8.json ISA-5.6 --with clauses/DLT-0.2.10.json
 python3 -I clauses/clausegraph.py independent clauses/DLT-0.2.10.json TDL-5 N21

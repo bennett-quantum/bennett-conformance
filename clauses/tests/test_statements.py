@@ -498,7 +498,7 @@ class TestStatementCli(unittest.TestCase):
         self.assertIn("statements ISA-0.8 -> ISA-0.8:", r.stdout)
 
 
-COMMITTED = ("ISA-0.8", "ISA-0.9-draft", "DLT-0.2.10")
+COMMITTED = ("ISA-0.8", "ISA-0.9", "DLT-0.2.10")
 
 
 class TestCommittedStatements(unittest.TestCase):
@@ -521,7 +521,7 @@ class TestCommittedStatements(unittest.TestCase):
                              "%s statements are stale; rerun `statements`" % name)
 
     def test_counts_in_range(self):
-        for name, lo, hi in (("ISA-0.8", 400, 1500), ("ISA-0.9-draft", 900, 4000),
+        for name, lo, hi in (("ISA-0.8", 400, 1500), ("ISA-0.9", 900, 4000),
                              ("DLT-0.2.10", 2000, 9000)):
             t = self.st[name]["stats"]
             self.assertTrue(lo <= t["statements"] <= hi, (name, t["statements"]))
@@ -552,12 +552,12 @@ class TestCommittedStatements(unittest.TestCase):
         self.assertGreaterEqual(len(xs), 100)
 
     def test_declared_markers_in_09(self):
-        t = self.st["ISA-0.9-draft"]["stats"]
+        t = self.st["ISA-0.9"]["stats"]
         # the 0.9 editor's [deps: ...] markers (none in 0.8 or the dialect)
         self.assertEqual(self.st["ISA-0.8"]["stats"]["markers"], 0)
         if t["markers"]:
             self.assertGreater(t["declared_edges"], 0)
-            self.assertEqual(t["unresolved_markers"], len(self.st["ISA-0.9-draft"]["unresolved"]))
+            self.assertEqual(t["unresolved_markers"], len(self.st["ISA-0.9"]["unresolved"]))
 
 
 if __name__ == "__main__":
