@@ -330,7 +330,7 @@ def main():
     p.add_argument('--runtimes18', help='published LLVM18 runtimes bitcode')
     p.add_argument('--runtimes23', help='published LLVM23 runtimes bitcode')
     p.add_argument('--probe-unlinked', action='store_true', help='also probe the corpus without runtimes; never substitutes for production')
-    p.add_argument('--reference', default=str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/debug/bennett-isa-ref'))
+    p.add_argument('--reference', default=str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref'), help='reference interpreter binary (release build; the debug build is far too slow for the corpus, bead b-isa-spec-n8j)')
     p.add_argument('--timeout', type=int, default=300, help='seconds per corpus command (default 300)')
     p.add_argument('--jobs', type=int, default=4, help='plugin build parallelism')
     return Gate(p.parse_args()).main()
