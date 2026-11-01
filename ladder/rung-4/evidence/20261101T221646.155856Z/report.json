@@ -1,0 +1,4915 @@
+{
+  "manifest": {
+    "time_utc": "2026-11-01T22:16:46.156531+00:00",
+    "commands": [
+      {
+        "tag": "contract/dialect",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-dialect-spec",
+          "show",
+          "023f5a771a814270634db3be9cfde88ded69f975:spec/Bennett-Dialect-Spec.md"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.016,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "contract/markers",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-dialect-spec",
+          "show",
+          "023f5a771a814270634db3be9cfde88ded69f975:spec/bennett_markers.h"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm18-clang-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.043,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm18-opt-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.035,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm18-llvm-link-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.024,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm18-llvm-as-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-as",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.029,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm23-clang-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.041,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm23-opt-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.032,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm23-llvm-link-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.033,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/llvm23-llvm-as-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-as",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.03,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/bennett-plugin-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+          "archive",
+          "3a856a7f0f34e31cb99fe4b7acc544e935b76211"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.054,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/plugin-configure",
+        "argv": [
+          "cmake",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-plugin-3a856a7f0f34e31cb99fe4b7acc544e935b76211",
+          "-B",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-plugin-3a856a7f0f34e31cb99fe4b7acc544e935b76211/build"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.113,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/plugin-build",
+        "argv": [
+          "cmake",
+          "--build",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-plugin-3a856a7f0f34e31cb99fe4b7acc544e935b76211/build",
+          "-j",
+          "4"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.416,
+        "timeout_seconds": 1800
+      },
+      {
+        "tag": "build/bennett-runtimes-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "archive",
+          "bf11bcc67e04242bd38a51cd4fcab08fc2772064"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.16,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/bennett-arith-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-arith",
+          "archive",
+          "0dea42d001ffe832493fa0711da4a59b8cc1dd10"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.04,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/bennett-vm-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-vm",
+          "archive",
+          "2456722617fac22ab632b9436a780b4379223a59"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.052,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/vm-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--release",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.035,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "build/bennett-driver-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-driver",
+          "archive",
+          "c92bf23fbeda262c2b6ebc6842d0dff93f435c14"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/driver-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--release",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-driver-c92bf23fbeda262c2b6ebc6842d0dff93f435c14/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-driver-c92bf23fbeda262c2b6ebc6842d0dff93f435c14/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.041,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "build/bennett-estimate-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-estimate",
+          "archive",
+          "bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/estimate-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--release",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-estimate-bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-estimate-bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.045,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "build/bennett-targets-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-targets",
+          "archive",
+          "5113d9acabaaac335a178b60263eb710b151f74b"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/bennett-conformance-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance",
+          "archive",
+          "12f3e86b4ccd83baa342b41398c7d3aac5b690fa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.17,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/checker-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--release",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-conformance-12f3e86b4ccd83baa342b41398c7d3aac5b690fa/checker/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-conformance-12f3e86b4ccd83baa342b41398c7d3aac5b690fa/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.039,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/host-sqlite",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O2",
+          "-g0",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1/sqlite3.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/sqlite3.o"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 57.362,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/host-build",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O2",
+          "-g0",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/host_build.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/os_shim.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/sqlite3.o",
+          "-lm",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/host_build"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.592,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/host-oracle",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O2",
+          "-g0",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/oracle.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/native_oracle.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/os_shim.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/sqlite3.o",
+          "-lm",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/native_oracle"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.725,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/host-image-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/host_build",
+          "16",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-16.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/native-oracle-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-16.bin",
+          "16"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "23/host-image-64",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/host_build",
+          "64",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-64.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/native-oracle-64",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-64.bin",
+          "64"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "23/host-image-256",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/host_build",
+          "256",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-256.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.006,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/native-oracle-256",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-256.bin",
+          "256"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.026,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "23/host-image-1000",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/host_build",
+          "1000",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-1000.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/native-oracle-1000",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-1000.bin",
+          "1024"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.195,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "23/host-image-1024",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/host_build",
+          "1024",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-1024.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.01,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/native-oracle-1024",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-1024.bin",
+          "1024"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.087,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "23/host-image-1048576",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/host_build",
+          "1048576",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-1048576.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 2.197,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/host-sqlite",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O2",
+          "-g0",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1/sqlite3.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/sqlite3.o"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 68.2,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/host-build",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O2",
+          "-g0",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/host_build.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/os_shim.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/sqlite3.o",
+          "-lm",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/host_build"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.383,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/host-oracle",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O2",
+          "-g0",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/oracle.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/native_oracle.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/os_shim.c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/sqlite3.o",
+          "-lm",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/native_oracle"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.442,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/host-image-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/host_build",
+          "16",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-16.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/native-oracle-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-16.bin",
+          "16"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "18/host-image-64",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/host_build",
+          "64",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-64.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.002,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/native-oracle-64",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-64.bin",
+          "64"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "18/host-image-256",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/host_build",
+          "256",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-256.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/native-oracle-256",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-256.bin",
+          "256"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "18/host-image-1000",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/host_build",
+          "1000",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-1000.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/native-oracle-1000",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-1000.bin",
+          "1024"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.046,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "18/host-image-1024",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/host_build",
+          "1024",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-1024.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/native-oracle-1024",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-1024.bin",
+          "1024"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.058,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "18/host-image-1048576",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/host_build",
+          "1048576",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-1048576.bin"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.747,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/native-oracle-1048576",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/host/image-1048576.bin",
+          "1048576"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 134.1,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "18/native-oracle-1048576",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/native_oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/host/image-1048576.bin",
+          "1048576"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 163.839,
+        "timeout_seconds": 900
+      },
+      {
+        "tag": "23/frontend-sqlite3",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1/sqlite3.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/sqlite3.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 47.88,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/frontend-oracle",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/oracle.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/oracle.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.072,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/frontend-os_shim",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/os_shim.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/os_shim.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.126,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/16-image-module",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.03,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/16-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=4",
+          "-DRUNG4_A=13",
+          "-DRUNG4_LEN=8192",
+          "-DRUNG4_ITERS=1",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.1,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/16-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.406,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/64-image-module",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.046,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/64-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=6",
+          "-DRUNG4_A=13",
+          "-DRUNG4_LEN=8192",
+          "-DRUNG4_ITERS=4",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.145,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/64-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.421,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/256-image-module",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.029,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/256-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=8",
+          "-DRUNG4_A=14",
+          "-DRUNG4_LEN=16384",
+          "-DRUNG4_ITERS=5",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.186,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/256-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.504,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1000-image-module",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.036,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1000-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=10",
+          "-DRUNG4_A=16",
+          "-DRUNG4_LEN=40960",
+          "-DRUNG4_ITERS=6",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.109,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1000-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.467,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1024-image-module",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.028,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1024-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=10",
+          "-DRUNG4_A=16",
+          "-DRUNG4_LEN=40960",
+          "-DRUNG4_ITERS=6",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.133,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1024-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.654,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1048576-image-module",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 2.162,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1048576-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=20",
+          "-DRUNG4_A=25",
+          "-DRUNG4_LEN=33492992",
+          "-DRUNG4_ITERS=7",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.252,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/frontend-sqlite3",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1/sqlite3.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/sqlite3.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 51.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/frontend-oracle",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/oracle.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/oracle.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.086,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/frontend-os_shim",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/os_shim.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/os_shim.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.086,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/16-image-module",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.077,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/16-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=4",
+          "-DRUNG4_A=13",
+          "-DRUNG4_LEN=8192",
+          "-DRUNG4_ITERS=1",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.103,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/16-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.643,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/64-image-module",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.028,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/64-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=6",
+          "-DRUNG4_A=13",
+          "-DRUNG4_LEN=8192",
+          "-DRUNG4_ITERS=4",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.108,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1048576-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 4.253,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/64-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.512,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/256-image-module",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.067,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/256-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=8",
+          "-DRUNG4_A=14",
+          "-DRUNG4_LEN=16384",
+          "-DRUNG4_ITERS=5",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.242,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/16-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm23/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.756,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/256-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.424,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1000-image-module",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.028,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1000-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=10",
+          "-DRUNG4_A=16",
+          "-DRUNG4_LEN=40960",
+          "-DRUNG4_ITERS=6",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.123,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/64-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm23/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.592,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1000-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.526,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1024-image-module",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.028,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1024-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=10",
+          "-DRUNG4_A=16",
+          "-DRUNG4_LEN=40960",
+          "-DRUNG4_ITERS=6",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.111,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/256-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm23/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.66,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1024-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.438,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1000-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm23/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.738,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1024-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm23/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.712,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/1048576-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm23/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm23/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 4.27,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/16-postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 21.874,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/1048576-image-module",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-as",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/db_image.ll",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/db_image.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 2.861,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1048576-frontend-grover",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/musl-sysroot/include",
+          "-emit-llvm",
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions",
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/sqlite/3.54.1",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-DRUNG4_BITS=20",
+          "-DRUNG4_A=25",
+          "-DRUNG4_LEN=33492992",
+          "-DRUNG4_ITERS=7",
+          "-DRUNG4_B_STEPS=1000000",
+          "-DRUNG4_B_HEAP=524288",
+          "-DRUNG4_B_STACK=4194304",
+          "-DRUNG4_B_DEPTH=64",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-4/fixtures/grover.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/grover.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.185,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1048576-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/grover.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/oracle.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/os_shim.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/db_image.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/sqlite3.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/program.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 4.679,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/16-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm18/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 2.321,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/64-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm18/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 2.214,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/256-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm18/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.91,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1000-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm18/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.883,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/1024-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm18/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.835,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/64-postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N64/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 22.543,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/1048576-runtime-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/program.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-runtimes-bf11bcc67e04242bd38a51cd4fcab08fc2772064/dist/llvm18/bennett-runtimes.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-arith-0dea42d001ffe832493fa0711da4a59b8cc1dd10/dist/llvm18/bennett-arith.bc",
+          "--only-needed",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/linked.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 5.4,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/256-postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N256/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 19.724,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/16-postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 28.57,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "23/1000-postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1000/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 21.729,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/64-postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N64/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 21.735,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "23/1024-postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1024/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 22.705,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/256-postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N256/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 23.618,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "23/1048576-postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N1048576/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 21.96,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/1000-postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1000/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 25.555,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/1024-postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1024/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 23.295,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "18/1048576-postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/linked.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N1048576/postlink.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 27.262,
+        "timeout_seconds": 1200
+      },
+      {
+        "tag": "23/16-production",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-plugin-3a856a7f0f34e31cb99fe4b7acc544e935b76211/build/libbennett-plugin-23.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-budget-default=1000000,524288,4194304,64,65536",
+          "-bennett-analysis-budget-ms=1500000",
+          "-bennett-analysis-max-rounds=100000000",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/postlink.ll"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 112.966,
+        "timeout_seconds": 1800
+      },
+      {
+        "tag": "control/reference-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-0",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-1",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-2",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "2",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-3",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "3",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-4",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-5",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "5",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-6",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "6",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-7",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-8",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-9",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-10",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-11",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-12",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "15",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-13",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "70,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-14",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "71,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-15",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,125,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,126,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-17",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,3"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-step",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "step-check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--exhaustive",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "120,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.055,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/reference-mem-file",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem-file",
+          "m0=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/mini-region.bin",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/reference-state-out",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--state-out",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/reference-probe-state.json"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-0",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-1",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-2",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "2",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-3",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "3",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.01,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-4",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-5",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "5",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-6",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "6",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-7",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-8",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-9",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-10",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-11",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-12",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "15",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-13",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "70,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-14",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "71,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-15",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,125,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,126,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-17",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,3"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-step",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "step-check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--exhaustive",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "120,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.023,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/VM-mem-file",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem-file",
+          "m0=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/mini-region.bin",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.002,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/VM-state-out",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--state-out",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/VM-probe-state.json"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.003,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/mini-db",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/db.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/db.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.078,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/mini-tu",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/tu.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/tu.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.076,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/mini-link",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/db.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/tu.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/p.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.028,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/mini-postlink",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/p.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/post.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.034,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/mini-production",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-plugin-3a856a7f0f34e31cb99fe4b7acc544e935b76211/build/libbennett-plugin-23.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-budget-default=400,0,512,8,0",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/mini/post.ll"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.028,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/estimate-cli",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-estimate-bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8/target/release/bennett-estimate",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "--target",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-targets-5113d9acabaaac335a178b60263eb710b151f74b/targets/superconducting-grid-illustrative.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/16-production",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-plugin-3a856a7f0f34e31cb99fe4b7acc544e935b76211/build/libbennett-plugin-18.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-budget-default=1000000,524288,4194304,64,65536",
+          "-bennett-analysis-budget-ms=1500000",
+          "-bennett-analysis-max-rounds=100000000",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/postlink.ll"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 123.666,
+        "timeout_seconds": 1800
+      },
+      {
+        "tag": "control/reference-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-0",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.022,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-1",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-2",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "2",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.014,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-3",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "3",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.023,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-4",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-5",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "5",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.01,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-6",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "6",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-7",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.01,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-8",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-9",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-10",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.02,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-11",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-12",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "15",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-13",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "70,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-14",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "71,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.014,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-15",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,125,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.024,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,126,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.023,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-run-17",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,3"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.015,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/reference-step",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "step-check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--exhaustive",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "120,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.088,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/reference-mem-file",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem-file",
+          "m0=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/mini-region.bin",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.01,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/reference-state-out",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--state-out",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/reference-probe-state.json"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.01,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-0",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-1",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-2",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "2",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-3",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "3",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-4",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.014,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-5",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "5",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.02,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-6",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "6",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-7",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-8",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-9",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "1",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-10",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-11",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0107000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-12",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "0",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "15",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-13",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "70,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-14",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "71,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-15",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,125,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-16",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,126,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.017,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-run-17",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "7",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,3"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "control/VM-step",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "step-check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--exhaustive",
+          "--mem",
+          "m0=0007000a0165030704c8052a06630796",
+          "--arg",
+          "16",
+          "--budget",
+          "120,0,512,8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.043,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/VM-mem-file",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-oracle",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "ref",
+          "--input",
+          "4",
+          "--mem-file",
+          "m0=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/mini-region.bin",
+          "--arg",
+          "16",
+          "--budget",
+          "400,0,512,8"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/VM-state-out",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-vm-2456722617fac22ab632b9436a780b4379223a59/target/release/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--state-out",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/VM-probe-state.json"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/mini-db",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/db.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/db.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.07,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/mini-tu",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-I",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/include",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/tu.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/tu.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.078,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/mini-link",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/db.bc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/tu.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/p.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.031,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/mini-postlink",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-passes=lto<O3>",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/p.bc",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/post.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.046,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "18/mini-production",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-plugin-3a856a7f0f34e31cb99fe4b7acc544e935b76211/build/libbennett-plugin-18.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-budget-default=400,0,512,8,0",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/mini/post.ll"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.074,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "probe/estimate-cli",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-estimate-bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8/target/release/bennett-estimate",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/rung4-mini.bennett",
+          "--target",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/bennett-targets-5113d9acabaaac335a178b60263eb710b151f74b/targets/superconducting-grid-illustrative.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.006,
+        "timeout_seconds": 600
+      }
+    ],
+    "pins": {
+      "bennett-conformance": "12f3e86b4ccd83baa342b41398c7d3aac5b690fa",
+      "bennett-plugin": "3a856a7f0f34e31cb99fe4b7acc544e935b76211",
+      "bennett-vm": "2456722617fac22ab632b9436a780b4379223a59",
+      "bennett-runtimes": "bf11bcc67e04242bd38a51cd4fcab08fc2772064",
+      "bennett-driver": "c92bf23fbeda262c2b6ebc6842d0dff93f435c14",
+      "bennett-estimate": "bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8",
+      "bennett-targets": "5113d9acabaaac335a178b60263eb710b151f74b",
+      "bennett-isa-spec-review": "8d9a5c60aff9aa35b44eb3ac1c541c020f24d737",
+      "bennett-dialect-spec": "023f5a771a814270634db3be9cfde88ded69f975",
+      "dialect": "0.2.10",
+      "isa": "0.8",
+      "sqlite": {
+        "version": "3.54.1",
+        "url": "https://sqlite.org/2026/sqlite-amalgamation-3540100.zip",
+        "zip_bytes": 2990966,
+        "zip_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
+        "zip_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
+        "sqlite3_c_sha256": "0c657666d819f261cc4007526ad57e1669de9949df7a8ea847aa284a2bf0ee52",
+        "sqlite3_h_sha256": "d6c84557261893439b341d2e6c35187ae3ea24fbfd843ad94616f72d89242b8c",
+        "flags": [
+          "-DSQLITE_THREADSAFE=0",
+          "-DSQLITE_OMIT_LOAD_EXTENSION",
+          "-DSQLITE_OS_OTHER=1",
+          "-DSQLITE_TEMP_STORE=3",
+          "-DSQLITE_DEFAULT_MEMSTATUS=0",
+          "-DSQLITE_OMIT_SHARED_CACHE",
+          "-DSQLITE_OMIT_DEPRECATED",
+          "-DSQLITE_DQS=0"
+        ],
+        "cflags": [
+          "-O2",
+          "-flto",
+          "-g0",
+          "-fno-stack-protector",
+          "-fno-exceptions"
+        ]
+      },
+      "budget": {
+        "steps": 1000000,
+        "heap": 524288,
+        "stack": 4194304,
+        "depth": 64,
+        "shadow_stack": 65536
+      },
+      "plugin_limits": {
+        "analysis_budget_ms": 1500000,
+        "analysis_max_rounds": 100000000
+      },
+      "target": "superconducting-grid-illustrative.json"
+    },
+    "budget": {
+      "steps": 1000000,
+      "heap": 524288,
+      "stack": 4194304,
+      "depth": 64,
+      "shadow_stack": 65536
+    },
+    "oracle_sizes": [
+      16,
+      256,
+      1000,
+      1024
+    ],
+    "grover_sizes": [
+      16,
+      64,
+      256
+    ],
+    "estimate_size": 1048576,
+    "amplitude_tolerance": 1e-09,
+    "evidence": {
+      "grover_plans": {
+        "16": {
+          "N": 16,
+          "M": 0,
+          "k": 1,
+          "theta": 0.0,
+          "success": 0.0
+        },
+        "64": {
+          "N": 64,
+          "M": 2,
+          "k": 4,
+          "theta": 0.17771060084511175,
+          "success": 0.9991823155432941
+        },
+        "256": {
+          "N": 256,
+          "M": 6,
+          "k": 5,
+          "theta": 0.15369752554225166,
+          "success": 0.9856983397679344
+        },
+        "1000": {
+          "N": 1000,
+          "M": 13,
+          "k": 6,
+          "theta": 0.11291325388462986,
+          "success": 0.9894439984080716
+        },
+        "1024": {
+          "N": 1024,
+          "M": 13,
+          "k": 6,
+          "theta": 0.11291325388462986,
+          "success": 0.9894439984080716
+        },
+        "1048576": {
+          "N": 1048576,
+          "M": 11698,
+          "k": 7,
+          "theta": 0.105819737442547,
+          "success": 0.999727783454303
+        }
+      },
+      "image_sha256": {
+        "23": {
+          "16": "e690929e2146c1e3a3d3cb8975b572f456289e6e051adbd687517d3837d2ce39",
+          "64": "b2edbbe59a0df6ba420d2167954d5d7ab87ad81bda58a96c1f01b2fbf17a0a3e",
+          "256": "e7833e82940c24cbd3531455a6c83e7430556a38e111d176df0b4fb7eee387f8",
+          "1000": "7bbc07f958fa8199c4b6d8833a5299a1d7eeef9c6fc549428dee97a4ad07d659",
+          "1024": "452da348805b6c51d46d7b78c90f845b199be6f4d41a48254a9b645838e5d25d",
+          "1048576": "5c2a43a52d4b11f194d0f75f8f0e53d972fa484cbb4370abe940cf514ce1dae3"
+        },
+        "18": {
+          "16": "e690929e2146c1e3a3d3cb8975b572f456289e6e051adbd687517d3837d2ce39",
+          "64": "b2edbbe59a0df6ba420d2167954d5d7ab87ad81bda58a96c1f01b2fbf17a0a3e",
+          "256": "e7833e82940c24cbd3531455a6c83e7430556a38e111d176df0b4fb7eee387f8",
+          "1000": "7bbc07f958fa8199c4b6d8833a5299a1d7eeef9c6fc549428dee97a4ad07d659",
+          "1024": "452da348805b6c51d46d7b78c90f845b199be6f4d41a48254a9b645838e5d25d",
+          "1048576": "5c2a43a52d4b11f194d0f75f8f0e53d972fa484cbb4370abe940cf514ce1dae3"
+        }
+      },
+      "image_bytes": {
+        "16": 8192,
+        "64": 8192,
+        "256": 16384,
+        "1000": 40960,
+        "1024": 40960,
+        "1048576": 33492992
+      },
+      "sqlite3_bc_sha256": {
+        "23": "e6d6e345b434c561c0a9b1cba9d913cc7d36a2257003296a5f194901601bfa5f",
+        "18": "04cc3f5703e9d16888a003e40499dfd5c01ab86ba80714ac204dbd8cbaa8a069"
+      },
+      "unresolved_after_link": {
+        "23": [
+          "bcmp",
+          "localtime",
+          "realloc",
+          "strcspn",
+          "strncmp",
+          "strrchr",
+          "strspn"
+        ],
+        "18": [
+          "bcmp",
+          "localtime",
+          "realloc",
+          "strcspn",
+          "strncmp",
+          "strrchr",
+          "strspn"
+        ]
+      }
+    },
+    "environment": {
+      "DISPLAY": null,
+      "WAYLAND_DISPLAY": null,
+      "DBUS_SESSION_BUS_ADDRESS": null,
+      "BROWSER": null,
+      "TMPDIR": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/tmp"
+    },
+    "gate_sha256": "c0c33fba54525f803837a9349bbf179372fe45a1abed11ec6f8c81ea88e02871",
+    "shared_support_sha256": "6d048b4ad212469e4ff964e4729615f0ceb81345157520108fc74827d7012981",
+    "blockers_sha256": "b8357da73613a7289406eea5a23ada86df9b67143ae4d8347b26d0c910c9b63a",
+    "fixtures": {
+      "expect.json": "35bc29b3449470bd130444e6af3b3ecb881da05913556151fc8b59e0ef9d8ebe",
+      "fetch-sqlite.sh": "375e8b834e49afd7e3153fbb67b74e446196728a0a6b080e851d11a298404984",
+      "grover.c": "894e817c23197b0229e12f0af5c2ec976c89e9e1fdf06fdbe85ac57b656b627e",
+      "host_build.c": "87e6db82082b175da87f2aa873b809a52e944e57fd5877a8bdf8fcdfe636cdd3",
+      "native_compare.c": "ac08e7fc0308668b11699fda55774a67481c53481643a5087285e893e34cabb3",
+      "native_oracle.c": "278f523f40146241909ac7e9163a2a68891eb4d640e4926147505e91f1d8c742",
+      "oracle.c": "4c0d73903d7a8c313459bef343b73227a949cb3ae162c811fbb10bab496d6952",
+      "os_shim.c": "5de6275923468cdd158a3aa0c1e6b82a8d9341bfeb95a5621526b0ef3d714c96",
+      "rung4.h": "86dd3c221694591314ff039c9a515d5230adb34ac0803fa4b75f85a181a979da"
+    },
+    "sqlite": {
+      "version": "3.54.1",
+      "url": "https://sqlite.org/2026/sqlite-amalgamation-3540100.zip",
+      "zip_bytes": 2990966,
+      "zip_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
+      "zip_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
+      "sqlite3_c_sha256": "0c657666d819f261cc4007526ad57e1669de9949df7a8ea847aa284a2bf0ee52",
+      "sqlite3_h_sha256": "d6c84557261893439b341d2e6c35187ae3ea24fbfd843ad94616f72d89242b8c",
+      "flags": [
+        "-DSQLITE_THREADSAFE=0",
+        "-DSQLITE_OMIT_LOAD_EXTENSION",
+        "-DSQLITE_OS_OTHER=1",
+        "-DSQLITE_TEMP_STORE=3",
+        "-DSQLITE_DEFAULT_MEMSTATUS=0",
+        "-DSQLITE_OMIT_SHARED_CACHE",
+        "-DSQLITE_OMIT_DEPRECATED",
+        "-DSQLITE_DQS=0"
+      ],
+      "cflags": [
+        "-O2",
+        "-flto",
+        "-g0",
+        "-fno-stack-protector",
+        "-fno-exceptions"
+      ],
+      "source_id": "2026-10-16 14:45:20 555e07ef33f69a0957d24d8e555b702464a131d6f1607f4c3c1e4551e8e6ca76"
+    },
+    "archive_sha256": {
+      "bennett-plugin": "41a1edd8af5043e1725de69a9940171a4108733498f94243d35b22f37b749675",
+      "bennett-runtimes": "272165a3a6b66f47eb7c824151ea82b4a601b3b2f4725b4b065ef6b281e370d0",
+      "bennett-arith": "422c545902eab0e8826aa76e81039f713645bed7ecdc8dd837c4e2490aa7a02c",
+      "bennett-vm": "bca02a78ce9bfcc261f05a92aff553e7a0c760302b51916417bad8efed217ac6",
+      "bennett-driver": "f5617baf9565df29c6554c0e42fd876ee0b1d143ca722a2f316356710aab7c27",
+      "bennett-estimate": "34100952169fd573241bd2302d6c1ae1ccee8433cbb982d0e7e9a8626ff11b4b",
+      "bennett-targets": "ad44bf47408edcc3c4630f7db8dfc41969fc2df3e890bce7016d5c826f76988d",
+      "bennett-conformance": "b847facc3a4521afbb088780771f27585e74b710b848d49c8cf06dff8dae7fea"
+    },
+    "frozen": {
+      "bennett-plugin": "3a856a7f0f34e31cb99fe4b7acc544e935b76211",
+      "bennett-runtimes": "bf11bcc67e04242bd38a51cd4fcab08fc2772064",
+      "bennett-arith": "0dea42d001ffe832493fa0711da4a59b8cc1dd10",
+      "bennett-vm": "2456722617fac22ab632b9436a780b4379223a59",
+      "bennett-driver": "c92bf23fbeda262c2b6ebc6842d0dff93f435c14",
+      "bennett-estimate": "bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8",
+      "bennett-targets": "5113d9acabaaac335a178b60263eb710b151f74b",
+      "bennett-conformance": "12f3e86b4ccd83baa342b41398c7d3aac5b690fa"
+    },
+    "plugin_sha256": {
+      "18": "ab7c604588d63cc52a1dee6f5ec8b83b24b9a37ecaec0d61397f1e8fda8c2c4b",
+      "23": "9710810f50a525de1a8317a0208689b3c1dbfc21231277285b7fbcbfdb83fff3"
+    },
+    "vm_sha256": "d9f9272f34c4aa8484f0f9e0312a1c33c923801a93f482d73ab2e242fb7755a8",
+    "driver_sha256": "37473603244163f047e77bbcfd13cc4bc5e591d51637ed16fa66686d177a1544",
+    "estimate_sha256": "3a6d07e50b36f456fa4b2ff3cc46ab80470433a055b4ea333e2150c972e60d50",
+    "target_sha256": "0515590129427b3b3dc8bcabc04c1eef60da7d38e7fb8c80ae0eb9618b0a1bdf",
+    "checker_sha256": "c12f3013b0dd32b616e8d24ef8d8a97a37cc585497a2d2623569f99f8d39ab80",
+    "executor_sha256": {
+      "reference": "166a25c6c22481aff71d437a236cb77ce92871726594e40a725cdd88e08c2792",
+      "VM": "d9f9272f34c4aa8484f0f9e0312a1c33c923801a93f482d73ab2e242fb7755a8"
+    }
+  },
+  "stages": {
+    "18": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "SQLite source unmodified": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "independent predicate": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "estimator build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "checker build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "host image = native oracle = predicate": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime bitcode link": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "post-link LTO": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime libc closure": {
+        "status": "FAIL",
+        "beads": [
+          "brt-dj7"
+        ],
+        "error": "runtime libc closure incomplete, undefined after link: bcmp, localtime, realloc, strcspn, strncmp, strrchr, strspn"
+      },
+      "coherent production": {
+        "status": "FAIL",
+        "beads": [
+          "bp-1bb"
+        ],
+        "error": "18/16-production: exit 1\nwarning: Linking two modules of different target triples: '/home/tobias/Projects/bennett-workspace/bennett-arith/dist/llvm18/bennett-arith.bc' is 'x86_64-unknown-linux-gnu' whereas '/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/18/N16/postlink.ll' is 'x86_64-unknown-linux-musl'\n\nbennett: unimplemented: \u00a75 PT10 composite operation (milestone 1) at   %8845 = getelementptr inbounds %struct.sqlite3_value, ptr %246, <2 x i64> %8843\n"
+      },
+      "launch artefacts and oracle shape": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb"
+        ],
+        "error": "Not run; requires coherent production"
+      },
+      "materialised comparison = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, runtime libc closure, driver build"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, runtime libc closure"
+      },
+      "reference (a) oracle = native, fault rate zero": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference admission, materialised comparison = native"
+      },
+      "reference (a) full tuple on D": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) oracle = native, fault rate zero"
+      },
+      "reference (a) literal step check": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) oracle = native, fault rate zero"
+      },
+      "reference (b) amplitudes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) oracle = native, fault rate zero"
+      },
+      "reference (b) outcomes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (b) amplitudes"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, runtime libc closure, VM build"
+      },
+      "VM (a) oracle = native, fault rate zero": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM admission, materialised comparison = native"
+      },
+      "VM (a) full tuple on D": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (a) oracle = native, fault rate zero"
+      },
+      "VM (a) literal step check": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (a) oracle = native, fault rate zero"
+      },
+      "VM (b) amplitudes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (a) oracle = native, fault rate zero"
+      },
+      "VM (b) outcomes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (b) amplitudes"
+      },
+      "(a) certificate verdict": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) full tuple on D, checker build"
+      },
+      "(c) resource estimate at N=2^20": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, estimator build"
+      },
+      "reference reduced control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "reference --mem-file (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "b-isa-spec-mtc"
+        ],
+        "error": "probe/reference-mem-file: exit 1\nunknown option --mem-file\n"
+      },
+      "reference --state-out (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "b-isa-spec-u6o"
+        ],
+        "error": "probe/reference-state-out: exit 1\n\u00a710: unknown option --state-out\n"
+      },
+      "VM reduced control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM --mem-file (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-vm-0mp"
+        ],
+        "error": "probe/VM-mem-file: exit 1\nunknown option --mem-file\n"
+      },
+      "VM --state-out (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-vm-1wf"
+        ],
+        "error": "probe/VM-state-out: exit 1\nunknown option --state-out\n"
+      },
+      "published Grover TU production (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-vsa"
+        ],
+        "error": "18/mini-production: exit 1\nbennett: unimplemented: \u00a717.4 CC marker/call lowering (milestone 1) at   tail call void @__bennett_qprep(ptr %4, ptr %0, i64 16) #8\n"
+      },
+      "estimator CLI (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-estimate-b8o"
+        ],
+        "error": "estimator returned no JSON estimate: bennett-estimate 0.1.0"
+      },
+      "checker CLI (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-conformance-51d"
+        ],
+        "error": "certificate checker has no check command for rung-4 certificates: bennett-check: CLI not yet implemented in this slice"
+      },
+      "images agree across majors": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      }
+    },
+    "23": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "SQLite source unmodified": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "independent predicate": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "estimator build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "checker build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "host image = native oracle = predicate": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime bitcode link": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "post-link LTO": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime libc closure": {
+        "status": "FAIL",
+        "beads": [
+          "brt-dj7"
+        ],
+        "error": "runtime libc closure incomplete, undefined after link: bcmp, localtime, realloc, strcspn, strncmp, strrchr, strspn"
+      },
+      "coherent production": {
+        "status": "FAIL",
+        "beads": [
+          "bp-1bb"
+        ],
+        "error": "23/16-production: exit 1\nwarning: Linking two modules of different target triples: '/home/tobias/Projects/bennett-workspace/bennett-arith/dist/llvm23/bennett-arith.bc' is 'x86_64-unknown-linux-gnu' whereas '/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/runs/20261101T221646.155856Z/23/N16/postlink.ll' is 'x86_64-unknown-linux-musl'\n\nbennett: unimplemented: \u00a75 PT10 composite operation (milestone 1) at   %9989 = getelementptr inbounds nuw [56 x i8], ptr %9962, <2 x i64> %9987\n"
+      },
+      "launch artefacts and oracle shape": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb"
+        ],
+        "error": "Not run; requires coherent production"
+      },
+      "materialised comparison = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, runtime libc closure, driver build"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, runtime libc closure"
+      },
+      "reference (a) oracle = native, fault rate zero": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference admission, materialised comparison = native"
+      },
+      "reference (a) full tuple on D": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) oracle = native, fault rate zero"
+      },
+      "reference (a) literal step check": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) oracle = native, fault rate zero"
+      },
+      "reference (b) amplitudes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) oracle = native, fault rate zero"
+      },
+      "reference (b) outcomes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (b) amplitudes"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, runtime libc closure, VM build"
+      },
+      "VM (a) oracle = native, fault rate zero": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM admission, materialised comparison = native"
+      },
+      "VM (a) full tuple on D": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (a) oracle = native, fault rate zero"
+      },
+      "VM (a) literal step check": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (a) oracle = native, fault rate zero"
+      },
+      "VM (b) amplitudes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (a) oracle = native, fault rate zero"
+      },
+      "VM (b) outcomes": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires VM (b) amplitudes"
+      },
+      "(a) certificate verdict": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb",
+          "brt-dj7"
+        ],
+        "error": "Not run; requires reference (a) full tuple on D, checker build"
+      },
+      "(c) resource estimate at N=2^20": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-1bb"
+        ],
+        "error": "Not run; requires launch artefacts and oracle shape, estimator build"
+      },
+      "reference reduced control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "reference --mem-file (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "b-isa-spec-mtc"
+        ],
+        "error": "probe/reference-mem-file: exit 1\nunknown option --mem-file\n"
+      },
+      "reference --state-out (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "b-isa-spec-u6o"
+        ],
+        "error": "probe/reference-state-out: exit 1\n\u00a710: unknown option --state-out\n"
+      },
+      "VM reduced control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM --mem-file (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-vm-0mp"
+        ],
+        "error": "probe/VM-mem-file: exit 1\nunknown option --mem-file\n"
+      },
+      "VM --state-out (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-vm-1wf"
+        ],
+        "error": "probe/VM-state-out: exit 1\nunknown option --state-out\n"
+      },
+      "published Grover TU production (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-vsa"
+        ],
+        "error": "23/mini-production: exit 1\nbennett: unimplemented: \u00a717.4 CC marker/call lowering (milestone 1) at   tail call void @__bennett_qprep(ptr noundef %4, ptr noundef %0, i64 noundef 16) #6\n"
+      },
+      "estimator CLI (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-estimate-b8o"
+        ],
+        "error": "estimator returned no JSON estimate: bennett-estimate 0.1.0"
+      },
+      "checker CLI (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-conformance-51d"
+        ],
+        "error": "certificate checker has no check command for rung-4 certificates: bennett-check: CLI not yet implemented in this slice"
+      },
+      "images agree across majors": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      }
+    }
+  }
+}

@@ -1,0 +1,96 @@
+...........
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures | PASS | PASS |
+| SQLite source unmodified | PASS | PASS |
+| independent predicate | PASS | PASS |
+| plugin build | PASS | PASS |
+| VM build | PASS | PASS |
+| driver build | PASS | PASS |
+| estimator build | PASS | PASS |
+| checker build | PASS | PASS |
+| host image = native oracle = predicate | PASS | PASS |
+| images agree across majors | PASS | PASS |
+| musl C front end | PASS | PASS |
+| runtime bitcode link | PASS | PASS |
+| runtime libc closure | PASS | PASS |
+| post-link LTO | PASS | PASS |
+| coherent production | PASS | PASS |
+| launch artefacts and oracle shape | PASS | PASS |
+| materialised comparison = native | PASS | PASS |
+| reference admission | PASS | PASS |
+| reference (a) oracle = native, fault rate zero | PASS | PASS |
+| reference (a) full tuple on D | PASS | PASS |
+| reference (a) literal step check | PASS | PASS |
+| reference (b) amplitudes | PASS | PASS |
+| reference (b) outcomes | PASS | PASS |
+| VM admission | PASS | PASS |
+| VM (a) oracle = native, fault rate zero | PASS | PASS |
+| VM (a) full tuple on D | PASS | PASS |
+| VM (a) literal step check | PASS | PASS |
+| VM (b) amplitudes | PASS | PASS |
+| VM (b) outcomes | PASS | PASS |
+| (a) certificate verdict | PASS | PASS |
+| (c) resource estimate at N=2^20 | PASS | PASS |
+| reference reduced control (diagnostic) | PASS | PASS |
+| VM reduced control (diagnostic) | PASS | PASS |
+| published Grover TU production (diagnostic) | PASS | PASS |
+| reference --mem-file (diagnostic) | PASS | PASS |
+| VM --mem-file (diagnostic) | PASS | PASS |
+| reference --state-out (diagnostic) | PASS | PASS |
+| VM --state-out (diagnostic) | PASS | PASS |
+| estimator CLI (diagnostic) | PASS | PASS |
+| checker CLI (diagnostic) | PASS | PASS |
+
+Evidence: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/tmp/tmpzvg68m9d/20261101T221645.884625Z
+
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures | PASS | PASS |
+| SQLite source unmodified | PASS | PASS |
+| independent predicate | PASS | PASS |
+| plugin build | PASS | PASS |
+| VM build | PASS | PASS |
+| driver build | PASS | PASS |
+| estimator build | PASS | PASS |
+| checker build | PASS | PASS |
+| host image = native oracle = predicate | PASS | PASS |
+| images agree across majors | PASS | PASS |
+| musl C front end | PASS | PASS |
+| runtime bitcode link | PASS | PASS |
+| runtime libc closure | PASS | PASS |
+| post-link LTO | PASS | PASS |
+| coherent production | PASS | PASS |
+| launch artefacts and oracle shape | PASS | PASS |
+| materialised comparison = native | PASS | PASS |
+| reference admission | PASS | PASS |
+| reference (a) oracle = native, fault rate zero | PASS | PASS |
+| reference (a) full tuple on D | PASS | PASS |
+| reference (a) literal step check | PASS | PASS |
+| reference (b) amplitudes | PASS | PASS |
+| reference (b) outcomes | PASS | PASS |
+| VM admission | PASS | PASS |
+| VM (a) oracle = native, fault rate zero | PASS | PASS |
+| VM (a) full tuple on D | PASS | PASS |
+| VM (a) literal step check | PASS | PASS |
+| VM (b) amplitudes | PASS | PASS |
+| VM (b) outcomes | PASS | PASS |
+| (a) certificate verdict | PASS | PASS |
+| (c) resource estimate at N=2^20 | PASS | PASS |
+| reference reduced control (diagnostic) | PASS | PASS |
+| VM reduced control (diagnostic) | PASS | PASS |
+| published Grover TU production (diagnostic) | PASS | PASS |
+| reference --mem-file (diagnostic) | PASS | PASS |
+| VM --mem-file (diagnostic) | PASS | PASS |
+| reference --state-out (diagnostic) | PASS | PASS |
+| VM --state-out (diagnostic) | PASS | PASS |
+| estimator CLI (diagnostic) | PASS | PASS |
+| checker CLI (diagnostic) | PASS | FAIL · x |
+
+Evidence: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-4/tmp/tmpzvg68m9d/20261101T221645.884625Z
+.boom
+....................
+----------------------------------------------------------------------
+Ran 32 tests in 8.786s
+
+OK
