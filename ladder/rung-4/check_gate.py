@@ -6,6 +6,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import tempfile
 import unittest
 import gate
@@ -253,6 +254,26 @@ class StandIns(unittest.TestCase):
 
     def tearDown(self):
         self.d.cleanup()
+
+
+class Blockers(unittest.TestCase):
+    def test_every_blocker_names_a_sentence_witness_and_fix(self):
+        rows = json.loads((gate.HERE / 'blockers.json').read_text())
+        self.assertEqual(len({r['id'] for r in rows}), len(rows))
+        for r in rows:
+            re.compile(r['pattern'])
+            self.assertIn('Fixed means', r['determining_spec_and_command_and_fixed_means'])
+            self.assertIn('witness', r['determining_spec_and_command_and_fixed_means'].lower())
+
+    def test_measured_errors_map_to_their_beads(self):
+        rows = json.loads((gate.HERE / 'blockers.json').read_text())
+        cases = {'runtime libc closure incomplete, undefined after link: bcmp': 'brt-dj7',
+                 '18/16-production: exit 1\nbennett: unimplemented: §5 PT10 composite operation (milestone 1) at %8845 = getelementptr inbounds %struct.sqlite3_value, ptr %246, <2 x i64> %8843': 'bp-1bb',
+                 'bennett: unimplemented: §5.2 PT6 budget exhausted at AV(%407) in @sqlite3_step': 'bp-fj1',
+                 'bennett: unimplemented: §17.4 CC marker/call lowering (milestone 1) at tail call void @__bennett_qprep': 'bp-vsa',
+                 'probe/VM-state-out: exit 1': 'bennett-vm-1wf'}
+        for error, bead in cases.items():
+            self.assertEqual([r['id'] for r in rows if re.search(r['pattern'], error)], [bead])
 
 
 class Propagation(unittest.TestCase):

@@ -18,7 +18,7 @@ only if every row of `STAGES` in [gate.py](gate.py) passes on both LLVM majors, 
 | Oracle interface | §16.7's shape on the real function: `rung4_oracle(img, len, x)`, `img` = `MEM_IN` of `region[A,8]` (quantum-addressed memory), `len` = `ARG`, `x` = `IN` zero-extended, rowid = x + 1, target 1 wire, fault 4 wires. Errors call `__builtin_trap()`, so they are faults, never a quiet "no match". |
 | VFS | SQLite's own memdb over `img`, `SQLITE_DESERIALIZE_READONLY`. The region's role is `in`: it is restored on every basis configuration or the run fails. |
 | Budget | `pins.json`: steps 1,000,000, heap 512 KiB, stack 4,194,304 cells, depth 64. These are margins over the spike's profile (2.9e5 rows, 182 KiB, 1.34M cells, depth 21), and the measured row-mapping may require more. Raising the budget is mechanics: it is recorded and changes the padded cost. A budget fault on any input is a red row, never a truncated result (NS §3.1). |
-| Bead-independent oracle | `gate.py` restates the row generator and predicate in Python, sharing no code with SQLite. It must reproduce the spike's counts (6/256, 13/1024, 11,698/2^20). |
+| Independent oracle | `gate.py` restates the row generator and predicate in Python, sharing no code with SQLite. It must reproduce the spike's counts (6/256, 13/1024, 11,698/2^20). |
 
 ## 2. Sizes
 
