@@ -3,7 +3,7 @@
 Spec: ISA 0.8 (`clauses/ISA-0.8.json`). Format: `proofs/FORMAT.md`.
 Borrow-domain interpretation: the binding 2026-11-01 ISA 0.8 erratum
 (`../bennett-isa-spec/spec/errata-0.8.md`) incorporates ISA 0.9 §5.6.
-New `ISA-5.6-P13.S5` / `.S6` citations below name that 0.9 statement layer;
+New `ISA-5.6-P14.S5` / `.S6` citations below name that 0.9 statement layer;
 other IDs retain the 0.8 graph unless explicitly qualified.
 Depends on: INV-1 (steps cited as `INV-1:1.4` etc.).
 
@@ -49,8 +49,8 @@ ISA-6.1 (whole section), ISA-6.1-P1.S1, ISA-6.1-P1.S2, ISA-6.1-P1.S3, ISA-6.1-P2
 ISA-6.1-P3.S1, ISA-6.1-P9.S1, ISA-6.1-P10.S1, ISA-6.1-P11.S1, ISA-6.1-P14.S1,
 ISA-6.2-P1 (whole clause), ISA-6.2-P1.S1, ISA-6.2-P1.S2, ISA-6.2-P1.S4, ISA-6.3-P1.S1,
 ISA-6.4-P1.S1, ISA-6.4-P1.S2, ISA-6.4-P1.S4, ISA-14.2-P1.S1, ISA-14.3-P3.S1,
-ISA-14.3-P5.S1. Additionally ISA-5.6-P2.S3, ISA-5.6-P13.S5 and
-ISA-5.6-P13.S6 from ISA 0.9 §5.6, incorporated by the 0.8 erratum.
+ISA-14.3-P5.S1. Additionally ISA-5.6-P2.S3, ISA-5.6-P14.S5 and
+ISA-5.6-P14.S6 from ISA 0.9 §5.6, incorporated by the 0.8 erratum.
 
 ## Proof
 
@@ -204,12 +204,12 @@ ISA-5.6-P13.S6 from ISA 0.9 §5.6, incorporated by the 0.8 erratum.
     <3>1. At each frame entry the actual state has support in span(D_F);
           D_F over-approximates the region-prefix reachable entry states and
           includes every borrowed/interface value independently.
-          BY ISA-5.6-P13.S5 (0.9, incorporated by the 0.8 erratum)
+          BY ISA-5.6-P14.S5 (0.9, incorporated by the 0.8 erratum)
     <3>2. Expand that state (including R) as Σ_d |d⟩|r_d⟩ with d ∈ D_F.
           Applying the restricted equality term by term gives the same state
           as P' ⊗ I_B ⊗ I_R; linearity requires no full-operator equality
           outside span(D_F).
-          BY <2>2, <2>3, <3>1, ISA-5.6-P13.S6 (0.9); algebra
+          BY <2>2, <2>3, <3>1, ISA-5.6-P14.S6 (0.9); algebra
     <3>3. Induct along the actual prefix: each next frame again satisfies
           <3>1, and intervening operators do not touch b. The product of
           these equalities on the successive reachable states gives X ⊗ I_b
