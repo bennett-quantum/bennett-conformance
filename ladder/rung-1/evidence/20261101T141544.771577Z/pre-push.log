@@ -1,0 +1,52 @@
+Preparing worktree (detached HEAD 8e81a00)
+beads: post-checkout JSONL import warning: no Dolt remote configured.
+beads: .beads/issues.jsonl is an export, not cross-machine sync or source of truth.
+beads: repair: bd dolt remote add origin git+https://github.com/bennett-quantum/bennett-conformance.git && bd dolt push
+pre-push: gating 8e81a00c1c5ea2dec9257ad1b8f77dfeabc389f6 in /home/tobias/Projects/bennett-workspace/bennett-conformance-gate-8e81a00c1c5e (neutral suite against /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref)
+pre-push: cargo test --manifest-path ./checker/Cargo.toml
+   Compiling bennett-cert-checker v0.0.0 (/home/tobias/Projects/bennett-workspace/bennett-conformance-gate-8e81a00c1c5e/checker)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.00s
+     Running unittests src/lib.rs (bennett-conformance/.tmp/gate-target/debug/deps/bennett_cert_checker-39c2c9c084613570)
+
+running 2 tests
+test tests::rejects_empty ... ok
+test tests::skeleton_fails_loudly ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests bennett_cert_checker
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+pre-push: clause-graph tests
+.................................................................................................................
+----------------------------------------------------------------------
+Ran 113 tests in 12.950s
+
+OK
+pre-push: suite tests and neutral suite
+.......................
+----------------------------------------------------------------------
+Ran 23 tests in 4.475s
+
+OK
+case            | hashes | check | runs  | result
+actions         | ok     | ok    | 13/13 | PASS
+arithmetic      | ok     | ok    | 41/41 | PASS
+classical       | ok     | ok    | 36/36 | PASS
+control_flow    | ok     | ok    | 33/33 | PASS
+heap            | ok     | ok    | 11/11 | PASS
+inc8            | ok     | ok    | 15/15 | PASS
+mutual          | ok     | ok    | 1/1   | PASS
+nested          | ok     | ok    | 16/16 | PASS
+r9-codex-oracle | ok     | ok    | 18/18 | PASS
+r9-loop         | ok     | ok    | 9/9   | PASS
+r9-sol-oracle   | ok     | ok    | 18/18 | PASS
+r9-sol-qinplace | ok     | ok    | 10/10 | PASS
+registers       | ok     | ok    | 21/21 | PASS
+sum_db          | ok     | ok    | 19/19 | PASS
+tiny_memory     | ok     | ok    | 41/41 | PASS
+wide            | ok     | ok    | 12/12 | PASS
+checked 16/16 cases
