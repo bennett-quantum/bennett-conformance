@@ -52,9 +52,9 @@ The preceding blank lines are the only other additions. [The complete diff](fixt
 
 `--timeout` (default 300 seconds) bounds each corpus command; plugin and VM builds have 1800/600-second limits. A timeout is an observed resource failure, not evidence of a semantic rejection or proven nontermination. Raising the limit is available for investigation; it does not turn the failure into a pass.
 
-The initial corpus-only runs, corrected runtime-link gate and ordered measured blockers are in [RESULTS.md](RESULTS.md). The gate is deliberately red until the hashtable passes every stage on both executors and both majors. No plugin or VM source is owned by this rung.
+The initial corpus-only runs, corrected runtime-link gate and ordered measured blockers are in [RESULTS.md](RESULTS.md). The gate exits non-zero unless the hashtable passes every stage on both executors and both majors. No plugin or VM source is owned by this rung.
 
-Current state (2026-10-31): **red**, first blocked by missing published runtime bitcode (`brt-3sa`, `bennett-runtimes`, §19.1). Corpus-only production probes also timed out at 300 seconds (`bp-au6`, `bennett-plugin`), without a diagnostic or object; these do not claim a fully linked pipeline. Native results agree across majors; no hashtable execution or reversal has yet passed on an executor.
+Current state: **complete**. The recorded gate run exited 0 on both LLVM majors and both executors; revisions, evidence directory and per-stage table are the top block of [RESULTS.md](RESULTS.md). Earlier red runs and their blockers are retained there as history.
 
 Driver checks, using the detached VM built by the gate:
 
