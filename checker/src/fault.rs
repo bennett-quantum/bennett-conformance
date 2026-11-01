@@ -15,8 +15,18 @@ pub struct Reject {
 }
 
 impl Reject {
-    pub fn new(code: &'static str, section: &'static str, path: impl Into<String>, message: impl Into<String>) -> Reject {
-        Reject { code, section, path: path.into(), message: message.into() }
+    pub fn new(
+        code: &'static str,
+        section: &'static str,
+        path: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Reject {
+        Reject {
+            code,
+            section,
+            path: path.into(),
+            message: message.into(),
+        }
     }
     pub fn at(&self, prefix: &str) -> Reject {
         let path = if self.path.is_empty() {
@@ -26,7 +36,10 @@ impl Reject {
         } else {
             format!("{prefix}.{}", self.path)
         };
-        Reject { path, ..self.clone() }
+        Reject {
+            path,
+            ..self.clone()
+        }
     }
     pub fn to_value(&self) -> Value {
         let mut m = BTreeMap::new();
@@ -40,7 +53,11 @@ impl Reject {
 
 impl std::fmt::Display for Reject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} ({}) at {}: {}", self.code, self.section, self.path, self.message)
+        write!(
+            f,
+            "{} ({}) at {}: {}",
+            self.code, self.section, self.path, self.message
+        )
     }
 }
 

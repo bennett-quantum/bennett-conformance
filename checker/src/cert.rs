@@ -12,7 +12,7 @@ use crate::rat::{is_canonical_uint_str, parse_biguint_str, Rat};
 use crate::{is_hash_hex, sha256_hex};
 use num_bigint::BigUint;
 use num_traits::Zero;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 pub const CHECKER_NAME: &str = "bennett-cert-checker";
@@ -25,7 +25,10 @@ pub struct Limits {
 }
 impl Default for Limits {
     fn default() -> Self {
-        Limits { max_elements: 1 << 20, max_wires: 10 }
+        Limits {
+            max_elements: 1 << 20,
+            max_wires: 10,
+        }
     }
 }
 
@@ -65,7 +68,11 @@ impl ClaimOutcome {
         }
     }
     pub fn rejected(errors: Vec<Reject>) -> ClaimOutcome {
-        ClaimOutcome { outcome: "reject".into(), errors, ..Default::default() }
+        ClaimOutcome {
+            outcome: "reject".into(),
+            errors,
+            ..Default::default()
+        }
     }
     fn to_value(&self, index: usize, kind: &str) -> Value {
         let mut m = BTreeMap::new();
@@ -116,6 +123,7 @@ pub struct Verdict {
     pub overall: String, // verified | rejected | unchecked
     pub establishes: Vec<String>,
     pub errors: Vec<Reject>,
+    pub unchecked_items: Vec<String>,
     pub regions: Vec<RegionReport>,
     /// Recomputed hash bindings that were checked (name -> value).
     pub hashes: BTreeMap<String, String>,
@@ -144,6 +152,10 @@ impl Verdict {
         m.insert(
             "errors".into(),
             Value::Arr(self.errors.iter().map(Reject::to_value).collect()),
+        );
+        m.insert(
+            "unchecked_items".into(),
+            Value::Arr(self.unchecked_items.iter().map(|e| s(e)).collect()),
         );
         let mut regions = BTreeMap::new();
         for r in &self.regions {
@@ -181,15 +193,25 @@ impl Verdict {
 
 // ---------- small schema helpers ----------
 
-pub fn rej(code: &'static str, section: &'static str, path: impl AsRef<str>, msg: impl AsRef<str>) -> Reject {
-    Reject::new(code, section, path.as_ref().to_string(), msg.as_ref().to_string())
+pub fn rej(
+    code: &'static str,
+    section: &'static str,
+    path: impl AsRef<str>,
+    msg: impl AsRef<str>,
+) -> Reject {
+    Reject::new(
+        code,
+        section,
+        path.as_ref().to_string(),
+        msg.as_ref().to_string(),
+    )
 }
 
 pub fn schema_err(path: impl Into<String>, msg: impl Into<String>) -> Reject {
     Reject::new("E_CERT_SCHEMA", "§12.3", path, msg)
 }
 
-fn check_keys(
+pub(crate) fn check_keys(
     v: &Value,
     allowed: &[&str],
     required: &[&str],
@@ -197,19 +219,28 @@ fn check_keys(
     errs: &mut Vec<Reject>,
 ) -> bool {
     let Some(obj) = v.as_obj() else {
-        errs.push(schema_err(path.to_string(), format!("expected object, got {}", v.kind())));
+        errs.push(schema_err(
+            path.to_string(),
+            format!("expected object, got {}", v.kind()),
+        ));
         return false;
     };
     let mut ok = true;
     for k in obj.keys() {
         if !allowed.contains(&k.as_str()) {
-            errs.push(schema_err(format!("{path}.{k}"), format!("unknown field {k:?}")));
+            errs.push(schema_err(
+                format!("{path}.{k}"),
+                format!("unknown field {k:?}"),
+            ));
             ok = false;
         }
     }
     for r in required {
         if !obj.contains_key(*r) {
-            errs.push(schema_err(format!("{path}.{r}"), format!("missing required field {r:?}")));
+            errs.push(schema_err(
+                format!("{path}.{r}"),
+                format!("missing required field {r:?}"),
+            ));
             ok = false;
         }
     }
@@ -237,7 +268,10 @@ fn hash_field(v: &Value, path: &str, errs: &mut Vec<Reject>) -> Option<String> {
     match v.as_str() {
         Some(h) if is_hash_hex(h) => Some(h.to_string()),
         _ => {
-            errs.push(schema_err(path.to_string(), "expected 64-lowercase-hex hash string"));
+            errs.push(schema_err(
+                path.to_string(),
+                "expected 64-lowercase-hex hash string",
+            ));
             None
         }
     }
@@ -262,12 +296,7 @@ pub struct Invocation {
     pub params_hash: String,
 }
 
-pub fn validate_budget(
-    budget: &[BigUint; 4],
-    object: &Object,
-    path: &str,
-    errs: &mut Vec<Reject>,
-) {
+pub fn validate_budget(budget: &[BigUint; 4], object: &Object, path: &str, errs: &mut Vec<Reject>) {
     // Section 5.4 bennett_budget checks that the object's layout decides.
     match &object.layout {
         None => {
@@ -282,20 +311,76 @@ pub fn validate_budget(
             }
         }
         Some(layout) => {
-            let lim = |key: &str| layout.get(key).and_then(int_of).map(|i| BigUint::from(i as u64));
+            let lim = |key: &str| {
+                layout
+                    .get(key)
+                    .and_then(int_of)
+                    .map(|i| BigUint::from(i as u64))
+            };
             if let Some(max) = lim("heap_limit_max") {
                 if budget[1] > max {
-                    errs.push(rej("E_CERT_INVOCATION", "§5.4", path.to_string(), "heap_limit exceeds layout.heap_limit_max"));
+                    errs.push(rej(
+                        "E_CERT_INVOCATION",
+                        "§5.4",
+                        path.to_string(),
+                        "heap_limit exceeds layout.heap_limit_max",
+                    ));
                 }
             }
             if let Some(s) = layout.get("S_cells").and_then(int_of) {
                 if s < 4096 && budget[2] > (BigUint::from(1u32) << (s as usize)) {
-                    errs.push(rej("E_CERT_INVOCATION", "§5.4", path.to_string(), "stack_limit exceeds 2^S_cells"));
+                    errs.push(rej(
+                        "E_CERT_INVOCATION",
+                        "§5.4",
+                        path.to_string(),
+                        "stack_limit exceeds 2^S_cells",
+                    ));
                 }
             }
             // depth_limit < 2^Dc - 1 needs section 3.7 counter widths not
             // derivable from the layout alone; see docs/checker.md.
         }
+    }
+}
+
+/// K4 entry tuples use the metadata integer encoding (§9.1); unlike an
+/// invocation's string-only encoding, both safe JSON integers and canonical
+/// decimal strings represent exact nonnegative components here.
+pub(crate) fn parse_entry_budget(
+    v: &Value,
+    object: &Object,
+    path: &str,
+) -> Result<[BigUint; 4], Vec<Reject>> {
+    let mut errors = Vec::new();
+    let Some(components) = v.as_arr().filter(|a| a.len() == 4) else {
+        return Err(vec![rej(
+            "E_CERT_INVOCATION",
+            "§12.3",
+            path,
+            "entry budget must contain exactly four nonnegative integer components",
+        )]);
+    };
+    let mut tuple: [BigUint; 4] = Default::default();
+    for (i, v) in components.iter().enumerate() {
+        match v.as_str().and_then(parse_biguint_str).or_else(|| {
+            int_of(v)
+                .filter(|i| *i >= 0)
+                .map(|n| BigUint::from(n as u64))
+        }) {
+            Some(value) => tuple[i] = value,
+            None => errors.push(rej(
+                "E_CERT_INVOCATION",
+                "§12.3",
+                format!("{path}[{i}]"),
+                "expected an exact nonnegative integer; no zero/default is inferred",
+            )),
+        }
+    }
+    validate_budget(&tuple, object, path, &mut errors);
+    if errors.is_empty() {
+        Ok(tuple)
+    } else {
+        Err(errors)
     }
 }
 
@@ -314,7 +399,12 @@ pub fn parse_invocation(
     let args = match v.get("args") {
         Some(Value::Arr(a)) => a.clone(),
         _ => {
-            errs.push(rej("E_CERT_INVOCATION", "§12.3", format!("{path}.args"), "args must be an explicit array for this claim kind"));
+            errs.push(rej(
+                "E_CERT_INVOCATION",
+                "§12.3",
+                format!("{path}.args"),
+                "args must be an explicit array for this claim kind",
+            ));
             return Err(errs);
         }
     };
@@ -323,7 +413,11 @@ pub fn parse_invocation(
             "E_CERT_INVOCATION",
             "§12.3",
             format!("{path}.args"),
-            format!("invocation binds {} arguments; signature has {} (no implicit zero/default)", args.len(), arg_types.len()),
+            format!(
+                "invocation binds {} arguments; signature has {} (no implicit zero/default)",
+                args.len(),
+                arg_types.len()
+            ),
         ));
         return Err(errs);
     }
@@ -347,7 +441,12 @@ pub fn parse_invocation(
             out
         }
         _ => {
-            errs.push(rej("E_CERT_INVOCATION", "§12.3", format!("{path}.budget"), "budget must be four explicit components"));
+            errs.push(rej(
+                "E_CERT_INVOCATION",
+                "§12.3",
+                format!("{path}.budget"),
+                "budget must be four explicit components",
+            ));
             return Err(errs);
         }
     };
@@ -356,12 +455,27 @@ pub fn parse_invocation(
         return Err(errs);
     }
     let params_hash = sha256_hex(&jcs(&Value::Arr(args.clone())).unwrap_or_default());
-    Ok(Invocation { args, budget, params_hash })
+    Ok(Invocation {
+        args,
+        budget,
+        params_hash,
+    })
 }
 
-pub fn validate_arg_value(a: &Value, ty: &str, object: &Object, path: &str, errs: &mut Vec<Reject>) {
+pub fn validate_arg_value(
+    a: &Value,
+    ty: &str,
+    object: &Object,
+    path: &str,
+    errs: &mut Vec<Reject>,
+) {
     let bad = |errs: &mut Vec<Reject>, msg: &str| {
-        errs.push(rej("E_CERT_INVOCATION", "§12.3", path.to_string(), msg.to_string()));
+        errs.push(rej(
+            "E_CERT_INVOCATION",
+            "§12.3",
+            path.to_string(),
+            msg.to_string(),
+        ));
     };
     if ty == "token" {
         match a {
@@ -383,8 +497,13 @@ pub fn validate_arg_value(a: &Value, ty: &str, object: &Object, path: &str, errs
             Some(x)
                 if x.len() == 18
                     && x.starts_with("0x")
-                    && x[2..].bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)) => {}
-            _ => bad(errs, "f64 argument must be 0x followed by exactly 16 lowercase hex digits"),
+                    && x[2..]
+                        .bytes()
+                        .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)) => {}
+            _ => bad(
+                errs,
+                "f64 argument must be 0x followed by exactly 16 lowercase hex digits",
+            ),
         }
         return;
     }
@@ -402,12 +521,21 @@ pub fn validate_arg_value(a: &Value, ty: &str, object: &Object, path: &str, errs
     match a.as_str().and_then(parse_biguint_str) {
         Some(x) => {
             if width < 1_000_000 && x >= (BigUint::from(1u32) << width) {
-                bad(errs, &format!("argument value does not fit {ty} ({width} bits)"));
+                bad(
+                    errs,
+                    &format!("argument value does not fit {ty} ({width} bits)"),
+                );
             } else if x.bits() > width {
-                bad(errs, &format!("argument value does not fit {ty} ({width} bits)"));
+                bad(
+                    errs,
+                    &format!("argument value does not fit {ty} ({width} bits)"),
+                );
             }
         }
-        None => bad(errs, &format!("{ty} argument must be a canonical unsigned decimal string")),
+        None => bad(
+            errs,
+            &format!("{ty} argument must be a canonical unsigned decimal string"),
+        ),
     }
 }
 
@@ -425,21 +553,46 @@ fn parse_subject(v: &Value, path: &str, require_schedule: bool) -> Result<Subjec
     let mut errs = Vec::new();
     check_keys(
         v,
-        &["closure_hash", "variant", "inherited_controls", "schedule_hash"],
+        &[
+            "closure_hash",
+            "variant",
+            "inherited_controls",
+            "schedule_hash",
+        ],
         &["closure_hash", "variant", "inherited_controls"],
         path,
         &mut errs,
     );
     if require_schedule && v.get("schedule_hash").is_none() {
-        errs.push(rej("E_CERT_BINDING", "§12.1", format!("{path}.schedule_hash"), "this claim kind requires schedule_hash in its subject"));
+        errs.push(rej(
+            "E_CERT_BINDING",
+            "§12.1",
+            format!("{path}.schedule_hash"),
+            "this claim kind requires schedule_hash in its subject",
+        ));
     }
-    let closure_hash = v.get("closure_hash").map(|x| hash_field(x, &format!("{path}.closure_hash"), &mut errs)).unwrap_or_default();
-    let variant = v.get("variant").map(|x| nonempty_str(x, &format!("{path}.variant"), &mut errs)).unwrap_or_default();
-    let inherited_controls = v.get("inherited_controls").and_then(u64_of).unwrap_or_else(|| {
-        errs.push(schema_err(format!("{path}.inherited_controls"), "expected nonnegative integer"));
-        0
-    });
-    let schedule_hash = v.get("schedule_hash").map(|x| hash_field(x, &format!("{path}.schedule_hash"), &mut errs)).unwrap_or_default();
+    let closure_hash = v
+        .get("closure_hash")
+        .map(|x| hash_field(x, &format!("{path}.closure_hash"), &mut errs))
+        .unwrap_or_default();
+    let variant = v
+        .get("variant")
+        .map(|x| nonempty_str(x, &format!("{path}.variant"), &mut errs))
+        .unwrap_or_default();
+    let inherited_controls = v
+        .get("inherited_controls")
+        .and_then(u64_of)
+        .unwrap_or_else(|| {
+            errs.push(schema_err(
+                format!("{path}.inherited_controls"),
+                "expected nonnegative integer",
+            ));
+            0
+        });
+    let schedule_hash = v
+        .get("schedule_hash")
+        .map(|x| hash_field(x, &format!("{path}.schedule_hash"), &mut errs))
+        .unwrap_or_default();
     if errs.is_empty() {
         Ok(Subject {
             closure_hash: closure_hash.unwrap(),
@@ -465,29 +618,44 @@ fn load_jcs_doc(bytes: &[u8], what: &str, verdict: &mut Verdict) -> Option<Value
     let text = match std::str::from_utf8(bytes) {
         Ok(t) => t,
         Err(_) => {
-            verdict.errors.push(rej("E_CERT_JSON", "§12", what.to_string(), format!("{what} is not UTF-8")));
+            verdict.errors.push(rej(
+                "E_CERT_JSON",
+                "§12",
+                what.to_string(),
+                format!("{what} is not UTF-8"),
+            ));
             return None;
         }
     };
     let v = match parse(text) {
         Ok(v) => v,
         Err(e) => {
-            verdict.errors.push(rej("E_CERT_JSON", "§12", what.to_string(), format!("{what}: {e}")));
+            verdict.errors.push(rej(
+                "E_CERT_JSON",
+                "§12",
+                what.to_string(),
+                format!("{what}: {e}"),
+            ));
             return None;
         }
     };
     match jcs(&v) {
         Ok(canon) if canon == bytes => Some(v),
         _ => {
-            verdict
-                .errors
-                .push(rej("E_CERT_JCS", "§12", what.to_string(), format!("{what} bytes are not RFC 8785 canonical (JCS)")));
+            verdict.errors.push(rej(
+                "E_CERT_JCS",
+                "§12",
+                what.to_string(),
+                format!("{what} bytes are not RFC 8785 canonical (JCS)"),
+            ));
             None
         }
     }
 }
 
 pub struct LoadedDocs {
+    pub root_closure: String,
+    pub root_invocation: Option<Invocation>,
     pub object: Object,
     pub target: Option<Value>,
     pub schedule: Option<Value>,
@@ -518,7 +686,9 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
             return finish(verdict);
         }
     };
-    verdict.hashes.insert("object_hash".into(), object.object_hash.clone());
+    verdict
+        .hashes
+        .insert("object_hash".into(), object.object_hash.clone());
     if !object.stated_hashes_ok() {
         verdict.errors.push(rej(
             "E_CERT_HASH",
@@ -540,15 +710,38 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     );
     if let Some(v) = cert.get("versions") {
         let mut e = Vec::new();
-        if check_keys(v, &["isa", "object", "launch", "sched", "cert", "coverage", "target"], &["isa", "object", "launch", "sched", "cert", "coverage", "target"], "versions", &mut e) {
-            for k in ["isa", "object", "launch", "sched", "cert", "coverage", "target"] {
+        if check_keys(
+            v,
+            &[
+                "isa", "object", "launch", "sched", "cert", "coverage", "target",
+            ],
+            &[
+                "isa", "object", "launch", "sched", "cert", "coverage", "target",
+            ],
+            "versions",
+            &mut e,
+        ) {
+            for k in [
+                "isa", "object", "launch", "sched", "cert", "coverage", "target",
+            ] {
                 match v.get(k).and_then(Value::as_str) {
                     Some(x) if is_version(x) => {
                         if object.header.versions.get(k).map(String::as_str) != Some(x) {
-                            e.push(rej("E_CERT_VERSION", "§12.3", format!("versions.{k}"), format!("certificate {k} version {x} != object header {:?}", object.header.versions.get(k))));
+                            e.push(rej(
+                                "E_CERT_VERSION",
+                                "§12.3",
+                                format!("versions.{k}"),
+                                format!(
+                                    "certificate {k} version {x} != object header {:?}",
+                                    object.header.versions.get(k)
+                                ),
+                            ));
                         }
                     }
-                    _ => e.push(schema_err(format!("versions.{k}"), "expected version string INT.INT")),
+                    _ => e.push(schema_err(
+                        format!("versions.{k}"),
+                        "expected version string INT.INT",
+                    )),
                 }
             }
         }
@@ -556,19 +749,45 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     }
     if let Some(p) = cert.get("producer") {
         let mut e = Vec::new();
-        if check_keys(p, &["name", "version", "materialisation"], &["name", "version", "materialisation"], "producer", &mut e) {
+        if check_keys(
+            p,
+            &["name", "version", "materialisation"],
+            &["name", "version", "materialisation"],
+            "producer",
+            &mut e,
+        ) {
             for k in ["name", "version"] {
-                nonempty_str(p.get(k).unwrap_or(&Value::Null), &format!("producer.{k}"), &mut e);
+                nonempty_str(
+                    p.get(k).unwrap_or(&Value::Null),
+                    &format!("producer.{k}"),
+                    &mut e,
+                );
             }
             if let Some(m) = p.get("materialisation") {
-                if check_keys(m, &["llvm_version", "pipeline", "normaliser_version"], &["llvm_version", "pipeline", "normaliser_version"], "producer.materialisation", &mut e) {
+                if check_keys(
+                    m,
+                    &["llvm_version", "pipeline", "normaliser_version"],
+                    &["llvm_version", "pipeline", "normaliser_version"],
+                    "producer.materialisation",
+                    &mut e,
+                ) {
                     for k in ["llvm_version", "pipeline", "normaliser_version"] {
-                        nonempty_str(m.get(k).unwrap_or(&Value::Null), &format!("producer.materialisation.{k}"), &mut e);
+                        nonempty_str(
+                            m.get(k).unwrap_or(&Value::Null),
+                            &format!("producer.materialisation.{k}"),
+                            &mut e,
+                        );
                     }
                 }
             }
         }
         schema_errs.extend(e);
+    }
+    if cert.get("regions").and_then(Value::as_obj).is_none() {
+        schema_errs.push(schema_err(
+            "regions",
+            "expected an object keyed by region closure hash",
+        ));
     }
     // Bindings schema.
     let bindings = cert.get("bindings").cloned().unwrap_or(Value::Null);
@@ -576,12 +795,33 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         let mut e = Vec::new();
         check_keys(
             &bindings,
-            &["object_hash", "interface_hash", "closure_hash", "reference_program_hash", "dialect_mapping_version", "target_hash", "schedule_hash", "invocation"],
-            &["object_hash", "interface_hash", "closure_hash", "reference_program_hash"],
+            &[
+                "object_hash",
+                "interface_hash",
+                "closure_hash",
+                "reference_program_hash",
+                "dialect_mapping_version",
+                "target_hash",
+                "schedule_hash",
+                "invocation",
+            ],
+            &[
+                "object_hash",
+                "interface_hash",
+                "closure_hash",
+                "reference_program_hash",
+            ],
             "bindings",
             &mut e,
         );
-        for k in ["object_hash", "interface_hash", "closure_hash", "reference_program_hash", "target_hash", "schedule_hash"] {
+        for k in [
+            "object_hash",
+            "interface_hash",
+            "closure_hash",
+            "reference_program_hash",
+            "target_hash",
+            "schedule_hash",
+        ] {
             if let Some(v) = bindings.get(k) {
                 hash_field(v, &format!("bindings.{k}"), &mut e);
             }
@@ -596,20 +836,56 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         return finish(verdict);
     }
 
+    if cert
+        .get("versions")
+        .and_then(|v| v.get("cert"))
+        .and_then(Value::as_str)
+        != Some("0.9")
+    {
+        verdict.unchecked_items.push("certificate schema/replay for this legacy version has not been implemented; only cert 0.9 obligations are currently checked".into());
+        return finish(verdict);
+    }
+
     // Root binding cross-checks.
-    let bget = |k: &str| bindings.get(k).and_then(Value::as_str).unwrap_or("").to_string();
+    let bget = |k: &str| {
+        bindings
+            .get(k)
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string()
+    };
     if bget("object_hash") != object.object_hash {
-        verdict.errors.push(rej("E_CERT_BINDING", "§12.3", "bindings.object_hash", "does not equal the recomputed §9.2 object_hash of the supplied object"));
+        verdict.errors.push(rej(
+            "E_CERT_BINDING",
+            "§12.3",
+            "bindings.object_hash",
+            "does not equal the recomputed §9.2 object_hash of the supplied object",
+        ));
     }
     let root = object.symbol_by_closure(&bget("closure_hash"));
     match root {
-        None => verdict.errors.push(rej("E_CERT_BINDING", "§12.3", "bindings.closure_hash", "root closure_hash is not a symbol of the supplied object")),
+        None => verdict.errors.push(rej(
+            "E_CERT_BINDING",
+            "§12.3",
+            "bindings.closure_hash",
+            "root closure_hash is not a symbol of the supplied object",
+        )),
         Some(r) => {
             if bget("interface_hash") != r.interface_hash {
-                verdict.errors.push(rej("E_CERT_BINDING", "§12.3", "bindings.interface_hash", "does not equal the root symbol's interface hash"));
+                verdict.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§12.3",
+                    "bindings.interface_hash",
+                    "does not equal the root symbol's interface hash",
+                ));
             }
             if bget("reference_program_hash") != r.interface_hash {
-                verdict.errors.push(rej("E_CERT_BINDING", "§9.2", "bindings.reference_program_hash", "reference_program_hash is the root symbol's interface hash"));
+                verdict.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§9.2",
+                    "bindings.reference_program_hash",
+                    "reference_program_hash is the root symbol's interface hash",
+                ));
             }
         }
     }
@@ -625,7 +901,12 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         verdict.hashes.insert("target_hash".into(), h.clone());
         if let Some(want) = bindings.get("target_hash").and_then(Value::as_str) {
             if want != h {
-                verdict.errors.push(rej("E_CERT_BINDING", "§8.1", "bindings.target_hash", "does not equal SHA-256 of the supplied target document"));
+                verdict.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§8.1",
+                    "bindings.target_hash",
+                    "does not equal SHA-256 of the supplied target document",
+                ));
             }
         }
         target_doc = load_jcs_doc(tb, "target", &mut verdict);
@@ -635,18 +916,27 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     }
 
     // Schedule document: explicit input wins, else the object's section.
-    let (schedule_doc, schedule_hash_val): (Option<Value>, Option<String>) = match &inputs.schedule_bytes {
-        Some(sb) => (load_jcs_doc(sb, "schedule", &mut verdict), Some(sha256_hex(sb))),
-        None => match (&object.schedule, &object.schedule_raw) {
-            (Some(v), Some(raw)) => (Some(v.clone()), Some(sha256_hex(raw.as_bytes()))),
-            _ => (None, None),
-        },
-    };
+    let (schedule_doc, schedule_hash_val): (Option<Value>, Option<String>) =
+        match &inputs.schedule_bytes {
+            Some(sb) => (
+                load_jcs_doc(sb, "schedule", &mut verdict),
+                Some(sha256_hex(sb)),
+            ),
+            None => match (&object.schedule, &object.schedule_raw) {
+                (Some(v), Some(raw)) => (Some(v.clone()), Some(sha256_hex(raw.as_bytes()))),
+                _ => (None, None),
+            },
+        };
     if let Some(h) = &schedule_hash_val {
         verdict.hashes.insert("schedule_hash".into(), h.clone());
         if let Some(want) = bindings.get("schedule_hash").and_then(Value::as_str) {
             if want != h {
-                verdict.errors.push(rej("E_CERT_BINDING", "§9.2", "bindings.schedule_hash", "does not equal SHA-256 of the supplied schedule document"));
+                verdict.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§9.2",
+                    "bindings.schedule_hash",
+                    "does not equal SHA-256 of the supplied schedule document",
+                ));
             }
         }
     }
@@ -662,7 +952,7 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         None => (None, false),
     };
     if bindings.get("schedule_hash").is_some() && schedule_doc.is_none() {
-        verdict.establishes.push("schedule document was not supplied (and the object embeds none); scheduled claims are unchecked".into());
+        verdict.unchecked_items.push("schedule document was not supplied (and the object embeds none); schedule binding is unchecked".into());
     }
 
     // Root invocation (required for a scheduled certificate, K13).
@@ -674,11 +964,21 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                 Ok(parsed) => root_invocation = Some(parsed),
                 Err(e) => verdict.errors.extend(e),
             },
-            Err(e) => verdict.errors.push(rej("E_CERT_OBJECT", "§9.1", "bindings.closure_hash", e.clone())),
+            Err(e) => verdict.errors.push(rej(
+                "E_CERT_OBJECT",
+                "§9.1",
+                "bindings.closure_hash",
+                e.clone(),
+            )),
         },
         None => {
             if bindings.get("schedule_hash").is_some() {
-                verdict.errors.push(rej("E_CERT_BINDING", "§12.3", "bindings.invocation", "a scheduled certificate must carry the root bindings.invocation"));
+                verdict.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§12.3",
+                    "bindings.invocation",
+                    "a scheduled certificate must carry the root bindings.invocation",
+                ));
             }
         }
     }
@@ -686,7 +986,12 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     if let (Some(sched), Some(inv)) = (&schedule_doc, &root_invocation) {
         if let Some(sb) = sched.get("bindings") {
             if sb.get("params_hash").and_then(Value::as_str) != Some(inv.params_hash.as_str()) {
-                verdict.errors.push(rej("E_CERT_BINDING", "§12.3", "schedule.bindings.params_hash", "does not equal SHA-256 of the JCS root invocation args array"));
+                verdict.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§12.3",
+                    "schedule.bindings.params_hash",
+                    "does not equal SHA-256 of the JCS root invocation args array",
+                ));
             }
             let budget_ok = sb.get("budget").and_then(Value::as_arr).map(|b| {
                 b.len() == 4
@@ -695,7 +1000,12 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                         .all(|(x, y)| int_of(x).map(|i| BigUint::from(i as u64)) == Some(y.clone()))
             });
             if budget_ok != Some(true) {
-                verdict.errors.push(rej("E_CERT_BINDING", "§12.3", "schedule.bindings.budget", "does not equal the root invocation budget"));
+                verdict.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§12.3",
+                    "schedule.bindings.budget",
+                    "does not equal the root invocation budget",
+                ));
             }
         }
     }
@@ -704,6 +1014,8 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     }
 
     let docs = LoadedDocs {
+        root_closure: bget("closure_hash"),
+        root_invocation: root_invocation.clone(),
         object,
         target: target_doc,
         schedule: schedule_doc,
@@ -711,15 +1023,34 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         expansion,
         expansion_unknown,
     };
-    let cert_schedule_hash = bindings.get("schedule_hash").and_then(Value::as_str).map(str::to_string);
-    let libraries: Vec<Value> = inputs
-        .libraries
-        .iter()
-        .filter_map(|b| std::str::from_utf8(b).ok().and_then(|t| parse(t).ok()))
-        .collect();
+    let cert_schedule_hash = bindings
+        .get("schedule_hash")
+        .and_then(Value::as_str)
+        .map(str::to_string);
+    let mut libraries = Vec::new();
+    for (i, bytes) in inputs.libraries.iter().enumerate() {
+        if let Some(doc) = load_jcs_doc(bytes, &format!("libraries[{i}]"), &mut verdict) {
+            libraries.push(doc);
+        }
+    }
+    if !verdict.errors.is_empty() {
+        return finish(verdict);
+    }
 
     // Regions and claims.
-    let regions = cert.get("regions").and_then(Value::as_obj).cloned().unwrap_or_default();
+    let regions = cert
+        .get("regions")
+        .and_then(Value::as_obj)
+        .cloned()
+        .unwrap_or_default();
+    if !regions.contains_key(&docs.root_closure) {
+        verdict.errors.push(rej(
+            "E_CERT_BINDING",
+            "§12.3",
+            "regions",
+            "certificate omits its bound root region record",
+        ));
+    }
     for (hash, region) in &regions {
         let report = check_region(
             hash,
@@ -732,31 +1063,56 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         );
         verdict.regions.push(report);
     }
-    verdict.regions.sort_by(|a, b| a.closure_hash.cmp(&b.closure_hash));
+    verdict
+        .regions
+        .sort_by(|a, b| a.closure_hash.cmp(&b.closure_hash));
 
     // Composition (section 12.3) across the checked regions.
     if let Some(comp) = cert.get("composition") {
         numeric::check_composition(comp, &cert, &docs, &verdict.regions, &mut verdict.errors);
+        if docs.schedule.is_some() {
+            verdict.unchecked_items.push("composition multiplicities and inclusive error recurrence have not been recomputed from the realised invocation tree (§12.3)".into());
+        } else if comp
+            .get("multiplicities")
+            .and_then(Value::as_obj)
+            .map(|m| !m.is_empty())
+            == Some(true)
+        {
+            verdict.unchecked_items.push(
+                "composition reports multiplicities without a supplied realised schedule (§12.3)"
+                    .into(),
+            );
+        }
     }
 
     verdict.establishes.push(
         "hash bindings were recomputed from the supplied documents (§9.2 object/symbol identity, SHA-256 of JCS target/schedule bytes, params_hash); producer-stated hashes were never trusted".into(),
     );
     if inputs.target_bytes.is_none() && bindings.get("target_hash").is_some() {
-        verdict.establishes.push("target document was not supplied; its hash binding is unverified".into());
+        verdict
+            .unchecked_items
+            .push("target document was not supplied; its hash binding is unchecked".into());
+    }
+    if inputs.oracle_bin.is_some() {
+        verdict
+            .unchecked_items
+            .push("optional --oracle-bin differential replay has not been performed".into());
     }
     finish(verdict)
 }
 
 fn finish(mut verdict: Verdict) -> Verdict {
     let any_reject = !verdict.errors.is_empty()
-        || verdict.regions.iter().any(|r| !r.errors.is_empty() || r.claims.iter().any(|(_, o)| o.outcome == "reject"));
+        || verdict
+            .regions
+            .iter()
+            .any(|r| !r.errors.is_empty() || r.claims.iter().any(|(_, o)| o.outcome == "reject"));
     let any_unchecked = verdict.regions.iter().any(|r| {
         !r.unchecked_items.is_empty() || r.claims.iter().any(|(_, o)| o.outcome == "unchecked")
     });
     verdict.overall = if any_reject {
         "rejected"
-    } else if any_unchecked || verdict.establishes.iter().any(|e| e.contains("unchecked")) {
+    } else if any_unchecked || !verdict.unchecked_items.is_empty() {
         "unchecked"
     } else {
         "verified"
@@ -777,25 +1133,59 @@ fn check_region(
     inputs: &Inputs,
 ) -> RegionReport {
     let base = format!("regions.{hash}");
-    let mut report = RegionReport { closure_hash: hash.to_string(), ..Default::default() };
+    let mut report = RegionReport {
+        closure_hash: hash.to_string(),
+        ..Default::default()
+    };
     if !is_hash_hex(hash) {
-        report.errors.push(schema_err(base.clone(), "region key is not a 64-lowercase-hex closure hash"));
+        report.errors.push(schema_err(
+            base.clone(),
+            "region key is not a 64-lowercase-hex closure hash",
+        ));
         return report;
     }
     let mut errs = Vec::new();
     let shape_ok = check_keys(
         region,
         &[
-            "kind", "signature", "bounds", "estimate", "frame", "resources", "gates_used", "claims",
-            "verification", "cleanup", "error", "definedness_assumptions",
+            "kind",
+            "signature",
+            "bounds",
+            "estimate",
+            "frame",
+            "resources",
+            "gates_used",
+            "claims",
+            "verification",
+            "cleanup",
+            "error",
+            "definedness_assumptions",
         ],
-        &["kind", "signature", "bounds", "frame", "resources", "gates_used", "claims", "verification", "cleanup", "error", "definedness_assumptions"],
+        &[
+            "kind",
+            "signature",
+            "bounds",
+            "frame",
+            "resources",
+            "gates_used",
+            "claims",
+            "verification",
+            "cleanup",
+            "error",
+            "definedness_assumptions",
+        ],
         &base,
         &mut errs,
     );
     if !shape_ok {
         report.errors = errs;
         return report;
+    }
+    if region.get("claims").and_then(Value::as_arr).is_none() {
+        report.errors.push(schema_err(
+            format!("{base}.claims"),
+            "expected an array of claims",
+        ));
     }
     let symbol = docs.object.symbol_by_closure(hash).cloned();
     match &symbol {
@@ -807,17 +1197,31 @@ fn check_region(
         Some(sym) => {
             report.name = Some(sym.name.clone());
             if region.get("kind").and_then(Value::as_str) != Some(sym.kind.as_str()) {
-                report.errors.push(rej("E_CERT_BINDING", "§12.3", format!("{base}.kind"), "does not equal the object symbol kind"));
+                report.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§12.3",
+                    format!("{base}.kind"),
+                    "does not equal the object symbol kind",
+                ));
             }
             let sig_ok = region
                 .get("signature")
                 .map(|s| jcs(s).unwrap_or_default() == jcs(&sym.signature).unwrap_or_default())
                 .unwrap_or(false);
             if !sig_ok {
-                report.errors.push(rej("E_CERT_BINDING", "§12.3", format!("{base}.signature"), "does not equal the object symbol's signature"));
+                report.errors.push(rej(
+                    "E_CERT_BINDING",
+                    "§12.3",
+                    format!("{base}.signature"),
+                    "does not equal the object symbol's signature",
+                ));
             }
             if let Some(b) = region.get("bounds") {
-                let want = sym.signature.get("bounds").cloned().unwrap_or(Value::Arr(vec![]));
+                let want = sym
+                    .signature
+                    .get("bounds")
+                    .cloned()
+                    .unwrap_or(Value::Arr(vec![]));
                 if jcs(b).unwrap_or_default() != jcs(&want).unwrap_or_default() {
                     report.errors.push(rej("E_CERT_BINDING", "§12.3", format!("{base}.bounds"), "does not equal the signature bounds (§5.3 padded unitary is part of identity)"));
                 }
@@ -830,8 +1234,15 @@ fn check_region(
     }
     // definedness_assumptions: array (of dialect-spec ids; strings).
     if let Some(v) = region.get("definedness_assumptions") {
-        if v.as_arr().map(|a| a.iter().all(|x| x.as_str().map(|t| !t.is_empty()).unwrap_or(false))) != Some(true) {
-            report.errors.push(schema_err(format!("{base}.definedness_assumptions"), "expected array of nonempty id strings"));
+        if v.as_arr().map(|a| {
+            a.iter()
+                .all(|x| x.as_str().map(|t| !t.is_empty()).unwrap_or(false))
+        }) != Some(true)
+        {
+            report.errors.push(schema_err(
+                format!("{base}.definedness_assumptions"),
+                "expected array of nonempty id strings",
+            ));
         }
     }
     // resources / gates_used shapes.
@@ -840,6 +1251,42 @@ fn check_region(
     numeric::check_cleanup_entries(region, docs, &base, &mut report);
     // error map shape.
     numeric::check_error_map(region, &base, &mut report.errors);
+    if region
+        .get("error")
+        .and_then(Value::as_obj)
+        .map(|m| !m.is_empty())
+        == Some(true)
+    {
+        report.unchecked_items.push("local/inclusive error entries have not been tied to checked common context bounds and the callee recurrence (§12.3)".into());
+    }
+    if let Some(sym) = &symbol {
+        if let Ok(iface) = docs.object.interface(&sym.name) {
+            if !iface.borrowed_widths.is_empty() {
+                report.unchecked_items.push("verification.borrow_frames has not been mapped to every maximal frame and its normative entry-state domain D_F (§5.6)".into());
+            }
+        }
+        let mut seen = std::collections::HashSet::new();
+        let mut visit = vec![sym.name.clone()];
+        while let Some(name) = visit.pop() {
+            if !seen.insert(name.clone()) {
+                continue;
+            }
+            if let Some(function) = docs.object.function(&name) {
+                for tokens in eval::find_opcodes(function) {
+                    if tokens.iter().any(|t| t == "qinplace") {
+                        report.unchecked_items.push("qinplace uses require covering inverse-pair entries at every resolved call's budget, arguments and token tuples; entry applicability has not been checked (§4.5)".into());
+                    }
+                    for token in tokens {
+                        if let Some(name) = token.strip_prefix('@') {
+                            if docs.object.symbol(name).is_some() {
+                                visit.push(name.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     // estimate (K12): exact recomputation needs the bound realisation.
     if region.get("estimate").is_some() {
         report.unchecked_items.push(
@@ -847,12 +1294,24 @@ fn check_region(
         );
     }
 
-    let claims = region.get("claims").and_then(Value::as_arr).map(|a| a.to_vec()).unwrap_or_default();
+    let claims = region
+        .get("claims")
+        .and_then(Value::as_arr)
+        .map(|a| a.to_vec())
+        .unwrap_or_default();
     // Non-structural claims first (index order preserved in the report);
     // structural claims second so every subclaim outcome is available.
     let mut outcomes: Vec<(String, ClaimOutcome)> = claims
         .iter()
-        .map(|c| (c.get("kind").and_then(Value::as_str).unwrap_or("").to_string(), ClaimOutcome::unchecked("not yet evaluated")))
+        .map(|c| {
+            (
+                c.get("kind")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string(),
+                ClaimOutcome::unchecked("not yet evaluated"),
+            )
+        })
         .collect();
     for pass_structural in [false, true] {
         for (i, claim) in claims.iter().enumerate() {
@@ -862,6 +1321,7 @@ fn check_region(
             }
             let outcome = check_claim(
                 claim,
+                i,
                 &format!("{base}.claims[{i}]"),
                 hash,
                 symbol.as_ref(),
@@ -878,32 +1338,70 @@ fn check_region(
         }
     }
     report.claims = outcomes;
+    if let Some(coverage) = &docs.object.coverage {
+        let _ = coverage;
+        report.unchecked_items.push(
+            "object coverage/source-classification obligations have not been checked (§13/§15)"
+                .into(),
+        );
+    }
 
     // Verification index cross-checks (section 12.3).
     if let Some(ver) = region.get("verification") {
         let mut e = Vec::new();
         check_keys(
             ver,
-            &["oracle", "borrow_frames", "inverse_pairs", "unitary", "channel", "fault_rate"],
-            &["oracle", "borrow_frames", "inverse_pairs", "unitary", "channel", "fault_rate"],
+            &[
+                "oracle",
+                "borrow_frames",
+                "inverse_pairs",
+                "unitary",
+                "channel",
+                "fault_rate",
+            ],
+            &[
+                "oracle",
+                "borrow_frames",
+                "inverse_pairs",
+                "unitary",
+                "channel",
+                "fault_rate",
+            ],
             &format!("{base}.verification"),
             &mut e,
         );
         report.errors.extend(e);
         let idx = |v: &Value| -> Option<usize> { u64_of(v).map(|i| i as usize) };
-        let kind_at = |i: usize| claims.get(i).and_then(|c| c.get("kind")).and_then(Value::as_str);
-        let check_index = |report: &mut RegionReport, field: &str, i: usize, want: &[&str]| {
-            match kind_at(i) {
-                None => report.errors.push(rej("E_CERT_VERIFICATION_INDEX", "§12.3", format!("{base}.verification.{field}"), format!("claim index {i} out of range"))),
-                Some(k) if !want.contains(&k) => report.errors.push(rej("E_CERT_VERIFICATION_INDEX", "§12.3", format!("{base}.verification.{field}"), format!("claim {i} has kind {k}, expected {}", want.join("/")))),
-                _ => {}
-            }
+        let kind_at = |i: usize| {
+            claims
+                .get(i)
+                .and_then(|c| c.get("kind"))
+                .and_then(Value::as_str)
         };
+        let check_index =
+            |report: &mut RegionReport, field: &str, i: usize, want: &[&str]| match kind_at(i) {
+                None => report.errors.push(rej(
+                    "E_CERT_VERIFICATION_INDEX",
+                    "§12.3",
+                    format!("{base}.verification.{field}"),
+                    format!("claim index {i} out of range"),
+                )),
+                Some(k) if !want.contains(&k) => report.errors.push(rej(
+                    "E_CERT_VERIFICATION_INDEX",
+                    "§12.3",
+                    format!("{base}.verification.{field}"),
+                    format!("claim {i} has kind {k}, expected {}", want.join("/")),
+                )),
+                _ => {}
+            };
         match ver.get("oracle") {
             Some(Value::Null) => {}
             Some(v) => match idx(v) {
                 Some(i) => check_index(&mut report, "oracle", i, &["exhaustive"]),
-                None => report.errors.push(schema_err(format!("{base}.verification.oracle"), "expected claim index or null")),
+                None => report.errors.push(schema_err(
+                    format!("{base}.verification.oracle"),
+                    "expected claim index or null",
+                )),
             },
             None => {}
         }
@@ -916,21 +1414,76 @@ fn check_region(
                 for v in list {
                     match idx(v) {
                         Some(i) => check_index(&mut report, field, i, want),
-                        None => report.errors.push(schema_err(format!("{base}.verification.{field}"), "expected claim indices")),
+                        None => report.errors.push(schema_err(
+                            format!("{base}.verification.{field}"),
+                            "expected claim indices",
+                        )),
                     }
                 }
+            } else {
+                report.errors.push(schema_err(
+                    format!("{base}.verification.{field}"),
+                    "expected an array of claim indices",
+                ));
             }
         }
         // fault_rate domain validity (semantic recount: see docs/checker.md).
         if let Some(fr) = ver.get("fault_rate") {
             let mut e = Vec::new();
-            if check_keys(fr, &["domain", "faults_by_code", "undefined_excluded", "layout_dependent_excluded"], &["domain", "faults_by_code", "undefined_excluded", "layout_dependent_excluded"], &format!("{base}.verification.fault_rate"), &mut e) {
+            if check_keys(
+                fr,
+                &[
+                    "domain",
+                    "faults_by_code",
+                    "undefined_excluded",
+                    "layout_dependent_excluded",
+                ],
+                &[
+                    "domain",
+                    "faults_by_code",
+                    "undefined_excluded",
+                    "layout_dependent_excluded",
+                ],
+                &format!("{base}.verification.fault_rate"),
+                &mut e,
+            ) {
+                match fr.get("faults_by_code").and_then(Value::as_obj) {
+                    Some(counts) => {
+                        for (code, count) in counts {
+                            if !is_canonical_uint_str(code) || u64_of(count).is_none() {
+                                e.push(schema_err(
+                                    format!("{base}.verification.fault_rate.faults_by_code.{code}"),
+                                    "expected a nonnegative fault-code count",
+                                ));
+                            }
+                        }
+                    }
+                    None => e.push(schema_err(
+                        format!("{base}.verification.fault_rate.faults_by_code"),
+                        "expected an object of fault-code counts",
+                    )),
+                }
+                for k in ["undefined_excluded", "layout_dependent_excluded"] {
+                    if fr.get(k).and_then(u64_of).is_none() {
+                        e.push(schema_err(
+                            format!("{base}.verification.fault_rate.{k}"),
+                            "expected a nonnegative integer count",
+                        ));
+                    }
+                }
                 if let Some(sym) = &symbol {
-                    if let (Some(d), Ok(iface)) = (fr.get("domain"), docs.object.interface(&sym.name)) {
+                    if let (Some(d), Ok(iface)) =
+                        (fr.get("domain"), docs.object.interface(&sym.name))
+                    {
                         if let Err(err) = resolve_domain(d, &iface, 0) {
                             match err {
-                                ResolveError::Reject(r) => report.errors.push(r.at(&format!("{base}.verification.fault_rate.domain"))),
-                                ResolveError::HostLimit(h) => report.unchecked_items.push(format!("fault_rate domain: host limit ({})", h.quantity)),
+                                ResolveError::Reject(r) => report
+                                    .errors
+                                    .push(r.at(&format!("{base}.verification.fault_rate.domain"))),
+                                ResolveError::HostLimit(h) => report.unchecked_items.push(format!(
+                                    "fault_rate domain: host limit ({})",
+                                    h.quantity
+                                )),
                             }
                         }
                     }
@@ -949,15 +1502,29 @@ fn check_region(
             for (pi, pair) in pairs.iter().enumerate() {
                 let pbase = format!("{base}.verification.inverse_pairs[{pi}]");
                 let mut e = Vec::new();
-                if check_keys(pair, &["g", "ginv", "claim", "budget", "arg_tokens"], &["g", "ginv", "claim", "budget"], &pbase, &mut e) {
+                if check_keys(
+                    pair,
+                    &["g", "ginv", "claim", "budget", "arg_tokens"],
+                    &["g", "ginv", "claim", "budget"],
+                    &pbase,
+                    &mut e,
+                ) {
                     for k in ["g", "ginv"] {
                         match pair.get(k).and_then(Value::as_str) {
                             Some(h) if is_hash_hex(h) => {
                                 if docs.object.symbol_by_closure(h).is_none() {
-                                    report.errors.push(rej("E_CERT_BINDING", "§12.3", format!("{pbase}.{k}"), "names no symbol of the supplied object"));
+                                    report.errors.push(rej(
+                                        "E_CERT_BINDING",
+                                        "§12.3",
+                                        format!("{pbase}.{k}"),
+                                        "names no symbol of the supplied object",
+                                    ));
                                 }
                             }
-                            _ => e.push(schema_err(format!("{pbase}.{k}"), "expected closure hash of an oracle")),
+                            _ => e.push(schema_err(
+                                format!("{pbase}.{k}"),
+                                "expected closure hash of an oracle",
+                            )),
                         }
                     }
                     match pair.get("claim").and_then(|v| idx(v)) {
@@ -965,17 +1532,26 @@ fn check_region(
                             let ok = claims.get(i).map(|c| {
                                 let k = c.get("kind").and_then(Value::as_str).unwrap_or("");
                                 (k == "exhaustive")
-                                    || (k == "structural" && c.get("rule").and_then(Value::as_str) == Some("inverse_pair_library"))
+                                    || (k == "structural"
+                                        && c.get("rule").and_then(Value::as_str)
+                                            == Some("inverse_pair_library"))
                             });
                             if ok != Some(true) {
                                 report.errors.push(rej("E_CERT_VERIFICATION_INDEX", "§4.5", format!("{pbase}.claim"), "must name an exhaustive inverse_pair claim or an inverse_pair_library structural claim; a sampled claim never covers"));
                             }
                         }
-                        None => e.push(schema_err(format!("{pbase}.claim"), "expected claim index")),
+                        None => {
+                            e.push(schema_err(format!("{pbase}.claim"), "expected claim index"))
+                        }
                     }
                 }
                 report.errors.extend(e);
             }
+        } else {
+            report.errors.push(schema_err(
+                format!("{base}.verification.inverse_pairs"),
+                "expected an array of inverse-pair records",
+            ));
         }
     }
     report
@@ -984,6 +1560,7 @@ fn check_region(
 #[allow(clippy::too_many_arguments)]
 fn check_claim(
     claim: &Value,
+    claim_index: usize,
     path: &str,
     region_hash: &str,
     region_symbol: Option<&crate::object::Symbol>,
@@ -1000,9 +1577,11 @@ fn check_claim(
     match kind {
         "exhaustive" | "sampled" => eval::check_replay_claim(
             claim,
+            claim_index,
             path,
             region_hash,
             region_symbol,
+            region,
             docs,
             root_invocation,
             cert_schedule_hash,
@@ -1066,6 +1645,7 @@ pub fn decimal_of(v: &Value) -> Option<Rat> {
 
 pub fn host_limit_outcome(h: HostLimit) -> ClaimOutcome {
     let mut o = ClaimOutcome::unchecked(format!("unchecked (host limit): {} (§12.2)", h.quantity));
-    o.establishes = "nothing: the claim is legal but exceeds this host; no label is assigned".into();
+    o.establishes =
+        "nothing: the claim is legal but exceeds this host; no label is assigned".into();
     o
 }

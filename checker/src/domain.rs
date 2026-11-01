@@ -19,9 +19,16 @@ pub const MAX_ELEMENT_BITS: u64 = 1_000_000;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ComponentId {
     Control(usize),
-    Bundle { group: String, slot: usize },
+    Bundle {
+        group: String,
+        slot: usize,
+    },
     Borrowed(usize),
-    Cell { group: String, slot: usize, index: BigUint },
+    Cell {
+        group: String,
+        slot: usize,
+        index: BigUint,
+    },
     Arg(usize),
 }
 
@@ -63,13 +70,63 @@ pub struct ResolvedDomain {
 }
 
 impl ResolvedDomain {
+    /// Bound the storage for retained tuples, table correspondence and
+    /// distinct-draw coverage before allocating the element vector.
+    pub fn check_retained_elements(&self, count: &BigUint) -> Result<(), HostLimit> {
+        let slots = self.region_shapes.iter().fold(
+            BigUint::from(
+                self.bundle_widths.len() + self.borrowed_widths.len() + self.arg_widths.len(),
+            ),
+            |sum, (cells, _)| sum + cells,
+        );
+        let bytes = (slots * BigUint::from(32u32)
+            + BigUint::from((self.full_n.bits() + 7) / 8 + 128))
+            * count
+            * BigUint::from(3u32);
+        if bytes > BigUint::from(256u32 * 1024 * 1024) {
+            return Err(HostLimit {
+                quantity: format!(
+                    "estimated retained replay/coverage storage {bytes} bytes (host cap 268435456)"
+                ),
+            });
+        }
+        Ok(())
+    }
     pub fn covered_fraction(&self) -> String {
         fraction_string(&self.n, &self.full_n)
     }
 
+    pub fn component_value(&self, tuple: &Tuple, c: &Component) -> BigUint {
+        match &c.id {
+            ComponentId::Control(i) => tuple.bundles[*i].clone(),
+            ComponentId::Bundle { .. } => tuple.bundles[self.bundle_pos(c)].clone(),
+            ComponentId::Borrowed(k) => tuple.borrowed[*k].clone(),
+            ComponentId::Cell { index, .. } => {
+                let pos = self.region_pos_of(c);
+                tuple.regions[pos][index.to_string().parse::<usize>().unwrap_or(0)].clone()
+            }
+            ComponentId::Arg(k) => tuple.args.get(*k).cloned().unwrap_or_default(),
+        }
+    }
+
+    /// Enumeration index of an element (last listed component fastest).
+    pub fn index_of(&self, tuple: &Tuple) -> BigUint {
+        let mut index = BigUint::zero();
+        let mut stride = BigUint::one();
+        for c in self.components.iter().rev() {
+            let digit = self.component_value(tuple, c) - &c.lo;
+            index += &digit * &stride;
+            stride *= &c.size;
+        }
+        index
+    }
+
     /// Enumerate every element; caller must have bounded `n` (see cert layer).
     pub fn elements(&self) -> Elements<'_> {
-        Elements { d: self, next: BigUint::zero() }
+        Elements {
+            d: self,
+            next: BigUint::zero(),
+        }
     }
 
     pub fn element_at(&self, mut index: BigUint) -> Tuple {
@@ -95,7 +152,9 @@ impl ResolvedDomain {
             regions: self
                 .region_shapes
                 .iter()
-                .map(|(count, _)| vec![BigUint::zero(); count.to_string().parse::<usize>().unwrap_or(0)])
+                .map(|(count, _)| {
+                    vec![BigUint::zero(); count.to_string().parse::<usize>().unwrap_or(0)]
+                })
                 .collect(),
             args: vec![BigUint::zero(); self.arg_widths.len()],
         }
@@ -109,7 +168,7 @@ impl ResolvedDomain {
                 tuple.bundles[pos] = v;
             }
             ComponentId::Borrowed(k) => tuple.borrowed[*k] = v,
-            ComponentId::Cell { slot, index, .. } => {
+            ComponentId::Cell { index, .. } => {
                 // Interface regions are stored in interface order; cell lists
                 // in the tuple are per region position. `slot` is per-role,
                 // so route through the region position table.
@@ -130,14 +189,22 @@ impl ResolvedDomain {
         self.region_positions
             .iter()
             .position(|id| match (id, &c.id) {
-                (ComponentId::Cell { group: g1, slot: s1, .. }, ComponentId::Cell { group: g2, slot: s2, .. }) => {
-                    g1 == g2 && s1 == s2
-                }
+                (
+                    ComponentId::Cell {
+                        group: g1,
+                        slot: s1,
+                        ..
+                    },
+                    ComponentId::Cell {
+                        group: g2,
+                        slot: s2,
+                        ..
+                    },
+                ) => g1 == g2 && s1 == s2,
                 _ => false,
             })
             .expect("resolved cell component must have a region position")
     }
-
 }
 
 pub struct Elements<'a> {
@@ -187,19 +254,27 @@ pub fn biguint_of_json(v: &Value, what: &str) -> Result<BigUint, ResolveError> {
         }
         Value::Str(s) => {
             if is_canonical_uint_str(s) {
-                BigUint::from_str(s).map_err(|_| domain_reject(format!("{what}: bad decimal string")))
+                BigUint::from_str(s)
+                    .map_err(|_| domain_reject(format!("{what}: bad decimal string")))
             } else {
-                Err(domain_reject(format!("{what}: non-canonical decimal string {s:?}")))
+                Err(domain_reject(format!(
+                    "{what}: non-canonical decimal string {s:?}"
+                )))
             }
         }
-        other => Err(domain_reject(format!("{what}: expected integer, got {}", other.kind()))),
+        other => Err(domain_reject(format!(
+            "{what}: expected integer, got {}",
+            other.kind()
+        ))),
     }
 }
 
 fn u64_of(v: &BigUint, what: &str) -> Result<u64, ResolveError> {
-    v.to_string()
-        .parse::<u64>()
-        .map_err(|_| ResolveError::HostLimit(HostLimit { quantity: format!("{what} = {v} exceeds host u64") }))
+    v.to_string().parse::<u64>().map_err(|_| {
+        ResolveError::HostLimit(HostLimit {
+            quantity: format!("{what} = {v} exceeds host u64"),
+        })
+    })
 }
 
 struct Entry {
@@ -209,10 +284,16 @@ struct Entry {
 }
 
 fn parse_range_entry(e: &Value, what: &str) -> Result<(String, Entry), ResolveError> {
-    let obj = e.as_obj().ok_or_else(|| domain_reject(format!("{what} entry is not an object")))?;
+    let obj = e
+        .as_obj()
+        .ok_or_else(|| domain_reject(format!("{what} entry is not an object")))?;
     for k in obj.keys() {
         if !matches!(k.as_str(), "name" | "width" | "lo" | "hi") {
-            return Err(reject("E_CERT_SCHEMA", "§12.2", format!("{what} entry has unknown field {k:?}")));
+            return Err(reject(
+                "E_CERT_SCHEMA",
+                "§12.2",
+                format!("{what} entry has unknown field {k:?}"),
+            ));
         }
     }
     let name = e
@@ -220,7 +301,10 @@ fn parse_range_entry(e: &Value, what: &str) -> Result<(String, Entry), ResolveEr
         .and_then(Value::as_str)
         .ok_or_else(|| domain_reject(format!("{what} entry lacks a string name")))?
         .to_string();
-    let width = u64_of(&biguint_of_json(e.get("width").unwrap_or(&Value::Null), "width")?, "width")?;
+    let width = u64_of(
+        &biguint_of_json(e.get("width").unwrap_or(&Value::Null), "width")?,
+        "width",
+    )?;
     let lo = biguint_of_json(e.get("lo").unwrap_or(&Value::Null), "lo")?;
     let hi = biguint_of_json(e.get("hi").unwrap_or(&Value::Null), "hi")?;
     Ok((name, Entry { lo, hi, width }))
@@ -228,7 +312,10 @@ fn parse_range_entry(e: &Value, what: &str) -> Result<(String, Entry), ResolveEr
 
 fn check_range(e: &Entry, width: u64, what: &str) -> Result<BigUint, ResolveError> {
     if e.width != width {
-        return Err(domain_reject(format!("{what}: supplied width {} != component width {width}", e.width)));
+        return Err(domain_reject(format!(
+            "{what}: supplied width {} != component width {width}",
+            e.width
+        )));
     }
     if e.lo > e.hi {
         return Err(domain_reject(format!("{what}: lo > hi")));
@@ -260,22 +347,37 @@ pub fn resolve_domain(
         .ok_or_else(|| domain_reject("domain is not an object".into()))?;
     for k in obj.keys() {
         if !matches!(k.as_str(), "bundles" | "borrowed" | "regions" | "args") {
-            return Err(reject("E_CERT_SCHEMA", "§12.2", format!("domain has unknown field {k:?}")));
+            return Err(reject(
+                "E_CERT_SCHEMA",
+                "§12.2",
+                format!("domain has unknown field {k:?}"),
+            ));
         }
     }
     let get_arr = |key: &str| -> Result<Vec<Value>, ResolveError> {
         match domain.get(key) {
-            None => Err(domain_reject(format!("domain lacks required field {key:?}"))),
+            None => Err(domain_reject(format!(
+                "domain lacks required field {key:?}"
+            ))),
             Some(Value::Arr(a)) => Ok(a.clone()),
-            Some(o) => Err(domain_reject(format!("domain.{key} is {}, expected array", o.kind()))),
+            Some(o) => Err(domain_reject(format!(
+                "domain.{key} is {}, expected array",
+                o.kind()
+            ))),
         }
     };
     let c = inherited_controls as usize;
     let mut components: Vec<Component> = Vec::new();
     let mut seen: HashSet<ComponentId> = HashSet::new();
-    let mut push = |comp: Component, components: &mut Vec<Component>, seen: &mut HashSet<ComponentId>| -> Result<(), ResolveError> {
+    let push = |comp: Component,
+                components: &mut Vec<Component>,
+                seen: &mut HashSet<ComponentId>|
+     -> Result<(), ResolveError> {
         if !seen.insert(comp.id.clone()) {
-            return Err(domain_reject(format!("component {:?} occurs twice in domain", comp.id)));
+            return Err(domain_reject(format!(
+                "component {:?} occurs twice in domain",
+                comp.id
+            )));
         }
         components.push(comp);
         Ok(())
@@ -285,7 +387,10 @@ pub fn resolve_domain(
     let full_bundles: HashSet<ComponentId> = iface
         .bundles
         .iter()
-        .map(|b| ComponentId::Bundle { group: b.group.clone(), slot: b.slot })
+        .map(|b| ComponentId::Bundle {
+            group: b.group.clone(),
+            slot: b.slot,
+        })
         .collect();
     let mut covered: HashSet<ComponentId> = HashSet::new(); // present at full range
 
@@ -305,7 +410,16 @@ pub fn resolve_domain(
             if full_range(&entry, 1) {
                 covered.insert(id.clone());
             }
-            push(Component { id, width: 1, lo: entry.lo, size }, &mut components, &mut seen)?;
+            push(
+                Component {
+                    id,
+                    width: 1,
+                    lo: entry.lo,
+                    size,
+                },
+                &mut components,
+                &mut seen,
+            )?;
         } else {
             let matches: Vec<_> = iface.bundles.iter().filter(|b| b.name == name).collect();
             let b = match matches.len() {
@@ -322,11 +436,23 @@ pub fn resolve_domain(
                 }
             };
             let size = check_range(&entry, b.width, &format!("bundle {name:?}"))?;
-            let id = ComponentId::Bundle { group: b.group.clone(), slot: b.slot };
+            let id = ComponentId::Bundle {
+                group: b.group.clone(),
+                slot: b.slot,
+            };
             if full_range(&entry, b.width) {
                 covered.insert(id.clone());
             }
-            push(Component { id, width: b.width, lo: entry.lo, size }, &mut components, &mut seen)?;
+            push(
+                Component {
+                    id,
+                    width: b.width,
+                    lo: entry.lo,
+                    size,
+                },
+                &mut components,
+                &mut seen,
+            )?;
         }
     }
 
@@ -344,16 +470,31 @@ pub fn resolve_domain(
         if full_range(&entry, width) {
             covered.insert(id.clone());
         }
-        push(Component { id, width, lo: entry.lo, size }, &mut components, &mut seen)?;
+        push(
+            Component {
+                id,
+                width,
+                lo: entry.lo,
+                size,
+            },
+            &mut components,
+            &mut seen,
+        )?;
     }
 
     // Regions: name resolves to an interface region; cells as listed.
     let mut region_full: Vec<bool> = vec![false; iface.regions.len()];
     for e in get_arr("regions")? {
-        let eobj = e.as_obj().ok_or_else(|| domain_reject("regions entry is not an object".into()))?;
+        let eobj = e
+            .as_obj()
+            .ok_or_else(|| domain_reject("regions entry is not an object".into()))?;
         for k in eobj.keys() {
             if !matches!(k.as_str(), "name" | "cells") {
-                return Err(reject("E_CERT_SCHEMA", "§12.2", format!("regions entry has unknown field {k:?}")));
+                return Err(reject(
+                    "E_CERT_SCHEMA",
+                    "§12.2",
+                    format!("regions entry has unknown field {k:?}"),
+                ));
             }
         }
         let name = e
@@ -364,7 +505,11 @@ pub fn resolve_domain(
             .regions
             .iter()
             .position(|r| r.name == name)
-            .ok_or_else(|| domain_reject(format!("regions entry name {name:?} is not an interface region")))?;
+            .ok_or_else(|| {
+                domain_reject(format!(
+                    "regions entry name {name:?} is not an interface region"
+                ))
+            })?;
         let region = &iface.regions[rpos];
         match e.get("cells") {
             Some(Value::Str(s)) if s == "all" => {
@@ -373,7 +518,10 @@ pub fn resolve_domain(
                 // enumeration, bounded by the host bit cap below.
                 let cell_count = if region.a >= 64 {
                     return Err(ResolveError::HostLimit(HostLimit {
-                        quantity: format!("region {name:?} cell count 2^{} (§12.2 host limit)", region.a),
+                        quantity: format!(
+                            "region {name:?} cell count 2^{} (§12.2 host limit)",
+                            region.a
+                        ),
                     }));
                 } else {
                     1u64 << region.a
@@ -408,39 +556,68 @@ pub fn resolve_domain(
             Some(Value::Arr(cells)) => {
                 let mut all_full = true;
                 for cell in cells {
-                    let cobj = cell.as_obj().ok_or_else(|| domain_reject("region cell entry is not an object".into()))?;
+                    let cobj = cell.as_obj().ok_or_else(|| {
+                        domain_reject("region cell entry is not an object".into())
+                    })?;
                     for k in cobj.keys() {
                         if !matches!(k.as_str(), "index" | "lo" | "hi") {
-                            return Err(reject("E_CERT_SCHEMA", "§12.2", format!("region cell has unknown field {k:?}")));
+                            return Err(reject(
+                                "E_CERT_SCHEMA",
+                                "§12.2",
+                                format!("region cell has unknown field {k:?}"),
+                            ));
                         }
                     }
-                    let index = biguint_of_json(cell.get("index").unwrap_or(&Value::Null), "cell index")?;
-                    if !(region.a >= 64 || index < (BigUint::one() << region.a)) && index.bits() > region.a {
-                        return Err(domain_reject(format!("cell index {index} >= 2^{} in region {name:?}", region.a)));
-                    }
-                    if region.a < 64 && index >= (BigUint::one() << region.a) {
-                        return Err(domain_reject(format!("cell index {index} >= 2^{} in region {name:?}", region.a)));
+                    let index =
+                        biguint_of_json(cell.get("index").unwrap_or(&Value::Null), "cell index")?;
+                    if index.bits() > region.a {
+                        return Err(domain_reject(format!(
+                            "cell index {index} >= 2^{} in region {name:?}",
+                            region.a
+                        )));
                     }
                     let lo = biguint_of_json(cell.get("lo").unwrap_or(&Value::Null), "cell lo")?;
                     let hi = biguint_of_json(cell.get("hi").unwrap_or(&Value::Null), "cell hi")?;
-                    let entry = Entry { lo, hi, width: region.w };
-                    let size = check_range(&entry, region.w, &format!("region {name:?} cell {index}"))?;
+                    let entry = Entry {
+                        lo,
+                        hi,
+                        width: region.w,
+                    };
+                    let size =
+                        check_range(&entry, region.w, &format!("region {name:?} cell {index}"))?;
                     if !full_range(&entry, region.w) {
                         all_full = false;
                     }
-                    let id = ComponentId::Cell { group: region.group.clone(), slot: region.slot, index };
-                    push(Component { id, width: region.w, lo: entry.lo, size }, &mut components, &mut seen)?;
+                    let id = ComponentId::Cell {
+                        group: region.group.clone(),
+                        slot: region.slot,
+                        index,
+                    };
+                    push(
+                        Component {
+                            id,
+                            width: region.w,
+                            lo: entry.lo,
+                            size,
+                        },
+                        &mut components,
+                        &mut seen,
+                    )?;
                 }
                 // Explicit list covers the region iff it lists every cell at
                 // full range (distinctness already enforced).
-                let covers = all_full
-                    && region.a < 64
-                    && (cells.len() as u64) == (1u64 << region.a);
+                let covers =
+                    all_full && region.a < 64 && (cells.len() as u64) == (1u64 << region.a);
                 if covers {
                     region_full[rpos] = true;
                 }
             }
-            Some(o) => return Err(domain_reject(format!("regions.cells is {}, expected \"all\" or array", o.kind()))),
+            Some(o) => {
+                return Err(domain_reject(format!(
+                    "regions.cells is {}, expected \"all\" or array",
+                    o.kind()
+                )))
+            }
             None => return Err(domain_reject(format!("regions entry {name:?} lacks cells"))),
         }
     }
@@ -457,13 +634,21 @@ pub fn resolve_domain(
             }
             arg_widths.push(entry.width);
             push(
-                Component { id: ComponentId::Arg(k), width: entry.width, lo: entry.lo, size },
+                Component {
+                    id: ComponentId::Arg(k),
+                    width: entry.width,
+                    lo: entry.lo,
+                    size,
+                },
                 &mut components,
                 &mut seen,
             )?;
         }
     } else if let Some(o) = domain.get("args") {
-        return Err(domain_reject(format!("domain.args is {}, expected array", o.kind())));
+        return Err(domain_reject(format!(
+            "domain.args is {}, expected array",
+            o.kind()
+        )));
     }
 
     // Counts. Full D bits decide host materialisability.
@@ -478,7 +663,10 @@ pub fn resolve_domain(
     for r in &iface.regions {
         if r.a > 1_000_000 {
             return Err(ResolveError::HostLimit(HostLimit {
-                quantity: format!("full domain bits: region {:?} has 2^{} cells (§12.2 host limit)", r.name, r.a),
+                quantity: format!(
+                    "full domain bits: region {:?} has 2^{} cells (§12.2 host limit)",
+                    r.name, r.a
+                ),
             }));
         }
         full_bits += (BigUint::one() << r.a) * BigUint::from(r.w);
@@ -486,7 +674,9 @@ pub fn resolve_domain(
     }
     if full_bits > BigUint::from(MAX_ELEMENT_BITS) {
         return Err(ResolveError::HostLimit(HostLimit {
-            quantity: format!("domain element bits ({full_bits}) (§12.2 host limit, cap {MAX_ELEMENT_BITS})"),
+            quantity: format!(
+                "domain element bits ({full_bits}) (§12.2 host limit, cap {MAX_ELEMENT_BITS})"
+            ),
         }));
     }
     let full_bits_u = full_bits.to_string().parse::<usize>().unwrap_or(0);
@@ -510,17 +700,19 @@ pub fn resolve_domain(
         .collect();
     let bundle_positions: Vec<ComponentId> = (0..c)
         .map(ComponentId::Control)
-        .chain(
-            iface
-                .bundles
-                .iter()
-                .map(|b| ComponentId::Bundle { group: b.group.clone(), slot: b.slot }),
-        )
+        .chain(iface.bundles.iter().map(|b| ComponentId::Bundle {
+            group: b.group.clone(),
+            slot: b.slot,
+        }))
         .collect();
     let region_positions: Vec<ComponentId> = iface
         .regions
         .iter()
-        .map(|r| ComponentId::Cell { group: r.group.clone(), slot: r.slot, index: BigUint::zero() })
+        .map(|r| ComponentId::Cell {
+            group: r.group.clone(),
+            slot: r.slot,
+            index: BigUint::zero(),
+        })
         .collect();
 
     Ok(ResolvedDomain {

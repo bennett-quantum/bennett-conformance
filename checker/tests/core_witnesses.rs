@@ -28,7 +28,10 @@ fn sha256_standard_vectors() {
         sha256_hex(b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
         "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"
     );
-    assert_eq!(sha256_hex(b"[]"), "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945");
+    assert_eq!(
+        sha256_hex(b"[]"),
+        "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    );
 }
 
 #[test]
@@ -58,7 +61,10 @@ fn jcs_number_rendering() {
 #[test]
 fn jcs_object_key_order_and_escapes() {
     let v = parse(r#"{"b":1,"a":"x\"y\n","aa":[true,null]}"#).unwrap();
-    assert_eq!(jcs(&v).unwrap(), br#"{"a":"x\"y\n","aa":[true,null],"b":1}"#);
+    assert_eq!(
+        jcs(&v).unwrap(),
+        br#"{"a":"x\"y\n","aa":[true,null],"b":1}"#
+    );
     // duplicate keys are ill-formed input, never canonicalisable silently
     assert!(parse(r#"{"a":1,"a":2}"#).is_err());
     // trailing garbage rejected
@@ -75,8 +81,12 @@ fn claim_binding_params_hash_witness() {
         "9f628a694fa7259bf899bfb677aabce1c084e268a738a40f7f643eb6d8c9c093"
     );
     // +0 vs -0 f64 differ; token id never appears (tuple only).
-    let args2 = parse(r#"["18446744073709551617","0x0000000000000000",["2","0","0","0"]]"#).unwrap();
-    assert_ne!(sha256_hex(&jcs(&args2).unwrap()), sha256_hex(&jcs(&args).unwrap()));
+    let args2 =
+        parse(r#"["18446744073709551617","0x0000000000000000",["2","0","0","0"]]"#).unwrap();
+    assert_ne!(
+        sha256_hex(&jcs(&args2).unwrap()),
+        sha256_hex(&jcs(&args).unwrap())
+    );
 }
 
 #[test]
@@ -100,20 +110,31 @@ fn controlled_fixture_documents_are_jcs_and_hash_linked() {
     let cert_b = std::fs::read(dir.join("certificate.json")).expect("controlled fixture present");
     let sched_b = std::fs::read(dir.join("schedule.json")).unwrap();
     let tgt_b = std::fs::read(dir.join("target.json")).unwrap();
-    for (name, b) in [("certificate", &cert_b), ("schedule", &sched_b), ("target", &tgt_b)] {
+    for (name, b) in [
+        ("certificate", &cert_b),
+        ("schedule", &sched_b),
+        ("target", &tgt_b),
+    ] {
         let v = parse(std::str::from_utf8(b).unwrap()).unwrap();
         assert_eq!(&jcs(&v).unwrap(), b, "{name} must already be JCS bytes");
     }
     let cert = parse(std::str::from_utf8(&cert_b).unwrap()).unwrap();
     let bindings = cert.get("bindings").unwrap();
-    assert_eq!(bindings.get("schedule_hash").unwrap().as_str().unwrap(), sha256_hex(&sched_b));
-    assert_eq!(bindings.get("target_hash").unwrap().as_str().unwrap(), sha256_hex(&tgt_b));
+    assert_eq!(
+        bindings.get("schedule_hash").unwrap().as_str().unwrap(),
+        sha256_hex(&sched_b)
+    );
+    assert_eq!(
+        bindings.get("target_hash").unwrap().as_str().unwrap(),
+        sha256_hex(&tgt_b)
+    );
 }
 
 #[test]
 fn ref_library_envelope_hash() {
     // ISA 0.9 section 11.1: SHA-256 of the four-line envelope.
-    let lib = std::fs::read(isa_spec_dir().join("spec/ref-0.9.json")).expect("ref-0.9.json present");
+    let lib =
+        std::fs::read(isa_spec_dir().join("spec/ref-0.9.json")).expect("ref-0.9.json present");
     let mut env = b"isa=0.9\nexpansion=ref\nversion=0.9\n".to_vec();
     env.extend_from_slice(&lib);
     env.push(b'\n');
@@ -126,8 +147,14 @@ fn ref_library_envelope_hash() {
 #[test]
 fn decimal_rationals_exact() {
     assert_eq!(parse_decimal("0").unwrap(), Rat::zero());
-    assert_eq!(parse_decimal("0.1").unwrap() * parse_decimal("3").unwrap(), parse_decimal("0.3").unwrap());
-    assert!(parse_decimal("1/3").is_err(), "fractions are not decimal text");
+    assert_eq!(
+        parse_decimal("0.1").unwrap() * parse_decimal("3").unwrap(),
+        parse_decimal("0.3").unwrap()
+    );
+    assert!(
+        parse_decimal("1/3").is_err(),
+        "fractions are not decimal text"
+    );
     assert!(parse_decimal("01").is_err(), "non-canonical leading zero");
     assert!(parse_decimal("").is_err());
     // numbers equal regardless of spelling (ISA section 11: 0 = \"0.0\" = \"0.000\")

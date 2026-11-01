@@ -31,6 +31,19 @@ fn main() -> ExitCode {
     let mut i = 0;
     while i < args.len() {
         let a = &args[i];
+        if matches!(
+            a.as_str(),
+            "--object"
+                | "--target"
+                | "--schedule"
+                | "--library"
+                | "--oracle-bin"
+                | "--max-elements"
+                | "--max-wires"
+        ) && args.get(i + 1).map(|v| v.starts_with("--")).unwrap_or(true)
+        {
+            return usage();
+        }
         let next = |i: &mut usize| -> Option<String> {
             *i += 1;
             args.get(*i).cloned()
@@ -54,7 +67,9 @@ fn main() -> ExitCode {
             },
             "--from-object" => from_object = true,
             "--help" | "-h" => {
-                println!("bennett-check: independent Bennett ISA certificate checker (spec section 12)");
+                println!(
+                    "bennett-check: independent Bennett ISA certificate checker (spec section 12)"
+                );
                 return usage();
             }
             _ if a.starts_with("--") => return usage(),
@@ -82,7 +97,9 @@ fn main() -> ExitCode {
     };
     let (cert_bytes, object_text);
     if from_object {
-        let Some(path) = positional else { return usage() };
+        let Some(path) = positional else {
+            return usage();
+        };
         object_text = match read_text(&path) {
             Ok(t) => t,
             Err(c) => return c,

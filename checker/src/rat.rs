@@ -53,7 +53,10 @@ pub fn parse_decimal(text: &str) -> Result<Rat, String> {
     let mut r = if scale >= 0 {
         Rat::new(numer, BigInt::from(10u32).pow(scale as u32))
     } else {
-        Rat::new(numer * BigInt::from(10u32).pow((-scale) as u32), BigInt::one())
+        Rat::new(
+            numer * BigInt::from(10u32).pow((-scale) as u32),
+            BigInt::one(),
+        )
     };
     if neg {
         r = -r;
@@ -67,15 +70,16 @@ pub fn rat_of_json(v: &Value) -> Result<Rat, String> {
     match v {
         Value::Num(lex) => parse_decimal(lex),
         Value::Str(s) => parse_decimal(s),
-        other => Err(format!("expected decimal number or string, got {}", other.kind())),
+        other => Err(format!(
+            "expected decimal number or string, got {}",
+            other.kind()
+        )),
     }
 }
 
 /// Canonical unsigned decimal string: `0`, or digits with no leading zero.
 pub fn is_canonical_uint_str(s: &str) -> bool {
-    !s.is_empty()
-        && s.bytes().all(|b| b.is_ascii_digit())
-        && (s.len() == 1 || !s.starts_with('0'))
+    !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit()) && (s.len() == 1 || !s.starts_with('0'))
 }
 
 pub fn parse_biguint_str(s: &str) -> Option<BigUint> {
@@ -204,19 +208,34 @@ pub struct Interval {
 
 impl Interval {
     pub fn point(v: Rat, p: u32) -> Interval {
-        Interval { lo: round_down(&v, p), hi: round_up(&v, p) }
+        Interval {
+            lo: round_down(&v, p),
+            hi: round_up(&v, p),
+        }
     }
     pub fn exact(v: Rat) -> Interval {
-        Interval { lo: v.clone(), hi: v }
+        Interval {
+            lo: v.clone(),
+            hi: v,
+        }
     }
     pub fn add(&self, o: &Interval, p: u32) -> Interval {
-        Interval { lo: round_down(&(&self.lo + &o.lo), p), hi: round_up(&(&self.hi + &o.hi), p) }
+        Interval {
+            lo: round_down(&(&self.lo + &o.lo), p),
+            hi: round_up(&(&self.hi + &o.hi), p),
+        }
     }
     pub fn sub(&self, o: &Interval, p: u32) -> Interval {
-        Interval { lo: round_down(&(&self.lo - &o.hi), p), hi: round_up(&(&self.hi - &o.lo), p) }
+        Interval {
+            lo: round_down(&(&self.lo - &o.hi), p),
+            hi: round_up(&(&self.hi - &o.lo), p),
+        }
     }
     pub fn neg(&self) -> Interval {
-        Interval { lo: -self.hi.clone(), hi: -self.lo.clone() }
+        Interval {
+            lo: -self.hi.clone(),
+            hi: -self.lo.clone(),
+        }
     }
     pub fn mul(&self, o: &Interval, p: u32) -> Interval {
         let products = [
@@ -227,13 +246,19 @@ impl Interval {
         ];
         let lo = products.iter().min().unwrap().clone();
         let hi = products.iter().max().unwrap().clone();
-        Interval { lo: round_down(&lo, p), hi: round_up(&hi, p) }
+        Interval {
+            lo: round_down(&lo, p),
+            hi: round_up(&hi, p),
+        }
     }
     pub fn div(&self, o: &Interval, p: u32) -> Option<Interval> {
         if o.lo <= Rat::zero() && o.hi >= Rat::zero() {
             return None; // division by an interval containing 0: inconclusive
         }
-        let recip = Interval { lo: round_down(&o.hi.recip(), p), hi: round_up(&o.lo.recip(), p) };
+        let recip = Interval {
+            lo: round_down(&o.hi.recip(), p),
+            hi: round_up(&o.lo.recip(), p),
+        };
         Some(self.mul(&recip, p))
     }
     /// sqrt of a nonnegative interval; None when lo < 0 (inconclusive).
@@ -241,12 +266,19 @@ impl Interval {
         if self.lo.is_negative() {
             return None;
         }
-        Some(Interval { lo: sqrt_down(&self.lo, p), hi: sqrt_up(&self.hi, p) })
+        Some(Interval {
+            lo: sqrt_down(&self.lo, p),
+            hi: sqrt_up(&self.hi, p),
+        })
     }
     pub fn max_abs(&self) -> Rat {
         let a = self.lo.abs();
         let b = self.hi.abs();
-        if a >= b { a } else { b }
+        if a >= b {
+            a
+        } else {
+            b
+        }
     }
     pub fn contains_zero(&self) -> bool {
         self.lo <= Rat::zero() && self.hi >= Rat::zero()
@@ -269,7 +301,11 @@ fn round_binary(v: &Rat, p: u32, down: bool) -> Rat {
     let e = floor_log2_abs(v);
     let q_exp = e - (p as i64) + 1;
     let scaled = scale_pow2(v, -q_exp); // v / 2^q_exp
-    let n = if down { floor_int(&scaled) } else { ceil_int(&scaled) };
+    let n = if down {
+        floor_int(&scaled)
+    } else {
+        ceil_int(&scaled)
+    };
     scale_pow2(&Rat::from(n), q_exp)
 }
 
@@ -323,21 +359,31 @@ fn cmp_pow2_abs(v: &Rat, e: i64) -> i32 {
 }
 
 fn sqrt_down(v: &Rat, p: u32) -> Rat {
-    // floor(sqrt(v) * 2^s)/2^s with s chosen for p bits, then binary-round.
-    let s = p + 2;
-    let scaled = scale_pow2(v, 2 * s as i64);
-    let n = isqrt(&floor_int(&scaled).magnitude().clone());
-    round_down(&scale_pow2(&Rat::new(BigInt::from(n), BigInt::one()), -(s as i64)), p)
+    sqrt_bounds(v, p).0
 }
 fn sqrt_up(v: &Rat, p: u32) -> Rat {
-    let s = p + 2;
-    let scaled = scale_pow2(v, 2 * s as i64);
-    let f = floor_int(&scaled);
-    let mut n = isqrt(&f.magnitude().clone());
-    if &BigInt::from(n.clone() * &n) < &f || Rat::from(f.clone()) < scaled {
-        n += BigUint::one();
+    sqrt_bounds(v, p).1
+}
+
+fn sqrt_bounds(v: &Rat, p: u32) -> (Rat, Rat) {
+    if v.is_zero() {
+        return (Rat::zero(), Rat::zero());
     }
-    round_up(&scale_pow2(&Rat::new(BigInt::from(n), BigInt::one()), -(s as i64)), p)
+    // floor(log2(sqrt(v))) = floor(floor(log2(v))/2), including
+    // negative exponents. The quantum must be relative to v: a fixed
+    // 2^-p grid loses every significant bit for tiny positive pivots.
+    let exponent = floor_log2_abs(v).div_euclid(2);
+    let quantum = exponent - i64::from(p.max(1)) + 1;
+    let scaled = scale_pow2(v, -2 * quantum);
+    let root = isqrt(floor_int(&scaled).magnitude());
+    let lo = scale_pow2(&Rat::from(BigInt::from(root.clone())), quantum);
+    let exact = Rat::from(BigInt::from(&root * &root)) == scaled;
+    let hi = if exact {
+        lo.clone()
+    } else {
+        scale_pow2(&Rat::from(BigInt::from(root + BigUint::one())), quantum)
+    };
+    (lo, hi)
 }
 
 /// Enclosure of sqrt(2)/2 etc. come through Interval::sqrt of exact values.

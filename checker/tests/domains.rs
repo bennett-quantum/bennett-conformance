@@ -1,7 +1,7 @@
 //! Section 12.2 domain resolution/coverage and section 12.1 sampling,
 //! pinned by the COMPONENT-COVERAGE and CLAIM-REPLAY witnesses.
 
-use bennett_cert_checker::domain::{resolve_domain, HostLimit, ResolveError};
+use bennett_cert_checker::domain::{resolve_domain, ResolveError};
 use bennett_cert_checker::json::parse;
 use bennett_cert_checker::object::Object;
 use bennett_cert_checker::sampler::{draw_elements, Sampler};
@@ -24,7 +24,9 @@ fn component_coverage_witness_arithmetic() {
     // borrow_tuple has no qborrow; use oracle_tuple-style direct interface
     // arithmetic on borrow_tuple bundles only for the bundle half:
     let iface = o.interface("borrow_tuple").unwrap();
-    let domain = parse(r#"{"bundles":[{"name":"u","width":1,"lo":0,"hi":1}],"borrowed":[],"regions":[]}"#).unwrap();
+    let domain =
+        parse(r#"{"bundles":[{"name":"u","width":1,"lo":0,"hi":1}],"borrowed":[],"regions":[]}"#)
+            .unwrap();
     // borrow_tuple bundles are named t,b (mut) and x (in) in this object;
     // "u" is unknown here and must reject — resolution is by header name.
     match resolve_domain(&domain, &iface, 0) {
@@ -51,14 +53,22 @@ fn omitted_component_is_zero_slice_not_full_range() {
     // Enumeration: last component fastest; omitted t stays 0.
     let els: Vec<_> = d.elements().collect();
     assert_eq!(els.len(), 4);
-    assert!(els.iter().all(|e| e.bundles[0].to_string() == "0"), "t omitted must be 0");
+    assert!(
+        els.iter().all(|e| e.bundles[0].to_string() == "0"),
+        "t omitted must be 0"
+    );
     let bx: Vec<(String, String)> = els
         .iter()
         .map(|e| (e.bundles[1].to_string(), e.bundles[2].to_string()))
         .collect();
     assert_eq!(
         bx,
-        [("0".into(), "0".into()), ("0".into(), "1".into()), ("1".into(), "0".into()), ("1".into(), "1".into())]
+        [
+            ("0".into(), "0".into()),
+            ("0".into(), "1".into()),
+            ("1".into(), "0".into()),
+            ("1".into(), "1".into())
+        ]
     );
 }
 
@@ -102,7 +112,9 @@ fn oracle_full_domain_includes_tgt_and_fault() {
     assert_eq!(d.n.to_string(), "256");
     assert!(d.covers_full);
     // Input-only domain is a slice: 4 of 256.
-    let domain = parse(r#"{"bundles":[{"name":"x","width":2,"lo":0,"hi":3}],"borrowed":[],"regions":[]}"#).unwrap();
+    let domain =
+        parse(r#"{"bundles":[{"name":"x","width":2,"lo":0,"hi":3}],"borrowed":[],"regions":[]}"#)
+            .unwrap();
     let d = resolve_domain(&domain, &iface, 0).unwrap();
     assert_eq!(d.covered_fraction(), "1/64");
     assert!(!d.covers_full);
@@ -157,6 +169,24 @@ fn huge_region_domain_is_host_limit_not_reject() {
     // unchecked (host limit), never ill-formed. Modelled by capping the
     // materialised element size; resolution with the production cap must
     // classify as HostLimit once element/count materialisation is needed.
-    let err = HostLimit { quantity: "domain element bits (2^63)".into() };
-    assert!(err.quantity.contains("2^63"));
+    let iface = bennett_cert_checker::object::Interface {
+        bundles: vec![],
+        borrowed_widths: vec![],
+        args: vec![],
+        bounds: vec![],
+        regions: vec![bennett_cert_checker::object::RegionInfo {
+            name: "m".into(),
+            group: "in".into(),
+            slot: 0,
+            a: 63,
+            w: 1,
+            role: "in".into(),
+        }],
+    };
+    let domain =
+        parse(r#"{"bundles":[],"borrowed":[],"regions":[{"name":"m","cells":"all"}]}"#).unwrap();
+    match resolve_domain(&domain, &iface, 0) {
+        Err(ResolveError::HostLimit(h)) => assert!(h.quantity.contains("63")),
+        other => panic!("region[63,1] must terminate normally as a host limitation: {other:?}"),
+    }
 }

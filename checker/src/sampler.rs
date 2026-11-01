@@ -16,7 +16,9 @@ impl Sampler {
         let mut s = [0u64; 4];
         for (i, word) in seed.iter().enumerate() {
             if !is_canonical_uint_str(word) {
-                return Err(format!("sampler seed[{i}] is not a canonical decimal string: {word:?}"));
+                return Err(format!(
+                    "sampler seed[{i}] is not a canonical decimal string: {word:?}"
+                ));
             }
             s[i] = word
                 .parse::<u64>()
@@ -52,7 +54,11 @@ impl Sampler {
             return lo.clone();
         }
         let bits = size.bits(); // ceil(log2(size)) == bits-1 unless size is a power of two
-        let need_bits = if (size & (size - BigUint::one())).is_zero() { bits - 1 } else { bits };
+        let need_bits = if (size & (size - BigUint::one())).is_zero() {
+            bits - 1
+        } else {
+            bits
+        };
         let words = need_bits.div_ceil(64);
         loop {
             let mut acc = BigUint::zero();

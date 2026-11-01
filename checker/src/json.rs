@@ -217,7 +217,9 @@ impl<'a> Parser<'a> {
             }
         }
         Ok(Value::Num(
-            std::str::from_utf8(&self.b[start..self.i]).unwrap().to_string(),
+            std::str::from_utf8(&self.b[start..self.i])
+                .unwrap()
+                .to_string(),
         ))
     }
     fn string(&mut self) -> Result<String, ParseError> {
@@ -246,14 +248,19 @@ impl<'a> Parser<'a> {
                             self.i += 1;
                             let hi = self.hex4()?;
                             if (0xd800..0xdc00).contains(&hi) {
-                                if self.peek() == Some(b'\\') && self.b.get(self.i + 1) == Some(&b'u') {
+                                if self.peek() == Some(b'\\')
+                                    && self.b.get(self.i + 1) == Some(&b'u')
+                                {
                                     self.i += 2;
                                     let lo = self.hex4()?;
                                     if !(0xdc00..0xe000).contains(&lo) {
                                         return Err(self.err("invalid low surrogate"));
                                     }
                                     let cp = 0x10000 + ((hi - 0xd800) << 10) + (lo - 0xdc00);
-                                    out.push(char::from_u32(cp).ok_or_else(|| self.err("bad surrogate pair"))?);
+                                    out.push(
+                                        char::from_u32(cp)
+                                            .ok_or_else(|| self.err("bad surrogate pair"))?,
+                                    );
                                     continue;
                                 }
                                 return Err(self.err("lone high surrogate"));
@@ -268,7 +275,9 @@ impl<'a> Parser<'a> {
                     }
                     self.i += 1;
                 }
-                Some(c) if c < 0x20 => return Err(self.err("unescaped control character in string")),
+                Some(c) if c < 0x20 => {
+                    return Err(self.err("unescaped control character in string"))
+                }
                 Some(_) => {
                     // Copy one UTF-8 char.
                     let rest = std::str::from_utf8(&self.b[self.i..])
@@ -284,7 +293,8 @@ impl<'a> Parser<'a> {
         if self.i + 4 > self.b.len() {
             return Err(self.err("truncated \\u escape"));
         }
-        let s = std::str::from_utf8(&self.b[self.i..self.i + 4]).map_err(|_| self.err("bad \\u escape"))?;
+        let s = std::str::from_utf8(&self.b[self.i..self.i + 4])
+            .map_err(|_| self.err("bad \\u escape"))?;
         let v = u32::from_str_radix(s, 16).map_err(|_| self.err("bad \\u escape"))?;
         self.i += 4;
         Ok(v)
@@ -364,10 +374,15 @@ fn write_jcs_string(s: &str, out: &mut Vec<u8>) {
     out.push(b'"');
 }
 
-/// ECMAScript Number-to-String as RFC 8785 section 3.2.2.3 requires,
-/// computed from the shortest round-trip digits Rust produces.
+/// RFC 8785 §3.2.2.3 requires ECMAScript's shortest representation,
+/// including its ties-to-even choice. Rust's standard float formatter has
+/// a different tie policy (RFC Appendix B's 43143ff3c1cb0959 is a witness).
+/// Use a general-purpose ECMAScript number renderer, independent of all
+/// Bennett implementations; JSON parsing, key ordering and escaping stay here.
 pub fn jcs_number(lex: &str) -> Result<String, String> {
-    let v: f64 = lex.parse().map_err(|_| format!("invalid JSON number {lex:?}"))?;
+    let v: f64 = lex
+        .parse()
+        .map_err(|_| format!("invalid JSON number {lex:?}"))?;
     if !v.is_finite() {
         return Err(format!("non-finite JSON number {lex:?} has no JCS form"));
     }
@@ -375,56 +390,7 @@ pub fn jcs_number(lex: &str) -> Result<String, String> {
 }
 
 pub fn ecmascript_number(v: f64) -> String {
-    if v == 0.0 {
-        return "0".to_string();
-    }
-    let sign = if v < 0.0 { "-" } else { "" };
-    let a = v.abs();
-    // Rust LowerExp gives shortest digits like "1.2345e20" or "5e-1".
-    let sci = format!("{a:e}");
-    let (digits, exp) = parse_sci(&sci);
-    // ECMAScript: value = digits (as integer s) * 10^(n-k), k = len(digits).
-    let k = digits.len() as i32;
-    let n = exp + 1; // decimal point position relative to digit string
-    let body = if k <= n && n <= 21 {
-        let mut s = digits.clone();
-        s.push_str(&"0".repeat((n - k) as usize));
-        s
-    } else if 0 < n && n <= 21 {
-        let mut s = String::new();
-        s.push_str(&digits[..n as usize]);
-        s.push('.');
-        s.push_str(&digits[n as usize..]);
-        s
-    } else if -6 < n && n <= 0 {
-        let mut s = "0.".to_string();
-        s.push_str(&"0".repeat((-n) as usize));
-        s.push_str(&digits);
-        s
-    } else {
-        let mut s = String::new();
-        s.push_str(&digits[..1]);
-        if k > 1 {
-            s.push('.');
-            s.push_str(&digits[1..]);
-        }
-        s.push('e');
-        let e = n - 1;
-        if e >= 0 {
-            s.push('+');
-        }
-        s.push_str(&e.to_string());
-        s
-    };
-    format!("{sign}{body}")
-}
-
-fn parse_sci(sci: &str) -> (String, i32) {
-    let (mant, exp) = sci.split_once('e').expect("LowerExp always has e");
-    let exp: i32 = exp.parse().unwrap();
-    let digits: String = mant.chars().filter(|c| c.is_ascii_digit()).collect();
-    // Strip trailing zeros cannot occur in shortest form except "0" mantissa path (excluded).
-    (digits, exp)
+    ryu_js::Buffer::new().format(v).to_string()
 }
 
 /// Build a string value.

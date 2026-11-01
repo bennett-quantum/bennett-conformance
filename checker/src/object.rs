@@ -8,7 +8,14 @@ use crate::sha256::sha256_hex;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 const SECTION_ORDER: [&str; 9] = [
-    "symbols", "imports", "functions", "data", "devices", "layout", "schedule", "certificate",
+    "symbols",
+    "imports",
+    "functions",
+    "data",
+    "devices",
+    "layout",
+    "schedule",
+    "certificate",
     "coverage",
 ];
 
@@ -124,27 +131,42 @@ impl Object {
         let mut i = 1usize;
         let mut last_order: Option<usize> = None;
         while i < lines.len() - 1 {
-            if lines[i].is_empty() && lines.get(i + 1).map(|l| l.starts_with("section ")).unwrap_or(false) {
+            if lines[i].is_empty()
+                && lines
+                    .get(i + 1)
+                    .map(|l| l.starts_with("section "))
+                    .unwrap_or(false)
+            {
                 let name = lines[i + 1]["section ".len()..].trim_end();
                 let order = SECTION_ORDER
                     .iter()
                     .position(|s| *s == name)
                     .ok_or_else(|| sec_err("§9.1", format!("unknown section {name:?}")))?;
                 if last_order.map(|lo| order <= lo).unwrap_or(false) {
-                    return Err(sec_err("§9.1", format!("section {name:?} out of order or repeated")));
+                    return Err(sec_err(
+                        "§9.1",
+                        format!("section {name:?} out of order or repeated"),
+                    ));
                 }
                 last_order = Some(order);
                 i += 2;
                 let mut body = Vec::new();
                 while i < lines.len() - 1
-                    && !(lines[i].is_empty() && lines.get(i + 1).map(|l| l.starts_with("section ")).unwrap_or(false))
+                    && !(lines[i].is_empty()
+                        && lines
+                            .get(i + 1)
+                            .map(|l| l.starts_with("section "))
+                            .unwrap_or(false))
                 {
                     body.push(lines[i].to_string());
                     i += 1;
                 }
                 // A section body has no blank lines (§16.1).
                 if body.iter().any(|l| l.is_empty()) {
-                    return Err(sec_err("§16.1", format!("blank line inside section {name:?}")));
+                    return Err(sec_err(
+                        "§16.1",
+                        format!("blank line inside section {name:?}"),
+                    ));
                 }
                 sections.push((SECTION_ORDER[order], body));
             } else if lines[i].is_empty() && i == lines.len() - 1 {
@@ -165,22 +187,42 @@ impl Object {
             .as_obj()
             .ok_or_else(|| sec_err("§9.1", "symbols section is not an object"))?;
         for (idx, entry) in sym_obj {
-            let name = entry.get("name").and_then(Value::as_str).unwrap_or("").to_string();
-            let kind = entry.get("kind").and_then(Value::as_str).unwrap_or("").to_string();
+            let name = entry
+                .get("name")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_string();
+            let kind = entry
+                .get("kind")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_string();
             let signature = entry.get("signature").cloned().unwrap_or(Value::Null);
             let stated = entry
                 .get("interface_hash")
                 .and_then(Value::as_str)
                 .unwrap_or("")
                 .to_string();
-            let index: i128 = idx.parse().map_err(|_| sec_err("§9.1", format!("bad symbol index {idx:?}")))?;
-            raw_symbols.push((index, RawSymbol { name, kind, signature, stated }));
+            let index: i128 = idx
+                .parse()
+                .map_err(|_| sec_err("§9.1", format!("bad symbol index {idx:?}")))?;
+            raw_symbols.push((
+                index,
+                RawSymbol {
+                    name,
+                    kind,
+                    signature,
+                    stated,
+                },
+            ));
         }
         raw_symbols.sort_by_key(|(i, _)| *i);
 
         let mut imports = BTreeMap::new();
         if let Some(v) = parse_metadata(sec("imports"), "imports")? {
-            let obj = v.as_obj().ok_or_else(|| sec_err("§9.1", "imports is not an object"))?;
+            let obj = v
+                .as_obj()
+                .ok_or_else(|| sec_err("§9.1", "imports is not an object"))?;
             for (name, entry) in obj {
                 imports.insert(
                     name.clone(),
@@ -201,7 +243,11 @@ impl Object {
                 let (name, hex) = line
                     .split_once(' ')
                     .ok_or_else(|| sec_err("§16.2", format!("bad data line {line:?}")))?;
-                if hex.len() % 2 != 0 || !hex.bytes().all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase()) {
+                if hex.len() % 2 != 0
+                    || !hex
+                        .bytes()
+                        .all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase())
+                {
                     return Err(sec_err("§16.1", format!("bad HEX in data line {line:?}")));
                 }
                 data.insert(name.to_string(), hex.to_string());
@@ -245,13 +291,17 @@ impl Object {
     }
 
     pub fn stated_hashes_ok(&self) -> bool {
-        self.symbols.iter().all(|s| s.stated_interface_hash == s.interface_hash)
+        self.symbols
+            .iter()
+            .all(|s| s.stated_interface_hash == s.interface_hash)
     }
     pub fn symbol(&self, name: &str) -> Option<&Symbol> {
         self.symbols.iter().find(|s| s.name == name)
     }
     pub fn symbol_by_closure(&self, hash: &str) -> Option<&Symbol> {
-        self.symbols.iter().find(|s| s.closure_hash.as_deref() == Some(hash))
+        self.symbols
+            .iter()
+            .find(|s| s.closure_hash.as_deref() == Some(hash))
     }
     pub fn function(&self, name: &str) -> Option<&Function> {
         self.functions.iter().find(|f| f.name == name)
@@ -274,7 +324,16 @@ struct RawSymbol {
 
 fn parse_header(line: &str) -> Result<Header, String> {
     let parts: Vec<&str> = line.split(' ').collect();
-    let keys = ["isa=", "object=", "launch=", "sched=", "cert=", "coverage=", "target=", "ptr_width="];
+    let keys = [
+        "isa=",
+        "object=",
+        "launch=",
+        "sched=",
+        "cert=",
+        "coverage=",
+        "target=",
+        "ptr_width=",
+    ];
     if parts.len() != 9 || parts[0] != "bennett-object" {
         return Err(sec_err("§16.2", format!("bad object header {line:?}")));
     }
@@ -291,8 +350,13 @@ fn parse_header(line: &str) -> Result<Header, String> {
     let pw = parts[8]
         .strip_prefix("ptr_width=")
         .ok_or_else(|| sec_err("§16.2", "header lacks ptr_width"))?;
-    let ptr_width: u64 = pw.parse().map_err(|_| sec_err("§16.2", format!("bad ptr_width {pw:?}")))?;
-    Ok(Header { versions, ptr_width })
+    let ptr_width: u64 = pw
+        .parse()
+        .map_err(|_| sec_err("§16.2", format!("bad ptr_width {pw:?}")))?;
+    Ok(Header {
+        versions,
+        ptr_width,
+    })
 }
 
 pub fn is_version(v: &str) -> bool {
@@ -312,7 +376,10 @@ fn parse_metadata(body: Option<&Vec<String>>, name: &str) -> Result<Option<Value
         None => Ok(None),
         Some(body) => {
             if body.len() != 1 {
-                return Err(sec_err("§9.1", format!("{name} section must be one JCS line")));
+                return Err(sec_err(
+                    "§9.1",
+                    format!("{name} section must be one JCS line"),
+                ));
             }
             let v = parse(&body[0]).map_err(|e| sec_err("§9.1", format!("{name}: {e}")))?;
             Ok(Some(v))
@@ -331,13 +398,19 @@ pub fn stripped_object_bytes(text: &str) -> String {
             && lines
                 .get(i + 1)
                 .map(|l| {
-                    l == &"section schedule" || l == &"section certificate" || l == &"section coverage"
+                    l == &"section schedule"
+                        || l == &"section certificate"
+                        || l == &"section coverage"
                 })
                 .unwrap_or(false)
         {
             i += 2;
             while i < lines.len()
-                && !(lines[i].is_empty() && lines.get(i + 1).map(|l| l.starts_with("section ")).unwrap_or(false))
+                && !(lines[i].is_empty()
+                    && lines
+                        .get(i + 1)
+                        .map(|l| l.starts_with("section "))
+                        .unwrap_or(false))
                 && !(i == lines.len() - 1 && lines[i].is_empty())
             {
                 i += 1;
@@ -374,7 +447,9 @@ fn function_kind(line: &str) -> Option<(&'static str, usize)> {
 fn parse_functions(body: &[String]) -> Result<Vec<Function>, String> {
     let mut out = Vec::new();
     let mut cur: Option<(String, String, Vec<String>)> = None;
-    let flush = |cur: &mut Option<(String, String, Vec<String>)>, out: &mut Vec<Function>| -> Result<(), String> {
+    let flush = |cur: &mut Option<(String, String, Vec<String>)>,
+                 out: &mut Vec<Function>|
+     -> Result<(), String> {
         if let Some((name, kind, lines)) = cur.take() {
             out.push(build_function(name, kind, lines)?);
         }
@@ -389,13 +464,21 @@ fn parse_functions(body: &[String]) -> Result<Vec<Function>, String> {
                 .take_while(|c| c.is_ascii_alphanumeric() || *c == '_' || *c == '.')
                 .collect();
             if name.is_empty() {
-                return Err(sec_err("§16.2", format!("function header without @NAME: {line:?}")));
+                return Err(sec_err(
+                    "§16.2",
+                    format!("function header without @NAME: {line:?}"),
+                ));
             }
             cur = Some((name, kind.to_string(), vec![line.clone()]));
         } else {
             match cur.as_mut() {
                 Some((_, _, lines)) => lines.push(line.clone()),
-                None => return Err(sec_err("§16.2", format!("functions section line outside any function: {line:?}"))),
+                None => {
+                    return Err(sec_err(
+                        "§16.2",
+                        format!("functions section line outside any function: {line:?}"),
+                    ))
+                }
             }
         }
     }
@@ -415,7 +498,11 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
                 .split_once('(')
                 .ok_or_else(|| sec_err("§16.2", format!("bad block header {line:?}")))?;
             let inner = plist.trim_end_matches("):");
-            blocks.push(Block { name: bname.to_string(), params: parse_plist(inner)?, instructions: Vec::new() });
+            blocks.push(Block {
+                name: bname.to_string(),
+                params: parse_plist(inner)?,
+                instructions: Vec::new(),
+            });
         } else if line.starts_with("regs ") || line.starts_with("regs{") {
             if let Some(pos) = line.find("bounds") {
                 let brace = &line[pos..];
@@ -423,7 +510,9 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
                     for tok in brace[a + 1..b].split(',') {
                         let tok = tok.trim();
                         if !tok.is_empty() {
-                            bounds.push(tok.parse().map_err(|_| sec_err("§16.2", format!("bad bounds value {tok:?}")))?);
+                            bounds.push(tok.parse().map_err(|_| {
+                                sec_err("§16.2", format!("bad bounds value {tok:?}"))
+                            })?);
                         }
                     }
                 }
@@ -431,12 +520,24 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
         } else if line != "}" {
             match blocks.last_mut() {
                 Some(b) => b.instructions.push(line.clone()),
-                None => return Err(sec_err("§16.2", format!("instruction before any block in @{name}: {line:?}"))),
+                None => {
+                    return Err(sec_err(
+                        "§16.2",
+                        format!("instruction before any block in @{name}: {line:?}"),
+                    ))
+                }
             }
         }
         // A bare "}" closes a nested structure; it is not an instruction line.
     }
-    Ok(Function { name, kind, groups, bytes, blocks, bounds })
+    Ok(Function {
+        name,
+        kind,
+        groups,
+        bytes,
+        blocks,
+        bounds,
+    })
 }
 
 /// Split the five parenthesised groups of a function header.
@@ -466,7 +567,10 @@ fn parse_header_groups(header: &str, fname: &str) -> Result<Vec<Vec<Param>>, Str
     if groups.len() != 5 {
         return Err(sec_err(
             "§16.2",
-            format!("function @{fname} header has {} parameter groups, expected 5", groups.len()),
+            format!(
+                "function @{fname} header has {} parameter groups, expected 5",
+                groups.len()
+            ),
         ));
     }
     Ok(groups)
@@ -508,10 +612,14 @@ fn parse_param(text: &str) -> Result<Param, String> {
     // but canonical text writes "n:reg[8]" / "x:wire[8] in".
     let mut parts = text.splitn(2, ':');
     let name = parts.next().unwrap_or("").trim().to_string();
-    let rest = parts.next().ok_or_else(|| sec_err("§16.2", format!("parameter without type: {text:?}")))?;
+    let rest = parts
+        .next()
+        .ok_or_else(|| sec_err("§16.2", format!("parameter without type: {text:?}")))?;
     let rest = rest.trim();
     let (ty, suffix) = match rest.rsplit_once(' ') {
-        Some((t, s)) if matches!(s, "in" | "mut" | "token" | "classical") => (t.trim().to_string(), Some(s.to_string())),
+        Some((t, s)) if matches!(s, "in" | "mut" | "token" | "classical") => {
+            (t.trim().to_string(), Some(s.to_string()))
+        }
         _ => (rest.to_string(), None),
     };
     if name.is_empty() || ty.is_empty() {
@@ -535,58 +643,107 @@ fn region_aw_of(ty: &str) -> Option<(u64, u64)> {
 }
 
 fn sig_widths(sig: &Value, key: &str) -> Option<Vec<u64>> {
-    sig.get(key)?.as_arr()?.iter().map(|v| v.as_i128().map(|i| i as u64)).collect()
+    sig.get(key)?
+        .as_arr()?
+        .iter()
+        .map(|v| v.as_i128().map(|i| i as u64))
+        .collect()
 }
 
 impl Object {
     /// The section 12 interface of an oracle/action/perm_action symbol:
     /// header names + signature widths, cross-checked.
     pub fn interface(&self, name: &str) -> Result<Interface, String> {
-        let sym = self.symbol(name).ok_or_else(|| format!("no symbol @{name}"))?;
+        let sym = self
+            .symbol(name)
+            .ok_or_else(|| format!("no symbol @{name}"))?;
         let func = self
             .function(name)
             .ok_or_else(|| sec_err("§9.1", format!("symbol @{name} has no function body")))?;
         let sig = &sym.signature;
         let mut bundles = Vec::new();
-        let mut add = |params: &[Param], widths: &[u64], group: &str, bundles: &mut Vec<BundleInfo>| -> Result<(), String> {
+        let add = |params: &[Param],
+                   widths: &[u64],
+                   group: &str,
+                   bundles: &mut Vec<BundleInfo>|
+         -> Result<(), String> {
             if params.len() != widths.len() {
                 return Err(sec_err(
                     "§9.1",
-                    format!("@{name} {group}: header lists {} params, signature {} widths", params.len(), widths.len()),
+                    format!(
+                        "@{name} {group}: header lists {} params, signature {} widths",
+                        params.len(),
+                        widths.len()
+                    ),
                 ));
             }
             for (slot, (p, w)) in params.iter().zip(widths.iter()).enumerate() {
-                let hw = wire_width_of(&p.ty)
-                    .ok_or_else(|| sec_err("§16.2", format!("@{name} param {} has non-wire type {:?}", p.name, p.ty)))?;
+                let hw = wire_width_of(&p.ty).ok_or_else(|| {
+                    sec_err(
+                        "§16.2",
+                        format!("@{name} param {} has non-wire type {:?}", p.name, p.ty),
+                    )
+                })?;
                 if hw != *w {
-                    return Err(sec_err("§9.1", format!("@{name} param {} width {hw} != signature {w}", p.name)));
+                    return Err(sec_err(
+                        "§9.1",
+                        format!("@{name} param {} width {hw} != signature {w}", p.name),
+                    ));
                 }
-                bundles.push(BundleInfo { name: p.name.clone(), group: group.to_string(), slot, width: *w });
+                bundles.push(BundleInfo {
+                    name: p.name.clone(),
+                    group: group.to_string(),
+                    slot,
+                    width: *w,
+                });
             }
             Ok(())
         };
         let args: Vec<String> = sig
             .get("args")
             .and_then(Value::as_arr)
-            .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_string)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|v| v.as_str().map(str::to_string))
+                    .collect()
+            })
             .unwrap_or_default();
-        let mut regions = Vec::new();
-        match sym.kind.as_str() {
+        let regions = match sym.kind.as_str() {
             "oracle" => {
-                add(&func.groups[0], &sig_widths(sig, "in").unwrap_or_default(), "in", &mut bundles)?;
+                add(
+                    &func.groups[0],
+                    &sig_widths(sig, "in").unwrap_or_default(),
+                    "in",
+                    &mut bundles,
+                )?;
                 let tgt = sig.get("tgt").and_then(Value::as_i128).unwrap_or(0) as u64;
                 let fault = sig.get("fault").and_then(Value::as_i128).unwrap_or(0) as u64;
                 add(&func.groups[1], &[tgt], "tgt", &mut bundles)?;
                 add(&func.groups[2], &[fault], "fault", &mut bundles)?;
-                regions = self.interface_regions(name, func, sig, 3)?;
+                self.interface_regions(name, func, sig, 3)?
             }
             "action" | "perm_action" => {
-                add(&func.groups[0], &sig_widths(sig, "mut").unwrap_or_default(), "mut", &mut bundles)?;
-                add(&func.groups[1], &sig_widths(sig, "in").unwrap_or_default(), "in", &mut bundles)?;
-                regions = self.interface_regions(name, func, sig, 2)?;
+                add(
+                    &func.groups[0],
+                    &sig_widths(sig, "mut").unwrap_or_default(),
+                    "mut",
+                    &mut bundles,
+                )?;
+                add(
+                    &func.groups[1],
+                    &sig_widths(sig, "in").unwrap_or_default(),
+                    "in",
+                    &mut bundles,
+                )?;
+                self.interface_regions(name, func, sig, 2)?
             }
-            other => return Err(sec_err("§12", format!("@{name} kind {other} is not a certificate region"))),
-        }
+            other => {
+                return Err(sec_err(
+                    "§12",
+                    format!("@{name} kind {other} is not a certificate region"),
+                ))
+            }
+        };
         // Borrowed lifetimes: qborrow instructions in text order.
         let mut borrowed_widths = Vec::new();
         for block in &func.blocks {
@@ -604,7 +761,13 @@ impl Object {
         }
         let bounds = sig_widths(sig, "bounds").unwrap_or_else(|| func.bounds.clone());
         let _ = args.len();
-        Ok(Interface { bundles, regions, args, borrowed_widths, bounds })
+        Ok(Interface {
+            bundles,
+            regions,
+            args,
+            borrowed_widths,
+            bounds,
+        })
     }
 
     fn interface_regions(
@@ -615,27 +778,53 @@ impl Object {
         group_index: usize,
     ) -> Result<Vec<RegionInfo>, String> {
         let params = &func.groups[group_index];
-        let mems: Vec<Value> = sig.get("mem").and_then(Value::as_arr).map(|a| a.to_vec()).unwrap_or_default();
+        let mems: Vec<Value> = sig
+            .get("mem")
+            .and_then(Value::as_arr)
+            .map(|a| a.to_vec())
+            .unwrap_or_default();
         if params.len() != mems.len() {
             return Err(sec_err(
                 "§9.1",
-                format!("@{fname}: header lists {} regions, signature {}", params.len(), mems.len()),
+                format!(
+                    "@{fname}: header lists {} regions, signature {}",
+                    params.len(),
+                    mems.len()
+                ),
             ));
         }
         let mut out = Vec::new();
         let mut role_slots: HashMap<String, usize> = HashMap::new();
         for (p, m) in params.iter().zip(mems.iter()) {
-            let (a, w) = region_aw_of(&p.ty)
-                .ok_or_else(|| sec_err("§16.2", format!("@{fname} param {} is not a region", p.name)))?;
-            let role = m.get("role").and_then(Value::as_str).unwrap_or("").to_string();
+            let (a, w) = region_aw_of(&p.ty).ok_or_else(|| {
+                sec_err(
+                    "§16.2",
+                    format!("@{fname} param {} is not a region", p.name),
+                )
+            })?;
+            let role = m
+                .get("role")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_string();
             let sa = m.get("A").and_then(Value::as_i128).unwrap_or(-1);
             let sw = m.get("W").and_then(Value::as_i128).unwrap_or(-1);
             if sa != a as i128 || sw != w as i128 {
-                return Err(sec_err("§9.1", format!("@{fname} region {} shape mismatch", p.name)));
+                return Err(sec_err(
+                    "§9.1",
+                    format!("@{fname} region {} shape mismatch", p.name),
+                ));
             }
             let slot = *role_slots.entry(role.clone()).or_insert(0);
             role_slots.insert(role.clone(), slot + 1);
-            out.push(RegionInfo { name: p.name.clone(), group: role.clone(), slot, a, w, role });
+            out.push(RegionInfo {
+                name: p.name.clone(),
+                group: role.clone(),
+                slot,
+                a,
+                w,
+                role,
+            });
         }
         Ok(out)
     }
@@ -662,27 +851,47 @@ struct LayoutLeaf {
 
 impl Object {
     fn layout_leaves(&self) -> Result<Vec<LayoutLeaf>, String> {
-        let isa = self.header.versions.get("isa").map(String::as_str).unwrap_or("");
+        let isa = self
+            .header
+            .versions
+            .get("isa")
+            .map(String::as_str)
+            .unwrap_or("");
         let mut out = Vec::new();
-        let Some(layout) = &self.layout else { return Ok(out) };
+        let Some(layout) = &self.layout else {
+            return Ok(out);
+        };
         let obj = layout
             .as_obj()
             .ok_or_else(|| sec_err("§9.1", "layout section is not an object"))?;
         for (key, val) in obj {
             match key.as_str() {
                 "globals" => {
-                    let g = val.as_obj().ok_or_else(|| sec_err("§9.1", "layout.globals is not an object"))?;
+                    let g = val
+                        .as_obj()
+                        .ok_or_else(|| sec_err("§9.1", "layout.globals is not an object"))?;
                     for (name, gv) in g {
-                        let image = gv.get("image").and_then(Value::as_str).unwrap_or(name).to_string();
-                        out.push(make_leaf(vec!["globals".into(), name.clone()], gv.clone(), vec![image], isa)?);
+                        let image = gv
+                            .get("image")
+                            .and_then(Value::as_str)
+                            .unwrap_or(name)
+                            .to_string();
+                        out.push(make_leaf(
+                            vec!["globals".into(), name.clone()],
+                            gv.clone(),
+                            vec![image],
+                            isa,
+                        )?);
                     }
                 }
                 "interface_regions" => {
-                    let g = val.as_obj().ok_or_else(|| sec_err("§9.1", "layout.interface_regions is not an object"))?;
+                    let g = val.as_obj().ok_or_else(|| {
+                        sec_err("§9.1", "layout.interface_regions is not an object")
+                    })?;
                     for (oracle, regions) in g {
-                        let r = regions
-                            .as_obj()
-                            .ok_or_else(|| sec_err("§9.1", "layout.interface_regions entry is not an object"))?;
+                        let r = regions.as_obj().ok_or_else(|| {
+                            sec_err("§9.1", "layout.interface_regions entry is not an object")
+                        })?;
                         for (region, rv) in r {
                             out.push(make_leaf(
                                 vec!["interface_regions".into(), oracle.clone(), region.clone()],
@@ -695,7 +904,9 @@ impl Object {
                 }
                 _ => {
                     let images = if key == "block_image" {
-                        val.as_str().map(|s| vec![s.to_string()]).unwrap_or_default()
+                        val.as_str()
+                            .map(|s| vec![s.to_string()])
+                            .unwrap_or_default()
                     } else {
                         vec![]
                     };
@@ -732,11 +943,22 @@ impl Object {
                 }
                 leaves
                     .iter()
-                    .filter(|l| l.components.first().map(String::as_str) == Some("globals") && l.components.get(1).map(|g| globals.contains(g.as_str())).unwrap_or(false))
+                    .filter(|l| {
+                        l.components.first().map(String::as_str) == Some("globals")
+                            && l.components
+                                .get(1)
+                                .map(|g| globals.contains(g.as_str()))
+                                .unwrap_or(false)
+                    })
                     .collect()
             }
             "cc" | "r" => leaves.iter().collect(),
-            other => return Err(sec_err("§9.1", format!("unknown symbol kind {other:?} for @{}", sym.name))),
+            other => {
+                return Err(sec_err(
+                    "§9.1",
+                    format!("unknown symbol kind {other:?} for @{}", sym.name),
+                ))
+            }
         };
         let mut data_names: Vec<String> = Vec::new();
         for l in &chosen {
@@ -783,8 +1005,16 @@ impl Object {
                         .and_then(|m| m.get(&name))
                         .or_else(|| d.get("services").and_then(|m| m.get(&name)))
                 })
-                .ok_or_else(|| sec_err("§9.1", format!("@{} uses unlisted device/service {name:?}", sym.name)))?;
-            out.push(format!("device {name} {}", String::from_utf8(jcs(entry)?).unwrap()));
+                .ok_or_else(|| {
+                    sec_err(
+                        "§9.1",
+                        format!("@{} uses unlisted device/service {name:?}", sym.name),
+                    )
+                })?;
+            out.push(format!(
+                "device {name} {}",
+                String::from_utf8(jcs(entry)?).unwrap()
+            ));
         }
         Ok(out)
     }
@@ -794,10 +1024,16 @@ impl Object {
         for sym in &self.symbols {
             if sym.kind == "data" {
                 if !self.data.contains_key(&sym.name) {
-                    return Err(sec_err("§9.1", format!("data symbol {} has no data line", sym.name)));
+                    return Err(sec_err(
+                        "§9.1",
+                        format!("data symbol {} has no data line", sym.name),
+                    ));
                 }
             } else if self.function(&sym.name).is_none() {
-                return Err(sec_err("§9.1", format!("symbol @{} ({}) has no function", sym.name, sym.kind)));
+                return Err(sec_err(
+                    "§9.1",
+                    format!("symbol @{} ({}) has no function", sym.name, sym.kind),
+                ));
             }
         }
         let ifaces = self.hash_pass(HashMode::Interface)?;
@@ -826,7 +1062,8 @@ impl Object {
         for sym in &self.symbols {
             if sym.kind == "oracle" {
                 if let Some(f) = self.function(&sym.name) {
-                    let regs: HashSet<String> = f.groups[3].iter().map(|p| p.name.clone()).collect();
+                    let regs: HashSet<String> =
+                        f.groups[3].iter().map(|p| p.name.clone()).collect();
                     region_names_of.insert(sym.name.clone(), regs);
                 }
             }
@@ -838,7 +1075,10 @@ impl Object {
                     continue; // interface-region spelling, not a symbol reference
                 }
                 if !names.contains(&tok) && !self.imports.contains_key(&tok) {
-                    return Err(sec_err("§9.2", format!("@{} references undefined @{tok}", sym.name)));
+                    return Err(sec_err(
+                        "§9.2",
+                        format!("@{} references undefined @{tok}", sym.name),
+                    ));
                 }
                 if !refs.contains(&tok) {
                     refs.push(tok);
@@ -907,8 +1147,7 @@ impl Object {
                 if unresolved {
                     continue;
                 }
-                let cyclic = members.len() > 1
-                    || refs_of[&members[0]].contains(&members[0]);
+                let cyclic = members.len() > 1 || refs_of[&members[0]].contains(&members[0]);
                 let mut sorted = members.clone();
                 sorted.sort();
                 let mut envelopes = Vec::new();
@@ -924,19 +1163,33 @@ impl Object {
                         HashMap::new()
                     };
                     let _ = idx;
-                    envelopes.push(self.envelope(sym, &refs_of[m], &ext_hash, &intra, cyclic, &scc_of, si)?);
+                    envelopes.push(self.envelope(
+                        sym,
+                        &refs_of[m],
+                        &ext_hash,
+                        &intra,
+                        cyclic,
+                        &scc_of,
+                        si,
+                    )?);
                 }
                 if !cyclic {
                     result.insert(sorted[0].clone(), sha256_hex(envelopes[0].as_bytes()));
                 } else {
                     let scc_hash = sha256_hex(envelopes.concat().as_bytes());
                     for (idx, m) in sorted.iter().enumerate() {
-                        result.insert(m.clone(), sha256_hex(format!("{scc_hash}:{idx}").as_bytes()));
+                        result.insert(
+                            m.clone(),
+                            sha256_hex(format!("{scc_hash}:{idx}").as_bytes()),
+                        );
                     }
                 }
             }
             if !progressed {
-                return Err(sec_err("§9.2", "reference graph could not be ordered (internal)"));
+                return Err(sec_err(
+                    "§9.2",
+                    "reference graph could not be ordered (internal)",
+                ));
             }
             remaining = still;
         }
@@ -946,9 +1199,15 @@ impl Object {
 
     fn part4_text(&self, sym: &Symbol) -> String {
         if sym.kind == "data" {
-            format!("{} {}", sym.name, self.data.get(&sym.name).cloned().unwrap_or_default())
+            format!(
+                "{} {}",
+                sym.name,
+                self.data.get(&sym.name).cloned().unwrap_or_default()
+            )
         } else {
-            self.function(&sym.name).map(|f| f.bytes.clone()).unwrap_or_default()
+            self.function(&sym.name)
+                .map(|f| f.bytes.clone())
+                .unwrap_or_default()
         }
     }
 
@@ -969,23 +1228,29 @@ impl Object {
         // header's own definition excluded (handled inside replace_refs by
         // skipping the first token when it is the definition).
         let regions: HashSet<String> = if sym.kind == "oracle" {
-            func.map(|f| f.groups[3].iter().map(|p| p.name.clone()).collect()).unwrap_or_default()
+            func.map(|f| f.groups[3].iter().map(|p| p.name.clone()).collect())
+                .unwrap_or_default()
         } else {
             HashSet::new()
         };
         let part4 = replace_refs(&self.part4_text(sym), &sym.name, ext_hash, intra, &regions);
         let mut env = String::new();
-        env.push_str(&format!("isa={}\n", self.header.versions.get("isa").cloned().unwrap_or_default()));
+        env.push_str(&format!(
+            "isa={}\n",
+            self.header.versions.get("isa").cloned().unwrap_or_default()
+        ));
         env.push_str(&format!("ptr_width={}\n", self.header.ptr_width));
         env.push_str(&String::from_utf8(jcs(&sym.signature)?).unwrap());
         env.push('\n');
         env.push_str(&part4);
         env.push('\n');
         for dn in &data_names {
-            let hex = self
-                .data
-                .get(dn)
-                .ok_or_else(|| sec_err("§9.2", format!("closure set of @{} names missing data {dn:?}", sym.name)))?;
+            let hex = self.data.get(dn).ok_or_else(|| {
+                sec_err(
+                    "§9.2",
+                    format!("closure set of @{} names missing data {dn:?}", sym.name),
+                )
+            })?;
             env.push_str(&format!("data {dn} {hex}\n"));
         }
         for leaf in &chosen {
@@ -1013,7 +1278,12 @@ impl Object {
     }
 }
 
-fn make_leaf(components: Vec<String>, value: Value, images: Vec<String>, isa: &str) -> Result<LayoutLeaf, String> {
+fn make_leaf(
+    components: Vec<String>,
+    value: Value,
+    images: Vec<String>,
+    isa: &str,
+) -> Result<LayoutLeaf, String> {
     let path_rendered = match isa {
         // 0.8 section 9.2 (5b): dotted path.
         "0.8" => components.join("."),
@@ -1022,9 +1292,19 @@ fn make_leaf(components: Vec<String>, value: Value, images: Vec<String>, isa: &s
             components.iter().cloned().map(Value::Str).collect(),
         ))?)
         .unwrap(),
-        other => return Err(sec_err("§9.2", format!("unsupported isa version {other:?} for identity"))),
+        other => {
+            return Err(sec_err(
+                "§9.2",
+                format!("unsupported isa version {other:?} for identity"),
+            ))
+        }
     };
-    Ok(LayoutLeaf { components, value, path_rendered, images })
+    Ok(LayoutLeaf {
+        components,
+        value,
+        path_rendered,
+        images,
+    })
 }
 
 impl Clone for LayoutLeaf {
@@ -1075,7 +1355,9 @@ fn at_tokens(line: &str, skip_first_def: Option<&str>) -> Vec<String> {
             b'@' => {
                 let start = i + 1;
                 let mut j = start;
-                while j < bytes.len() && (bytes[j].is_ascii_alphanumeric() || bytes[j] == b'_' || bytes[j] == b'.') {
+                while j < bytes.len()
+                    && (bytes[j].is_ascii_alphanumeric() || bytes[j] == b'_' || bytes[j] == b'.')
+                {
                     j += 1;
                 }
                 if j > start {
@@ -1099,7 +1381,10 @@ fn addr_targets(bytes: &str) -> Vec<String> {
     for line in bytes.split('\n') {
         if let Some(pos) = line.find("lift.addr @") {
             let rest = &line[pos + "lift.addr @".len()..];
-            let name: String = rest.chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '_' || *c == '.').collect();
+            let name: String = rest
+                .chars()
+                .take_while(|c| c.is_ascii_alphanumeric() || *c == '_' || *c == '.')
+                .collect();
             if !name.is_empty() {
                 out.push(name);
             }
@@ -1143,7 +1428,11 @@ fn replace_refs(
                 b'@' => {
                     let start = i + 1;
                     let mut j = start;
-                    while j < bytes.len() && (bytes[j].is_ascii_alphanumeric() || bytes[j] == b'_' || bytes[j] == b'.') {
+                    while j < bytes.len()
+                        && (bytes[j].is_ascii_alphanumeric()
+                            || bytes[j] == b'_'
+                            || bytes[j] == b'.')
+                    {
                         j += 1;
                     }
                     if j == start {
@@ -1152,7 +1441,11 @@ fn replace_refs(
                         continue;
                     }
                     let name = &line[start..j];
-                    if is_first_line && !skipped_def && name == definition && is_header_def_position(line, i) {
+                    if is_first_line
+                        && !skipped_def
+                        && name == definition
+                        && is_header_def_position(line, i)
+                    {
                         // The symbol's own name in its header line is a definition.
                         skipped_def = true;
                         out.push('@');

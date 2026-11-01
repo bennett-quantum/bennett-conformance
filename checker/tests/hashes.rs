@@ -21,10 +21,19 @@ fn load(rel: &str) -> Object {
 #[test]
 fn inc8_08_hashes_match_case_c163() {
     let o = load("conformance/cases/objects/inc8.bisa");
-    assert_eq!(o.object_hash, "8093da48bad04d6564325faf01ea1304a84b5ac5a120e685eee9951f5daec5d9");
+    assert_eq!(
+        o.object_hash,
+        "8093da48bad04d6564325faf01ea1304a84b5ac5a120e685eee9951f5daec5d9"
+    );
     let s = o.symbol("inc8").unwrap();
-    assert_eq!(s.interface_hash, "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93");
-    assert_eq!(s.closure_hash.as_deref(), Some("8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93"));
+    assert_eq!(
+        s.interface_hash,
+        "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93"
+    );
+    assert_eq!(
+        s.closure_hash.as_deref(),
+        Some("8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93")
+    );
     assert!(o.stated_hashes_ok());
 }
 
@@ -32,7 +41,10 @@ fn inc8_08_hashes_match_case_c163() {
 fn object_hash_deletes_schedule_section() {
     // Case F-object-hash-schedule-deleted.
     let o = load("conformance/cases/objects/sched_inc8.bisa");
-    assert_eq!(o.object_hash, "8093da48bad04d6564325faf01ea1304a84b5ac5a120e685eee9951f5daec5d9");
+    assert_eq!(
+        o.object_hash,
+        "8093da48bad04d6564325faf01ea1304a84b5ac5a120e685eee9951f5daec5d9"
+    );
     assert!(o.schedule.is_some());
 }
 
@@ -63,7 +75,10 @@ lift.retval r
 #[test]
 fn controlled_09_hashes_and_sections() {
     let o = load("conformance/fixtures/controlled-action-09/controlled.bisa");
-    assert_eq!(o.object_hash, "45bbb506541e3a8bb28a18e1bb0aef16ba01ee1e7cac74d5a190deb3ad36ef5a");
+    assert_eq!(
+        o.object_hash,
+        "45bbb506541e3a8bb28a18e1bb0aef16ba01ee1e7cac74d5a190deb3ad36ef5a"
+    );
     assert_eq!(
         o.symbol("controlled").unwrap().closure_hash.as_deref(),
         Some("df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12")
@@ -83,46 +98,88 @@ fn controlled_09_hashes_and_sections() {
 fn mutual_scc_hashes_match_black_box() {
     // Recorded from `bennett-isa-ref hash mutual.bisa` (black box).
     let o = load("conformance/cases/objects/mutual.bisa");
-    assert_eq!(o.object_hash, "ba0df453b2ada3a402fc6ab4f884c82311067f3c0df66e0249c83b29109accf8");
-    assert_eq!(o.symbol("f").unwrap().interface_hash, "e4028cf7347c2779e19c8193ef1039837944acebd4784e9c3a42fbe236e737ec");
-    assert_eq!(o.symbol("g").unwrap().interface_hash, "7dc9c25aff5230a46ae697edf187d34ba72a03f7a3c1a520c6fc6bf5462c6374");
-    assert_eq!(o.symbol("main").unwrap().interface_hash, "598fdf171d0a201d52e8fbe2339c70d1a26b36a72dcd60503c87c51dff88039b");
+    assert_eq!(
+        o.object_hash,
+        "ba0df453b2ada3a402fc6ab4f884c82311067f3c0df66e0249c83b29109accf8"
+    );
+    assert_eq!(
+        o.symbol("f").unwrap().interface_hash,
+        "e4028cf7347c2779e19c8193ef1039837944acebd4784e9c3a42fbe236e737ec"
+    );
+    assert_eq!(
+        o.symbol("g").unwrap().interface_hash,
+        "7dc9c25aff5230a46ae697edf187d34ba72a03f7a3c1a520c6fc6bf5462c6374"
+    );
+    assert_eq!(
+        o.symbol("main").unwrap().interface_hash,
+        "598fdf171d0a201d52e8fbe2339c70d1a26b36a72dcd60503c87c51dff88039b"
+    );
     assert!(o.stated_hashes_ok());
 }
 
 #[test]
 fn sum_db_self_scc_layout_and_data_hashes_match_black_box() {
     let o = load("conformance/cases/objects/sum_db.bisa");
-    assert_eq!(o.object_hash, "ce1a10eb007786b5a1675892154ec4ac30663a051eeeeee41057596b1db26240");
-    assert_eq!(o.symbol("sum").unwrap().interface_hash, "74f110bbafde68a4785025e7e571ef871ddd83a09465ab9c1604f653a0cfcd92");
-    assert_eq!(o.symbol("sum_db").unwrap().interface_hash, "68225d213c44812fe844cd295d8821127c3cf31682be4eb19303cb53f9b147f7");
-    assert_eq!(o.symbol("zero").unwrap().interface_hash, "7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6");
+    assert_eq!(
+        o.object_hash,
+        "ce1a10eb007786b5a1675892154ec4ac30663a051eeeeee41057596b1db26240"
+    );
+    assert_eq!(
+        o.symbol("sum").unwrap().interface_hash,
+        "74f110bbafde68a4785025e7e571ef871ddd83a09465ab9c1604f653a0cfcd92"
+    );
+    assert_eq!(
+        o.symbol("sum_db").unwrap().interface_hash,
+        "68225d213c44812fe844cd295d8821127c3cf31682be4eb19303cb53f9b147f7"
+    );
+    assert_eq!(
+        o.symbol("zero").unwrap().interface_hash,
+        "7002ed5ea010907a0ae99065663f22fb7d18ca1d6cb171fed57e2594bd9367e6"
+    );
     assert!(o.stated_hashes_ok());
 }
 
 #[test]
 fn registers_and_t3_domains_hashes_match_black_box() {
     let o = load("conformance/cases/objects/registers.bisa");
-    assert_eq!(o.symbol("toggle").unwrap().interface_hash, "de3621c3dee0d970a86479e38ff4088730604a5b4d16429b71af2ec85ab0f42f");
+    assert_eq!(
+        o.symbol("toggle").unwrap().interface_hash,
+        "de3621c3dee0d970a86479e38ff4088730604a5b4d16429b71af2ec85ab0f42f"
+    );
     assert!(o.stated_hashes_ok());
     let o = load("conformance/cases/objects/t3_domains.bisa");
-    assert_eq!(o.symbol("inc2").unwrap().interface_hash, "d42f3ddc94103b7c18a08340ae54ab5d98d173bae714c5f7477039b1c7b3543e");
+    assert_eq!(
+        o.symbol("inc2").unwrap().interface_hash,
+        "d42f3ddc94103b7c18a08340ae54ab5d98d173bae714c5f7477039b1c7b3543e"
+    );
     assert!(o.stated_hashes_ok());
 }
 
 #[test]
 fn corrupt_stated_hash_is_detected() {
     let o = load("conformance/cases/objects/f_hash_corrupt.bisa");
-    assert!(!o.stated_hashes_ok(), "stated interface_hash must not match recomputation");
+    assert!(
+        !o.stated_hashes_ok(),
+        "stated interface_hash must not match recomputation"
+    );
     // The recomputed hash is still the true inc8 hash.
-    assert_eq!(o.symbol("inc8").unwrap().interface_hash, "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93");
+    assert_eq!(
+        o.symbol("inc8").unwrap().interface_hash,
+        "8ce5e64f15830d8e596ba9b4861def6565dd567b5804300f427d8b9566d5be93"
+    );
 }
 
 #[test]
 fn section_order_and_unknown_section_rejected() {
-    let text = std::fs::read_to_string(isa_spec_dir().join("conformance/cases/objects/f_section_order.bisa")).unwrap();
+    let text = std::fs::read_to_string(
+        isa_spec_dir().join("conformance/cases/objects/f_section_order.bisa"),
+    )
+    .unwrap();
     assert!(Object::parse(&text).is_err());
-    let text = std::fs::read_to_string(isa_spec_dir().join("conformance/cases/objects/f_unknown_section.bisa")).unwrap();
+    let text = std::fs::read_to_string(
+        isa_spec_dir().join("conformance/cases/objects/f_unknown_section.bisa"),
+    )
+    .unwrap();
     assert!(Object::parse(&text).is_err());
 }
 

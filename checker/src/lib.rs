@@ -9,13 +9,16 @@
 
 pub mod cert;
 pub mod domain;
-pub mod fault;
 pub mod eval;
+pub mod fault;
 pub mod json;
+pub mod matrix;
 pub mod numeric;
 pub mod object;
 pub mod rat;
+pub mod realisation;
 pub mod sampler;
 pub mod sha256;
+pub mod structural;
 
 pub use sha256::{is_hash_hex, sha256, sha256_hex};
