@@ -1,0 +1,740 @@
+{
+"invocations": [
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"inc8",
+"--input",
+"8",
+"--budget",
+"3"
+],
+"fixture": "inc8.bisa",
+"line": 193
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"inc8",
+"--input",
+"255",
+"--budget",
+"3"
+],
+"fixture": "inc8.bisa",
+"line": 202
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"inc8",
+"--input",
+"8",
+"--budget",
+"2"
+],
+"fixture": "inc8.bisa",
+"line": 211
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"inc8",
+"--input",
+"8",
+"--budget",
+"0"
+],
+"fixture": "inc8.bisa",
+"line": 220
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"sum_db",
+"--input",
+"3",
+"--mem",
+"db=0102030405060708090a0b0c0d0e0f10",
+"--budget",
+"1000,4080,512,64"
+],
+"fixture": "sum_db.bisa",
+"line": 229
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"sum_db",
+"--input",
+"16",
+"--mem",
+"db=0102030405060708090a0b0c0d0e0f10",
+"--budget",
+"10000,4080,272,64"
+],
+"fixture": "sum_db.bisa",
+"line": 240
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"sum_db",
+"--input",
+"16",
+"--mem",
+"db=0102030405060708090a0b0c0d0e0f10",
+"--budget",
+"10000,4080,271,64"
+],
+"fixture": "sum_db.bisa",
+"line": 251
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"sum_db",
+"--input",
+"17",
+"--mem",
+"db=0102030405060708090a0b0c0d0e0f10"
+],
+"fixture": "sum_db.bisa",
+"line": 262
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"add",
+"--input",
+"255,2"
+],
+"fixture": "arithmetic.bisa",
+"line": 271
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"sub",
+"--input",
+"0,1"
+],
+"fixture": "arithmetic.bisa",
+"line": 278
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"mul",
+"--input",
+"128,3"
+],
+"fixture": "arithmetic.bisa",
+"line": 285
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"udiv",
+"--input",
+"3,0"
+],
+"fixture": "arithmetic.bisa",
+"line": 292
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"sdiv",
+"--input",
+"128,255"
+],
+"fixture": "arithmetic.bisa",
+"line": 299
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"sdiv",
+"--input",
+"249,2"
+],
+"fixture": "arithmetic.bisa",
+"line": 306
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"srem",
+"--input",
+"249,2"
+],
+"fixture": "arithmetic.bisa",
+"line": 313
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"ashr",
+"--input",
+"128,8"
+],
+"fixture": "arithmetic.bisa",
+"line": 320
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"casts",
+"--input",
+"128,0"
+],
+"fixture": "arithmetic.bisa",
+"line": 327
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"parmov",
+"--input",
+"3,9"
+],
+"fixture": "arithmetic.bisa",
+"line": 334
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"jump",
+"--input",
+"0,0"
+],
+"fixture": "arithmetic.bisa",
+"line": 341
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"jump",
+"--input",
+"1,9"
+],
+"fixture": "arithmetic.bisa",
+"line": 348
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"badjump",
+"--input",
+"1,2"
+],
+"fixture": "arithmetic.bisa",
+"line": 355
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"fault0",
+"--input",
+"1,2"
+],
+"fixture": "arithmetic.bisa",
+"line": 362
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"fault10",
+"--input",
+"1,2"
+],
+"fixture": "arithmetic.bisa",
+"line": 369
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"heap",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 376
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"zeroalloc",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 377
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"afterfree",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 378
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"pinned",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 379
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"doublefree",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 380
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"badstore",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 381
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"outoftable",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 382
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"faultif",
+"--input",
+""
+],
+"fixture": "heap.bisa",
+"line": 383
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"main",
+"--input",
+""
+],
+"fixture": "mutual.bisa",
+"line": 384
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"nested",
+"--input",
+"8",
+"--arg",
+"token:3"
+],
+"fixture": "nested.bisa",
+"line": 385
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"nested",
+"--input",
+"8",
+"--arg",
+"token:2"
+],
+"fixture": "nested.bisa",
+"line": 394
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"cancel",
+"--input",
+"8",
+"--arg",
+"token:2"
+],
+"fixture": "nested.bisa",
+"line": 403
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"ignore",
+"--input",
+"8",
+"--arg",
+"token:2"
+],
+"fixture": "nested.bisa",
+"line": 412
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"tiny",
+"--input",
+"0",
+"--mem",
+"db=ff"
+],
+"fixture": "tiny_memory.bisa",
+"line": 421
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"tiny",
+"--input",
+"1",
+"--mem",
+"db=03"
+],
+"fixture": "tiny_memory.bisa",
+"line": 430
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"lifted",
+"--input",
+"2"
+],
+"fixture": "actions.bisa",
+"line": 439
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"add257",
+"--input",
+"1606938044258990275541962092341162602522202993782792835301379,1267650600228229401496703205381",
+"--budget",
+"10"
+],
+"fixture": "wide.bisa",
+"line": 440
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"div257",
+"--input",
+"1606938044258990275541962092341162602522202993782792835301379,1267650600228229401496703205381",
+"--budget",
+"10"
+],
+"fixture": "wide.bisa",
+"line": 449
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"call257",
+"--input",
+"5",
+"--budget",
+"10,0,4,64"
+],
+"fixture": "wide.bisa",
+"line": 458
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"call257",
+"--input",
+"5",
+"--budget",
+"10,0,5,1"
+],
+"fixture": "wide.bisa",
+"line": 467
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"fault257",
+"--input",
+"5"
+],
+"fixture": "wide.bisa",
+"line": 476
+},
+{
+"argv": [
+"run-oracle",
+"$FIXTURE",
+"fault_small257",
+"--input",
+"1"
+],
+"fixture": "wide.bisa",
+"line": 477
+}
+],
+"skipped": [
+{
+"line": 185,
+"reason": "non-literal argv element (computed in the test): &path"
+},
+{
+"line": 186,
+"reason": "non-literal argv element (computed in the test): &path"
+},
+{
+"line": 556,
+"reason": "non-literal argv element (computed in the test): command"
+},
+{
+"line": 558,
+"reason": "no fixture argument (scratch or helper list)"
+},
+{
+"line": 572,
+"reason": "non-literal argv element (computed in the test): command"
+},
+{
+"line": 609,
+"reason": "non-literal argv element (computed in the test): &path"
+},
+{
+"line": 687,
+"reason": "non-literal argv element (computed in the test): path.to_str"
+},
+{
+"line": 697,
+"reason": "non-literal argv element (computed in the test): match p.ty {\n                           "
+},
+{
+"line": 715,
+"reason": "non-literal argv element (computed in the test): path.to_str"
+},
+{
+"line": 789,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 791,
+"reason": "non-literal argv element (computed in the test): match a.ty {\n                           "
+},
+{
+"line": 826,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 827,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 841,
+"reason": "non-literal argv element (computed in the test): command"
+},
+{
+"line": 853,
+"reason": "non-literal argv element (computed in the test): &step.to_string"
+},
+{
+"line": 865,
+"reason": "non-literal argv element (computed in the test): &step.to_string"
+},
+{
+"line": 954,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 971,
+"reason": "non-literal argv element (computed in the test): &format!"
+},
+{
+"line": 974,
+"reason": "non-literal argv element (computed in the test): match a.ty {\n                           "
+},
+{
+"line": 983,
+"reason": "non-literal argv element (computed in the test): if variant == 1 { \"qreg:11\" } else { \"qr"
+},
+{
+"line": 1010,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1029,
+"reason": "non-literal argv element (computed in the test): p.to_str"
+},
+{
+"line": 1085,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1106,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1147,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1165,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1180,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1194,
+"reason": "non-literal argv element (computed in the test): command"
+},
+{
+"line": 1224,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1235,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1246,
+"reason": "non-literal argv element (computed in the test): &p"
+},
+{
+"line": 1321,
+"reason": "non-literal argv element (computed in the test): path.to_str"
+},
+{
+"line": 1331,
+"reason": "non-literal argv element (computed in the test): match p.ty {\n                           "
+},
+{
+"line": 1342,
+"reason": "non-literal argv element (computed in the test): path.to_str"
+},
+{
+"line": 1354,
+"reason": "non-literal argv element (computed in the test): match p.ty {\n                        Typ"
+},
+{
+"line": 1389,
+"reason": "non-literal argv element (computed in the test): cmd"
+},
+{
+"line": 1391,
+"reason": "non-literal argv element (computed in the test): match p.ty {\n                           "
+},
+{
+"line": 1410,
+"reason": "non-literal argv element (computed in the test): cmd"
+},
+{
+"line": 1415,
+"reason": "non-literal argv element (computed in the test): match p.ty {\n                           "
+},
+{
+"line": 1490,
+"reason": "non-literal argv element (computed in the test): command"
+},
+{
+"line": 1495,
+"reason": "non-literal argv element (computed in the test): path"
+},
+{
+"line": 1498,
+"reason": "non-literal argv element (computed in the test): path"
+},
+{
+"line": 1536,
+"reason": "non-literal argv element (computed in the test): &path"
+},
+{
+"line": 1548,
+"reason": "non-literal argv element (computed in the test): &path"
+},
+{
+"line": 1572,
+"reason": "non-literal argv element (computed in the test): command"
+},
+{
+"line": 1578,
+"reason": "non-literal argv element (computed in the test): &path"
+},
+{
+"line": 1595,
+"reason": "non-literal argv element (computed in the test): &pair"
+},
+{
+"line": 1607,
+"reason": "non-literal argv element (computed in the test): &pair"
+},
+{
+"line": 1624,
+"reason": "non-literal argv element (computed in the test): &tuple"
+}
+],
+"source": "bennett-vm tests/differential.rs @ 2456722617fac22ab632b9436a780b4379223a59"
+}
