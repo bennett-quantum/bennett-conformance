@@ -1,24 +1,20 @@
-//! Certificate checker (bennett-isa-spec section 12). Skeleton.
+//! Independent certificate checker for Bennett ISA certificates
+//! (bennett-isa-spec section 12, with section 13 coverage and the
+//! section 11 schedule bindings a certificate carries).
+//!
+//! Written from the published spec only. It shares no code with the
+//! reference interpreter, the VM, or the plugin; sibling binaries may be
+//! run as black boxes (see `--oracle-bin`) but their output is compared,
+//! never trusted. See `docs/checker.md` for the verdict contract.
 
-/// Check a certificate document. Fail loud: not implemented yet.
-pub fn check(cert_json: &str) -> Result<(), String> {
-    if cert_json.trim().is_empty() {
-        return Err("certificate is empty".to_string());
-    }
-    Err("bennett-cert-checker: not implemented (skeleton)".to_string())
-}
+pub mod cert;
+pub mod domain;
+pub mod eval;
+pub mod json;
+pub mod numeric;
+pub mod object;
+pub mod rat;
+pub mod sampler;
+pub mod sha256;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn rejects_empty() {
-        assert!(check("").is_err());
-    }
-
-    #[test]
-    fn skeleton_fails_loudly() {
-        assert!(check("{}").unwrap_err().contains("not implemented"));
-    }
-}
+pub use sha256::{is_hash_hex, sha256, sha256_hex};

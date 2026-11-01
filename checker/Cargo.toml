@@ -2,7 +2,14 @@
 name = "bennett-cert-checker"
 version = "0.0.0"
 edition = "2021"
-description = "Independent certificate checker for Bennett ISA-spec certificates (skeleton)"
+description = "Independent certificate checker for Bennett ISA-spec certificates (ISA section 12)"
 license-file = "../LICENSE"
 
+[[bin]]
+name = "bennett-check"
+path = "src/main.rs"
+
 [dependencies]
+num-bigint = "0.4"
+num-rational = "0.4"
+num-traits = "0.2"
