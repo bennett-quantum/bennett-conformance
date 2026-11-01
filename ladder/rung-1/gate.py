@@ -34,6 +34,24 @@ STAGES=('toolchain','fixtures','plugin build','VM build','native O0 = O2','front
         'reference zero faults on D','VM zero faults on D',
         'reference byte-exact reversal on D','VM byte-exact reversal on D')
 
+def frontend_applicability(header,major):
+    """Read llvm-bcanalyzer's identification record, not module format VERSION."""
+    block=re.search(rb'<IDENTIFICATION_BLOCK_ID\b[^>]*>(.*?)</IDENTIFICATION_BLOCK_ID>',header,re.S)
+    record=re.search(rb'<STRING\b([^>]*)/>',block[1]) if block else None
+    producer=''.join(chr(int(n)) for n in re.findall(rb'op\d+=(\d+)',record[1])) if record else ''
+    version=re.match(r'LLVM(\d+(?:\.\d+){1,2})',producer)
+    if not version:raise GateError('missing LLVM bitcode producer identification: '+producer)
+    if int(version[1].split('.')[0])>major:
+        return {'status':'N/A','beads':[],
+                'error':f'§19.8 (frontend IR {version[1]} newer than LLVM {major})'}
+    return None
+
+
+def cell(row):
+    detail=row['error'] if row['status']=='N/A' else ', '.join(row['beads'])
+    return row['status']+(' · '+detail if detail else '')
+
+
 def case_budget(case):
     # The linked ctpop helper has a larger retained call frame and eight
     # bit-iterations; reserve its full finite body without changing D.
@@ -96,7 +114,7 @@ class Gate(RecordedGate):
             'environment':{k:os.environ.get(k) for k in ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
             'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py')},
             'gate_sha256':sha(HERE/'gate.py'),'shared_support_sha256':sha(HERE.parent/'common/gate_support.py')}
-        self.paths={};self.entries={};self.children={}
+        self.paths={};self.entries={};self.children={};self.inapplicable={}
 
     def freeze(self,repo,rev):
         rev=git(WORKSPACE/repo,'rev-parse',rev)
@@ -186,6 +204,17 @@ class Gate(RecordedGate):
             self.command(f'{lang}/{m}/frontend',['rustc','--edition=2024','--crate-type=lib','--emit=llvm-bc','-C','opt-level=2',src/'rust/scalars.rs','-o',d/'input.bc'])
         else:
             self.command(f'{lang}/{m}/frontend',['julia','--startup-file=no','--optimize=2',src/'julia/emit.jl',d/'ir'])
+            # Serialize the exact text module with Julia's own LLVM, preserving
+            # its producer version rather than stamping it with the reader's.
+            self.command(f'{lang}/{m}/bitcode',['julia','--startup-file=no',HERE/'julia_bitcode.jl',d/'ir'])
+        files=sorted((d/'ir').glob('*.bc')) if lang=='Julia' else [d/'input.bc']
+        assert len(files)==(len(CASES) if lang=='Julia' else 1), 'missing frontend bitcode'
+        for path in files:
+            # bcanalyzer reads the bitstream structure without interpreting IR.
+            header=self.command(f'{lang}/{m}/producer-'+path.stem,
+                ['/usr/lib/llvm-23/bin/llvm-bcanalyzer','-dump',path])
+            row=frontend_applicability(header,m)
+            if row:self.inapplicable[f'{lang}/{m}']=row
         # Native frontend IR is never rewritten/downgraded for an older reader.
 
     def runtime_files(self,m):
@@ -345,7 +374,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
                 cells=[]
                 for m in (18,23):
                     v=self.rows[f'{lang}/{m}'][stage]
-                    cells.append(v['status']+(' · '+', '.join(v['beads']) if v['beads'] else ''))
+                    cells.append(cell(v))
                 table.append('| '+lang+' / '+stage+' | '+' | '.join(cells)+' |')
         self.manifest['blockers_sha256']=sha(HERE/'blockers.json')
         self.manifest['child_commands']='per-case *-inputs.jsonl; every subprocess argv/output and progress retained'
@@ -353,7 +382,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         (self.run/'table.md').write_text('\n'.join(table)+'\n')
         (self.out/'latest').write_text(str(self.run)+'\n')
         print('\n'.join(table)+'\nEvidence: '+str(self.run),flush=True)
-        return int(any(r['status']!='PASS' for stages in self.rows.values() for r in stages.values()))
+        return int(any(r['status'] not in ('PASS','N/A') for stages in self.rows.values() for r in stages.values()))
 
     def main(self):
         for s,action in [('fixtures',self.fixtures),('plugin build',self.plugin),('VM build',self.vm)]:
@@ -364,6 +393,11 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
             self.stage(key,'toolchain',lambda:self.toolchain(lang,m))
             self.stage(key,'native O0 = O2',lambda:self.native(lang,m),('toolchain','fixtures'))
             self.stage(key,'frontend',lambda:self.frontend(lang,m),('toolchain','fixtures'))
+            if key in self.inapplicable and self.rows[key]['frontend']['status']=='PASS':
+                for s in STAGES:
+                    if s not in self.rows[key]:self.rows[key][s]=dict(self.inapplicable[key])
+                self.children[key]={c:{s:dict(r) for s,r in self.rows[key].items()} for c in CASES}
+                return
             # Per-case dependencies preserve successful functions even when another
             # ordinary scalar is refused. Aggregate rows are conjunctions only.
             childkeys=[]

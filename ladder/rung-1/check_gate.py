@@ -1,5 +1,7 @@
 """Acceptance glue: deliberate corruption must stay red; no synthetic corpus passes."""
 import argparse
+from contextlib import redirect_stdout
+import io
 import copy
 import json
 import os
@@ -9,6 +11,39 @@ import unittest
 import gate
 
 class Checks(unittest.TestCase):
+    @staticmethod
+    def bitcode_header(version):
+        producer='LLVM'+version+'-stock'
+        return ('<IDENTIFICATION_BLOCK_ID NumWords=14>\n  <STRING '+
+                ' '.join(f'op{i}={ord(c)}' for i,c in enumerate(producer))+
+                '/>\n</IDENTIFICATION_BLOCK_ID>').encode()
+
+    def test_frontend_IR_applicability(self):
+        row=gate.frontend_applicability(self.bitcode_header('23.1.1'),18)
+        self.assertEqual(row['status'],'N/A')
+        self.assertEqual(gate.cell(row),'N/A · §19.8 (frontend IR 23.1.1 newer than LLVM 18)')
+        self.assertEqual(row['beads'],[])
+        for version in ('18.1.3','17.0.6'):
+            with self.subTest(version=version):
+                self.assertIsNone(gate.frontend_applicability(self.bitcode_header(version),18))
+        self.assertIsNone(gate.frontend_applicability(self.bitcode_header('20.1.8'),23))
+        with self.assertRaises(gate.GateError):gate.frontend_applicability(b'no producer',18)
+
+    def test_NA_ignored_by_exit_and_preserved_by_classification(self):
+        from classify_report import classify, table
+        with tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as tmp:
+            g=gate.Gate(argparse.Namespace(output=tmp,timeout=300))
+            row=gate.frontend_applicability(self.bitcode_header('23.1.1'),18)
+            for key in g.rows:
+                g.rows[key]={s:dict(row) for s in gate.STAGES}
+                g.children[key]={c:copy.deepcopy(g.rows[key]) for c in gate.CASES}
+            with redirect_stdout(io.StringIO()):self.assertEqual(g.finish(),0)
+            report=json.loads((g.run/'report.json').read_text())
+            self.assertEqual(classify(report,[]),report)
+            self.assertIn(gate.cell(row),table(report))
+            g.rows['C/18']['pipeline']={'status':'BLOCKED','beads':['real'], 'error':'blocked'}
+            with redirect_stdout(io.StringIO()):self.assertEqual(g.finish(),1)
+
     def test_input_product_and_full_D(self):
         self.assertEqual(len(list(gate.inputs(1))),256)
         self.assertEqual(len(list(gate.inputs(2))),65536)

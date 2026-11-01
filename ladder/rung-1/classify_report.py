@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from gate import HERE, STAGES
+from gate import HERE, STAGES, cell
 
 def classify(report,known):
     result=copy.deepcopy(report)
@@ -45,7 +45,7 @@ def table(report):
             cells=[]
             for m in (18,23):
                 r=report['stages'][f'{lang}/{m}'][stage]
-                cells.append(r['status']+(' · '+', '.join(r['beads']) if r['beads'] else ''))
+                cells.append(cell(r))
             lines.append('| '+lang+' / '+stage+' | '+' | '.join(cells)+' |')
     return '\n'.join(lines)+'\n'
 
@@ -55,7 +55,7 @@ def main():
     a=p.parse_args();raw=a.report.read_bytes();report=json.loads(raw)
     result=classify(report,json.loads(a.blockers.read_text()))
     for rows in list(result['stages'].values())+[r for cases in result['cases'].values() for r in cases.values()]:
-        assert all(row['status']=='PASS' or row['beads'] and 'UNFILED' not in row['beads'] for row in rows.values()), 'unfiled real failure remains'
+        assert all(row['status'] in ('PASS','N/A') or row['beads'] and 'UNFILED' not in row['beads'] for row in rows.values()), 'unfiled real failure remains'
     original=a.report.with_name('report.unclassified.json')
     assert not original.exists(), 'already classified; use original data explicitly'
     original.write_bytes(raw)

@@ -3,7 +3,31 @@
 North Star §8: **exhaustive at Int8 over the full domain D of §5.1 part 1,
 both executors equal to native; fault rate zero**. Byte-exact reversal is an
 additional required row. A known blocker is always red; exit 0 requires every
-stage, language and major to pass. No language or input is silently skipped.
+applicable stage, language and major to pass. N/A is a separate status, counted
+neither as a pass nor as a failure and ignored by the exit code. No language
+or input is silently skipped.
+
+Orchestrator ruling 2026-11-01 (closed `bennett-conformance-oc2`): North Star
+§8 requires both executors equal to native, not both LLVM majors per language.
+Dialect 0.2.10 §19.8, “An input newer than M is BD-E-VERSION”, accepts older
+IR and forbids newer IR. The installed stock frontend matrix is:
+
+| Language | LLVM 18 | LLVM 23 |
+|---|---|---|
+| C (same-major clang) | applicable | applicable |
+| Rust 1.99.1 (LLVM 23.1.1 IR) | N/A · §19.8 | applicable |
+| Julia 1.13.3 (LLVM 20.1.8 IR) | N/A · §19.8 | applicable |
+
+The gate detects applicability from each emitted bitcode's LLVM producer
+identification record using `llvm-bcanalyzer`, rather than a language/version
+lookup. Julia's unchanged `code_llvm` text is additionally serialized using
+that Julia process's own loaded LLVM library to retain its producer version;
+the pipeline still consumes the original text. Unknown producers fail loudly.
+Stages through frontend emission retain their real results; downstream cells
+with newer IR read `N/A · §19.8 (frontend IR <version> newer than LLVM <M>)`.
+There is no IR downgrade and no language is dropped. Applicable Rust/23 and
+Julia/23 cells retain plugin blockers `bp-xb8` and `bp-zeg`; `bp-75y` remains
+the materialised-comparison/full-D frontier.
 
 Run headlessly from any directory:
 
