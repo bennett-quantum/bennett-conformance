@@ -60,6 +60,16 @@ class Checks(unittest.TestCase):
         self.assertEqual(got['stages']['C/18']['next']['beads'],['real-bead'])
         self.assertEqual(got['stages']['C/18']['source']['status'],'FAIL')
         self.assertEqual(r['stages']['C/18']['source']['beads'],['UNFILED'])
+    def test_adapter_probe_checks_reply_not_only_exit(self):
+        with tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as tmp:
+            g=gate.Gate(argparse.Namespace(output=tmp,timeout=300))
+            d=g.folder('C',18);(d/'r1_popcount/out').mkdir(parents=True)
+            (d/'r1_popcount/out/full-domain.bennett').write_text('already admitted test adapter')
+            (d/'r1_popcount-native.bin').write_bytes(bytes(256))
+            g.executor=lambda name:Path('/test-executor')
+            g.command=lambda *a,**kw:b'{"forward_state":{}}'
+            with self.assertRaisesRegex(AssertionError,'entire'):
+                g.full_domain_interface('C',18,'r1_popcount','reference')
     def test_missing_toolchain_is_failure(self):
         with tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as tmp:
             g=gate.Gate(argparse.Namespace(output=tmp,timeout=300))

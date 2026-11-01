@@ -31,6 +31,9 @@ The sources contain no Bennett declarations, annotations or marker calls.
 Native harnesses and the Julia `code_llvm` emitter are separate fixture files.
 Every function carries valid dialect/ISA clause IDs in `fixtures/expect.json`;
 all fixtures, including harnesses and expectations, have pinned SHA-256 hashes.
+Budgets are 256 steps / 0 heap / 32 stack / depth 32, except popcount, whose
+linked bit-loop helper receives 1024 steps and 512 stack cells. These cover the
+complete source domains; budget exhaustion is never an accepted outcome.
 
 The input order is unsigned Int8 encoding 0..255 (signed values 0..127,
 -128..-1), last argument fastest. Binary functions have 65,536 cases and unary
@@ -48,7 +51,7 @@ The pipeline follows dialect §§19.1/17.7: clang `-O2 -flto`, Rust
 link major-matched runtimes and SHA-pinned arith, `lto<O3>`, then the plugin.
 The source functions are selected via the scalar oracle route, not by inserting
 markers into them. The Julia specialised function's ordinary implicit gcstack
-parameter remains visible; the gate never strips its GC/TLS prelude. This
+parameter remains visible as an `ARG(64)` binding before the source Int8 inputs; the gate never strips its GC/TLS prelude. This
 currently exposes an entry-state/ABI adapter frontier in the plugin. Newer
 Rust/Julia IR is never rewritten to appease LLVM18 (§19.8).
 

@@ -34,6 +34,11 @@ STAGES=('toolchain','fixtures','plugin build','VM build','native O0 = O2','front
         'reference zero faults on D','VM zero faults on D',
         'reference byte-exact reversal on D','VM byte-exact reversal on D')
 
+def case_budget(case):
+    # The linked ctpop helper has a larger retained call frame and eight
+    # bit-iterations; reserve its full finite body without changing D.
+    return '1024,0,512,32' if case=='r1_popcount' else BUDGET
+
 def inputs(arity):
     return itertools.product(range(256),repeat=arity)
 
@@ -87,7 +92,7 @@ class Gate(RecordedGate):
         self.known=json.loads((HERE/'blockers.json').read_text())
         self.manifest={'time_utc':datetime.now(timezone.utc).isoformat(),'commands':[],
             'pins':dict(PINS),'dialect':'0.2.10','isa':'0.8','budget':BUDGET,
-            'domain':{c:domain(n) for c,n in CASES.items()},
+            'domain':{c:domain(n) for c,n in CASES.items()},'case_budgets':{c:case_budget(c) for c in CASES},
             'environment':{k:os.environ.get(k) for k in ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
             'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py')},
             'gate_sha256':sha(HERE/'gate.py'),'shared_support_sha256':sha(HERE.parent/'common/gate_support.py')}
@@ -222,7 +227,8 @@ class Gate(RecordedGate):
         self.command(f'{lang}/{m}/{c}/pipeline',['env','BENNETT_ARITH_BITCODE='+str(arith),f'/usr/lib/llvm-{m}/bin/opt',
             '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),'-passes=bennett',
             '-bennett-dialect=0.2.10','-bennett-isa=0.8','-bennett-oracle='+entry,
-            '-bennett-scalar-shape='+','.join(['IN(8,sext)']*CASES[c])+';tgt=8',
+            '-bennett-scalar-shape='+('ARG(64),' if lang=='Julia' else '')+','.join(['IN(8,sext)']*CASES[c])+';tgt=8',
+            '-bennett-scalar-stack='+case_budget(c).split(',')[2],
             '-bennett-out='+str(d/'out'),'-disable-output',d/'postlink.ll'])
         for file in ('ref.bennett','materialised.bc'):assert (d/'out'/file).is_file(), 'missing scalar artefact: '+file
 
@@ -249,9 +255,13 @@ __attribute__((noreturn)) void comparison_main(void) {
 __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; call comparison_main; ud2"); }
 """.replace('ENTRY',entry).replace('PARAMS',','.join(['i8']*arity))
             .replace('ARGS','(i8)a,(i8)b' if arity==2 else '(i8)a').replace('COUNT',str(256 if arity==2 else 1)))
+        layout=json.loads(self.obj(lang,m,c).read_text().split('section layout\n')[1])
+        layout_flags='-Wl,--gc-sections,--build-id=none,-e,_start,--section-start=.text=0x400000'
+        if layout['globals']:
+            layout_flags+=',--section-start=.rodata=0x1000,--section-start=.data=0x2000'
         argv=[f'/usr/lib/llvm-{m}/bin/clang','-O2','-nostdlib','-static','-no-pie',
             '-ffunction-sections','-fdata-sections',out/'materialised.bc',rt,ar,runner,
-            '-Wl,--gc-sections,--build-id=none,-e,_start,--section-start=.text=0x400000,--section-start=.rodata=0x1000,--section-start=.data=0x2000',
+            layout_flags,
             '-o',d/'comparison']
         (d/'native-comparison.json').write_text(json.dumps({'materialised_sha256':sha(out/'materialised.bc'),
             'runtime_sha256':sha(rt),'arith_sha256':sha(ar),'link_argv':list(map(str,argv)),
@@ -299,15 +309,16 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         self.command(f'{lang}/{m}/{c}/{name}-full-D-check',[self.executor(name),'check',wrapped])
         # A boundary tuple demonstrates the adapter; exhaustive acceptance is a
         # separate bounded worker over the entire product, never this probe.
-        self.command(f'{lang}/{m}/{c}/{name}-full-D-interface',[self.executor(name),'reverse',wrapped,'rung1_full',
-            '--mut','255,15','--in',','.join(['255']*CASES[c]),'--arg','token:'+BUDGET])
+        value=json.loads(self.command(f'{lang}/{m}/{c}/{name}-full-D-interface',[self.executor(name),'reverse',wrapped,'rung1_full',
+            '--mut','255,15','--in',','.join(['255']*CASES[c]),'--arg','token:'+case_budget(c)]))
+        check_action(value,(255,)*CASES[c],255,15,(self.folder(lang,m)/(c+'-native.bin')).read_bytes()[-1])
 
     def exhaustive_D(self,lang,m,c,name):
         self.command(f'{lang}/{m}/{c}/{name}-full-D-exhaustive',[
             sys.executable,HERE/'full_domain_worker.py','--executor',self.executor(name),
             '--object',self.obj(lang,m,c).with_name('full-domain.bennett'),
             '--native',self.folder(lang,m)/(c+'-native.bin'),'--arity',CASES[c],
-            '--evidence',self.folder(lang,m)/c/(name+'-full-D.jsonl'),'--budget',BUDGET])
+            '--evidence',self.folder(lang,m)/c/(name+'-full-D.jsonl'),'--budget',case_budget(c)])
 
     def domain_summary(self,lang,m,c,name):
         v=json.loads((self.folder(lang,m)/c/(name+'-full-D-summary.json')).read_text())
@@ -319,7 +330,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         self.command(f'{lang}/{m}/{c}/{name}-input-exhaustive',[
             sys.executable,HERE/'input_worker.py','--executor',self.executor(name),'--object',self.obj(lang,m,c),
             '--native',self.folder(lang,m)/(c+'-native.bin'),'--arity',CASES[c],
-            '--evidence',self.folder(lang,m)/c/(name+'-inputs.jsonl'),'--budget',BUDGET])
+            '--evidence',self.folder(lang,m)/c/(name+'-inputs.jsonl'),'--budget',case_budget(c)])
 
     def diagnostic_summary(self,lang,m,c,name,reverse=False):
         path=self.folder(lang,m)/c/(name+'-inputs-summary.json')
