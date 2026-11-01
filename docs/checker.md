@@ -11,10 +11,11 @@ Legacy certificates, including the published 0.8 compatibility object, are
 reported unchecked until their version-specific contract is implemented.
 
 The implementation is in progress. The published `controlled-action-09`
-fixture's exhaustive claim and both numerical claims pass independently.
-The whole certificate currently returns **unchecked**, because event-resource
-accounting and composition have not yet been independently recomputed. A
-successful individual claim never silently completes another obligation.
+fixture now receives a complete **verified** verdict: its full-tuple exhaustive
+claim, both numerical claims, native target feasibility, resources, gate counts,
+invocation multiplicities and error composition are checked independently.
+This is a verified fixture path, not a claim that every §12 capability has been
+implemented. Unsupported obligations still produce explicit unchecked results.
 
 ## Running
 
@@ -113,18 +114,42 @@ the missing realisation-model binding is recorded as a spec question.
 
 `adjoint_table` and independent library correspondence still need complete proof
 linkage. Verification-index shapes do not discharge borrow-frame entry-state or
-qinplace-entry-applicability obligations. Resource/gate reports, estimates,
-local/inclusive error composition, and source coverage remain explicitly
-unchecked where they have not been independently recomputed. Malformed shapes
+qinplace-entry-applicability obligations. Source coverage and expanded non-native
+accounting remain explicitly unchecked where they have not been independently
+recomputed. Malformed shapes
 are still rejected before claiming support.
+
+For exact native straight-line realisations with one context per region, the
+checker now recomputes scheduled leaf timing, all declared resource values,
+gate counts, capacity and predicate limits, invocation multiplicities, and
+local/inclusive error recurrence. Target metadata is validated through its
+nested closed schemas. Gate costs distinguish own controls `k` from total
+controls `c`; adjoint calls match and count the inverse primitive (`tdg`, not
+`t`, for an adjointed T). Symbolic source-slot widths are evaluated at each
+resolved inherited-control count.
+
+Launch estimates on this path use exact reduced numerator/denominator rows,
+percent-encoded resource/class names and canonical upward 34-digit decimal
+strings. A `1/3`-second regression checks exact rational accounting separately
+from display rounding and rejects wrong/unreduced fractions or rounded-down
+values.
+
+Repeated contexts can have different widths, timings and argument-dependent
+costs for one closure. The current §12.3 region resource maps are unkeyed and
+do not specify how those contexts aggregate. Such reports remain unchecked
+pending the staged spec proposal for explicit context resource records; no
+sum, maximum or arbitrary invocation is silently selected. Numerical checks
+still enumerate every context. Overlapping event lifetime accounting also
+remains unchecked.
 
 ## Diagnostics and verification
 
 `E_CERT_*` codes are this checker's stable diagnostics; §12 does not publish a
 checker-code registry. Important families include `JSON`, `JCS`, `SCHEMA`,
 `VERSION`, `OBJECT`, `HASH`, `BINDING`, `INVOCATION`, `DOMAIN`, `TABLE`, `REPLAY`,
-`SAMPLER`, `COVERAGE_LABEL`, `FRAME`, `VERIFICATION_INDEX`, `NUMERICAL`, `CHANNEL`
-and `STRUCTURAL`. Schedule decision ties use the contract's
+`SAMPLER`, `COVERAGE_LABEL`, `FRAME`, `VERIFICATION_INDEX`, `NUMERICAL`, `CHANNEL`,
+`STRUCTURAL`, `RESOURCE`, `GATE_COUNT`, `ESTIMATE`, `MULTIPLICITY` and
+`COMPOSITION`. Schedule decision ties use the contract's
 `E_SCHEDULE_INFEASIBLE` code.
 
 ```sh
@@ -138,7 +163,9 @@ quantified inverse pairs, numerical/channel checks, structural negatives and
 CLI determinism. The certificate field mutation sweep visits all **250** object
 fields and array positions of the published positive fixture, replacing each
 with an invalid type and requiring its individually specified diagnostic code.
-It does not sample fields. These invalid-type checks are one part of mutation
+A second sweep mutates all **43** fields and positions of the published target,
+rebinding its hashes before checking and requiring `E_CERT_TARGET`. Neither
+sweep samples fields. These invalid-type checks are one part of mutation
 coverage; they do not claim that every legal metadata edit must be rejected.
 
 JCS tests include all finite number samples from
