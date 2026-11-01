@@ -1,0 +1,10 @@
+{
+  "c/native.c": "cea62383b31e5901dcc626d6a31c39e7144821e403ff790d48221ce7755e1b04",
+  "c/scalars.c": "171bb4f3fcd4e5aec23250c48ee4e5c8b07331357263c1052a18ed6025fa5f78",
+  "expect.json": "b436e6cd2143af2d96e2fb4859cd982352ace8abf168f25545fc9d6135049a97",
+  "julia/emit.jl": "561c0ece77ac2cd2c3b0cc9ca7334b066a570a9508c1aa6483b60aa1846d3caf",
+  "julia/native.jl": "85c88fd3d46fc47a3aa09a348b7cf85e1c0561d8c0c50af06f11d5f772a99afc",
+  "julia/scalars.jl": "5e339ace1b65341adbed3dc9d2dd5719703d0549ea99a7d4feebc0563e084644",
+  "rust/native.rs": "736111cacf8e1559fb41850f9237fba3a0816ada779e6eef131fc93a6ba2322c",
+  "rust/scalars.rs": "d70f756134d6f0c16657c631622378f8c2f4f170e7d0acbc071e2efcb2632f61"
+}

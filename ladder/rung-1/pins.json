@@ -1,0 +1,8 @@
+{
+  "bennett-plugin": "157d4bd1fab98afed8579b2367f26d1d742b0173",
+  "bennett-vm": "13f5a9ed7482b8645c2e37e2ed95e0a7df9dfa88",
+  "bennett-runtimes": "6808622d560b2e301c635c205eecde3d932b6df5",
+  "bennett-arith": "249e6192b95c6dbbb875510c32a677ba113e9af5",
+  "bennett-dialect-spec": "023f5a771a814270634db3be9cfde88ded69f975",
+  "bennett-isa-spec-review": "ba7d13f76e73c2af4e035d3f51145d2fad76bd2f"
+}
