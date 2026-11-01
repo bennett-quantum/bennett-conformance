@@ -1,3 +1,29 @@
+# Rung 2 rerun 2026-11-01T11:47Z — reference executor passes end to end; VM forward times out
+
+Pinned revisions: plugin `157d4bd` (switch lowering bp-bux reinstated), VM `02236d9` (pointer compares admitted,
+bennett-vm-ol3), reference interpreter `ba7d13f` release build (O(1) per-step checkpoint, b-isa-spec-n8j), runtimes
+`6808622` dist, arith SHA-pinned. Evidence: `.tmp/rung-2/20261101T114719.085382Z/` (report.json, table.md, per-major dirs).
+
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures, plugin build, VM build, native reference, C front end | PASS | PASS |
+| runtime bitcode link, post-link LTO | PASS | PASS |
+| S1–S9 production, launch artefacts | PASS | PASS |
+| reference admission, VM admission | PASS | PASS |
+| reference forward = native (ten cases) | PASS | PASS |
+| reference byte-exact reverse | PASS | PASS |
+| VM forward = native | FAIL · bennett-vm-fw8 (300 s timeout, basic-0) | FAIL · bennett-vm-fw8 |
+| VM byte-exact reverse | BLOCKED · bennett-vm-fw8 | BLOCKED · bennett-vm-fw8 |
+
+**What this establishes.** The unmodified hashtable corpus, compiled by the plugin against the published runtimes and
+arith bitcode, is admitted by both executors and runs forward on the accepted reference interpreter with results equal
+to native on all ten cases, and reverses byte-exactly, on both LLVM majors. Rung 2 holds on the reference executor.
+The blockers closed to get here, in order: brt-3sa (runtimes bitcode), bp-au6 (§5.2 analysis time), bp-1us (§16.4
+aggregates), bp-tav (§17.4 malloc), bp-9fo (§14.1 calls), bp-bux (§14.8 switch), bennett-vm-ol3 (icmp on ptr),
+b-isa-spec-n8j (reference per-step clone). Remaining: bennett-vm-fw8 (the VM's time per step grows with steps taken:
+debug build 5k steps 3.3 s, 10k 11.3 s, 20k 55.9 s). bp-eof stays open as the plugin-side tracking record until the
+VM rows pass.
+
 # Rung 2 measured pipeline and corpus probes — 2026-10-31
 
 **Gate exit: 1. Rung 2 is not complete.** The first required pipeline prerequisite is missing runtimes bitcode (brt-3sa). Both earlier corpus-only production probes exceeded the 300-second command limit (bp-au6); those are diagnostic evidence, not a full §19.1 link. The native baseline, fixture route and both builds work; the hashtable has not yet executed on either executor.
