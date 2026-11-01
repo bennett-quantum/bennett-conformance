@@ -1,0 +1,2 @@
+/usr/lib/llvm-18/bin/llvm-link: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Rust/18/input.bc: error: Invalid attribute group entry (Producer: 'LLVM23.1.1-rust-1.99.1-stable' Reader: 'LLVM 18.1.3')
+/usr/lib/llvm-18/bin/llvm-link: error:  loading file '/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Rust/18/input.bc'

@@ -1,0 +1,106 @@
+{
+  "Rust/23/r1_sat_add/reference-inputs.jsonl": {
+    "bytes": 65875075,
+    "sha256": "e1387e4f22397f23c12ea96dafdb27c6a0aff6de7cf0915c0a5ebd67233219e6"
+  },
+  "Rust/23/r1_sat_add/VM-inputs.jsonl": {
+    "bytes": 67069354,
+    "sha256": "d5772d97f288ff9b6d40199271a306532323b2c61eca0bd1d06d7f826d8086e3"
+  },
+  "Rust/23/r1_sign_abs/reference-inputs.jsonl": {
+    "bytes": 255835,
+    "sha256": "ccb0e3673f68e62f3159af08b6ecaf4509b7783a74f791410e36019425b3b22a"
+  },
+  "Rust/23/r1_sign_abs/VM-inputs.jsonl": {
+    "bytes": 260431,
+    "sha256": "c5eb9fde879b6403f6dfb60966936f41797fb21fe30fb371209e8253d9d1333d"
+  },
+  "Rust/23/r1_popcount/reference-inputs.jsonl": {
+    "bytes": 357908,
+    "sha256": "e31bde8198155092fa9f8a678515149fbae1e9ecc67baa7ac00bf7213a6f92c4"
+  },
+  "Rust/23/r1_popcount/VM-inputs.jsonl": {
+    "bytes": 362556,
+    "sha256": "23024bb6a6e331e46b47d698e84426ecff92671432b6a44932216c5c36890f91"
+  },
+  "C/23/r1_gcd/reference-inputs.jsonl": {
+    "bytes": 73536749,
+    "sha256": "2d6bc20ac0561cc4e1cd35f21a683a2614748430c77343e3ee9a6e97b580f3db"
+  },
+  "C/23/r1_gcd/VM-inputs.jsonl": {
+    "bytes": 74723803,
+    "sha256": "a904c90d954fca22d273abb2d1dbdfc81cdd39e1a58e933044196dc015c2c84b"
+  },
+  "C/23/r1_sat_add/reference-inputs.jsonl": {
+    "bytes": 65655122,
+    "sha256": "c847eda5d69e216f89aeff00c99a91620ff142138dae8e1a57bd417fa369ba0b"
+  },
+  "C/23/r1_sat_add/VM-inputs.jsonl": {
+    "bytes": 66836611,
+    "sha256": "4c51f7b80ab1c0a2a2134d563045f324affd85b91749149fba846f5c33e1be89"
+  },
+  "C/23/r1_lookup/reference-inputs.jsonl": {
+    "bytes": 230048,
+    "sha256": "a5d59469af375246914430d964391d3dd7cb7d1c15507ab8b93df7ec7abd6fd0"
+  },
+  "C/23/r1_lookup/VM-inputs.jsonl": {
+    "bytes": 234660,
+    "sha256": "df5fc63250dda85c12ea6eea4313fa8f7632212cf789033ed33c10a253c22b9c"
+  },
+  "C/23/r1_sign_abs/reference-inputs.jsonl": {
+    "bytes": 255067,
+    "sha256": "81d028d448f2c3c03517c1da984bb2996c69411d7522c61ed47ae0a650aa27c1"
+  },
+  "C/23/r1_sign_abs/VM-inputs.jsonl": {
+    "bytes": 259655,
+    "sha256": "5a6f7a6a585912821d79e23e4872d95c6b2f3b9b4b6b8ed3db115faa085221dc"
+  },
+  "C/23/r1_popcount/reference-inputs.jsonl": {
+    "bytes": 357094,
+    "sha256": "9dffaa803d5737ef50d0d5cd7f9707afd889f30419a7699855e391326d56ef1c"
+  },
+  "C/23/r1_popcount/VM-inputs.jsonl": {
+    "bytes": 361723,
+    "sha256": "2a2e82284968216f17f83dd85783084c535204456ea224444ee4b2f5d76a68cc"
+  },
+  "C/18/r1_gcd/reference-inputs.jsonl": {
+    "bytes": 73536728,
+    "sha256": "6d4177b24630a20dd4de1245a0610fcdc76e9e01129c879495c56385b1dd3d72"
+  },
+  "C/18/r1_gcd/VM-inputs.jsonl": {
+    "bytes": 74723978,
+    "sha256": "3375f8fd0880c3e9ef3baf56ca885b08754bf1dc35eb5d453c2b09d05147eca6"
+  },
+  "C/18/r1_sat_add/reference-inputs.jsonl": {
+    "bytes": 65655162,
+    "sha256": "6f8ba011e9de8c7e2d57f83f01db2e239a48c279d545dbee1ba98e2ef1696c02"
+  },
+  "C/18/r1_sat_add/VM-inputs.jsonl": {
+    "bytes": 66836852,
+    "sha256": "a6e84fc6458b93cafc7b23810040e71ef759236e028dbc296766338baf44c2bc"
+  },
+  "C/18/r1_lookup/reference-inputs.jsonl": {
+    "bytes": 230015,
+    "sha256": "12c3f0468f77d2f3f6fda26e96c54d002d39d5a5e1c600f9cd8c042d4e2305e7"
+  },
+  "C/18/r1_lookup/VM-inputs.jsonl": {
+    "bytes": 234645,
+    "sha256": "cd5e8dba5e200462af8322543ebbe71b3bf386e74ca9f2bac1593e88f040dde9"
+  },
+  "C/18/r1_sign_abs/reference-inputs.jsonl": {
+    "bytes": 255035,
+    "sha256": "e501575611a577a39deb539f7cd1e8a03bd838f88080b2fa51641553df484afc"
+  },
+  "C/18/r1_sign_abs/VM-inputs.jsonl": {
+    "bytes": 259678,
+    "sha256": "25798dcb9e7b1f9ed3e1ad381855163328ea6ab190cee3df09fba0287a992e5d"
+  },
+  "C/18/r1_popcount/reference-inputs.jsonl": {
+    "bytes": 357102,
+    "sha256": "168f37be9d660976ddbe42a8da9c13ca719842c331b2323f43ae17f3c6939251"
+  },
+  "C/18/r1_popcount/VM-inputs.jsonl": {
+    "bytes": 361726,
+    "sha256": "ccc6d8f849be48a593ba6819d82bc3f86cd4c0ba0d7861d4c66b0e6db76b907a"
+  }
+}

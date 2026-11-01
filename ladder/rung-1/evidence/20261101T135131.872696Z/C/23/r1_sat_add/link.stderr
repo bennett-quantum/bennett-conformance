@@ -1,0 +1,4 @@
+warning: Linking two modules of different target triples: '/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung1-bennett-runtimes-6808622d560b2e301c635c205eecde3d932b6df5/dist/llvm23/bennett-runtimes.bc' is 'x86_64-unknown-linux-gnu' whereas 'llvm-link' is 'x86_64-pc-linux-gnu'
+
+warning: Linking two modules of different target triples: '/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung1-bennett-arith-249e6192b95c6dbbb875510c32a677ba113e9af5/dist/llvm23/bennett-arith.bc' is 'x86_64-unknown-linux-gnu' whereas 'llvm-link' is 'x86_64-pc-linux-gnu'
+

@@ -1,0 +1,4 @@
+/usr/lib/llvm-18/bin/llvm-link: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Julia/18/ir/r1_popcount.ll:9:16: error: expected type
+define swiftcc range(i8 0, 9) i8 @julia_r1_popcount_244(ptr nonnull swiftself "gcstack" %pgcstack_arg, i8 signext %"x::Int8") local_unnamed_addr #0 !dbg !4 {
+               ^
+/usr/lib/llvm-18/bin/llvm-link: error:  loading file '/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Julia/18/ir/r1_popcount.ll'

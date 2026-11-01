@@ -1,0 +1,22 @@
+{
+  "materialised_sha256": "b2776ab1d22c573571317df6ec1b70aa398b329b8fec23f7fdcd95da59ea694e",
+  "runtime_sha256": "5c630b9b0e60e9d7aba6777885809c7e5194d4226c4bb5e8bee9df26b1f0bf8b",
+  "arith_sha256": "1c7f40092c4d341402406a7f705cfc316a8dbfe2886069469386674d814e2702",
+  "link_argv": [
+    "/usr/lib/llvm-23/bin/clang",
+    "-O2",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Rust/23/r1_popcount/out/materialised.bc",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung1-bennett-runtimes-6808622d560b2e301c635c205eecde3d932b6df5/dist/llvm23/bennett-runtimes.bc",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung1-bennett-arith-249e6192b95c6dbbb875510c32a677ba113e9af5/dist/llvm23/bennett-arith.bc",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Rust/23/r1_popcount/comparison.c",
+    "-Wl,--gc-sections,--build-id=none,-e,_start,--section-start=.text=0x400000",
+    "-o",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Rust/23/r1_popcount/comparison"
+  ],
+  "notes": "freestanding scalar-only oracle harness; fixed non-PIE text/data, no host libc/libm"
+}

@@ -1,0 +1,27 @@
+C/18/r1_gcd/VM-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_gcd/reference-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_lookup/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_lookup/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_popcount/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_popcount/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_sat_add/VM-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_sat_add/reference-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_sign_abs/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/18/r1_sign_abs/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_gcd/VM-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_gcd/reference-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_lookup/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_lookup/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_popcount/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_popcount/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_sat_add/VM-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_sat_add/reference-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_sign_abs/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+C/23/r1_sign_abs/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+Rust/23/r1_popcount/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+Rust/23/r1_popcount/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+Rust/23/r1_sat_add/VM-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+Rust/23/r1_sat_add/reference-inputs.jsonl 65536 unique complete inputs; native equality, zero faults, reversal PASS
+Rust/23/r1_sign_abs/VM-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+Rust/23/r1_sign_abs/reference-inputs.jsonl 256 unique complete inputs; native equality, zero faults, reversal PASS
+TOTAL 26 logs 659456 unique source-input executions PASS; full D remains blocked

@@ -1,0 +1,10 @@
+..18/production: exit 124
+
+timeout
+
+.missing runtimes bitcode for LLVM 18: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/tmpl61a55ek/missing.bc (dialect §19.1)
+..
+----------------------------------------------------------------------
+Ran 5 tests in 0.007s
+
+OK

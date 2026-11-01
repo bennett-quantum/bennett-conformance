@@ -1,0 +1,4 @@
+Ubuntu clang version 23.1.5 (++20261028083854+a738f2737189-1~exp1~20261028203912.92)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/lib/llvm-23/bin

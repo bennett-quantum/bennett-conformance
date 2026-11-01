@@ -1,0 +1,4 @@
+/usr/lib/llvm-18/bin/llvm-link: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Julia/18/ir/r1_lookup.ll:12:40: error: expected type
+  %ptls_field = getelementptr inbounds nuw i8, ptr %pgcstack_arg, i64 16
+                                       ^
+/usr/lib/llvm-18/bin/llvm-link: error:  loading file '/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-1/20261101T135131.872696Z/Julia/18/ir/r1_lookup.ll'

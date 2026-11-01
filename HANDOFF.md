@@ -8,7 +8,39 @@ Next: proofs are consumed by council rounds as `--context`; a new proof is writt
 no stated theorem. Graphviz for SVG and a Go toolchain for af ledgers remain optional.
 Orchestrator state: bennett/HANDOFF.md.
 
-## Ladder rungs — 2026-11-01T13:01:02Z
+## Ladder rungs — 2026-11-01T14:09:00Z
+
+### Rung 1 — real gate remains blocked
+
+Implemented `ladder/rung-1/gate.sh` and ordinary marker-free C/Rust/Julia
+fixtures, with pinned dual-major plugin/runtime/arith and detached release VM
+builds. Final full invocation `.tmp/rung-1/20261101T135131.872696Z/` exits 1.
+All six O0/O2 native oracles agree over 131,840 inputs per language/major. All
+five C functions pass every source input on both executors and both majors,
+with zero faults and byte-exact reversal. Four C functions also have runnable
+materialised native comparisons; lookup's fixed global address 4096 cannot run
+on this host. Rust/23's sat_add, popcount and sign_abs pass their complete input
+products; gcd/lookup refuse residual personality attributes. No full-D acceptance
+is claimed: D also contains every target/fault value and clean workspace, and
+all full-D rows remain blocked on the corpus prerequisites.
+
+Ordered blockers: conformance `bennett-conformance-oc2` (compatible LLVM18 Rust/
+Julia frontend publications); plugin `bp-xb8` (N4/N28 personality), `bp-zeg`
+(Julia implicit gcstack entry state), `bp-75y` (published native/device layout
+option). Rung acceptance bead `bennett-conformance-px1` is blocked. Exact
+contracts, instructions, commands and completion criteria: rung-1/blockers.json;
+full stage/per-function tables, hashes and compact evidence: rung-1/RESULTS.md.
+No sibling runtime/reference/VM defect is asserted beyond the measured frontier.
+
+Rung-1 eight checks, rung-2 five driver checks and rung-3 eight checks pass.
+Rung-2/rung-3/common source is unchanged. Only sibling Beads exports were
+committed by this task; concurrent sibling source work is not part of the run.
+The final clean-worktree `scripts/pre-push` result is reported at handback. No
+push or Dolt remote sync. Consumer discovery budget/native-harness mistakes
+were fixed before the final full run; none was misfiled as an upstream defect.
+
+### Rung 3 — previous recorded state
+
 
 Rung 3 implementation: `ladder/rung-3/gate.sh`, pinned dual-major builds and real
 ordinary musl `hello.c`; no freestanding or host-libc comparison fallback. Recorded

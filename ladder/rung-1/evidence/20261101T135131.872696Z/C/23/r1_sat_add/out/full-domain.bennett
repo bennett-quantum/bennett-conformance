@@ -1,0 +1,33 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=64
+
+section symbols
+{"0":{"interface_hash":"ab543381e42f42b60785c7ac3a7a87d2f017067e5b5bbdd490c5b0d1cb5afef5","kind":"oracle","name":"ref","signature":{"abi":"0.8","args":[],"fault":4,"in":[8,8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}},"1":{"interface_hash":"74c3ed3a477d006a14671df45812d361d03a73ec4b80c4978ad72c64b133faff","kind":"lproc","name":"L1","signature":{"abi":"0.8","kind":"lproc","params":[8,8],"result":8,"tier":"q"}},"2":{"interface_hash":"a88e804d8d1fc37f9ba38df31cf805f7a475788cc597319871c3d1f1de9a42b5","kind":"action","name":"rung1_full","signature":{"abi":"0.8","args":["token"],"bounds":[],"in":[8,8],"kind":"action","mem":[],"mut":[8,4],"tier":"q"}}}
+
+section functions
+oracle @ref (x0:wire[8] in, x1:wire[8] in) (tgt:wire[8]) (fault:wire[4]) () ()
+regs { r:reg[8] }
+^entry():
+r = lift.call @L1 (x0, x1)
+lift.retval r
+lproc @L1 (a0:reg[8], a1:reg[8]) (r:reg[8]) () () ()
+regs { v0:reg[8], v1:reg[8], v2:reg[8], v3:reg[8], c0:reg[8], v4:reg[1], c1:reg[8], v5:reg[1], c2:reg[8], c3:reg[8], v6:reg[8], v7:reg[8] }
+^b0():
+v0 = lift.add a0 a1
+v1 = lift.xor a0 v0
+v2 = lift.xor a1 v0
+v3 = lift.and v1 v2
+c0 = lift.const.i8 0
+v4 = lift.icmp.slt v3 c0
+c1 = lift.const.i8 0
+v5 = lift.icmp.slt a0 c1
+c2 = lift.const.i8 128
+c3 = lift.const.i8 127
+v6 = lift.select v5 c2 c3
+v7 = lift.select v4 v6 v0
+lift.ret v7
+action @rung1_full (t:wire[8] mut, e:wire[4] mut) (x0:wire[8] in, x1:wire[8] in) () (tk:token) ()
+^entry():
+oracle_call @ref tk (x0, x1) t e () ()
+
+section layout
+{"A_tab":0,"H":12,"S_cells":5,"globals":{},"heap_base":4096,"heap_limit_max":0,"interface_regions":{"ref":{}},"null_size":4096,"ptr_width":64}

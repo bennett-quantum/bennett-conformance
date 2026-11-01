@@ -1,0 +1,9 @@
+......+ /nonexistent/rung1-clang --version
+missing: exit 127
+[Errno 2] No such file or directory: '/nonexistent/rung1-clang'
+.missing toolchain
+.
+----------------------------------------------------------------------
+Ran 8 tests in 0.014s
+
+OK

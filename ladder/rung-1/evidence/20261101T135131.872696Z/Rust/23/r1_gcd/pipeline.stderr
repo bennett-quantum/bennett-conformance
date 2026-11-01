@@ -1,0 +1,27 @@
+bennett: BD-E-RESIDUAL: §12.4 V3 at ; Function Attrs: nounwind nonlazybind uwtable
+define i8 @r1_gcd(i8 signext %a, i8 signext %b) unnamed_addr #0 personality ptr @rust_eh_personality !guid !13 {
+start:
+  %nz.c._9.sroa.0.0 = icmp slt i8 %a, 0
+  %nz.n._9.sroa.0.0 = sub i8 0, %a
+  %_9.sroa.0.0 = select i1 %nz.c._9.sroa.0.0, i8 %nz.n._9.sroa.0.0, i8 %a
+  %0 = icmp eq i8 %b, 0
+  br i1 %0, label %bb4, label %bb3.preheader
+
+bb3.preheader:                                    ; preds = %start
+  %nz.c._11.sroa.0.0 = icmp slt i8 %b, 0
+  %nz.n._11.sroa.0.0 = sub i8 0, %b
+  %_11.sroa.0.0 = select i1 %nz.c._11.sroa.0.0, i8 %nz.n._11.sroa.0.0, i8 %b
+  br label %bb3
+
+bb4:                                              ; preds = %bb3, %start
+  %x.sroa.0.0.lcssa = phi i8 [ %_9.sroa.0.0, %start ], [ %y.sroa.0.04, %bb3 ]
+  ret i8 %x.sroa.0.0.lcssa
+
+bb3:                                              ; preds = %bb3, %bb3.preheader
+  %x.sroa.0.05 = phi i8 [ %y.sroa.0.04, %bb3 ], [ %_9.sroa.0.0, %bb3.preheader ]
+  %y.sroa.0.04 = phi i8 [ %r, %bb3 ], [ %_11.sroa.0.0, %bb3.preheader ]
+  %r = urem i8 %x.sroa.0.05, %y.sroa.0.04
+  %1 = icmp eq i8 %r, 0
+  br i1 %1, label %bb4, label %bb3
+}
+

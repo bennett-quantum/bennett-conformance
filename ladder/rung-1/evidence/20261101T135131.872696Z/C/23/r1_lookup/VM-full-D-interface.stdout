@@ -1,0 +1,1 @@
+{"action":"rung1_full","adjoint":false,"equals_entry":true,"first_difference":null,"forward_state":{"00000000111111111111":[1,0]},"in":[255],"mut":[255,15],"state":{"11111111111111111111":[1,0]},"status":"REVERSED","wires":20}

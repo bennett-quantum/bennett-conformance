@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-1/check_gate.py", line 9, in <module>
+    import gate
+ModuleNotFoundError: No module named 'gate'

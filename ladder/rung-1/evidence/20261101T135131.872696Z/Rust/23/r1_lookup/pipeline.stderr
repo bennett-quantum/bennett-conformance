@@ -1,0 +1,10 @@
+bennett: BD-E-RESIDUAL: §12.4 V3 at ; Function Attrs: nounwind nonlazybind uwtable
+define i8 @r1_lookup(i8 signext %x) unnamed_addr #0 personality ptr @rust_eh_personality !guid !14 {
+start:
+  %_4 = and i8 %x, 7
+  %_3 = zext i8 %_4 to i64
+  %0 = getelementptr i8, ptr @anon.b404e272f1e7e838529ae840e71594ab.0, i64 %_3
+  %_0 = load i8, ptr %0, align 1
+  ret i8 %_0
+}
+
