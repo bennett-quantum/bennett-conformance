@@ -1,6 +1,10 @@
 # INV-3: soundness of the static uncomputation discipline
 
 Spec: ISA 0.8 (`clauses/ISA-0.8.json`). Format: `proofs/FORMAT.md`.
+Borrow-domain interpretation: the binding 2026-11-01 ISA 0.8 erratum
+(`../bennett-isa-spec/spec/errata-0.8.md`) incorporates ISA 0.9 §5.6.
+New `ISA-5.6-P13.S5` / `.S6` citations below name that 0.9 statement layer;
+other IDs retain the 0.8 graph unless explicitly qualified.
 Depends on: INV-1 (steps cited as `INV-1:1.4` etc.).
 
 ## Informal statement
@@ -30,7 +34,7 @@ system R (entangled with ψ's borrowed and external parts):
 
 - (a) at every `qfree d` executed by `[[Γ]]_{Π,κ}`, the state is |0⟩_d ⊗ χ;
 - (b) at every `qreturn b`, the operator applied since the matching `qborrow`
-  is X ⊗ I_b ⊗ I_R for some X;
+  agrees with X ⊗ I_b ⊗ I_R on the reachable entry-state support for some X;
 - (c) at exit the workspace, locations and local regions are clean / at image
   and the region's operation is its declared operation ⊗ identity on borrowed
   bundles and R (`ISA-5.3-P1.S1`, `ISA-5.6-P1.S1`).
@@ -45,7 +49,8 @@ ISA-6.1 (whole section), ISA-6.1-P1.S1, ISA-6.1-P1.S2, ISA-6.1-P1.S3, ISA-6.1-P2
 ISA-6.1-P3.S1, ISA-6.1-P9.S1, ISA-6.1-P10.S1, ISA-6.1-P11.S1, ISA-6.1-P14.S1,
 ISA-6.2-P1 (whole clause), ISA-6.2-P1.S1, ISA-6.2-P1.S2, ISA-6.2-P1.S4, ISA-6.3-P1.S1,
 ISA-6.4-P1.S1, ISA-6.4-P1.S2, ISA-6.4-P1.S4, ISA-14.2-P1.S1, ISA-14.3-P3.S1,
-ISA-14.3-P5.S1.
+ISA-14.3-P5.S1. Additionally ISA-5.6-P2.S3, ISA-5.6-P13.S5 and
+ISA-5.6-P13.S6 from ISA 0.9 §5.6, incorporated by the 0.8 erratum.
 
 ## Proof
 
@@ -149,15 +154,15 @@ ISA-14.3-P5.S1.
         wires and diagonal phases; not proved here.
   <2>4. QED
         BY <2>1 (only in the case <2>1 covers)
-<1>5. Every completed borrow lifetime acts as X ⊗ I_b ⊗ I_R.
+<1>5. Every completed borrow lifetime acts as X ⊗ I_b ⊗ I_R on reachable states.
       PROOF:
   <2>1. Borrowed wires are touched only inside borrow frames, each
         permutation-only; outside frames the lifetime does not touch b.
         BY ISA-5.6-P2.S1
-  <2>2. A frame established by a T3 claim over its full domain (every value
-        of b included) satisfies P_F = P' ⊗ I_B on span(D), hence on every
-        state of b, entangled with R or not.
-        BY ISA-5.6-P2.S2, ISA-14.3-P3.S1; algebra
+  <2>2. A frame established by a T3 claim over D_F (every value of b
+        included) satisfies P_F|span(D_F) = (P' ⊗ I_B)|span(D_F).
+        BY ISA-5.6-P2.S3 (0.9, incorporated by the 0.8 erratum),
+        ISA-14.3-P3.S1; algebra
   <2>3. A frame of the form V; W; V⁻¹; W satisfying (i)–(iv) satisfies
         P_F = P' ⊗ I_B.
         PROOF:
@@ -193,9 +198,25 @@ ISA-14.3-P5.S1.
         is judged on the unrolled execution or on the static sequence
         (SPEC-QUESTIONS 30); either reading gives a factorising frame, but the
         frames differ, so certificate keys must agree on one.
-  <2>5. A product of operators of the form X_k ⊗ I_b, and of operators not
-        touching b, has the form X ⊗ I_b.
-        BY <2>1; algebra
+  <2>5. Composing the frame equalities and operators not touching b gives
+        X ⊗ I_b on the reachable entry-state support, including any R.
+        PROOF:
+    <3>1. At each frame entry the actual state has support in span(D_F);
+          D_F over-approximates the region-prefix reachable entry states and
+          includes every borrowed/interface value independently.
+          BY ISA-5.6-P13.S5 (0.9, incorporated by the 0.8 erratum)
+    <3>2. Expand that state (including R) as Σ_d |d⟩|r_d⟩ with d ∈ D_F.
+          Applying the restricted equality term by term gives the same state
+          as P' ⊗ I_B ⊗ I_R; linearity requires no full-operator equality
+          outside span(D_F).
+          BY <2>2, <2>3, <3>1, ISA-5.6-P13.S6 (0.9); algebra
+    <3>3. Induct along the actual prefix: each next frame again satisfies
+          <3>1, and intervening operators do not touch b. The product of
+          these equalities on the successive reachable states gives X ⊗ I_b
+          ⊗ I_R for the completed lifetime.
+          BY <2>1, <3>1, <3>2; algebra
+    <3>4. QED
+          BY <3>3
   <2>6. QED
         BY <2>2, <2>3, <2>4, <2>5
 <1>6. Under an inherited control w the conclusions hold on both branches.
