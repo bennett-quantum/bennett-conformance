@@ -130,7 +130,7 @@ class Gate(RecordedGate):
         if not runtime.is_file():
             raise GateError(f'missing runtimes bitcode for LLVM {major}: {runtime} (dialect §19.1)')
         pins = tomllib.loads((self.plugin_build.parent/'SPEC_VERSIONS.toml').read_text())['arith']
-        arith = Path(pins[f'llvm{major}_path'])
+        arith = Path(getattr(self.args, f'arith{major}', None) or pins[f'llvm{major}_path'])
         if sha(arith) != pins[f'llvm{major}_sha256']:
             raise GateError(f'arith LLVM {major} published bitcode digest differs from plugin pin')
         self.manifest.setdefault('runtimes_sha256', {})[str(major)] = sha(runtime)
@@ -282,6 +282,8 @@ def main():
     p.add_argument('--plugin-rev', help='plugin commit; defaults to HEAD at invocation')
     p.add_argument('--vm-rev', help='VM commit; defaults to HEAD at invocation')
     p.add_argument('--runtimes18', help='published LLVM18 runtimes bitcode')
+    p.add_argument('--arith18', help='LLVM18 arith bitcode to use instead of the live sibling dist (must still match the plugin pin digest)')
+    p.add_argument('--arith23', help='LLVM23 arith bitcode to use instead of the live sibling dist (must still match the plugin pin digest)')
     p.add_argument('--runtimes23', help='published LLVM23 runtimes bitcode')
     p.add_argument('--probe-unlinked', action='store_true', help='also probe the corpus without runtimes; never substitutes for production')
     p.add_argument('--reference', default=str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref'), help='reference interpreter binary (release build; the debug build is far too slow for the corpus, bead b-isa-spec-n8j)')
