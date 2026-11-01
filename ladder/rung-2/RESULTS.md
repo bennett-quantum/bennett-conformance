@@ -1,3 +1,18 @@
+# Rung 2 COMPLETE — 2026-11-01T13:06Z, gate exit 0 on both LLVM majors and both executors
+
+Pinned revisions: plugin `157d4bd`, VM `13f5a9e` (O(1) per-step cost, bennett-vm-fw8; pointer compares admitted,
+bennett-vm-ol3), reference interpreter `ba7d13f` release (O(1) per-step checkpoint, b-isa-spec-n8j), runtimes `6808622`
+dist, arith `249e619` dist (passed via `--arith18/--arith23` because the live arith dist was mid-edit).
+Evidence: `.tmp/rung-2/20261101T130556.518962Z/` (report.json, table.md, per-major dirs with every command and output).
+
+Every row PASS on LLVM 18 and 23: fixtures, plugin build, VM build, native reference (ten cases, O0+ASan/UBSan and O2),
+C front end, runtime bitcode link, post-link LTO, S1–S9 production, launch artefacts, reference admission, VM admission,
+reference forward = native, VM forward = native, reference byte-exact reverse, VM byte-exact reverse.
+
+North Star §8 rung 2 acceptance ("a C hashtable (the existing 258-line corpus): forward result equal to native on every
+tested input (independent check), then reversed byte-exactly, both executors") is met on this evidence. The VM runs
+n=0 in 1.1 s and n=1000 in 1.8 s (release); the reference 2.0 s and 2.5 s.
+
 # Rung 2 rerun 2026-11-01T11:47Z — reference executor passes end to end; VM forward times out
 
 Pinned revisions: plugin `157d4bd` (switch lowering bp-bux reinstated), VM `02236d9` (pointer compares admitted,
