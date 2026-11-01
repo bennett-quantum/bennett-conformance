@@ -8,7 +8,7 @@ fn bin() -> Command {
     Command::new(env!("CARGO_BIN_EXE_bennett-check"))
 }
 #[test]
-fn cli_verdict_is_deterministic_and_reports_partial_obligations() {
+fn cli_verdict_is_deterministic_and_verifies_the_published_positive() {
     let f = fixture();
     let run = || {
         bin()
@@ -24,7 +24,7 @@ fn cli_verdict_is_deterministic_and_reports_partial_obligations() {
     };
     let a = run();
     let b = run();
-    assert_eq!(a.status.code(), Some(2));
+    assert_eq!(a.status.code(), Some(0));
     assert_eq!(a.stdout, b.stdout);
     assert!(a.stderr.is_empty());
     let text = std::str::from_utf8(&a.stdout).unwrap();
@@ -32,9 +32,9 @@ fn cli_verdict_is_deterministic_and_reports_partial_obligations() {
     let verdict = bennett_cert_checker::json::parse(text).unwrap();
     assert_eq!(
         verdict.get("overall").and_then(|v| v.as_str()),
-        Some("unchecked")
+        Some("verified")
     );
-    assert!(!verdict
+    assert!(verdict
         .get("unchecked_items")
         .unwrap()
         .as_arr()
@@ -86,4 +86,22 @@ fn cli_embedded_and_detached_certificate_agree() {
     let b = embedded.output().unwrap();
     assert_eq!(a.status.code(), b.status.code());
     assert_eq!(a.stdout, b.stdout);
+}
+
+#[test]
+fn unimplemented_optional_comparison_still_reports_unchecked() {
+    let f = fixture();
+    let out = bin()
+        .arg(f.join("certificate.json"))
+        .arg("--object")
+        .arg(f.join("controlled.bisa"))
+        .arg("--target")
+        .arg(f.join("target.json"))
+        .arg("--oracle-bin")
+        .arg("unused-oracle-bin")
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    let v = bennett_cert_checker::json::parse(std::str::from_utf8(&out.stdout).unwrap()).unwrap();
+    assert_eq!(v.get("overall").and_then(|v| v.as_str()), Some("unchecked"));
 }

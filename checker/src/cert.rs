@@ -1085,6 +1085,8 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         }
     }
 
+    crate::accounting::check(&cert, &docs, inputs, &mut verdict);
+
     verdict.establishes.push(
         "hash bindings were recomputed from the supplied documents (§9.2 object/symbol identity, SHA-256 of JCS target/schedule bytes, params_hash); producer-stated hashes were never trusted".into(),
     );

@@ -7,6 +7,7 @@
 //! run as black boxes (see `--oracle-bin`) but their output is compared,
 //! never trusted. See `docs/checker.md` for the verdict contract.
 
+mod accounting;
 pub mod cert;
 pub mod domain;
 pub mod eval;
@@ -20,5 +21,6 @@ pub mod realisation;
 pub mod sampler;
 pub mod sha256;
 pub mod structural;
+mod target;
 
 pub use sha256::{is_hash_hex, sha256, sha256_hex};

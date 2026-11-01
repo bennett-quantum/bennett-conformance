@@ -192,3 +192,40 @@ fn default_only_schedule_still_enumerates_two_distinct_call_contexts() {
     assert_eq!(child.claims[0].1.outcome, "accept", "{v:?}");
     assert_eq!(child.claims[0].1.contexts, Some(2));
 }
+
+#[test]
+fn adjoint_calls_match_the_inverse_primitive_in_the_target() {
+    let source="action @root (t:wire mut) () () () ()\n^entry():\nadj action_call @phase (t) () () ()\naction @phase (t:wire mut) () () () ()\n^entry():\nt t";
+    let sigs = r#"{"root":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"},"phase":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#;
+    for op in ["tdg", "t"] {
+        let (mut inp, _) = standalone(
+            source,
+            sigs,
+            "root",
+            vec![json(
+                r#"{"bound":0.00000001,"kind":"numerical","metric":"operator_norm","precision_bits":128}"#,
+            )],
+        );
+        let base = controlled();
+        let mut target = json(std::str::from_utf8(base.target_bytes.as_ref().unwrap()).unwrap());
+        set(
+            &mut target,
+            "gates",
+            json(&format!(
+                r#"[{{"op":"{op}","classes":["fast"],"controls":{{"min":0,"max":0}},"epsilon":0,"cost":{{"time":1}}}}]"#
+            )),
+        );
+        let mut schedule =
+            json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
+        set(&mut schedule, "entries", Value::Arr(vec![]));
+        bind_schedule(&mut inp, schedule, target);
+        let v = check_certificate(&inp);
+        assert!(codes(&v).is_empty(), "{v:?}");
+        let outcome = &v.regions[0].claims[0].1;
+        assert_eq!(
+            outcome.outcome,
+            if op == "tdg" { "accept" } else { "unchecked" },
+            "{op}: {v:?}"
+        );
+    }
+}

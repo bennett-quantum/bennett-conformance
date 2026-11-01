@@ -109,3 +109,39 @@ fn published_certificate_every_field_type_mutation() {
         "published certificate field inventory changed"
     );
 }
+
+#[test]
+fn published_target_every_field_type_mutation_with_hashes_rebound() {
+    let base = controlled();
+    let target = json(std::str::from_utf8(base.target_bytes.as_ref().unwrap()).unwrap());
+    let schedule = json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
+    let mut paths = vec![];
+    walk(&target, &mut vec![], &mut paths);
+    let mut failures = vec![];
+    for path in &paths {
+        let mut changed = target.clone();
+        let v = at(&mut changed, path);
+        *v = if *v == Value::Null {
+            Value::Bool(true)
+        } else {
+            Value::Null
+        };
+        let mut inp = base.clone();
+        bind_schedule(&mut inp, schedule.clone(), changed);
+        let verdict = check_certificate(&inp);
+        if verdict.overall != "rejected" || !codes(&verdict).contains(&"E_CERT_TARGET") {
+            failures.push(format!(
+                "{path:?}: {} {:?}",
+                verdict.overall,
+                codes(&verdict)
+            ));
+        }
+    }
+    eprintln!(
+        "target field sweep: {} fields/positions; {} failures",
+        paths.len(),
+        failures.len()
+    );
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+    assert_eq!(paths.len(), 43, "published target field inventory changed");
+}

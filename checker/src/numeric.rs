@@ -95,6 +95,7 @@ pub fn validate_target_shape(t: &Value, errs: &mut Vec<Reject>) {
     ) {
         return;
     }
+    crate::target::validate(t, errs);
     // Mandatory resources with mandatory kinds (§8.2).
     if let Some(res) = t.get("resources").and_then(Value::as_obj) {
         for (name, kind) in [

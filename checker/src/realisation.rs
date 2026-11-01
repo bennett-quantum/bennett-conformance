@@ -34,12 +34,29 @@ pub struct Context {
     pub adjoint: bool,
 }
 #[derive(Debug, Clone)]
-struct Gate {
-    op: String,
-    controls: Vec<usize>,
-    targets: Vec<usize>,
-    path: Vec<Value>,
+pub(crate) struct Gate {
+    pub(crate) op: String,
+    pub(crate) own_controls: usize,
+    pub(crate) controls: Vec<usize>,
+    pub(crate) targets: Vec<usize>,
+    pub(crate) path: Vec<Value>,
     adjoint: bool,
+}
+impl Gate {
+    /// §5.3 replaces a primitive by its adjoint before target matching and
+    /// leaf accounting. A native T entry does not implement T-dagger.
+    pub(crate) fn realised_opcode(&self) -> &str {
+        if !self.adjoint {
+            return &self.op;
+        }
+        match self.op.as_str() {
+            "s" => "sdg",
+            "sdg" => "s",
+            "t" => "tdg",
+            "tdg" => "t",
+            _ => &self.op,
+        }
+    }
 }
 fn element(hash: &str, block: &str, ordinal: usize) -> Value {
     Value::Obj(BTreeMap::from([
@@ -286,6 +303,7 @@ fn collect(
                     );
                 }
                 let operands = &tokens[1..];
+                let inherited_count = controls.len();
                 let targets = match op {
                     "cx" => {
                         controls.push(one_wire(
@@ -334,6 +352,7 @@ fn collect(
                 }
                 body_gates.push(Gate {
                     op: op.into(),
+                    own_controls: controls.len() - inherited_count,
                     controls,
                     targets,
                     path,
@@ -382,7 +401,7 @@ fn root_wires(context: &Context, docs: &LoadedDocs) -> Result<HashMap<String, Ve
     }
     Ok(wires)
 }
-pub fn contexts(docs: &LoadedDocs, inputs: &Inputs) -> Result<Vec<Context>> {
+pub(crate) fn trace(docs: &LoadedDocs, inputs: &Inputs) -> Result<(Vec<Context>, Vec<Gate>)> {
     let schedule = docs
         .schedule
         .as_ref()
@@ -413,19 +432,23 @@ pub fn contexts(docs: &LoadedDocs, inputs: &Inputs) -> Result<Vec<Context>> {
     // Bound before materialising any wire vector.
     check_width(&context, docs, inputs)?;
     let mut contexts = Vec::new();
+    let mut gates = Vec::new();
     collect(
         &context,
         docs,
         root_wires(&context, docs)?,
         (0..controls as usize).collect(),
         &mut contexts,
-        &mut vec![],
+        &mut gates,
         inputs.limits.max_elements,
         0,
     )?;
     contexts
         .sort_by_key(|c| jcs(&Value::Arr(c.key.clone())).expect("concrete context key is JSON"));
-    Ok(contexts)
+    Ok((contexts, gates))
+}
+pub fn contexts(docs: &LoadedDocs, inputs: &Inputs) -> Result<Vec<Context>> {
+    trace(docs, inputs).map(|(contexts, _)| contexts)
 }
 fn check_width(c: &Context, docs: &LoadedDocs, inputs: &Inputs) -> Result<usize> {
     let iface = docs
@@ -484,7 +507,11 @@ fn selector(entry: &Value, path: &[Value]) -> bool {
             .unwrap_or(true)
     })
 }
-fn decision<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Option<&'a Value>> {
+pub(crate) fn decision_kind<'a>(
+    docs: &'a LoadedDocs,
+    gate: &Gate,
+    kind: &str,
+) -> Result<Option<&'a Value>> {
     let entries = docs
         .schedule
         .as_ref()
@@ -494,8 +521,7 @@ fn decision<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Option<&'a Value>> 
     let mut best: Option<((usize, usize, u8, u8, u8), &Value)> = None;
     let mut tied = false;
     for entry in entries {
-        if entry.get("kind").and_then(Value::as_str) != Some("gate") || !selector(entry, &gate.path)
-        {
+        if entry.get("kind").and_then(Value::as_str) != Some(kind) || !selector(entry, &gate.path) {
             continue;
         }
         let p = entry.get("path").and_then(Value::as_arr).unwrap();
@@ -522,12 +548,12 @@ fn decision<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Option<&'a Value>> 
     if tied {
         return invalid(
             "schedule.entries",
-            "two matching gate decisions have equal maximal specificity",
+            format!("two matching {kind} decisions have equal maximal specificity"),
         );
     }
-    Ok(best.and_then(|(_, e)| e.get("gate")))
+    Ok(best.and_then(|(_, e)| e.get(kind)))
 }
-fn native(docs: &LoadedDocs, gate: &Gate) -> Result<()> {
+pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value> {
     let target = docs
         .target
         .as_ref()
@@ -543,14 +569,14 @@ fn native(docs: &LoadedDocs, gate: &Gate) -> Result<()> {
         return pending("native matrix builder needs resolved multi-class allocation");
     }
     let class = classes.keys().next().unwrap();
-    if let Some(g) = decision(docs, gate)? {
+    if let Some(g) = decision_kind(docs, gate, "gate")? {
         if g.get("realisation").and_then(Value::as_str) != Some("native") {
             return pending("scheduled scheme template expansion has not been implemented");
         }
     }
     let gates = target.get("gates").and_then(Value::as_arr).unwrap_or(&[]);
     for entry in gates {
-        if entry.get("op").and_then(Value::as_str) != Some(gate.op.as_str()) {
+        if entry.get("op").and_then(Value::as_str) != Some(gate.realised_opcode()) {
             continue;
         }
         let min = entry
@@ -576,13 +602,13 @@ fn native(docs: &LoadedDocs, gate: &Gate) -> Result<()> {
             );
         }
         match entry.get("epsilon").and_then(|v|rat_of_json(v).ok()) {
-            Some(e) if e.is_zero()=>return Ok(()),
+            Some(e) if e.is_zero()=>return Ok(entry),
             _=>return pending("nonzero/expressed native epsilon needs evaluated shares and a specified realised operator before numerical replay"),
         }
     }
     pending(format!(
         "gate {} with {} total controls has no checked exact native match",
-        gate.op,
+        gate.realised_opcode(),
         gate.controls.len()
     ))
 }
