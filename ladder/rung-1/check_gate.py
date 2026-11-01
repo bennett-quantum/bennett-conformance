@@ -51,6 +51,15 @@ class Checks(unittest.TestCase):
                       ('wires',21),('in',[0]),('mut',[1,4]),('forward_state',{after:[-1,0]})]:
             w=copy.deepcopy(v);w[k]=bad
             with self.subTest(key=k),self.assertRaises(AssertionError):gate.check_action(w,(1,),1,5,1)
+    def test_classification_preserves_red_and_propagates_new_beads(self):
+        from classify_report import classify
+        rows={'source':{'status':'FAIL','beads':['UNFILED'],'error':'measured refusal'},
+              'next':{'status':'BLOCKED','beads':['UNFILED'],'error':'Not run; requires source'}}
+        r={'stages':{'C/18':copy.deepcopy(rows)},'cases':{'C/18':{'f':copy.deepcopy(rows)}}}
+        got=classify(r,[{'id':'real-bead','pattern':'measured refusal'}])
+        self.assertEqual(got['stages']['C/18']['next']['beads'],['real-bead'])
+        self.assertEqual(got['stages']['C/18']['source']['status'],'FAIL')
+        self.assertEqual(r['stages']['C/18']['source']['beads'],['UNFILED'])
     def test_missing_toolchain_is_failure(self):
         with tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as tmp:
             g=gate.Gate(argparse.Namespace(output=tmp,timeout=300))

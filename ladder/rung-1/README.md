@@ -15,7 +15,7 @@ Run headlessly from any directory:
 `13f5a9e`, dialect 0.2.10 `023f5a7`, ISA 0.8 reference release `ba7d13f`,
 runtimes `6808622`, and arith publication `249e619`. Plugin sources are archived
 and byte-verified before building; VM builds in a clean detached sibling
-worktree, never the possibly dirty live source. Published runtime/arith archives
+worktree with `cargo build --release`, never the possibly dirty live source. Published runtime/arith archives
 are extracted from their pinned commits; the arith digest must also match the
 plugin's SPEC_VERSIONS.toml. Use `--arith18 /path/to/pinned.bc --arith23 ...`
 for explicit extracted publications; the SHA checks still apply. `--plugin-rev`,
@@ -88,3 +88,10 @@ TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp python3 
 
 Rung 1 reuses `ladder/common/gate_support.py` for command evidence, failures and
 red dependency propagation. Rung 2 and rung 3 source and behaviour are unchanged.
+
+If an observed failure needs a new bead after a run, `classify_report.py
+/path/to/report.json` attaches the current blocker mappings without changing any
+measured status or command. It preserves `report.unclassified.json` and records
+the raw report hash, mapping hash, UTC time and exact classification command.
+Unfiled failures make classification fail loudly. This is annotation of that
+same real run, not a rerun or a conversion of a failure to a pass.

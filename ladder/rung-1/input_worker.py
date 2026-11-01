@@ -19,16 +19,21 @@ def one(item):
     start=time.monotonic();r=subprocess.run(argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
     return index,x,r,{'argv':argv,'exit':r.returncode,'elapsed_seconds':time.monotonic()-start,
                      'stdout':r.stdout.decode(errors='replace'),'stderr':r.stderr.decode(errors='replace')}
-with evidence.open('w') as log, ThreadPoolExecutor(max_workers=4) as pool:
-    for index,x,r,record in pool.map(one,enumerate(inputs(a.arity))):
-        log.write(json.dumps(record)+'\n');log.flush()
-        assert r.returncode==0,r.stderr.decode(errors='replace')
-        v=json.loads(r.stdout)
-        if int(v['code']):summary['faults']+=1
-        if result(v)!=expected[index]:summary['mismatches']+=1
-        assert result(v)==expected[index],f'native mismatch at {x}: {v}'
-        restored(v);summary['cases']+=1;summary['reversed']+=1
-        if summary['cases']%256==0:summary_path.write_text(json.dumps(summary)+'\n')
+with evidence.open('w') as log:
+    pool=ThreadPoolExecutor(max_workers=4)
+    try:
+        outcomes=pool.map(one,enumerate(inputs(a.arity)))
+        for index,x,r,record in outcomes:
+            log.write(json.dumps(record)+'\n');log.flush()
+            assert r.returncode==0,r.stderr.decode(errors='replace')
+            v=json.loads(r.stdout)
+            if int(v['code']):summary['faults']+=1
+            if result(v)!=expected[index]:summary['mismatches']+=1
+            assert result(v)==expected[index],f'native mismatch at {x}: {v}'
+            restored(v);summary['cases']+=1;summary['reversed']+=1
+            if summary['cases']%256==0:summary_path.write_text(json.dumps(summary)+'\n')
+    finally:
+        pool.shutdown(wait=True,cancel_futures=True)
 summary_path.write_text(json.dumps(summary)+'\n')
 assert summary['cases']==len(expected)==256**a.arity
 print(json.dumps(summary))

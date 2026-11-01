@@ -121,8 +121,9 @@ class Gate(RecordedGate):
         if not src.exists():self.command('build/vm-worktree',['git','-C',repo,'worktree','add','--detach',src,rev])
         assert (src/'.git').is_file() and git(src,'rev-parse','--abbrev-ref','HEAD')=='HEAD', 'VM not detached'
         assert git(src,'rev-parse','HEAD')==rev and not git(src,'status','--porcelain','--untracked-files=no'), 'VM worktree dirty or wrong HEAD'
-        self.command('build/vm-build',['cargo','build','--offline','--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
-        self.vm_exe=src/'target/debug/bennett-vm'
+        self.command('build/vm-build',['cargo','build','--release','--offline','--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.vm_exe=src/'target/release/bennett-vm'
+        self.manifest['vm_profile']='release'
         self.manifest['vm_sha256']=sha(self.vm_exe)
 
     def toolchain(self,lang,m):
@@ -217,7 +218,8 @@ class Gate(RecordedGate):
             assert match, 'Julia specialised function missing: '+c
             entry=match[1].strip('"')
         self.entries[(lang,m,c)]=entry
-        self.command(f'{lang}/{m}/{c}/pipeline',[f'/usr/lib/llvm-{m}/bin/opt',
+        _,arith=self.runtime_files(m)
+        self.command(f'{lang}/{m}/{c}/pipeline',['env','BENNETT_ARITH_BITCODE='+str(arith),f'/usr/lib/llvm-{m}/bin/opt',
             '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),'-passes=bennett',
             '-bennett-dialect=0.2.10','-bennett-isa=0.8','-bennett-oracle='+entry,
             '-bennett-scalar-shape='+','.join(['IN(8,sext)']*CASES[c])+';tgt=8',
