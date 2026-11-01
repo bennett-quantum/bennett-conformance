@@ -1,0 +1,1 @@
+PASS: every rung-2 function AST is identical to HEAD; git/sha/command/stage moved verbatim to shared support. Only Gate base class and imports change.

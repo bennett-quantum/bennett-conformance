@@ -1,0 +1,8 @@
++ /usr/bin/python3 -c import sys; print("evidence"); sys.exit(3)
++ /usr/bin/python3 -c import time; time.sleep(5)
+..missing musl
+......
+----------------------------------------------------------------------
+Ran 8 tests in 0.117s
+
+OK

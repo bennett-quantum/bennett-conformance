@@ -1,0 +1,10 @@
+{
+  "bennett-plugin": "00a5537f92af6b8b5d13e4422f3316e1e41005da",
+  "bennett-vm": "9ac6d3e11b5b62f4e5f9a4c7294622a00db89bcd",
+  "bennett-runtimes": "6808622d560b2e301c635c205eecde3d932b6df5",
+  "bennett-driver": "306b6e90df85a6b0f59e1e57b04ff7fbcae37ce5",
+  "bennett-arith": "249e6192b95c6dbbb875510c32a677ba113e9af5",
+  "bennett-isa-spec": "997d70000eefba6e56ce0e4b1559a02757d15006",
+  "bennett-isa-spec-review": "ba7d13f76e73c2af4e035d3f51145d2fad76bd2f",
+  "bennett-dialect-spec": "023f5a771a814270634db3be9cfde88ded69f975"
+}

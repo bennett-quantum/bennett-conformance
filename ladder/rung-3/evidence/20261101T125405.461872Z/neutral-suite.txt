@@ -1,0 +1,18 @@
+case            | hashes | check | runs  | result
+actions         | ok     | ok    | 13/13 | PASS
+arithmetic      | ok     | ok    | 41/41 | PASS
+classical       | ok     | ok    | 36/36 | PASS
+control_flow    | ok     | ok    | 33/33 | PASS
+heap            | ok     | ok    | 11/11 | PASS
+inc8            | ok     | ok    | 15/15 | PASS
+mutual          | ok     | ok    | 1/1   | PASS
+nested          | ok     | ok    | 16/16 | PASS
+r9-codex-oracle | ok     | ok    | 18/18 | PASS
+r9-loop         | ok     | ok    | 9/9   | PASS
+r9-sol-oracle   | ok     | ok    | 18/18 | PASS
+r9-sol-qinplace | ok     | ok    | 10/10 | PASS
+registers       | ok     | ok    | 21/21 | PASS
+sum_db          | ok     | ok    | 19/19 | PASS
+tiny_memory     | ok     | ok    | 41/41 | PASS
+wide            | ok     | ok    | 12/12 | PASS
+checked 16/16 cases

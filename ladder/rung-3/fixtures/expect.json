@@ -1,0 +1,24 @@
+{
+  "clauses": [
+    "DLT-1.5",
+    "DLT-11.2",
+    "DLT-11.3",
+    "DLT-17.6",
+    "DLT-17.7",
+    "DLT-19.1",
+    "DLT-19.2",
+    "ISA-7.3",
+    "ISA-7.4",
+    "ISA-10",
+    "ISA-14.3"
+  ],
+  "stdout_hex": "68656c6c6f2c20776f726c640a",
+  "exit_status": 0,
+  "entry": "main",
+  "tier": "reversible",
+  "scope": "ordinary musl hello.c, both majors, both executors; controls are diagnostic only",
+  "control_provenance": {
+    "executor-control.bisa": "bennett-isa-spec-review @ ba7d13f76e73c2af4e035d3f51145d2fad76bd2f reference-interpreter/tests/fixtures/classical.bisa",
+    "effect-console-r.ll": "Dialect 0.2.10 @023f5a7 \u00a711.6, with declaration for standalone LLVM verification"
+  }
+}
