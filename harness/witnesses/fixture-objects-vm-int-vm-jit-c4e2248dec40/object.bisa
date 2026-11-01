@@ -1,0 +1,18 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=64
+
+section symbols
+{"0":{"interface_hash":"23802c541101025a57a13ffb5f00ca72a7ad5ff95f78e9a4fd565c59f566752d","kind":"cc","name":"f","signature":{"abi":"0.8","kind":"cc","params":[],"results":["i64"],"tier":"cc"}}}
+
+section functions
+fn cc @f () (r:i64) () () ()
+^entry():
+n = const.i64 9223372036854775808
+p = alloc n
+r = hostcall org.bennett.test p n
+ret r
+
+section devices
+{"models":{},"services":{"org.bennett.test":{"version":"1"}}}
+
+section layout
+{"A_tab":1,"H":64,"S_cells":1,"globals":{},"heap_base":1,"heap_limit_max":"9223372036854775808","interface_regions":{},"null_size":1,"ptr_width":64}

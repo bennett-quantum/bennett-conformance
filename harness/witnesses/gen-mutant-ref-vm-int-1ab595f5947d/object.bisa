@@ -1,0 +1,84 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"7a2246baf90b2eac5e21eea4bfe6e5d1eeddc5680690a9f9e872d1719a6006e9","kind":"r","name":"h0","signature":{"abi":"0.8","kind":"r","params":[],"results":["i1"],"tier":"r"}},"1":{"interface_hash":"956dc38650d588b52ad82683a41c8e4d81738968b848f56d4ed635ecec47c001","kind":"r","name":"main","signature":{"abi":"0.8","kind":"r","params":["i8"],"results":["i32"],"tier":"r"}}}
+
+section functions
+fn r @h0 () (r0:i1) () () ()
+^entry():
+v1 = const.i128 340282366920938463463374607431768211455
+v2 = const.i128 170141183460469231731687303715884105728
+v3 = udiv v1 v2
+v4 = const.i32 512
+p5 = alloc v4
+v6 = const.i64 3
+effect block.read v6 p5
+v7 = const.i1 0
+ret v7
+fn r @main (arg0:i8) (r0:i32) () () ()
+^entry():
+v1 = const.i32 32
+p2 = alloc v1
+v3 = xor arg0 arg0
+v4 = const.i1 1
+br v4 ^then5(v3) ^else6(v3)
+^then5(tv8:i8):
+v11 = const.i8 4
+v12 = const.i8 0
+v13 = const.i8 1
+br ^head14(v11, v12)
+^head14(i17:i8, acc18:i8):
+t22 = icmp.eq i17 v12
+br t22 ^out16(acc18) ^body15(i17, acc18)
+^body15(ii19:i8, aa20:i8):
+v23 = zext.i63 ii19
+v24 = icmp.eq v1 v1
+n25 = sub ii19 v13
+v26 = const.i8 255
+br ^head14(n25, v26)
+^out16(res21:i8):
+br ^merge7(v13)
+^else6(ev9:i8):
+v27 = mul v3 arg0
+br ^merge7(ev9)
+^merge7(mv10:i8):
+p28 = inttoptr v1
+free p28
+v29 = const.i64 1
+v30 = trunc.i1 v29
+v31 = const.i1 1
+br v31 ^then32(mv10) ^else33(v3)
+^then32(tv35:i8):
+v38 = const.i8 0
+v39 = const.i8 0
+v40 = const.i8 1
+v41 = const.i1 1
+br ^head42(v38, v41)
+^head42(i45:i8, acc46:i1):
+t50 = icmp.eq i45 v39
+br t50 ^out44(acc46) ^body43(i45, acc46)
+^body43(ii47:i8, aa48:i1):
+n51 = sub ii47 v40
+br ^head42(n51, v41)
+^out44(res49:i1):
+br ^merge34(mv10)
+^else33(ev36:i8):
+br ^merge34(ev36)
+^merge34(mv37:i8):
+v52 = const.i32 512
+p53 = alloc v52
+v54 = const.i64 2
+effect block.read v54 p53
+v55 = ashr v52 v1
+v56 = and v54 v29
+v56 = and v54 v29
+store.i8 p53 mv10
+v57 = const.i2 1
+v58 = and v57 v57
+ret v52
+
+section devices
+{"models":{"block":{"version":"0.8"},"clock":{"version":"0.8"},"console":{"version":"0.8"},"entropy":{"version":"0.8"}},"services":{}}
+
+section layout
+{"A_tab":4,"H":13,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":4096,"interface_regions":{},"null_size":1,"ptr_width":32}

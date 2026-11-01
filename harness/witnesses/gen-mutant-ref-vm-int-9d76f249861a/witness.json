@@ -1,0 +1,74 @@
+{
+ "argv": [
+  "reverse",
+  "$OBJECT",
+  "main",
+  "--input",
+  "",
+  "--arg",
+  "token:64"
+ ],
+ "case": "gen-mutant/seed99/2",
+ "cwd": null,
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a73.7: unreadable location l12x\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"budget\":{\"depth\":64,\"heap\":2048,\"stack\":512,\"steps\":1000000},\"code\":7,\"equals_entry\":true,\"first_difference\":null,\"forward_steps\":1000000,\"frames_clean\":true,\"oracle\":\"main\",\"payload\":0,\"reverse_steps\":1000000,\"state_after_reversal\":{\"counters\":[0,1,0,0,0],\"faulted\":false,\"locations\":{\"main.l1\":0,"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 52,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a73.7: unreadable location l12x\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budget\":{\"depth\":64,\"heap\":2048,\"stack\":512,\"steps\":1000000},\"code\":7,\"equals_entry\":true,\"first_difference\":null,\"forward_steps\":1000000,\"frames_clean\":true,\"oracle\":\"main\",\"payload\":0,\"reverse_steps\":1000000,\"state_after_reversal\":{\"counters\":[0,1,0,0,0],\"faulted\":false,\"locations\":{\"main.l1\":0,\"main.l10\":0,\"main.l11\":0,\"main.l12\":0,\"main.l13\":0,\"main.l14\":0,\"main.l15\":0,\"main.l16\":0,\"main.l17\":0,\"main.l18\":0,\"main.l19\":0,\"main.l2\":0,\"main.l20\":0,\"main.l3\":0,\"main.l4\":0,\"main.l5\":0,\"main.l6\":0,\"main.l7\":0,\"main.l8\":0,\"main.l9\":0},\"pc\":0,\"pc_prime\":0},\"status\":\"REVERSED\",\"steps\":3}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "time budget of 6s reached; witness valid but maybe not minimal",
+ "shrink_tests": 37,
+ "shrunk_lines": 52,
+ "signature": "reverse diagnostic/json $outcome \u00a73.7|",
+ "signature_reproduced": true,
+ "tape": false
+}

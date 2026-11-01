@@ -1,0 +1,70 @@
+{
+ "argv": [
+  "run-cc",
+  "$OBJECT",
+  "f"
+ ],
+ "case": "fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/r-length.bisa/f/run-cc/0",
+ "cwd": "/home/tobias/Projects/bennett-workspace/bennett-isa-spec/reference-interpreter/tests/fixtures/r21",
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a77.3: host limit: \u00a77.1 transfer bytes allocation of 9223372036854775808 elements failed: memory allocation failed because the computed capacity exceeded the collection's maximum\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 101,
+    "kind": "crash",
+    "stderr": "\nthread 'main' (351528) panicked at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/alloc/src/raw_vec/mod.rs:28:5:\ncapacity overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+    "stdout": ""
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 18,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a77.3: host limit: \u00a77.1 transfer bytes allocation of 9223372036854775808 elements failed: memory allocation failed because the computed capacity exceeded the collection's maximum\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 101,
+   "kind": "crash",
+   "stderr": "\nthread 'main' (351528) panicked at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/alloc/src/raw_vec/mod.rs:28:5:\ncapacity overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+   "stdout": ""
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 11,
+ "shrunk_lines": 18,
+ "signature": "run-cc diagnostic/crash $outcome \u00a77.3|",
+ "signature_reproduced": true,
+ "tape": true
+}

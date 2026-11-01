@@ -1,0 +1,16 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"34f2caae82a52094cde811e28f76994a6ca3ed048d1fb376866e522226c371e0","kind":"action","name":"a","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[{"A":0,"W":1,"role":"in"}],"mut":[1],"tier":"q"}}}
+
+section functions
+action @a (t:wire mut) () (r:region[0,1] in) () ()
+^entry():
+x t
+x t
+
+section layout
+{"A_tab":1,"H":8,"S_cells":1,"globals":{},"heap_base":1,"heap_limit_max":255,"interface_regions":{},"null_size":1,"ptr_width":32}
+
+section certificate
+{"bindings":{"closure_hash":"34f2caae82a52094cde811e28f76994a6ca3ed048d1fb376866e522226c371e0","dialect_mapping_version":"test.1","interface_hash":"34f2caae82a52094cde811e28f76994a6ca3ed048d1fb376866e522226c371e0","object_hash":"c4cfb4f9f4081610f5163cb6c149c0414bb7407e3afe6ec15895865ad3da487e","reference_program_hash":"34f2caae82a52094cde811e28f76994a6ca3ed048d1fb376866e522226c371e0","target_hash":"3333333333333333333333333333333333333333333333333333333333333333"},"composition":{"epsilon_total":{"diamond":0},"method":"sum_over_multiplicities","multiplicities":{}},"producer":{"materialisation":{"llvm_version":"none","normaliser_version":"1","pipeline":"none"},"name":"tests","version":"1"},"regions":{"34f2caae82a52094cde811e28f76994a6ca3ed048d1fb376866e522226c371e0":{"bounds":[],"claims":[{"domain":{"borrowed":[],"bundles":[{"hi":1,"lo":0,"name":"t","width":1}],"regions":[{"cells":"all","name":"r"}]},"kind":"sampled","sampler":{"algorithm":"xoshiro256**","count":1,"seed":["1","2","3","4"]}}],"cleanup":{},"definedness_assumptions":[],"error":{},"frame":{"borrow":{},"interface":[{"class":"any","role":"mut","width":1}],"retained_history":0,"scheme_ancillae":{},"scratch":{}},"gates_used":{},"kind":"action","resources":{},"signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[{"A":0,"W":1,"role":"in"}],"mut":[1],"tier":"q"},"verification":{"borrow_frames":[],"channel":[],"fault_rate":{"domain":{"borrowed":[],"bundles":[],"regions":[]},"faults_by_code":{},"layout_dependent_excluded":0,"undefined_excluded":0},"inverse_pairs":[],"oracle":null,"unitary":[]}}},"versions":{"cert":"0.8","coverage":"0.8","isa":"0.8","launch":"0.8","object":"0.8","sched":"0.8","target":"0.8"}}

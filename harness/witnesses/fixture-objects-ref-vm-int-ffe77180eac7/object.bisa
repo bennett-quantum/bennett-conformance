@@ -1,0 +1,11 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"0000000000000000000000000000000000000000000000000000000000000000","kind":"action","name":"badwindow","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}}
+
+section functions
+action @badwindow (t:wire mut) () () () ()
+^entry():
+d = qcopy t
+h t
+quncopy t d

@@ -1,0 +1,19 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"281e4d1cab9175aa0e0c245ea1f55802f11181bb667d7a25af7b294c86e5cf2d","kind":"cc","name":"main","signature":{"abi":"0.8","kind":"cc","params":["token"],"results":["i1"],"tier":"cc"}}}
+
+section functions
+fn cc @main (tk:token) (r0:i1) () () ()
+^entry():
+qmain = qreg.new any 1
+qa0 = qreg.new any 1
+qa0 = qreg.new any 1
+qm0 = measure qmain
+ret qm0
+
+section devices
+{"models":{},"services":{}}
+
+section layout
+{"A_tab":4,"H":13,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":4096,"interface_regions":{},"null_size":1,"ptr_width":32}

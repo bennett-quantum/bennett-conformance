@@ -1,0 +1,70 @@
+{
+ "argv": [
+  "reverse",
+  "$OBJECT",
+  "main",
+  "--arg",
+  "0",
+  "--arg",
+  "0"
+ ],
+ "case": "gen-r/seed1165/2",
+ "cwd": null,
+ "diff": [
+  {
+   "a": true,
+   "b": false,
+   "mode": "exact",
+   "path": "equals_entry"
+  },
+  {
+   "a": null,
+   "b": "control: 1 activations / next_id 1 differs from 1 activations / next_id 2",
+   "mode": "nullness",
+   "path": "first_difference"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 67,
+ "outcomes": {
+  "ref": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c\",\"equals_entry\":true,\"fault\":null,\"faults\":[],\"first_difference\":null,\"host_requests\":[],\"memory_digest\":\"d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c\",\"memory_equals_entry\":true,\"results\":[],\"status\":\"REVERSED\",\"steps\":11,\"tape\":[]}\n"
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"equals_entry\":false,\"fault\":null,\"faults\":[],\"first_difference\":\"control: 1 activations / next_id 1 differs from 1 activations / next_id 2\",\"host_requests\":[],\"memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"memory_equals_entry\":true,\"results\":[],\"status\":\"REVERSED\",\"steps\":11,\"tape\":[]}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 148,
+ "shrunk_lines": 32,
+ "signature": "reverse json/json equals_entry,first_difference ",
+ "signature_reproduced": true,
+ "tape": true
+}

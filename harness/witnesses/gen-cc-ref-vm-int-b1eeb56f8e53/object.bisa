@@ -1,0 +1,21 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"b48698944fde02c072e94335a000de71722b422129856c4f72971a08bb1ae18e","kind":"action","name":"mix","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[2],"tier":"q"}},"1":{"interface_hash":"11127b70ea070f16cd46a3dfa81efb5a057aa4d1bf62dc333827ea863ed7af6d","kind":"cc","name":"main","signature":{"abi":"0.8","kind":"cc","params":["i63","i65","token"],"results":["i2"],"tier":"cc"}}}
+
+section functions
+action @mix (t:wire[2] mut) () () () ()
+^entry():
+h t[1]
+fn cc @main (arg0:i63, arg1:i65, tk:token) (r0:i2) () () ()
+^entry():
+qmain = qreg.new any 2
+adj action_call @mix (qmain) () () ()
+qm0 = measure qmain
+ret qm0
+
+section devices
+{"models":{},"services":{}}
+
+section layout
+{"A_tab":4,"H":13,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":4096,"interface_regions":{},"null_size":1,"ptr_width":32}

@@ -1,0 +1,72 @@
+{
+ "argv": [
+  "run-cc",
+  "$OBJECT",
+  "main",
+  "--arg",
+  "token:64"
+ ],
+ "case": "gen-mutant/seed2/1",
+ "cwd": null,
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a73.3: SSA definition reused\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"fault\":null,\"faults\":[],\"host_requests\":[],\"measurements\":[{\"bits\":\"0\",\"reg\":1,\"value\":0}],\"memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbee"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 66,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a73.3: SSA definition reused\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"fault\":null,\"faults\":[],\"host_requests\":[],\"measurements\":[{\"bits\":\"0\",\"reg\":1,\"value\":0}],\"memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"results\":[{\"type\":\"i1\",\"value\":\"0\"}],\"status\":\"COMPLETED\",\"steps\":5,\"tape\":[],\"trace\":[{\"block\":\"entry\",\"function\":\"main\",\"index\":0,\"lhs\":[\"qmain\"],\"line\":9,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"1\"],\"registers\":[{\"activation\":0,\"name\":\"qmain\",\"post\":{\"type\":\"qreg\",\"value\":1},\"pre\":null}],\"step\":0},{\"block\":\"entry\",\"function\":\"main\",\"index\":1,\"lhs\":[\"qa0\"],\"line\":10,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"1\"],\"registers\":[{\"activation\":0,\"name\":\"qa0\",\"post\":{\"type\":\"qreg\",\"value\":2},\"pre\":null}],\"step\":1},{\"block\":\"entry\",\"function\":\"main\",\"index\":2,\"lhs\":[\"qa0\"],\"line\":11,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"1\"],\"registers\":[{\"activation\":0,\"name\":\"qa0\",\"post\":{\"type\":\"qreg\",\"value\":3},\"pre\":{\"type\":\"qreg\",\"value\":2}}],\"step\":2},{\"block\":\"entry\",\"function\":\"main\",\"index\":3,\"lhs\":[\"qm0\"],\"line\":12,\"memory\":[],\"op\":\"measure\",\"operands\":[\"qmain\"],\"registers\":[{\"activation\":0,\"name\":\"qm0\",\"post\":{\"type\":\"i1\",\"value\":\"0\"},\"pre\":null}],\"step\":3},{\"block\":\"entry\",\"function\":\"main\",\"index\":4,\"lhs\":[],\"line\":13,\"memory\":[],\"op\":\"ret\",\"operands\":[\"qm0\"],\"registers\":[],\"step\":4}]}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 71,
+ "shrunk_lines": 19,
+ "signature": "run-cc diagnostic/json $outcome \u00a73.3|",
+ "signature_reproduced": true,
+ "tape": true
+}

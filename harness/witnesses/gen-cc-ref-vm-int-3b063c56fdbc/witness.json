@@ -1,0 +1,98 @@
+{
+ "argv": [
+  "run-cc",
+  "$OBJECT",
+  "main",
+  "--arg",
+  "token:64"
+ ],
+ "case": "gen-cc/seed71/1",
+ "cwd": null,
+ "diff": [
+  {
+   "a": 4,
+   "b": null,
+   "mode": "exact",
+   "path": "fault"
+  },
+  {
+   "a": 1,
+   "b": 0,
+   "mode": "exact",
+   "path": "faults.length"
+  },
+  {
+   "a": 2,
+   "b": 3,
+   "mode": "exact",
+   "path": "measurements.length"
+  },
+  {
+   "a": 0,
+   "b": 1,
+   "mode": "exact",
+   "path": "results.length"
+  },
+  {
+   "a": "FAILED",
+   "b": "COMPLETED",
+   "mode": "exact",
+   "path": "status"
+  },
+  {
+   "a": 45,
+   "b": 47,
+   "mode": "exact",
+   "path": "steps"
+  },
+  {
+   "a": 45,
+   "b": 47,
+   "mode": "exact",
+   "path": "trace.length"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 71,
+ "outcomes": {
+  "ref": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"fault\":4,\"faults\":[{\"code\":4,\"name\":\"FAULT_UB_TRAP\"}],\"host_requests\":[],\"measurements\":[{\"bits\":\"000\",\"reg\":1,\"value\":0},{\"bits\":\"000\",\"reg\":2,\"value\":0}],\"memory_digest\":\"d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c\",\"results\":[],\"status\":\"FAILED\",\"steps\":45,\"tape\":[],\"trace\":[{\"block\":\"entry\",\"function\":\"main\",\"index\":0,\"lhs\":[\"qmain\"],\"line\":36,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"3\"],\"registers\":[{\"activation\":0,\"name\":\"qmain\",\"post\":{\"type\":\"qreg\",\"value\":1},\"pre\":null}],\"step\":0},{\"block\":\"entry\",\"function\":\"main\",\"index\":1,\"lhs\":[],\"line\":37,\"memory\":[],\"op\":\"action_call\",\"operands\":[\"@perm\",\"(qmain)\",\"()\",\"()\",\"()\"],\"registers\":[],\"step\":1},{\"block\":\"entry\",\"function\":\"main\",\"index\":2,\"lhs\":[\"qo1\"],\"line\":38,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"3\"],\"registers\":[{\"activation\":0,\"name\":\"qo1\",\"post\":{\"type\":\"qreg\",\"value\":2},\"pre\":null}],\"step\":2},{\"block\":\"entry\",\"function\":\"main\",\"index\":3,\"lhs\":[\"qf1\"],\"line\":39,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"4\"],\"registers\":[{\"activation\":0,\"name\":\"qf1\",\"post\":{\"type\":\"qreg\",\"value\":3},\"pre\":null}],\"step\":3},{\"block\":\"entry\",\"function\":\"main\",\"index\":4,\"lhs\":[],\"line\":40,\"memory\":[],\"op\":\"oracle_call\",\"operands\":[\"@orc\",\"tk\",\"(qmain)\",\"qo1\",\"qf1\",\"()\",\"()\"],\"registers\":[],\"step\":4},{\"block\":\"entry\",\"function\":\"main\",\"index\":5,\"lhs\":[\"qs2\"],\"line\":41,\"memory\":[],\"op\":\"qreg.slice\",\"operands\":[\"qmain\",\"0\",\"3\"],\"registers\":[{\"activation\":0,\"name\":\"qs2\",\"post\":{\"type\":\"qreg\",\"value\":4},\"pre\":null}],\"step\":5},{\"block\":\"entry\",\"function\":\"main\",\"index\":6,\"lhs\":[],\"line\":42,\"memory\":[],\"op\":\"action_call\",\"operands\":[\"@perm\",\"(qs2)\",\"()\",\"()\",\"()\"],\"registers\":[],\"step\":6},{\"block\":\"entry\",\"function\":\"main\",\"index\":7,\"lhs\":[\"v1\"],\"line\":43,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"4\"],\"registers\":[{\"activation\":0,\"name\":\"v1\",\"post\":{\"type\":\"i"
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"fault\":null,\"faults\":[],\"host_requests\":[],\"measurements\":[{\"bits\":\"000\",\"reg\":1,\"value\":0},{\"bits\":\"000\",\"reg\":2,\"value\":0},{\"bits\":\"00\",\"reg\":7,\"value\":0}],\"memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"results\":[{\"type\":\"i3\",\"value\":\"0\"}],\"status\":\"COMPLETED\",\"steps\":47,\"tape\":[],\"trace\":[{\"block\":\"entry\",\"function\":\"main\",\"index\":0,\"lhs\":[\"qmain\"],\"line\":36,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"3\"],\"registers\":[{\"activation\":0,\"name\":\"qmain\",\"post\":{\"type\":\"qreg\",\"value\":1},\"pre\":null}],\"step\":0},{\"block\":\"entry\",\"function\":\"main\",\"index\":1,\"lhs\":[],\"line\":37,\"memory\":[],\"op\":\"action_call\",\"operands\":[\"@perm\",\"(qmain)\",\"()\",\"()\",\"()\"],\"registers\":[],\"step\":1},{\"block\":\"entry\",\"function\":\"main\",\"index\":2,\"lhs\":[\"qo1\"],\"line\":38,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"3\"],\"registers\":[{\"activation\":0,\"name\":\"qo1\",\"post\":{\"type\":\"qreg\",\"value\":2},\"pre\":null}],\"step\":2},{\"block\":\"entry\",\"function\":\"main\",\"index\":3,\"lhs\":[\"qf1\"],\"line\":39,\"memory\":[],\"op\":\"qreg.new\",\"operands\":[\"any\",\"4\"],\"registers\":[{\"activation\":0,\"name\":\"qf1\",\"post\":{\"type\":\"qreg\",\"value\":3},\"pre\":null}],\"step\":3},{\"block\":\"entry\",\"function\":\"main\",\"index\":4,\"lhs\":[],\"line\":40,\"memory\":[],\"op\":\"oracle_call\",\"operands\":[\"@orc\",\"tk\",\"(qmain)\",\"qo1\",\"qf1\",\"()\",\"()\"],\"registers\":[],\"step\":4},{\"block\":\"entry\",\"function\":\"main\",\"index\":5,\"lhs\":[\"qs2\"],\"line\":41,\"memory\":[],\"op\":\"qreg.slice\",\"operands\":[\"qmain\",\"0\",\"3\"],\"registers\":[{\"activation\":0,\"name\":\"qs2\",\"post\":{\"type\":\"qreg\",\"value\":4},\"pre\":null}],\"step\":5},{\"block\":\"entry\",\"function\":\"main\",\"index\":6,\"lhs\":[],\"line\":42,\"memory\":[],\"op\":\"action_call\",\"operands\":[\"@perm\",\"(qs2)\",\"()\",\"()\",\"()\"],\"registers\":[],\"step\":6},{\"block\":\"entry\",\"function\":\"main\",\"index\":7,\"lhs\":[\"v1\"],\"line\":43,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"4\"],\"registers\":[{\"activation\":0"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "time budget of 6s reached; witness valid but maybe not minimal",
+ "shrink_tests": 132,
+ "shrunk_lines": 71,
+ "signature": "run-cc json/json fault,faults,measurements,results,status,steps,trace ",
+ "signature_reproduced": true,
+ "tape": true
+}

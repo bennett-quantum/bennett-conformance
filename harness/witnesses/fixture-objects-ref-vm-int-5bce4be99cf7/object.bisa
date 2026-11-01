@@ -1,0 +1,13 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"0e11d541bb6ced099b413ddee5b7a457271d4ed342f2310dd24f84dce3d67439","kind":"oracle","name":"caller","signature":{"abi":"0.8","args":["token"],"fault":4,"in":[8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}}}
+
+section imports
+{"ext_inc":{"signature":{"abi":"0.8","args":[],"fault":4,"in":[8],"kind":"oracle","mem":[],"tgt":8,"tier":"q"}}}
+
+section functions
+oracle @caller (x:wire[8] in) (t:wire[8]) (f:wire[4]) () (tk:token)
+regs { r:reg[8] }
+^entry():
+lift.retval r

@@ -1,0 +1,69 @@
+{
+ "argv": [
+  "check",
+  "$OBJECT"
+ ],
+ "case": "gen-mutant/seed48/0",
+ "cwd": null,
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a73.7: unreadable location l4\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"object_hash\":\"952548d3c0d78effc84209287b66a4ff3cf088c43353b0241907634b4f6aa8ba\",\"status\":\"ok\",\"symbols\":{\"main\":{\"closure_hash\":\"4e5c7328012930643efda8ae643628c742d56829fcee971c18f247b0c8a43c32\",\"interface_hash\":\"4e5c7328012930643efda8ae643628c742d56829fcee971c18f247b0c8a43c32\"}},\"unresolved_impor"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 41,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a73.7: unreadable location l4\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"object_hash\":\"952548d3c0d78effc84209287b66a4ff3cf088c43353b0241907634b4f6aa8ba\",\"status\":\"ok\",\"symbols\":{\"main\":{\"closure_hash\":\"4e5c7328012930643efda8ae643628c742d56829fcee971c18f247b0c8a43c32\",\"interface_hash\":\"4e5c7328012930643efda8ae643628c742d56829fcee971c18f247b0c8a43c32\"}},\"unresolved_imports\":[]}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 41,
+ "shrunk_lines": 18,
+ "signature": "check diagnostic/json $outcome \u00a73.7|",
+ "signature_reproduced": true,
+ "tape": false
+}

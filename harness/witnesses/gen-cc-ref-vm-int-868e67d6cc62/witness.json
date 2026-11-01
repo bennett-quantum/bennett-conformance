@@ -1,0 +1,76 @@
+{
+ "argv": [
+  "run-cc",
+  "$OBJECT",
+  "main",
+  "--arg",
+  "0",
+  "--arg",
+  "token:64"
+ ],
+ "case": "gen-cc/seed21/1",
+ "cwd": null,
+ "diff": [
+  {
+   "a": "1110",
+   "b": "0000",
+   "mode": "exact",
+   "path": "measurements[1].bits"
+  },
+  {
+   "a": 7,
+   "b": 0,
+   "mode": "exact",
+   "path": "measurements[1].value"
+  },
+  {
+   "a": "7",
+   "b": "0",
+   "mode": "exact",
+   "path": "trace[20].registers[0].post.value"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 88,
+ "outcomes": {
+  "ref": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"fault\":null,\"faults\":[],\"host_requests\":[],\"measurements\":[{\"bits\":\"11\",\"reg\":1,\"value\":3},{\"bits\":\"1110\",\"reg\":3,\"value\":7}],\"memory_digest\":\"4e93d122bddec7ef7e308b9d9444e324177cf60423a6647bd392c395c99bd64e\",\"results\":[{\"type\":\"i2\",\"value\":\"3\"}],\"status\":\"COMPLETED\",\"steps\":22,\"tape\":[],\"trace\":[{\"block\":\"entry\",\"function\":\"main\",\"index\":0,\"lhs\":[\"v1\"],\"line\":47,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"0\"],\"registers\":[{\"activation\":0,\"name\":\"v1\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":0},{\"block\":\"entry\",\"function\":\"main\",\"index\":1,\"lhs\":[\"v2\"],\"line\":48,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"0\"],\"registers\":[{\"activation\":0,\"name\":\"v2\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":1},{\"block\":\"entry\",\"function\":\"main\",\"index\":2,\"lhs\":[\"v3\"],\"line\":49,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"1\"],\"registers\":[{\"activation\":0,\"name\":\"v3\",\"post\":{\"type\":\"i8\",\"value\":\"1\"},\"pre\":null}],\"step\":2},{\"block\":\"entry\",\"function\":\"main\",\"index\":3,\"lhs\":[],\"line\":50,\"memory\":[],\"op\":\"br\",\"operands\":[\"^head4(v1, v2)\"],\"registers\":[{\"activation\":0,\"name\":\"acc8\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null},{\"activation\":0,\"name\":\"i7\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":3},{\"block\":\"head4\",\"function\":\"main\",\"index\":0,\"lhs\":[\"t12\"],\"line\":52,\"memory\":[],\"op\":\"icmp.eq\",\"operands\":[\"i7\",\"v2\"],\"registers\":[{\"activation\":0,\"name\":\"t12\",\"post\":{\"type\":\"i1\",\"value\":\"1\"},\"pre\":null}],\"step\":4},{\"block\":\"head4\",\"function\":\"main\",\"index\":1,\"lhs\":[],\"line\":53,\"memory\":[],\"op\":\"br\",\"operands\":[\"t12\",\"^out6(acc8)\",\"^body5(i7, acc8)\"],\"registers\":[{\"activation\":0,\"name\":\"res11\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":5},{\"block\":\"out6\",\"function\":\"main\",\"index\":0,\"lhs\":[\"v16\"],\"line\":60,\"memory\":[],\"op\":\"const.i1\",\"operands\":[\"0\"],\"registers\":[{\"activation\":0,\"name\":\"v16\",\"post\":{\"type\":\"i1\",\"value\":\"0\"},\"pr"
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"fault\":null,\"faults\":[],\"host_requests\":[],\"measurements\":[{\"bits\":\"11\",\"reg\":1,\"value\":3},{\"bits\":\"0000\",\"reg\":3,\"value\":0}],\"memory_digest\":\"1e8e8ddef30f1254a49614afb5184834af35a0831d316298713d8ed70cf3b135\",\"results\":[{\"type\":\"i2\",\"value\":\"3\"}],\"status\":\"COMPLETED\",\"steps\":22,\"tape\":[],\"trace\":[{\"block\":\"entry\",\"function\":\"main\",\"index\":0,\"lhs\":[\"v1\"],\"line\":47,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"0\"],\"registers\":[{\"activation\":0,\"name\":\"v1\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":0},{\"block\":\"entry\",\"function\":\"main\",\"index\":1,\"lhs\":[\"v2\"],\"line\":48,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"0\"],\"registers\":[{\"activation\":0,\"name\":\"v2\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":1},{\"block\":\"entry\",\"function\":\"main\",\"index\":2,\"lhs\":[\"v3\"],\"line\":49,\"memory\":[],\"op\":\"const.i8\",\"operands\":[\"1\"],\"registers\":[{\"activation\":0,\"name\":\"v3\",\"post\":{\"type\":\"i8\",\"value\":\"1\"},\"pre\":null}],\"step\":2},{\"block\":\"entry\",\"function\":\"main\",\"index\":3,\"lhs\":[],\"line\":50,\"memory\":[],\"op\":\"br\",\"operands\":[\"^head4(v1, v2)\"],\"registers\":[{\"activation\":0,\"name\":\"acc8\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null},{\"activation\":0,\"name\":\"i7\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":3},{\"block\":\"head4\",\"function\":\"main\",\"index\":0,\"lhs\":[\"t12\"],\"line\":52,\"memory\":[],\"op\":\"icmp.eq\",\"operands\":[\"i7\",\"v2\"],\"registers\":[{\"activation\":0,\"name\":\"t12\",\"post\":{\"type\":\"i1\",\"value\":\"1\"},\"pre\":null}],\"step\":4},{\"block\":\"head4\",\"function\":\"main\",\"index\":1,\"lhs\":[],\"line\":53,\"memory\":[],\"op\":\"br\",\"operands\":[\"t12\",\"^out6(acc8)\",\"^body5(i7, acc8)\"],\"registers\":[{\"activation\":0,\"name\":\"res11\",\"post\":{\"type\":\"i8\",\"value\":\"0\"},\"pre\":null}],\"step\":5},{\"block\":\"out6\",\"function\":\"main\",\"index\":0,\"lhs\":[\"v16\"],\"line\":60,\"memory\":[],\"op\":\"const.i1\",\"operands\":[\"0\"],\"registers\":[{\"activation\":0,\"name\":\"v16\",\"post\":{\"type\":\"i1\",\"value\":\"0\"},\"pr"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "time budget of 6s reached; witness valid but maybe not minimal",
+ "shrink_tests": 105,
+ "shrunk_lines": 88,
+ "signature": "run-cc json/json measurements,trace ",
+ "signature_reproduced": true,
+ "tape": true
+}

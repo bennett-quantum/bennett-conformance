@@ -1,0 +1,72 @@
+{
+ "argv": [
+  "run-action",
+  "$OBJECT",
+  "main",
+  "--basis",
+  "00110100"
+ ],
+ "case": "gen-mutant/seed8/1",
+ "cwd": null,
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a73.3: linear name produced twice\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"action\":\"main\",\"adjoint\":false,\"in\":[0,0],\"mem\":{},\"mut\":[4,5],\"state\":{\"00110100\":[1,0]},\"wires\":8}\n"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 32,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a73.3: linear name produced twice\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"action\":\"main\",\"adjoint\":false,\"in\":[0,0],\"mem\":{},\"mut\":[4,5],\"state\":{\"00110100\":[1,0]},\"wires\":8}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 37,
+ "shrunk_lines": 15,
+ "signature": "run-action diagnostic/json $outcome \u00a73.3|",
+ "signature_reproduced": true,
+ "tape": false
+}

@@ -1,0 +1,71 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"8624dbf647f9997b86a8eef6acdb55a516100520d6ed10e3d13aa2babcd100b4","kind":"perm_action","name":"perm","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[3],"tier":"q"}},"1":{"interface_hash":"7233eddc38ea44ac5df7344eb0e5f08bb5ea2d29fbec22404eada6bbf4dfb977","kind":"action","name":"mix","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[3],"tier":"q"}},"2":{"interface_hash":"4be2a05b0c2ff19d56ee55f28605c9bee62e0d47f1878d427baab0d887983bf0","kind":"oracle","name":"orc","signature":{"abi":"0.8","args":[],"fault":4,"in":[3],"kind":"oracle","mem":[],"tgt":3,"tier":"q"}},"3":{"interface_hash":"0b7ce0a51306e56a2c6b96e62244010475d7c2777336a1d0435d352127df4981","kind":"cc","name":"main","signature":{"abi":"0.8","kind":"cc","params":["token"],"results":["i3"],"tier":"cc"}}}
+
+section functions
+perm_action @perm (t:wire[3] mut) () () () ()
+^entry():
+x t[2]
+cx t[0] t[2]
+ccx t[0] t[2] t[1]
+action @mix (t:wire[3] mut) () () () ()
+^entry():
+x t[2]
+rz 3.141592653589793 t[2]
+oracle @orc (x:wire[3] in) (t:wire[3]) (f:wire[4]) () ()
+regs { l1:reg[32], l2:reg[1], l3:reg[7], l4:reg[7], l5:reg[7], l6:reg[3], l7:reg[128], l8:reg[65] }
+^entry():
+l1 = lift.alloc 5
+l2 = lift.const.i1 1
+qbranch l2 ^b1 ^b1
+^b1():
+l3 = lift.const.i7 91
+l4 = lift.const.i7 64
+l5 = lift.shl l3 l4
+l6 = lift.xor x x
+l1 = lift.const.i32 9
+l1 = lift.add l1 l1
+l7 = lift.const.i128 0
+lift.store.i128 l1 l7
+l8 = lift.sext.i65 l3
+l5 = lift.srem l5 l5
+lift.retval x
+fn cc @main (tk:token) (r0:i3) () () ()
+^entry():
+qmain = qreg.new any 3
+action_call @perm (qmain) () () ()
+qo1 = qreg.new any 3
+qf1 = qreg.new any 4
+oracle_call @orc tk (qmain) qo1 qf1 () ()
+qs2 = qreg.slice qmain 0 3
+action_call @perm (qs2) () () ()
+v1 = const.i8 4
+v2 = const.i8 0
+v3 = const.i8 1
+br ^head4(v1, v1)
+^head4(i7:i8, acc8:i8):
+t12 = icmp.eq i7 v2
+br t12 ^out6(acc8) ^body5(i7, acc8)
+^body5(ii9:i8, aa10:i8):
+v13 = const.i128 170141183460469231731687303715884105728
+v14 = xor v13 v13
+n15 = sub ii9 v3
+br ^head4(n15, v3)
+^out6(res11:i8):
+qa3 = qreg.new any 1
+qc3 = qreg.new any 1
+qe3 = qreg.concat qa3 qc3
+v16 = const.i64 13367862101734897590
+v17 = shl v16 v16
+qm0 = measure qmain
+xqo1 = measure qo1
+qreg.free qf1
+xqe3 = measure qe3
+ret qm0
+
+section devices
+{"models":{},"services":{}}
+
+section layout
+{"A_tab":4,"H":13,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":4096,"interface_regions":{},"null_size":1,"ptr_width":32}

@@ -1,0 +1,76 @@
+{
+ "argv": [
+  "reverse",
+  "$OBJECT",
+  "main",
+  "--arg",
+  "0",
+  "--arg",
+  "0",
+  "--arg",
+  "token:64"
+ ],
+ "case": "gen-cc/seed70/3",
+ "cwd": null,
+ "diff": [
+  {
+   "a": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c\",\"equals_entry\":true,\"fault\":5,\"faults\":[{\"code\":5,\"name\":\"FAULT_UB_DIV0\"}]"
+   },
+   "b": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a77.4: inverse left a released wire unclean\n",
+    "stdout": ""
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 60,
+ "outcomes": {
+  "ref": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c\",\"equals_entry\":true,\"fault\":5,\"faults\":[{\"code\":5,\"name\":\"FAULT_UB_DIV0\"}],\"first_difference\":null,\"host_requests\":[],\"memory_digest\":\"d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c\",\"memory_equals_entry\":true,\"results\":[],\"status\":\"REVERSED\",\"steps\":7,\"tape\":[]}\n"
+  },
+  "vm-int": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a77.4: inverse left a released wire unclean\n",
+   "stdout": ""
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 101,
+ "shrunk_lines": 33,
+ "signature": "reverse json/diagnostic $outcome |\u00a77.4",
+ "signature_reproduced": true,
+ "tape": true
+}

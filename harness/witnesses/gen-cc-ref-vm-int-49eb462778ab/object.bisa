@@ -1,0 +1,29 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"6df2acd30ead793205cfce2a361b6db1dd2ea34200de0224baebbe45a44078d2","kind":"perm_action","name":"perm","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}},"1":{"interface_hash":"ccc05f497fc8d2af397af24113998722485a905d793753f943b47a02db218242","kind":"oracle","name":"orc","signature":{"abi":"0.8","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}},"2":{"interface_hash":"20516498ae0da796e6d647db3c1717944b917e36efea68ed4ad9ae40ced7cdf8","kind":"cc","name":"main","signature":{"abi":"0.8","kind":"cc","params":["i128","token"],"results":["i1"],"tier":"cc"}}}
+
+section functions
+perm_action @perm (t:wire mut) () () () ()
+^entry():
+x t
+oracle @orc (x:wire in) (t:wire) (f:wire[4]) () ()
+regs { l8:reg[12] }
+^entry():
+qjumpr l8
+fn cc @main (arg0:i128, tk:token) (r0:i1) () () ()
+^entry():
+qmain = qreg.new any 1
+qo1 = qreg.new any 1
+qf1 = qreg.new any 4
+oracle_call @orc tk (qmain) qo1 qf1 () ()
+action_call @perm (qmain) () () ()
+qm0 = measure qmain
+qreg.free qf1
+ret qm0
+
+section devices
+{"models":{},"services":{}}
+
+section layout
+{"A_tab":4,"H":13,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":4096,"interface_regions":{},"null_size":1,"ptr_width":32}

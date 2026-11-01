@@ -1,0 +1,69 @@
+{
+ "argv": [
+  "hash",
+  "$OBJECT"
+ ],
+ "case": "fixture-objects/bennett-isa-spec/conformance/cases/objects/f_window_closed.bisa/hash",
+ "cwd": "/home/tobias/Projects/bennett-workspace/bennett-isa-spec/conformance/cases/objects",
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a76.2: quncopy outside its computing window\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"object_hash\":\"1c2254568e8cbdc7b4eefc837f9a494c40abe8a1588b2d3669bef79397f1601f\",\"status\":\"ok\",\"symbols\":{\"badwindow\":{\"closure_hash\":\"e87d123467ffe9b2f6f20238ffbf627aa0c0f86b7dd6f87d050e913d96a16333\",\"interface_hash\":\"e87d123467ffe9b2f6f20238ffbf627aa0c0f86b7dd6f87d050e913d96a16333\"}},\"unresolved_"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 11,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a76.2: quncopy outside its computing window\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"object_hash\":\"1c2254568e8cbdc7b4eefc837f9a494c40abe8a1588b2d3669bef79397f1601f\",\"status\":\"ok\",\"symbols\":{\"badwindow\":{\"closure_hash\":\"e87d123467ffe9b2f6f20238ffbf627aa0c0f86b7dd6f87d050e913d96a16333\",\"interface_hash\":\"e87d123467ffe9b2f6f20238ffbf627aa0c0f86b7dd6f87d050e913d96a16333\"}},\"unresolved_imports\":[]}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "object reduction unavailable: stored hashes do not match \u00a79.2 recomputation: badwindow: stored 0000000000000000000000000000000000000000000000000000000000000000 computed e87d123467ffe9b2f6f20238ffbf627aa0c0f86b7dd6f87d050e913d96a16333",
+ "shrink_tests": 0,
+ "shrunk_lines": 11,
+ "signature": "hash diagnostic/json $outcome \u00a76.2|",
+ "signature_reproduced": true,
+ "tape": false
+}

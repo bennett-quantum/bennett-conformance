@@ -1,0 +1,18 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=64
+
+section symbols
+{"0":{"interface_hash":"2751a25e6e906ea512bc075da07cda7463161576c56cebf06455ba2d9dfab704","kind":"r","name":"f","signature":{"abi":"0.8","kind":"r","params":[],"results":[],"tier":"r"}}}
+
+section functions
+fn r @f () () () () ()
+^entry():
+n = const.i64 9223372036854775808
+p = alloc n
+effect console.write p n
+ret
+
+section devices
+{"models":{"console":{"version":"0.8"}},"services":{}}
+
+section layout
+{"A_tab":1,"H":64,"S_cells":1,"globals":{},"heap_base":1,"heap_limit_max":"9223372036854775808","interface_regions":{},"null_size":1,"ptr_width":64}

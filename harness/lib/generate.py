@@ -795,7 +795,9 @@ def gen_q(seed):
     for i in range(rng.below(3)):
         w = rng.pick((1, 2))
         perm = rng.chance(50)
-        fn, sym = _action_function(rng, "s%d" % i, perm, [("t", w)], [], list(subs) if perm else [s for s in subs], 1 + rng.below(3))
+        kinds = {y[0]: y[1] for y in symbols}
+        callable_subs = [s for s in subs if not perm or kinds[s[0]] == "perm_action"]  # §5.3: permutation is transitive
+        fn, sym = _action_function(rng, "s%d" % i, perm, [("t", w)], [], callable_subs, 1 + rng.below(3))
         functions.append(fn)
         symbols.append(sym)
         subs.append(("s%d" % i, w, True))

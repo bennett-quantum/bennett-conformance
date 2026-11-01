@@ -1,0 +1,32 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=16
+
+section symbols
+{"0":{"interface_hash":"95c6e0c94807a7cfd198acd315741fdc9008eb3556d098ef642d94aef1a95204","kind":"r","name":"h0","signature":{"abi":"0.8","kind":"r","params":[],"results":["i32"],"tier":"r"}},"1":{"interface_hash":"e9580faa5b5aef46bb92fdcab270063125935bb94f98a69501c1b557c9a72697","kind":"r","name":"main","signature":{"abi":"0.8","kind":"r","params":["i65","i2"],"results":[],"tier":"r"}}}
+
+section functions
+fn r @h0 () (r0:i32) () () ()
+^entry():
+v4 = const.i32 0
+ret v4
+fn r @main (arg0:i65, arg1:i2) () () () ()
+^entry():
+c1 = call @h0
+uncall @h0 () (c1)
+v5 = const.i8 0
+v6 = const.i8 0
+v7 = const.i8 1
+br ^head8(v5, v7)
+^head8(i11:i8, acc12:i8):
+t16 = icmp.eq i11 v6
+br t16 ^out10(acc12) ^body9(i11, acc12)
+^body9(ii13:i8, aa14:i8):
+n18 = sub ii13 v7
+br ^head8(n18, v5)
+^out10(res15:i8):
+ret
+
+section devices
+{"models":{"block":{"version":"0.8"},"clock":{"version":"0.8"},"console":{"version":"0.8"},"entropy":{"version":"0.8"}},"services":{}}
+
+section layout
+{"A_tab":4,"H":13,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":4096,"interface_regions":{},"null_size":1,"ptr_width":16}

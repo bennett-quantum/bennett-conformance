@@ -57,9 +57,12 @@ class Identity(unittest.TestCase):
             os.path.join(WORKSPACE, "bennett-isa-spec/reference-interpreter/tests/fixtures/*.bisa"),
             os.path.join(WORKSPACE, "bennett-isa-spec/conformance/cases/objects/[!f]*.bisa"),
             os.path.join(WORKSPACE, "bennett-conformance/suite/cases/*/object.bisa"),
+            os.path.join(WORKSPACE, "bennett-isa-spec/reference-interpreter/tests/fixtures/**/*.bisa"),
+            os.path.join(WORKSPACE, "bennett-conformance/ladder/**/*.bennett"),
+            os.path.join(WORKSPACE, "bennett-conformance/ladder/**/*.bisa"),
         ]
-        paths = sorted(p for r in roots for p in glob.glob(r))
-        self.assertGreater(len(paths), 40)
+        paths = sorted({p for r in roots for p in glob.glob(r, recursive=True)})
+        self.assertGreater(len(paths), 80)
         bad = {}
         for p in paths:
             with open(p, encoding="utf-8", newline="") as f:

@@ -1,0 +1,15 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"270c75adeb724f277df55086ced89bf7932875ca5bfdd47a6e09cb77fc9f5802","kind":"action","name":"main","signature":{"abi":"0.8","args":[],"bounds":[2],"in":[1,1],"kind":"action","mem":[],"mut":[3,3],"tier":"q"}}}
+
+section functions
+action @main (t0:wire[3] mut, t1:wire[3] mut) (c0:wire in, c1:wire in) () () ()
+regs {  } bounds {2}
+^entry():
+qloop 2 {
+w1 = qalloc any 1
+}
+h w1
+h w1
+qfree w1

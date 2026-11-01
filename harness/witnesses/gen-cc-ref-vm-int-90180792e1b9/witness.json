@@ -1,0 +1,70 @@
+{
+ "argv": [
+  "run-program",
+  "$OBJECT",
+  "main",
+  "--arg",
+  "0",
+  "--arg",
+  "token:64"
+ ],
+ "case": "gen-cc/seed21/4",
+ "cwd": null,
+ "diff": [
+  {
+   "a": "1110",
+   "b": "0000",
+   "mode": "exact",
+   "path": "measurements[1].bits"
+  },
+  {
+   "a": 7,
+   "b": 0,
+   "mode": "exact",
+   "path": "measurements[1].value"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 88,
+ "outcomes": {
+  "ref": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"d200538a3f99cb418e35b18dffcc60039675a6b257e089a679cce7290b4af44c\",\"equals_entry\":false,\"fault\":null,\"faults\":[],\"first_difference\":\"instances of (0, \\\"acc8\\\"): None differs from Some(Int(8, 0))\",\"host_requests\":[],\"measurements\":[{\"bits\":\"11\",\"reg\":1,\"value\":3},{\"bits\":\"1110\",\"reg\":3,\"value\":7}],\"memory_digest\":\"4e93d122bddec7ef7e308b9d9444e324177cf60423a6647bd392c395c99bd64e\",\"memory_equals_entry\":false,\"results\":[{\"type\":\"i2\",\"value\":\"3\"}],\"reversed\":false,\"run_state\":\"CLOSED\",\"status\":\"COMPLETED\",\"steps\":22,\"tape\":[]}\n"
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[{\"depth\":64,\"heap\":4096,\"stack\":1,\"steps\":64}],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"equals_entry\":false,\"fault\":null,\"faults\":[],\"first_difference\":\"instances of (0, \\\"acc8\\\"): None differs from Some(Int(8, 0))\",\"host_requests\":[],\"measurements\":[{\"bits\":\"11\",\"reg\":1,\"value\":3},{\"bits\":\"0000\",\"reg\":3,\"value\":0}],\"memory_digest\":\"1e8e8ddef30f1254a49614afb5184834af35a0831d316298713d8ed70cf3b135\",\"memory_equals_entry\":false,\"results\":[{\"type\":\"i2\",\"value\":\"3\"}],\"reversed\":false,\"run_state\":\"CLOSED\",\"status\":\"COMPLETED\",\"steps\":22,\"tape\":[]}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "time budget of 6s reached; witness valid but maybe not minimal",
+ "shrink_tests": 142,
+ "shrunk_lines": 88,
+ "signature": "run-program json/json measurements ",
+ "signature_reproduced": true,
+ "tape": true
+}

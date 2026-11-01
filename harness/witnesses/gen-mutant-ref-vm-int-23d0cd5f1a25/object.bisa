@@ -1,0 +1,18 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"4e5c7328012930643efda8ae643628c742d56829fcee971c18f247b0c8a43c32","kind":"oracle","name":"main","signature":{"abi":"0.8","args":[],"fault":4,"in":[2],"kind":"oracle","mem":[{"A":4,"W":8,"role":"in"}],"tgt":32,"tier":"q"}}}
+
+section functions
+oracle @main (x0:wire[2] in) (t:wire[32]) (f:wire[4]) (db:region[4,8] in) ()
+^entry():
+qbranch l4 ^b3 ^b2
+^b2():
+qjump ^b3
+^b3():
+lift.retval l14
+
+section data
+
+section layout
+{"A_tab":4,"H":13,"S_cells":9,"globals":{},"heap_base":4112,"heap_limit_max":2048,"interface_regions":{"main":{"db":{"base":2048}}},"null_size":16,"ptr_width":32}

@@ -1,0 +1,52 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=16
+
+section symbols
+{"0":{"interface_hash":"9229fe6809dd8d6f02931161011e319c25357bd71548d68a4af7074967a3c7fd","kind":"oracle","name":"inner","signature":{"abi":"0.8","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}},"1":{"interface_hash":"6361683e70426eba47c5825fbffcb05991f48082cbc5102267eef12e01251340","kind":"oracle","name":"main","signature":{"abi":"0.8","args":["token"],"fault":8,"in":[],"kind":"oracle","mem":[],"tgt":63,"tier":"q"}},"2":{"interface_hash":"8c3aa783154c958c3b9a11d74f9c1579b89039d7d2c362a1a87e8b3dd8bf8dd0","kind":"data","name":"gdata","signature":{"abi":"0.8","kind":"data","size":4,"tier":"-"}}}
+
+section functions
+oracle @inner (x:wire in) (t:wire) (f:wire[4]) () ()
+regs { l1:reg[1] }
+^entry():
+l1 = lift.const.i1 0
+lift.retval l1
+oracle @main () (t:wire[63]) (f:wire[8]) () (tk:token)
+regs { l1:reg[64], l2:reg[16], l3:reg[16], l4:reg[16], l5:reg[64], l6:reg[64], l7:reg[2], l8:reg[1], l9:reg[1], l10:reg[4], l11:reg[16], l12:reg[1], l13:reg[4], l14:reg[2], l15:reg[1], l16:reg[63], l17:reg[16], l18:reg[1], l19:reg[1], l20:reg[4] }
+^entry():
+qjump ^b3
+^b1():
+fault 4
+^b2():
+l2 = lift.addr @gdata
+l3 = lift.const.i16 17
+l4 = lift.add l2 l3
+l1 = lift.load.i64 l4
+l5 = lift.ashr l1 l1
+l6 = lift.or l5 l1
+l7 = lift.trunc.i2 l6
+l8 = lift.const.i1 1
+lift.oracle_call @inner tk (l8) l9 l10 () ()
+l11 = lift.select l9 l2 l4
+qjump ^b1
+^b3():
+l12 = lift.icmp.ne l6 l5
+l3 = lift.load.i16 l11
+lift.oracle_call @inner tk (l8) l12 l13 () ()
+lift.faultif l12x 10
+(l14, l7) = lift.parmov (l7, l7)
+fault 9
+^b4():
+l15 = lift.const.i1 1
+l16 = lift.zext.i63 l15
+l4 = lift.addr @gdata
+l4 = lift.const.i16 10
+l17 = lift.add l4 l4
+lift.store.i16 l17 l2
+l18 = lift.const.i1 1
+lift.oracle_call @inner tk (l18) l19 l20 () ()
+lift.retval l16
+
+section data
+gdata 8ccc5529
+
+section layout
+{"A_tab":4,"H":13,"S_cells":9,"globals":{"gdata":{"base":16,"image":"gdata","size":4}},"heap_base":4112,"heap_limit_max":2048,"interface_regions":{},"null_size":16,"ptr_width":16}

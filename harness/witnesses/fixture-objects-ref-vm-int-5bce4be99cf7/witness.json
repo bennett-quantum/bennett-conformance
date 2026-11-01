@@ -1,0 +1,74 @@
+{
+ "argv": [
+  "run-oracle",
+  "$OBJECT",
+  "caller",
+  "--input",
+  "0",
+  "--arg",
+  "token:64"
+ ],
+ "case": "fixture-objects/bennett-isa-spec/conformance/cases/objects/f_import_unlinked.bisa/caller/run-oracle/0/B0",
+ "cwd": "/home/tobias/Projects/bennett-workspace/bennett-isa-spec/conformance/cases/objects",
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a79.3: object has unresolved imports; link before execution\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"code\":0,\"payload\":0,\"steps\":1}\n"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 14,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a79.3: object has unresolved imports; link before execution\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"code\":0,\"payload\":0,\"steps\":1}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 20,
+ "shrunk_lines": 13,
+ "signature": "run-oracle diagnostic/json $outcome \u00a79.3|",
+ "signature_reproduced": true,
+ "tape": false
+}

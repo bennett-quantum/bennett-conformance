@@ -1,0 +1,65 @@
+bennett-object isa=0.8 object=0.8 launch=0.8 sched=0.8 cert=0.8 coverage=0.8 target=0.8 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"857963b915e2a4843b80551dca946ba4a1edc0b068df059750dace85327aa799","kind":"perm_action","name":"perm","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}},"1":{"interface_hash":"fb3f43ebfe9b8b22cc66f657e56facb28aee6f697bc41d8f41272b396168f28e","kind":"action","name":"mix","signature":{"abi":"0.8","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}},"2":{"interface_hash":"c7784de616b7e5860396460d8330211ab7f7a76cbcf47ba7840cea5363984c0b","kind":"oracle","name":"orc","signature":{"abi":"0.8","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}},"3":{"interface_hash":"dcca7c88be300f4fb8eab543b5dbd80064791db83a0f99457aa433d121f8e5c9","kind":"cc","name":"h0","signature":{"abi":"0.8","kind":"cc","params":[],"results":["i1"],"tier":"cc"}},"4":{"interface_hash":"0912b2f7c83fa68b4cf837eabb756e68964b4cff51d1e28aaad3127508e21bb6","kind":"cc","name":"main","signature":{"abi":"0.8","kind":"cc","params":["i128","token"],"results":["i1"],"tier":"cc"}}}
+
+section functions
+perm_action @perm (t:wire mut) () () () ()
+^entry():
+x t
+x t
+action @mix (t:wire mut) () () () ()
+^entry():
+x t
+oracle @orc (x:wire in) (t:wire) (f:wire[4]) () ()
+regs { l1:reg[32], l2:reg[32], l3:reg[32], l4:reg[128], l5:reg[65], l6:reg[65], l7:reg[32], l8:reg[12] }
+^entry():
+l1 = lift.alloc 7
+l2 = lift.const.i32 1
+l2 = lift.const.i32 17
+l3 = lift.add l2 l2
+l4 = lift.const.i128 170141183460469231731687303715884105728
+lift.store.i128 l3 l4
+l5 = lift.const.i65 18446744073709551616
+l6 = lift.mov l5
+l1 = lift.const.i32 2147483648
+l7 = lift.select x l1 l3
+l8 = lift.label ^b1
+qjumpr l8
+^b1():
+lift.retval x
+fn cc @h0 () (r0:i1) () () ()
+^entry():
+v1 = const.i32 1
+p2 = alloc v1
+v3 = ptrtoint.i63 p2
+v4 = load.i64 p2
+v5 = urem v1 v1
+trap
+^dead6():
+v7 = const.i1 1
+ret v7
+fn cc @main (arg0:i128, tk:token) (r0:i1) () () ()
+^entry():
+p1 = inttoptr arg0
+qmain = qreg.new any 1
+qa0 = qreg.new any 1
+qc0 = qreg.new any 1
+qe0 = qreg.concat qa0 qc0
+qo1 = qreg.new any 1
+qf1 = qreg.new any 4
+oracle_call @orc tk (qmain) qo1 qf1 () ()
+v2 = const.i128 289040804717290920884414997951187886838
+v3 = shl arg0 v2
+action_call @perm (qmain) () () ()
+qm0 = measure qmain
+xqe0 = measure qe0
+qreg.free qo1
+qreg.free qf1
+ret qm0
+
+section devices
+{"models":{},"services":{}}
+
+section layout
+{"A_tab":4,"H":13,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":4096,"interface_regions":{},"null_size":1,"ptr_width":32}

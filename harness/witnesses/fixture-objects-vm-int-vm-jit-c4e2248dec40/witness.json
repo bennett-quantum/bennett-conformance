@@ -1,0 +1,73 @@
+{
+ "argv": [
+  "reverse",
+  "$OBJECT",
+  "f"
+ ],
+ "case": "fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/reverse/0",
+ "cwd": "/home/tobias/Projects/bennett-workspace/bennett-isa-spec/reference-interpreter/tests/fixtures/r21",
+ "diff": [
+  {
+   "a": {
+    "exit": 101,
+    "kind": "crash",
+    "stderr": "\nthread 'main' (351170) panicked at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/alloc/src/raw_vec/mod.rs:28:5:\ncapacity overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 101,
+    "kind": "crash",
+    "stderr": "\nthread 'main' (351175) panicked at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/alloc/src/raw_vec/mod.rs:28:5:\ncapacity overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+    "stdout": ""
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  },
+  "vm-jit": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_JIT_AUDIT": "1",
+    "BENNETT_VM_ENGINE": "jit"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 18,
+ "outcomes": {
+  "vm-int": {
+   "exit": 101,
+   "kind": "crash",
+   "stderr": "\nthread 'main' (351170) panicked at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/alloc/src/raw_vec/mod.rs:28:5:\ncapacity overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+   "stdout": ""
+  },
+  "vm-jit": {
+   "exit": 101,
+   "kind": "crash",
+   "stderr": "\nthread 'main' (351175) panicked at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/alloc/src/raw_vec/mod.rs:28:5:\ncapacity overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+   "stdout": ""
+  }
+ },
+ "pair": [
+  "vm-int",
+  "vm-jit"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 11,
+ "shrunk_lines": 18,
+ "signature": "reverse crash/crash $outcome |",
+ "signature_reproduced": true,
+ "tape": true
+}

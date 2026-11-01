@@ -1,0 +1,72 @@
+{
+ "argv": [
+  "reverse",
+  "$OBJECT",
+  "main",
+  "--arg",
+  "0"
+ ],
+ "case": "gen-mutant/seed14/2",
+ "cwd": null,
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a73.3: SSA definition reused\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"budgets\":[],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"equals_entry\":true,\"fault\":7,\"faults\":[{\"code\":7,\"name\":\"FAULT_UB_MEMFAULT\"}],\"first_difference\":null,\"host_requests\":"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 84,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a73.3: SSA definition reused\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"budgets\":[],\"clock\":0,\"console\":\"\",\"console_hex\":\"\",\"effect_tape_length\":0,\"entry\":\"main\",\"entry_memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"equals_entry\":true,\"fault\":7,\"faults\":[{\"code\":7,\"name\":\"FAULT_UB_MEMFAULT\"}],\"first_difference\":null,\"host_requests\":[],\"memory_digest\":\"8f54da45f352f223190bc260556eb2362e4fffa2e1130744f3cbeee9e5c51b09\",\"memory_equals_entry\":true,\"results\":[],\"status\":\"REVERSED\",\"steps\":42,\"tape\":[]}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "time budget of 6s reached; witness valid but maybe not minimal",
+ "shrink_tests": 135,
+ "shrunk_lines": 84,
+ "signature": "reverse diagnostic/json $outcome \u00a73.3|",
+ "signature_reproduced": true,
+ "tape": true
+}

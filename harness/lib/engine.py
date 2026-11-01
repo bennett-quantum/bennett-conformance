@@ -117,6 +117,7 @@ class Runner:
         self.audit = audit or {}
         self.audit_hits = {}
         self.generator_rejections = []
+        self.witnesses_made = {}
 
     # --- accounting ---
     def _corpus(self, name):
@@ -248,9 +249,13 @@ class Runner:
         row = self.divergences.setdefault(key, {"pair": "%s:%s" % pair, "signature": pr.signature, "count": 0,
                                                 "first_case": "%s/%s" % (case.corpus, case.id), "witnesses": []})
         row["count"] += 1
-        if self.witness_dir and len(row["witnesses"]) < self.witnesses_per_signature:
+        # One quota per signature across pairs: engines of one executor usually share a root cause.
+        made = self.witnesses_made.get(pr.signature, [])
+        if self.witness_dir and len(made) < self.witnesses_per_signature:
             pr.witness = shrink.write_witness(self, case, pair, pr, self.witness_dir, self.shrink_seconds)
-            row["witnesses"].append(pr.witness)
+            made.append(pr.witness)
+            self.witnesses_made[pr.signature] = made
+        row["witnesses"] = list(made)
 
     def run_case(self, case):
         res = self.result_of(case, self.execute(case))

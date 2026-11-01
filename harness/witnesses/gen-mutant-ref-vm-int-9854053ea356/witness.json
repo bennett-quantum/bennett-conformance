@@ -1,0 +1,69 @@
+{
+ "argv": [
+  "check",
+  "$OBJECT"
+ ],
+ "case": "gen-mutant/seed2/0",
+ "cwd": null,
+ "diff": [
+  {
+   "a": {
+    "exit": 1,
+    "kind": "diagnostic",
+    "stderr": "\u00a73.3: SSA definition reused\n",
+    "stdout": ""
+   },
+   "b": {
+    "exit": 0,
+    "kind": "json",
+    "stderr": "",
+    "stdout": "{\"object_hash\":\"97239e7fa8cf200990d0aea6eda89c826bfdaaef7451d89827fe63489f559c80\",\"status\":\"ok\",\"symbols\":{\"main\":{\"closure_hash\":\"281e4d1cab9175aa0e0c245ea1f55802f11181bb667d7a25af7b294c86e5cf2d\",\"interface_hash\":\"281e4d1cab9175aa0e0c245ea1f55802f11181bb667d7a25af7b294c86e5cf2d\"}},\"unresolved_impor"
+   },
+   "mode": "exact",
+   "path": "$outcome"
+  }
+ ],
+ "executors": {
+  "ref": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-isa-ref"
+   ],
+   "env": {},
+   "sha256": "15ed552ee1f94d8445a8552eea3e487f6301a2288fbd89324d092d837ee7d388"
+  },
+  "vm-int": {
+   "argv": [
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/opus-harness/bin/bennett-vm"
+   ],
+   "env": {
+    "BENNETT_VM_ENGINE": "interpreter"
+   },
+   "sha256": "76354dc440bf84ab582aff3c9b6bca55356c79e49fc326edd759922550c595ef"
+  }
+ },
+ "original_lines": 66,
+ "outcomes": {
+  "ref": {
+   "exit": 1,
+   "kind": "diagnostic",
+   "stderr": "\u00a73.3: SSA definition reused\n",
+   "stdout": ""
+  },
+  "vm-int": {
+   "exit": 0,
+   "kind": "json",
+   "stderr": "",
+   "stdout": "{\"object_hash\":\"97239e7fa8cf200990d0aea6eda89c826bfdaaef7451d89827fe63489f559c80\",\"status\":\"ok\",\"symbols\":{\"main\":{\"closure_hash\":\"281e4d1cab9175aa0e0c245ea1f55802f11181bb667d7a25af7b294c86e5cf2d\",\"interface_hash\":\"281e4d1cab9175aa0e0c245ea1f55802f11181bb667d7a25af7b294c86e5cf2d\"}},\"unresolved_imports\":[]}\n"
+  }
+ },
+ "pair": [
+  "ref",
+  "vm-int"
+ ],
+ "shrink_status": "complete",
+ "shrink_tests": 69,
+ "shrunk_lines": 19,
+ "signature": "check diagnostic/json $outcome \u00a73.3|",
+ "signature_reproduced": true,
+ "tape": false
+}

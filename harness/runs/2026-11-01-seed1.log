@@ -1,0 +1,80 @@
+corpus isa-vectors: 447 cases in 12.8s
+corpus neutral-suite: 346 cases in 12.4s
+corpus vm-differential: 45 cases in 1.6s
+corpus fixture-objects: 3854 cases in 169.2s
+corpus ladder-evidence: 866 cases in 30.1s
+generator r: {'programs': 168, 'seeds': [1, 168], 'wall_bound_seconds': 60.0, 'rejected_by_every_executor': 0}
+generator lift: {'programs': 152, 'seeds': [1, 152], 'wall_bound_seconds': 60.0, 'rejected_by_every_executor': 0}
+generator cc: {'programs': 72, 'seeds': [1, 72], 'wall_bound_seconds': 60.0, 'rejected_by_every_executor': 0}
+generator q: {'programs': 96, 'seeds': [1, 96], 'wall_bound_seconds': 60.0, 'rejected_by_every_executor': 0}
+generator mutant: {'programs': 104, 'seeds': [1, 104], 'wall_bound_seconds': 60.0, 'rejected_by_every_executor': 0}
+{"divergence_signatures": 57, "exit_status": 1, "totals": {"agree_reject": 4733, "cases": 11640, "diverge": 590, "match_exact": 29251, "match_tolerance": 338, "oracle_fail": 12, "skipped": 193, "timeout": 0, "unsupported": 8}}
+DIVERGE ref:vm-int x76: reverse json/diagnostic $outcome |§12.1 [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/domain-all-A0.bisa/a/reverse/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ce360f814001']
+DIVERGE ref:vm-int x76: run-action json/diagnostic $outcome |§12.1 [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/domain-all-A0.bisa/a/run-action/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ef4bec623a8d']
+DIVERGE ref:vm-jit x76: reverse json/diagnostic $outcome |§12.1 [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/domain-all-A0.bisa/a/reverse/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ce360f814001']
+DIVERGE ref:vm-jit x76: run-action json/diagnostic $outcome |§12.1 [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/domain-all-A0.bisa/a/run-action/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ef4bec623a8d']
+DIVERGE ref:vm-int x36: reverse diagnostic/json $outcome §3.3| [gen-mutant/seed14/2] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-1ab595f5947d']
+DIVERGE ref:vm-jit x36: reverse diagnostic/json $outcome §3.3| [gen-mutant/seed14/2] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-1ab595f5947d']
+DIVERGE ref:vm-int x20: run-cc diagnostic/json $outcome §3.3| [gen-mutant/seed2/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-fa6b34632d87']
+DIVERGE ref:vm-jit x20: run-cc diagnostic/json $outcome §3.3| [gen-mutant/seed2/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-fa6b34632d87']
+DIVERGE ref:vm-int x11: check diagnostic/json $outcome §3.3| [gen-mutant/seed2/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-9854053ea356']
+DIVERGE ref:vm-jit x11: check diagnostic/json $outcome §3.3| [gen-mutant/seed2/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-9854053ea356']
+DIVERGE ref:vm-int x9: run-cc json/json fault,faults,results,status,steps,trace  [gen-cc/seed9/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-4f5b28a3675f']
+DIVERGE ref:vm-int x9: run-program json/json fault,faults,results,status,steps  [gen-cc/seed9/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-49eb462778ab']
+DIVERGE ref:vm-jit x9: run-cc json/json fault,faults,results,status,steps,trace  [gen-cc/seed9/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-4f5b28a3675f']
+DIVERGE ref:vm-jit x9: run-program json/json fault,faults,results,status,steps  [gen-cc/seed9/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-49eb462778ab']
+DIVERGE ref:vm-int x6: reverse diagnostic/json $outcome §3.7| [gen-mutant/seed99/2] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-9d76f249861a']
+DIVERGE ref:vm-int x6: run-oracle diagnostic/json $outcome §3.7| [gen-mutant/seed48/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-d3deeb43929b']
+DIVERGE ref:vm-int x6: run-program diagnostic/json $outcome §3.3| [gen-mutant/seed2/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-f54dd058180f']
+DIVERGE ref:vm-jit x6: reverse diagnostic/json $outcome §3.7| [gen-mutant/seed99/2] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-9d76f249861a']
+DIVERGE ref:vm-jit x6: run-oracle diagnostic/json $outcome §3.7| [gen-mutant/seed48/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-d3deeb43929b']
+DIVERGE ref:vm-jit x6: run-program diagnostic/json $outcome §3.3| [gen-mutant/seed2/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-f54dd058180f']
+DIVERGE ref:vm-int x5: reverse json/diagnostic $outcome |§7.4 [gen-cc/seed70/3] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-82444e49cc68']
+DIVERGE ref:vm-int x5: run-action diagnostic/json $outcome §3.3| [gen-mutant/seed8/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-73a2cbed3cae']
+DIVERGE ref:vm-jit x5: reverse json/diagnostic $outcome |§7.4 [gen-cc/seed70/3] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-82444e49cc68']
+DIVERGE ref:vm-jit x5: run-action diagnostic/json $outcome §3.3| [gen-mutant/seed8/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-73a2cbed3cae']
+DIVERGE ref:vm-int x3: run-cc json/json measurements,trace  [gen-cc/seed21/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-868e67d6cc62']
+DIVERGE ref:vm-int x3: run-oracle diagnostic/json $outcome §9.3| [fixture-objects/bennett-isa-spec/conformance/cases/objects/f_import_unlinked.bisa/caller/run-oracle/0/B0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-5bce4be99cf7']
+DIVERGE ref:vm-int x3: run-program json/json measurements  [gen-cc/seed21/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-90180792e1b9']
+DIVERGE ref:vm-jit x3: run-cc json/json measurements,trace  [gen-cc/seed21/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-868e67d6cc62']
+DIVERGE ref:vm-jit x3: run-oracle diagnostic/json $outcome §9.3| [fixture-objects/bennett-isa-spec/conformance/cases/objects/f_import_unlinked.bisa/caller/run-oracle/0/B0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-5bce4be99cf7']
+DIVERGE ref:vm-jit x3: run-program json/json measurements  [gen-cc/seed21/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-90180792e1b9']
+DIVERGE ref:vm-int x2: check diagnostic/json $outcome §3.7| [gen-mutant/seed48/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-23d0cd5f1a25']
+DIVERGE ref:vm-int x2: run-cc json/json fault,faults,measurements,results,status,steps,trace  [gen-cc/seed71/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-3b063c56fdbc']
+DIVERGE ref:vm-int x2: run-cc json/json measurements,results,trace  [gen-cc/seed10/6] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-0edfd6c1d152']
+DIVERGE ref:vm-int x2: run-program diagnostic/crash $outcome §10| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/run-program/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-674c9d890315']
+DIVERGE ref:vm-int x2: run-program json/json fault,faults,measurements,results,status,steps  [gen-cc/seed71/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-cabb624d41ad']
+DIVERGE ref:vm-int x2: run-program json/json measurements,results  [gen-cc/seed10/9] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-b1eeb56f8e53']
+DIVERGE ref:vm-jit x2: check diagnostic/json $outcome §3.7| [gen-mutant/seed48/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-23d0cd5f1a25']
+DIVERGE ref:vm-jit x2: run-cc json/json fault,faults,measurements,results,status,steps,trace  [gen-cc/seed71/1] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-3b063c56fdbc']
+DIVERGE ref:vm-jit x2: run-cc json/json measurements,results,trace  [gen-cc/seed10/6] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-0edfd6c1d152']
+DIVERGE ref:vm-jit x2: run-program diagnostic/crash $outcome §10| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/run-program/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-674c9d890315']
+DIVERGE ref:vm-jit x2: run-program json/json fault,faults,measurements,results,status,steps  [gen-cc/seed71/4] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-cabb624d41ad']
+DIVERGE ref:vm-jit x2: run-program json/json measurements,results  [gen-cc/seed10/9] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-cc-ref-vm-int-b1eeb56f8e53']
+DIVERGE vm-int:vm-jit x2: reverse crash/crash $outcome | [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/reverse/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-vm-int-vm-jit-c4e2248dec40']
+DIVERGE vm-int:vm-jit x2: run-cc crash/crash $outcome | [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/run-cc/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-vm-int-vm-jit-65b57e5be1cc']
+DIVERGE vm-int:vm-jit x2: run-program crash/crash $outcome | [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/run-program/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-vm-int-vm-jit-fc56b1884aed']
+DIVERGE ref:vm-int x1: hash diagnostic/json $outcome §6.2| [fixture-objects/bennett-isa-spec/conformance/cases/objects/f_window_closed.bisa/hash] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ffe77180eac7']
+DIVERGE ref:vm-int x1: reverse diagnostic/crash $outcome §10| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/reverse/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ea13781e6724']
+DIVERGE ref:vm-int x1: reverse diagnostic/crash $outcome §7.3| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/r-length.bisa/f/reverse/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-f4f87440c7aa']
+DIVERGE ref:vm-int x1: run-cc diagnostic/crash $outcome §10| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/run-cc/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-bc79fb4ea987']
+DIVERGE ref:vm-int x1: run-cc diagnostic/crash $outcome §7.3| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/r-length.bisa/f/run-cc/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-dfb7fd80e749']
+DIVERGE ref:vm-int x1: step-check diagnostic/json $outcome §3.7| [gen-mutant/seed99/10] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-a757bb308beb']
+DIVERGE ref:vm-jit x1: hash diagnostic/json $outcome §6.2| [fixture-objects/bennett-isa-spec/conformance/cases/objects/f_window_closed.bisa/hash] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ffe77180eac7']
+DIVERGE ref:vm-jit x1: reverse diagnostic/crash $outcome §10| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/reverse/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-ea13781e6724']
+DIVERGE ref:vm-jit x1: reverse diagnostic/crash $outcome §7.3| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/r-length.bisa/f/reverse/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-f4f87440c7aa']
+DIVERGE ref:vm-jit x1: run-cc diagnostic/crash $outcome §10| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/cc-length.bisa/f/run-cc/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-bc79fb4ea987']
+DIVERGE ref:vm-jit x1: run-cc diagnostic/crash $outcome §7.3| [fixture-objects/bennett-isa-spec/reference-interpreter/tests/fixtures/r21/r-length.bisa/f/run-cc/0] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/fixture-objects-ref-vm-int-dfb7fd80e749']
+DIVERGE ref:vm-jit x1: step-check diagnostic/json $outcome §3.7| [gen-mutant/seed99/10] ['/home/tobias/Projects/bennett-workspace/bennett-conformance/harness/witnesses/gen-mutant-ref-vm-int-a757bb308beb']
+ORACLE-FAIL vm-int neutral-suite/actions/run12: stderr lacks '§3.4'
+ORACLE-FAIL vm-jit neutral-suite/actions/run12: stderr lacks '§3.4'
+ORACLE-FAIL vm-int neutral-suite/classical/run33: stderr lacks '--args'
+ORACLE-FAIL vm-jit neutral-suite/classical/run33: stderr lacks '--args'
+ORACLE-FAIL vm-int neutral-suite/registers/run5: stderr lacks '--in accompanies --mut only'
+ORACLE-FAIL vm-jit neutral-suite/registers/run5: stderr lacks '--in accompanies --mut only'
+ORACLE-FAIL vm-int neutral-suite/registers/run7: stderr lacks '§14.2'
+ORACLE-FAIL vm-jit neutral-suite/registers/run7: stderr lacks '§14.2'
+ORACLE-FAIL vm-int neutral-suite/registers/run8: stderr lacks '§5.3'
+ORACLE-FAIL vm-jit neutral-suite/registers/run8: stderr lacks '§5.3'
+ORACLE-FAIL vm-int neutral-suite/sum_db/run18: stderr lacks '§17.13'
+ORACLE-FAIL vm-jit neutral-suite/sum_db/run18: stderr lacks '§17.13'
