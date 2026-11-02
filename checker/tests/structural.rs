@@ -242,3 +242,10 @@ fn separate_borrowed_lifetimes_require_all_of_their_frame_proofs(){
         borrow_indices(&mut inp,indices);let v=check_certificate(&inp);assert!(codes(&v).is_empty(),"{v:?}");assert!(v.regions[0].claims.iter().all(|(_,c)|c.outcome=="accept"),"{v:?}");assert_eq!(borrow_covered(&v),covered,"{v:?}");
     }
 }
+
+#[test]
+fn oracles_cannot_substitute_translation_lemma_for_their_t3_frame_proof(){
+    let claim=json(r#"{"invocation":{"args":"all","budget":"all"},"kind":"structural","rule":"translation_lemma","subclaims":[],"witness":{"B":["b[0]"],"X":["x"],"V":["entry:1"],"W":["entry:2"],"frame":["entry:1","entry:4"]}}"#);
+    let (inp,_)=standalone("oracle @wrong_kind (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nb = qborrow any 1\ncx x b[0]\ncx b[0] t\ncx x b[0]\ncx b[0] t\nqreturn b",r#"{"wrong_kind":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,"wrong_kind",vec![claim]);
+    let v=check_certificate(&inp);assert!(codes(&v).contains(&"E_CERT_STRUCTURAL"),"{v:?}");
+}

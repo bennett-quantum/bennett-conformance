@@ -203,6 +203,9 @@ fn inner(
             "structural claim's region is not linked",
         ));
     };
+    if rule=="translation_lemma" && !matches!(symbol.kind.as_str(),"action"|"perm_action") {
+        return bad(&format!("{path}.rule"),"translation_lemma applies to action borrow frames; an oracle is one frame verified by its own T3 claim over D (§5.6)");
+    }
     let iface = docs
         .object
         .interface(&symbol.name)

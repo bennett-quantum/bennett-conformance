@@ -156,6 +156,14 @@ The published `borrow_demo` identity is pinned, and both printed orientations
 are replayed over all 8 uncontrolled and 16 controlled basis inputs each.
 Loops changing lifetimes or predicates still need visit-specific analysis.
 
+For supported reference action bodies, indexed universal translation proofs
+can discharge logical borrow preservation when they cover every borrowed-wire
+touch and all borrowed lifetimes are returned. Region verdicts report this
+conclusion explicitly. Missing indices, uncovered outer touches or proofs
+limited to one invocation do not establish universal coverage. Frame storage
+descriptors remain unchecked even when the logical preservation proof succeeds.
+Oracles require their own T3 frame proof and cannot substitute this lemma.
+
 `adjoint_table` and independent library correspondence still need complete proof
 linkage. Verification-index shapes do not discharge borrow-frame entry-state or
 qinplace-entry-applicability obligations. Source coverage and expanded non-native
