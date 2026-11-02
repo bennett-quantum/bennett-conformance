@@ -100,11 +100,23 @@ It does not establish another frame's entry domain or a target realisation.
 Reference replay covers an independently implemented subset of lifted arithmetic
 and permutation-action semantics. Unsupported rows, lproc/stack machinery and
 unresolved invocation contexts are explicit unchecked outcomes. The native
-matrix path currently handles straight-line, single-class action calls and
-X/CX/CCX/MCX/SWAP/H/S/S†/T/T†/CZ gates. It includes invocations covered entirely
+matrix path currently handles single-class action calls, sequential action
+blocks, counted `qloop` bodies and X/CX/CCX/MCX/SWAP/H/S/S†/T/T†/CZ/RX/RY/RZ
+gates. It includes invocations covered entirely
 by defaults, forwards classical arguments, and checks maximal gate selector
-specificity and ties. Scheme expansion, rotations, topology, multi-class
+specificity and ties. Static source ordinals are retained across loop visits;
+iteration selectors use the complete dynamic nesting vector. Zero-trip loops
+emit no events and cannot witness a selector tie. Scheme expansion, coherent
+`qif`/`qloop while`, topology, multi-class
 allocation and complete oracle expansion remain unchecked.
+
+Rotation literals and bound `f64` arguments are decoded to exact binary64
+rationals, including signed zero. Sin/cos use outward rational Taylor
+enclosures with a Lagrange remainder below the §17 threshold. Modulo reduction
+uses a proved Machin-formula enclosure of π. Excessive cancellation or work
+produces a host-limit outcome; it never supplies an approximate constant or
+an acceptance tolerance. These claims establish the requested numerical bound,
+including global phase, rather than exact equality for arbitrary angles.
 
 The checker does not infer exactness from the mere presence of an epsilon-zero
 target entry. It checks the selected native entry with the actual total control
@@ -127,6 +139,12 @@ nested closed schemas. Gate costs distinguish own controls `k` from total
 controls `c`; adjoint calls match and count the inverse primitive (`tdg`, not
 `t`, for an adjointed T). Symbolic source-slot widths are evaluated at each
 resolved inherited-control count.
+
+Mutation tests visit every field and array position of the published positive
+certificate (250), target (43), and schedule (54), with exact expected rejection
+codes. The target and schedule sweeps rebind their hashes so a stale digest
+cannot mask a malformed nested value. Schedule bindings validate scheduler and
+expansion records, nonnegative error shares and exact budget encodings.
 
 Launch estimates on this path use exact reduced numerator/denominator rows,
 percent-encoded resource/class names and canonical upward 34-digit decimal

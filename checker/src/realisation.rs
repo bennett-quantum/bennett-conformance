@@ -5,12 +5,12 @@ use crate::cert::{
     host_limit_outcome, parse_invocation, rej, u64_of, ClaimOutcome, Inputs, Invocation,
     LoadedDocs, Subject,
 };
-use crate::eval::{list_items, tokenise};
+use crate::eval::{list_items, parse_blocks, Stmt};
 use crate::fault::HostLimit;
 use crate::json::{jcs, n, s, Value};
 use crate::matrix::{ComplexInterval as C, Matrix};
 use crate::rat::{rat_of_json, Interval, Rat};
-use num_traits::{One, Zero};
+use num_traits::{One, Signed, Zero};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 type Result<T> = std::result::Result<T, ClaimOutcome>;
@@ -40,25 +40,68 @@ pub(crate) struct Gate {
     pub(crate) controls: Vec<usize>,
     pub(crate) targets: Vec<usize>,
     pub(crate) path: Vec<Value>,
+    generated: u64,
     angle_bits: Option<u64>,
     adjoint: bool,
 }
-fn resolve_angle(text:&str,context:&Context,docs:&LoadedDocs)->Result<u64> {
-    let bad=|message:String|ClaimOutcome::rejected(vec![rej("E_CERT_OBJECT","§3.1/§16.1",format!("object.@{}",context.symbol),message)]);
-    let f=docs.object.function(&context.symbol).expect("expanded function exists");
-    let bits=if let Some((i,param))=f.groups[3].iter().enumerate().find(|(_,p)|p.name==text) {
-        if param.ty!="f64" {return Err(bad(format!("gate angle argument {text} has type {}, expected f64",param.ty)));}
-        let encoded=context.invocation.args.get(i).and_then(Value::as_str).unwrap_or("");
-        if encoded.len()!=18 || !encoded.starts_with("0x") {return Err(bad("angle argument is not a bound binary64 bit pattern".into()));}
-        u64::from_str_radix(&encoded[2..],16).map_err(|_|bad("invalid binary64 angle argument".into()))?
-    }else {
-        let value=text.parse::<f64>().map_err(|_|bad(format!("gate angle {text:?} is not a finite canonical FLOAT or bound f64 argument")))?;
-        if !value.is_finite(){return Err(bad("gate angle is NaN or infinite".into()));}
-        let mut spelling=if value==0.0 && value.is_sign_negative(){"-0.0".to_string()}else{crate::json::ecmascript_number(value)};
-        if !spelling.contains(['.','e']) {spelling.push_str(".0");}
-        if text!=spelling{return Err(bad(format!("noncanonical gate angle {text:?}; expected {spelling:?}")));}
-        value.to_bits()
+fn resolve_angle(text: &str, context: &Context, docs: &LoadedDocs) -> Result<u64> {
+    let bad = |message: String| {
+        ClaimOutcome::rejected(vec![rej(
+            "E_CERT_OBJECT",
+            "§3.1/§16.1",
+            format!("object.@{}", context.symbol),
+            message,
+        )])
     };
+    let f = docs
+        .object
+        .function(&context.symbol)
+        .expect("expanded function exists");
+    let bits =
+        if let Some((i, param)) = f.groups[3].iter().enumerate().find(|(_, p)| p.name == text) {
+            if param.ty != "f64" {
+                return Err(bad(format!(
+                    "gate angle argument {text} has type {}, expected f64",
+                    param.ty
+                )));
+            }
+            let encoded = context
+                .invocation
+                .args
+                .get(i)
+                .and_then(Value::as_str)
+                .unwrap_or("");
+            if encoded.len() != 18 || !encoded.starts_with("0x") {
+                return Err(bad(
+                    "angle argument is not a bound binary64 bit pattern".into()
+                ));
+            }
+            u64::from_str_radix(&encoded[2..], 16)
+                .map_err(|_| bad("invalid binary64 angle argument".into()))?
+        } else {
+            let value = text.parse::<f64>().map_err(|_| {
+                bad(format!(
+                    "gate angle {text:?} is not a finite canonical FLOAT or bound f64 argument"
+                ))
+            })?;
+            if !value.is_finite() {
+                return Err(bad("gate angle is NaN or infinite".into()));
+            }
+            let mut spelling = if value == 0.0 && value.is_sign_negative() {
+                "-0.0".to_string()
+            } else {
+                crate::json::ecmascript_number(value)
+            };
+            if !spelling.contains(['.', 'e']) {
+                spelling.push_str(".0");
+            }
+            if text != spelling {
+                return Err(bad(format!(
+                    "noncanonical gate angle {text:?}; expected {spelling:?}"
+                )));
+            }
+            value.to_bits()
+        };
     crate::transcendental::binary64_rational(bits).map_err(bad)?;
     Ok(bits)
 }
@@ -78,14 +121,93 @@ impl Gate {
         }
     }
 }
-fn element(hash: &str, block: &str, ordinal: usize) -> Value {
+fn element(hash: &str, block: &str, ordinal: usize, iteration: &[u64]) -> Value {
     Value::Obj(BTreeMap::from([
         ("symbol".into(), s(hash)),
         ("point".into(), s(&format!("{block}:{ordinal}"))),
-        ("iteration".into(), Value::Arr(vec![])),
+        (
+            "iteration".into(),
+            Value::Arr(iteration.iter().map(n).collect()),
+        ),
         ("instance".into(), Value::Arr(vec![])),
         ("call_index".into(), n(0)),
     ]))
+}
+
+struct SourceRow {
+    tokens: Vec<String>,
+    block: String,
+    ordinal: usize,
+    iteration: Vec<u64>,
+    generated: u64,
+}
+fn static_size(stmts: &[Stmt]) -> usize {
+    stmts
+        .iter()
+        .map(|stmt| match stmt {
+            Stmt::Line(_) => 1,
+            Stmt::Block { body, rest, .. } => {
+                1 + static_size(body) + rest.as_ref().map(|r| static_size(r)).unwrap_or(0)
+            }
+        })
+        .sum()
+}
+fn loop_bounds(stmts: &[Stmt], bounds: &mut Vec<u64>) -> Result<()> {
+    for stmt in stmts {
+        if let Stmt::Block { head, body, rest } = stmt {
+            if head.first().map(String::as_str) == Some("qloop") {
+                let n = head
+                    .get(1)
+                    .and_then(|x| x.parse::<u64>().ok())
+                    .ok_or_else(|| {
+                        ClaimOutcome::unchecked("qloop count exceeds this host's integer range")
+                    })?;
+                bounds.push(n);
+            }
+            loop_bounds(body, bounds)?;
+            if let Some(rest) = rest {
+                loop_bounds(rest, bounds)?;
+            }
+        }
+    }
+    Ok(())
+}
+fn emit_row(tokens:Vec<String>, block:&str, ordinal:usize, iteration:&[u64], generated:u64, rows:&mut Vec<SourceRow>,max:u64)->Result<()> {
+    if rows.len() as u64 >= max.min(100_000) {return Err(host_limit_outcome(HostLimit{quantity:"expanded source row count exceeds host work/storage limit".into()}));}
+    rows.push(SourceRow{tokens,block:block.into(),ordinal,iteration:iteration.to_vec(),generated});Ok(())
+}
+fn expand_rows(stmts:&[Stmt],block:&str,mut ordinal:usize,iteration:&mut Vec<u64>,rows:&mut Vec<SourceRow>,max:u64)->Result<()> {
+    if iteration.len()>64 {return Err(host_limit_outcome(HostLimit{quantity:"qloop nesting exceeds 64 host levels".into()}));}
+    for stmt in stmts {
+        match stmt {
+            Stmt::Line(tokens)=>emit_row(tokens.clone(),block,ordinal,iteration,0,rows,max)?,
+            Stmt::Block{head,body,rest}=>match head.first().map(String::as_str) {
+                Some("qloop") if head.len()==2 && rest.is_none()=>{
+                    let count=head[1].parse::<u64>().map_err(|_|host_limit_outcome(HostLimit{quantity:"qloop count exceeds host integer range".into()}))?;
+                    if !body.is_empty() {
+                        if count>max.min(100_000) {return Err(host_limit_outcome(HostLimit{quantity:"qloop visits exceed host work limit".into()}));}
+                        for i in 0..count {
+                            iteration.push(i);expand_rows(body,block,ordinal+1,iteration,rows,max)?;iteration.pop();
+                        }
+                    }
+                },
+                Some("qif") if head.len()==2=>{
+                    let p=&head[1];
+                    emit_row(vec!["qpred".into(),p.clone()],block,ordinal,iteration,0,rows,max)?;
+                    expand_rows(body,block,ordinal+1,iteration,rows,max)?;
+                    emit_row(vec!["qunpred".into(),p.clone()],block,ordinal,iteration,0,rows,max)?;
+                    emit_row(vec!["x".into(),p.clone()],block,ordinal,iteration,0,rows,max)?;
+                    emit_row(vec!["qpred".into(),p.clone()],block,ordinal,iteration,0,rows,max)?;
+                    if let Some(rest)=rest {expand_rows(rest,block,ordinal+1+static_size(body),iteration,rows,max)?;}
+                    emit_row(vec!["qunpred".into(),p.clone()],block,ordinal,iteration,0,rows,max)?;
+                    emit_row(vec!["x".into(),p.clone()],block,ordinal,iteration,1,rows,max)?;
+                },
+                _=>return pending("structured form requires its complete coherent control and unconditional lifetime expansion"),
+            },
+        }
+        ordinal+=match stmt {Stmt::Line(_)=>1,Stmt::Block{body,rest,..}=>1+static_size(body)+rest.as_ref().map(|r|static_size(r)).unwrap_or(0)};
+    }
+    Ok(())
 }
 fn prefixes<'a>(
     mut tokens: &'a [String],
@@ -208,11 +330,22 @@ fn collect(
             f.kind, f.name
         ));
     }
-    if f.blocks.len() != 1 {
-        return pending(format!(
-            "multi-block action @{} requires structured expansion",
-            f.name
-        ));
+    let blocks = parse_blocks(f);
+    let mut bounds = Vec::new();
+    for (_, stmts) in &blocks {
+        loop_bounds(stmts, &mut bounds)?;
+    }
+    if bounds != f.bounds {
+        return Err(ClaimOutcome::rejected(vec![rej(
+            "E_CERT_OBJECT",
+            "§5.3",
+            format!("object.@{}.bounds", f.name),
+            "declared bounds do not equal the static qloop counts in text order",
+        )]));
+    }
+    let mut rows = Vec::new();
+    for (block, stmts) in &blocks {
+        expand_rows(stmts, block, 0, &mut Vec::new(), &mut rows, max)?;
     }
     let hash = docs
         .object
@@ -221,19 +354,19 @@ fn collect(
         .ok_or_else(|| ClaimOutcome::unchecked("context symbol has no closure identity"))?;
     let mut predicates = inherited;
     let mut body_gates = Vec::new();
-    for (ordinal, line) in f.blocks[0].instructions.iter().enumerate() {
+    for row in rows {
         if gates.len() + body_gates.len() > max as usize {
             return Err(host_limit_outcome(HostLimit {
                 quantity: "native gate expansion limit".into(),
             }));
         }
-        let tokens = tokenise(line);
+        let tokens = row.tokens;
         let mut controls = predicates.clone();
         let mut adjoint = false;
         let tokens = prefixes(&tokens, &mut controls, &wires, &mut adjoint)?;
         let op = tokens.first().map(String::as_str).unwrap_or("");
         let mut path = context.key.clone();
-        path.push(element(hash, &f.blocks[0].name, ordinal));
+        path.push(element(hash, &row.block, row.ordinal, &row.iteration));
         match op {
             "qpred" => {
                 predicates.push(one_wire(
@@ -310,7 +443,8 @@ fn collect(
                 }
                 body_gates.extend(nested_gates);
             }
-            "x" | "cx" | "ccx" | "mcx" | "swap" | "h" | "s" | "sdg" | "t" | "tdg" | "cz" | "rx" | "ry" | "rz" => {
+            "x" | "cx" | "ccx" | "mcx" | "swap" | "h" | "s" | "sdg" | "t" | "tdg" | "cz" | "rx"
+            | "ry" | "rz" => {
                 let arity = match op {
                     "cx" | "mcx" | "swap" | "cz" | "rx" | "ry" | "rz" => 3,
                     "ccx" => 4,
@@ -323,7 +457,11 @@ fn collect(
                     );
                 }
                 let operands = &tokens[1..];
-                let angle_bits=if matches!(op,"rx"|"ry"|"rz"){Some(resolve_angle(&operands[0],context,docs)?)}else{None};
+                let angle_bits = if matches!(op, "rx" | "ry" | "rz") {
+                    Some(resolve_angle(&operands[0], context, docs)?)
+                } else {
+                    None
+                };
                 let inherited_count = controls.len();
                 let targets = match op {
                     "cx" => {
@@ -360,7 +498,7 @@ fn collect(
                         .iter()
                         .map(|t| one_wire(t, &wires))
                         .collect::<Result<Vec<_>>>()?,
-                    "rx"|"ry"|"rz"=>vec![one_wire(&operands[1],&wires)?],
+                    "rx" | "ry" | "rz" => vec![one_wire(&operands[1], &wires)?],
                     _ => vec![one_wire(
                         operands.first().map(String::as_str).unwrap_or(""),
                         &wires,
@@ -379,6 +517,7 @@ fn collect(
                     targets,
                     path,
                     angle_bits,
+                    generated: row.generated,
                     adjoint,
                 });
             }
@@ -499,7 +638,7 @@ fn check_width(c: &Context, docs: &LoadedDocs, inputs: &Inputs) -> Result<usize>
     }
     Ok(width as usize)
 }
-fn selector(entry: &Value, path: &[Value]) -> bool {
+fn selector(entry: &Value, path: &[Value], generated: u64) -> bool {
     let Some(p) = entry.get("path").and_then(Value::as_arr) else {
         return false;
     };
@@ -510,7 +649,7 @@ fn selector(entry: &Value, path: &[Value]) -> bool {
         return false;
     }
     if entry.get("generated").and_then(Value::as_str) != Some("*")
-        && entry.get("generated").and_then(u64_of) != Some(0)
+        && entry.get("generated").and_then(u64_of) != Some(generated)
     {
         return false;
     }
@@ -544,7 +683,7 @@ pub(crate) fn decision_kind<'a>(
     let mut best: Option<((usize, usize, u8, u8, u8), &Value)> = None;
     let mut tied = false;
     for entry in entries {
-        if entry.get("kind").and_then(Value::as_str) != Some(kind) || !selector(entry, &gate.path) {
+        if entry.get("kind").and_then(Value::as_str) != Some(kind) || !selector(entry, &gate.path, gate.generated) {
             continue;
         }
         let p = entry.get("path").and_then(Value::as_arr).unwrap();
@@ -592,7 +731,8 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
         return pending("native matrix builder needs resolved multi-class allocation");
     }
     let class = classes.keys().next().unwrap();
-    if let Some(g) = decision_kind(docs, gate, "gate")? {
+    let decision = decision_kind(docs, gate, "gate")?;
+    if let Some(g) = decision {
         if g.get("realisation").and_then(Value::as_str) != Some("native") {
             return pending("scheduled scheme template expansion has not been implemented");
         }
@@ -624,10 +764,62 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
                 "native class-pattern matching needs a resolved operand-class expansion",
             );
         }
-        match entry.get("epsilon").and_then(|v|rat_of_json(v).ok()) {
-            Some(e) if e.is_zero()=>return Ok(entry),
-            _=>return pending("nonzero/expressed native epsilon needs evaluated shares and a specified realised operator before numerical replay"),
+        let mut vars = HashMap::from([
+            ("k", Rat::from_integer(gate.own_controls.into())),
+            ("c", Rat::from_integer(gate.controls.len().into())),
+        ]);
+        let epsilon = entry
+            .get("epsilon")
+            .expect("target schema validated epsilon");
+        let share = decision
+            .and_then(|g| g.get("epsilon_share"))
+            .and_then(|e| rat_of_json(e).ok());
+        if let Some(share) = &share {
+            vars.insert("eps", share.clone());
+        } else if crate::expressions::uses_epsilon(epsilon) {
+            return pending("default epsilon shares require counting all approximate operations before native matching");
         }
+        let achieved = crate::expressions::evaluate(
+            epsilon,
+            &vars,
+            target.get("tables").unwrap_or(&Value::Null),
+        )
+        .map_err(|error| match error {
+            crate::expressions::Error::Invalid(message) => ClaimOutcome::rejected(vec![rej(
+                "E_CERT_TARGET",
+                "§8.1",
+                "target.gates.epsilon",
+                message,
+            )]),
+            crate::expressions::Error::HostLimit(limit) => host_limit_outcome(limit),
+        })?;
+        if achieved.is_negative() {
+            return Err(ClaimOutcome::rejected(vec![rej(
+                "E_CERT_TARGET",
+                "§8.1",
+                "target.gates.epsilon",
+                "evaluated native epsilon must be nonnegative",
+            )]));
+        }
+        if achieved.is_zero() {
+            if crate::expressions::uses_epsilon(epsilon)
+                || entry.get("cost").map(crate::expressions::uses_epsilon) == Some(true)
+            {
+                return Err(ClaimOutcome::rejected(vec![rej(
+                    "E_CERT_TARGET",
+                    "§8.1",
+                    "target.gates",
+                    "an exact entry must not reference eps or an epsilon logarithm/index",
+                )]));
+            }
+            return Ok(entry);
+        }
+        if share.as_ref().map(|eps| &achieved > eps) == Some(true) {
+            continue;
+        }
+        return pending(
+            "nonzero native epsilon needs a specified realised operator before numerical replay",
+        );
     }
     pending(format!(
         "gate {} with {} total controls has no checked exact native match",
@@ -713,21 +905,55 @@ fn gate_matrix(g: &Gate, wires: usize, p: u32) -> Result<Matrix> {
                 }
             }
         }
-        "rx"|"ry"|"rz"=>{
-            let bits=g.angle_bits.expect("rotation angle resolved") ^ if g.adjoint {1u64<<63}else{0};
-            let angle=crate::transcendental::binary64_rational(bits).expect("finite angle checked")/Rat::from_integer(2.into());
-            let (sin,cos)=crate::transcendental::sin_cos(&angle,p).map_err(host_limit_outcome)?;
-            let real=|re:Interval|C{re,im:Interval::exact(Rat::zero())};
-            for i in 0..dim {if on(i) && i&(1usize<<target)==0 {
-                let j=i|(1usize<<target);
-                if g.op=="rz" {
-                    m.set(i,i,C{re:cos.clone(),im:sin.neg()});m.set(j,j,C{re:cos.clone(),im:sin.clone()});
-                }else {
-                    m.set(i,i,real(cos.clone()));m.set(j,j,real(cos.clone()));
-                    if g.op=="rx" {let z=C{re:Interval::exact(Rat::zero()),im:sin.neg()};m.set(i,j,z.clone());m.set(j,i,z);}
-                    else {m.set(i,j,real(sin.neg()));m.set(j,i,real(sin.clone()));}
+        "rx" | "ry" | "rz" => {
+            let bits = g.angle_bits.expect("rotation angle resolved")
+                ^ if g.adjoint { 1u64 << 63 } else { 0 };
+            let angle = crate::transcendental::binary64_rational(bits)
+                .expect("finite angle checked")
+                / Rat::from_integer(2.into());
+            let (sin, cos) =
+                crate::transcendental::sin_cos(&angle, p).map_err(host_limit_outcome)?;
+            let real = |re: Interval| C {
+                re,
+                im: Interval::exact(Rat::zero()),
+            };
+            for i in 0..dim {
+                if on(i) && i & (1usize << target) == 0 {
+                    let j = i | (1usize << target);
+                    if g.op == "rz" {
+                        m.set(
+                            i,
+                            i,
+                            C {
+                                re: cos.clone(),
+                                im: sin.neg(),
+                            },
+                        );
+                        m.set(
+                            j,
+                            j,
+                            C {
+                                re: cos.clone(),
+                                im: sin.clone(),
+                            },
+                        );
+                    } else {
+                        m.set(i, i, real(cos.clone()));
+                        m.set(j, j, real(cos.clone()));
+                        if g.op == "rx" {
+                            let z = C {
+                                re: Interval::exact(Rat::zero()),
+                                im: sin.neg(),
+                            };
+                            m.set(i, j, z.clone());
+                            m.set(j, i, z);
+                        } else {
+                            m.set(i, j, real(sin.neg()));
+                            m.set(j, i, real(sin.clone()));
+                        }
+                    }
                 }
-            }}
+            }
         }
         _ => unreachable!("gate op validated during collection"),
     }
@@ -886,27 +1112,80 @@ pub fn exact_native_subject(subject: &Subject, docs: &LoadedDocs, inputs: &Input
 #[cfg(test)]
 mod rotation_columns {
     use super::*;
-    fn bracket(token:&str)->(Interval,Interval) {
-        let r=|x:&str|crate::rat::parse_decimal(x).unwrap();
-        let zero=Interval::exact(Rat::zero());
-        let c=Interval{lo:r("0.8775825618903727161162815826038296519916"),hi:r("0.8775825618903727161162815826038296519917")};
-        let s=Interval{lo:r("0.4794255386042030002732879352155713880818"),hi:r("0.4794255386042030002732879352155713880819")};
-        match token {"0"=>(zero.clone(),zero),"1"=>(Interval::exact(Rat::one()),zero),"c"=>(c,zero),"s"=>(s,zero),"-s"=>(s.neg(),zero),"-is"=>(zero,s.neg()),"c-is"=>(c,s.neg()),"c+is"=>(c,s),_=>unreachable!()}
+    fn bracket(token: &str) -> (Interval, Interval) {
+        let r = |x: &str| crate::rat::parse_decimal(x).unwrap();
+        let zero = Interval::exact(Rat::zero());
+        let c = Interval {
+            lo: r("0.8775825618903727161162815826038296519916"),
+            hi: r("0.8775825618903727161162815826038296519917"),
+        };
+        let s = Interval {
+            lo: r("0.4794255386042030002732879352155713880818"),
+            hi: r("0.4794255386042030002732879352155713880819"),
+        };
+        match token {
+            "0" => (zero.clone(), zero),
+            "1" => (Interval::exact(Rat::one()), zero),
+            "c" => (c, zero),
+            "s" => (s, zero),
+            "-s" => (s.neg(), zero),
+            "-is" => (zero, s.neg()),
+            "c-is" => (c, s.neg()),
+            "c+is" => (c, s),
+            _ => unreachable!(),
+        }
     }
     #[test]
     fn all_controlled_rotation_columns_match_independent_decimal_brackets_and_adjoint() {
         // These full 4x4 columns pin §4.4's phases/signs and §12.1's control-
         // first order. The constants bracket sin(1/2), cos(1/2) independently.
-        for (op,block) in [("rx",[["c","-is"],["-is","c"]]),("ry",[["c","-s"],["s","c"]]),("rz",[["c-is","0"],["0","c+is"]])] {
-            let mut gate=Gate{op:op.into(),own_controls:0,controls:vec![0],targets:vec![1],path:vec![],angle_bits:Some(1.0f64.to_bits()),adjoint:false};
-            let forward=gate_matrix(&gate,2,128).unwrap();
-            for row in 0..4 {for col in 0..4 {
-                let token=if col%2==0 {if row==col {"1"}else{"0"}}else if row%2==0 {"0"}else{block[row/2][col/2]};
-                let (re,im)=bracket(token);let z=forward.get(row,col);
-                assert!(z.re.lo<=re.lo && z.re.hi>=re.hi,"{op} [{row},{col}] real {z:?}");
-                assert!(z.im.lo<=im.lo && z.im.hi>=im.hi,"{op} [{row},{col}] imaginary {z:?}");
-            }}
-            gate.adjoint=true;assert_eq!(gate_matrix(&gate,2,128).unwrap(),forward.adjoint(),"{op} adjoint");
+        for (op, block) in [
+            ("rx", [["c", "-is"], ["-is", "c"]]),
+            ("ry", [["c", "-s"], ["s", "c"]]),
+            ("rz", [["c-is", "0"], ["0", "c+is"]]),
+        ] {
+            let mut gate = Gate {
+                op: op.into(),
+                own_controls: 0,
+                controls: vec![0],
+                targets: vec![1],
+                path: vec![],
+                angle_bits: Some(1.0f64.to_bits()),
+                generated: 0,
+                adjoint: false,
+            };
+            let forward = gate_matrix(&gate, 2, 128).unwrap();
+            for row in 0..4 {
+                for col in 0..4 {
+                    let token = if col % 2 == 0 {
+                        if row == col {
+                            "1"
+                        } else {
+                            "0"
+                        }
+                    } else if row % 2 == 0 {
+                        "0"
+                    } else {
+                        block[row / 2][col / 2]
+                    };
+                    let (re, im) = bracket(token);
+                    let z = forward.get(row, col);
+                    assert!(
+                        z.re.lo <= re.lo && z.re.hi >= re.hi,
+                        "{op} [{row},{col}] real {z:?}"
+                    );
+                    assert!(
+                        z.im.lo <= im.lo && z.im.hi >= im.hi,
+                        "{op} [{row},{col}] imaginary {z:?}"
+                    );
+                }
+            }
+            gate.adjoint = true;
+            assert_eq!(
+                gate_matrix(&gate, 2, 128).unwrap(),
+                forward.adjoint(),
+                "{op} adjoint"
+            );
         }
     }
 }

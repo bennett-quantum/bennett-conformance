@@ -35,60 +35,12 @@ fn context_hash<'a>(c: &Context, docs: &'a LoadedDocs) -> &'a str {
         .and_then(|s| s.closure_hash.as_deref())
         .expect("expanded context is linked")
 }
-fn expr(v: &Value, vars: &HashMap<&str, Rat>, path: &str) -> Result<Rat> {
-    if let Ok(r) = rat_of_json(v) {
-        return Ok(r);
-    }
-    if let Some(name) = v.get("var").and_then(Value::as_str) {
-        return vars.get(name).cloned().ok_or_else(|| {
-            ClaimOutcome::rejected(vec![rej(
-                "E_CERT_TARGET",
-                "§8.1",
-                path,
-                format!("expression references unbound variable {name}"),
-            )])
-        });
-    }
-    let op = v.get("op").and_then(Value::as_str).unwrap_or("");
-    let args = v.get("args").and_then(Value::as_arr).unwrap_or(&[]);
-    let arity = match op {
-        "+" | "-" | "*" | "/" | "min" | "max" => 2,
-        "ceil" => 1,
-        _ => {
-            return pending(format!(
-                "target expression {op:?} requires additional exact evaluation (§8.1)"
-            ))
+fn expr(v: &Value, vars: &HashMap<&str, Rat>, tables: &Value, path: &str) -> Result<Rat> {
+    crate::expressions::evaluate(v, vars, tables).map_err(|error| match error {
+        crate::expressions::Error::Invalid(message) => {
+            ClaimOutcome::rejected(vec![rej("E_CERT_TARGET", "§8.1", path, message)])
         }
-    };
-    if args.len() != arity {
-        return bad(
-            "E_CERT_TARGET",
-            path,
-            "target expression has incorrect arity",
-        );
-    }
-    let a = expr(&args[0], vars, path)?;
-    if op == "ceil" {
-        return Ok(Rat::from(a.ceil().to_integer()));
-    }
-    let b = expr(&args[1], vars, path)?;
-    Ok(match op {
-        "+" => a + b,
-        "-" => a - b,
-        "*" => a * b,
-        "/" => {
-            if b.is_zero() {
-                return bad(
-                    "E_CERT_TARGET",
-                    path,
-                    "division by zero in target expression",
-                );
-            }
-            a / b
-        }
-        "min" => a.min(b),
-        "max" => a.max(b),
-        _ => unreachable!(),
+        crate::expressions::Error::HostLimit(limit) => crate::cert::host_limit_outcome(limit),
     })
 }
 struct Event<'a> {
@@ -126,7 +78,15 @@ fn events<'a>(gates: &'a [Gate], docs: &LoadedDocs) -> Result<Vec<Event<'a>>> {
         })?;
         let mut cost = BTreeMap::new();
         for (name, value) in costs {
-            let r = expr(value, &vars, "target.gates.cost")?;
+            let r = expr(
+                value,
+                &vars,
+                docs.target
+                    .as_ref()
+                    .and_then(|t| t.get("tables"))
+                    .unwrap_or(&Value::Null),
+                "target.gates.cost",
+            )?;
             if r.is_negative() {
                 return bad(
                     "E_CERT_TARGET",
@@ -224,10 +184,12 @@ fn resources(
         .iter()
         .filter(|e| e.gate.path.starts_with(&c.key))
         .collect();
-    let Some(first) = selected.first() else {
-        return pending("zero-event invocation lifetime accounting has not been established");
-    };
-    let duration = &selected.last().unwrap().end - &first.before;
+    // An action with no emitted events retains its interface for zero elapsed
+    // time; peak occupancy still includes the live interface at entry.
+    let duration = selected
+        .first()
+        .map(|first| &selected.last().unwrap().end - &first.before)
+        .unwrap_or_else(Rat::zero);
     let declarations = target
         .get("resources")
         .and_then(Value::as_obj)
@@ -513,6 +475,7 @@ fn check_resources(
         let width = expr(
             slot.get("width").unwrap(),
             &HashMap::from([("c", Rat::from_integer(c.controls.into()))]),
+            &Value::Null,
             "frame.slots.width",
         )?;
         if width != Rat::from_integer(bundle.width.into()) {

@@ -36,7 +36,7 @@ pub struct Param {
 pub struct Block {
     pub name: String,
     pub params: Vec<Param>,
-    /// Instruction lines in text order (block header and bare `}` excluded).
+    /// Instruction lines in text order (block header and structured closing braces excluded).
     pub instructions: Vec<String>,
 }
 
@@ -517,7 +517,7 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
                     }
                 }
             }
-        } else if line != "}" {
+        } else if line != "}" && line != "} {" {
             match blocks.last_mut() {
                 Some(b) => b.instructions.push(line.clone()),
                 None => {
@@ -528,7 +528,7 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
                 }
             }
         }
-        // A bare "}" closes a nested structure; it is not an instruction line.
+        // Structured closing braces are not instructions and have no ordinal.
     }
     Ok(Function {
         name,

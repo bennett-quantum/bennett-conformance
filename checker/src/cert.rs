@@ -993,13 +993,10 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                     "does not equal SHA-256 of the JCS root invocation args array",
                 ));
             }
-            let budget_ok = sb.get("budget").and_then(Value::as_arr).map(|b| {
-                b.len() == 4
-                    && b.iter()
-                        .zip(inv.budget.iter())
-                        .all(|(x, y)| int_of(x).map(|i| BigUint::from(i as u64)) == Some(y.clone()))
-            });
-            if budget_ok != Some(true) {
+            let budget = sb
+                .get("budget")
+                .and_then(|b| parse_entry_budget(b, &object, "schedule.bindings.budget").ok());
+            if budget.as_ref() != Some(&inv.budget) {
                 verdict.errors.push(rej(
                     "E_CERT_BINDING",
                     "§12.3",

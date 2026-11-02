@@ -263,18 +263,23 @@ pub fn check_schedule_bindings(
             "does not equal the certificate root closure_hash",
         ));
     }
-    if let (Some(want), Some(got)) = (
-        cert_bindings.get("target_hash").and_then(Value::as_str),
-        sb.get("target_hash").and_then(Value::as_str),
-    ) {
-        if want != got {
-            local.push(rej(
-                "E_CERT_SCHEDULE_BINDING",
-                "§11",
-                "schedule.bindings.target_hash",
-                "does not equal the certificate target_hash",
-            ));
+    match sb.get("target_hash").and_then(Value::as_str) {
+        Some(got) if is_hash_hex(got) => {
+            if cert_bindings.get("target_hash").and_then(Value::as_str) != Some(got) {
+                local.push(rej(
+                    "E_CERT_SCHEDULE_BINDING",
+                    "§11",
+                    "schedule.bindings.target_hash",
+                    "does not equal the certificate target_hash",
+                ));
+            }
         }
+        _ => local.push(rej(
+            "E_CERT_SCHEDULE_BINDING",
+            "§11",
+            "schedule.bindings.target_hash",
+            "expected the bound target's 64-lowercase-hex hash",
+        )),
     }
     if sb.get("region").and_then(Value::as_str) != Some(root.name.as_str()) {
         local.push(rej(
@@ -310,13 +315,54 @@ pub fn check_schedule_bindings(
             "expected 64-lowercase-hex",
         )),
     }
-    if sb.get("epsilon").map(|e| rat_of_json(e).is_ok()) != Some(true) {
+    if sb
+        .get("epsilon")
+        .and_then(|e| rat_of_json(e).ok())
+        .map(|e| !e.is_negative())
+        != Some(true)
+    {
         local.push(rej(
             "E_CERT_SCHEDULE_BINDING",
             "§11",
             "schedule.bindings.epsilon",
-            "epsilon must be a decimal",
+            "epsilon must be a nonnegative decimal",
         ));
+    }
+    if let Err(errors) = crate::cert::parse_entry_budget(
+        sb.get("budget").unwrap_or(&Value::Null),
+        object,
+        "schedule.bindings.budget",
+    ) {
+        local.extend(errors.into_iter().map(|mut e| {
+            e.code = "E_CERT_SCHEDULE_BINDING";
+            e.section = "§11";
+            e
+        }));
+    }
+    let scheduler = sb.get("scheduler").unwrap_or(&Value::Null);
+    keys_strict(
+        scheduler,
+        &["name", "version"],
+        &["name", "version"],
+        "schedule.bindings.scheduler",
+        "E_CERT_SCHEDULE_BINDING",
+        "§11",
+        &mut local,
+    );
+    for field in ["name", "version"] {
+        if scheduler
+            .get(field)
+            .and_then(Value::as_str)
+            .map(|s| !s.is_empty())
+            != Some(true)
+        {
+            local.push(rej(
+                "E_CERT_SCHEDULE_BINDING",
+                "§11",
+                format!("schedule.bindings.scheduler.{field}"),
+                "expected a nonempty string",
+            ));
+        }
     }
     // Expansion library: explicit binding, else the §17 item 7 default at 0.9.
     let isa09 = object.header.versions.get("isa").map(String::as_str) == Some("0.9");
@@ -336,6 +382,15 @@ pub fn check_schedule_bindings(
             }
         }
         Some(e) => {
+            keys_strict(
+                e,
+                &["name", "version", "hash"],
+                &["name", "version", "hash"],
+                "schedule.bindings.expansion",
+                "E_CERT_SCHEDULE_BINDING",
+                "§11",
+                &mut local,
+            );
             let name = e
                 .get("name")
                 .and_then(Value::as_str)
@@ -502,12 +557,12 @@ pub fn validate_schedule_entry(entry: &Value, object: &Object, path: &str, errs:
                     ));
                 }
                 if let Some(e) = g.get("epsilon_share") {
-                    if rat_of_json(e).is_err() {
+                    if rat_of_json(e).map(|r| r.is_negative()).unwrap_or(true) {
                         errs.push(rej(
                             "E_CERT_SCHEDULE_BINDING",
                             "§11",
                             format!("{path}.gate.epsilon_share"),
-                            "must be a decimal",
+                            "must be a nonnegative decimal",
                         ));
                     }
                 }
@@ -551,7 +606,7 @@ pub fn validate_schedule_entry(entry: &Value, object: &Object, path: &str, errs:
                         "E_CERT_SCHEDULE_BINDING",
                         "§11",
                         format!("{path}.start.time"),
-                        "must be a decimal",
+                        "must be a decimal (negative times fail schedule feasibility)",
                     ));
                 }
             }

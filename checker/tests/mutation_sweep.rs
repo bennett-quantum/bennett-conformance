@@ -145,3 +145,161 @@ fn published_target_every_field_type_mutation_with_hashes_rebound() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
     assert_eq!(paths.len(), 43, "published target field inventory changed");
 }
+
+// Rebind only the schedule hash: normalising any mutated schedule field here
+// would hide precisely the malformed metadata this sweep is meant to find.
+fn rebind_schedule(inp: &mut bennett_cert_checker::cert::Inputs, schedule: &Value) {
+    let bytes = jcs(schedule).unwrap();
+    let hash = bennett_cert_checker::sha256::sha256_hex(&bytes);
+    inp.schedule_bytes = Some(bytes);
+    let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else {
+        unreachable!()
+    };
+    set(
+        top.get_mut("bindings").unwrap(),
+        "schedule_hash",
+        Value::Str(hash.clone()),
+    );
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        unreachable!()
+    };
+    for report in regions.values_mut() {
+        let Value::Obj(report) = report else {
+            unreachable!()
+        };
+        let Value::Arr(claims) = report.get_mut("claims").unwrap() else {
+            unreachable!()
+        };
+        for claim in claims {
+            let Value::Obj(claim) = claim else {
+                unreachable!()
+            };
+            if let Some(subject) = claim.get_mut("subject") {
+                if subject.get("schedule_hash").is_some() {
+                    set(subject, "schedule_hash", Value::Str(hash.clone()));
+                }
+            }
+        }
+    }
+    inp.cert_bytes = jcs(&cert).unwrap();
+}
+
+#[test]
+fn published_schedule_every_field_type_mutation_with_hash_rebound() {
+    let base = controlled();
+    let schedule = json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
+    let mut paths = vec![];
+    walk(&schedule, &mut vec![], &mut paths);
+    let mut failures = vec![];
+    for path in &paths {
+        let mut changed = schedule.clone();
+        let v = at(&mut changed, path);
+        *v = if *v == Value::Null {
+            Value::Bool(true)
+        } else {
+            Value::Null
+        };
+        let mut inp = base.clone();
+        rebind_schedule(&mut inp, &changed);
+        let verdict = check_certificate(&inp);
+        if verdict.overall != "rejected" || !codes(&verdict).contains(&"E_CERT_SCHEDULE_BINDING") {
+            failures.push(format!(
+                "{path:?}: {} {:?}",
+                verdict.overall,
+                codes(&verdict)
+            ));
+        }
+    }
+    eprintln!(
+        "schedule field sweep: {} fields/positions; {} failures",
+        paths.len(),
+        failures.len()
+    );
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+    assert_eq!(
+        paths.len(),
+        54,
+        "published schedule field inventory changed"
+    );
+}
+
+#[test]
+fn schedule_binding_values_and_closed_records_are_checked() {
+    let base = controlled();
+    let schedule = json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
+    let cases = [
+        (
+            vec![Part::Key("bindings".into()), Part::Key("epsilon".into())],
+            json("-1"),
+        ),
+        (
+            vec![Part::Key("bindings".into()), Part::Key("budget".into())],
+            json("[0,0,0]"),
+        ),
+        (
+            vec![
+                Part::Key("bindings".into()),
+                Part::Key("budget".into()),
+                Part::Index(0),
+            ],
+            json("-1"),
+        ),
+        (
+            vec![
+                Part::Key("bindings".into()),
+                Part::Key("budget".into()),
+                Part::Index(0),
+            ],
+            json(r#""00""#),
+        ),
+        (
+            vec![Part::Key("bindings".into()), Part::Key("scheduler".into())],
+            json(r#"{"name":"x","version":"1","extra":0}"#),
+        ),
+        (
+            vec![
+                Part::Key("bindings".into()),
+                Part::Key("scheduler".into()),
+                Part::Key("name".into()),
+            ],
+            Value::Str(String::new()),
+        ),
+        (
+            vec![Part::Key("bindings".into()), Part::Key("expansion".into())],
+            json(
+                r#"{"name":"ref","version":"0.9","hash":"5de4e4995350313e50217880ba1b95de39cd043283b726337d4894efb005d197","extra":0}"#,
+            ),
+        ),
+        (
+            vec![
+                Part::Key("entries".into()),
+                Part::Index(0),
+                Part::Key("gate".into()),
+                Part::Key("epsilon_share".into()),
+            ],
+            json("-1"),
+        ),
+    ];
+    for (path, value) in cases {
+        let mut changed = schedule.clone();
+        *at(&mut changed, &path) = value;
+        let mut inp = base.clone();
+        rebind_schedule(&mut inp, &changed);
+        let verdict = check_certificate(&inp);
+        assert!(
+            codes(&verdict).contains(&"E_CERT_SCHEDULE_BINDING"),
+            "{path:?}: {verdict:?}"
+        );
+    }
+    // §9.1 permits canonical decimal strings as exact metadata integers.
+    let mut schedule = schedule;
+    *at(
+        &mut schedule,
+        &[Part::Key("bindings".into()), Part::Key("budget".into())],
+    ) = json(r#"["0","0","0","0"]"#);
+    let mut inp = base;
+    rebind_schedule(&mut inp, &schedule);
+    let verdict = check_certificate(&inp);
+    assert_eq!(verdict.overall, "verified", "{verdict:?}");
+}

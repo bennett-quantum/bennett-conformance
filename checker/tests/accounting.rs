@@ -150,6 +150,38 @@ fn capacity_and_negative_start_reject_with_the_schedule_code() {
     }
 }
 
+#[test]
+fn native_cost_table_lookup_checks_own_controls_and_array_bounds() {
+    for values in ["[1,999]", "[]"] {
+        let mut inp = controlled();
+        let mut target = json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());
+        set(
+            &mut target,
+            "tables",
+            json(&format!(r#"{{"ticks":{values}}}"#)),
+        );
+        let Value::Obj(t) = &mut target else {
+            unreachable!()
+        };
+        let Value::Arr(gates) = t.get_mut("gates").unwrap() else {
+            unreachable!()
+        };
+        set(
+            &mut gates[0],
+            "cost",
+            json(r#"{"time":{"table":"ticks","index":"k"}}"#),
+        );
+        let schedule = json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());
+        bind_schedule(&mut inp, schedule, target);
+        let verdict = check_certificate(&inp);
+        if values == "[]" {
+            assert!(codes(&verdict).contains(&"E_CERT_TARGET"), "{verdict:?}");
+        } else {
+            assert_eq!(verdict.overall, "verified", "{verdict:?}");
+        }
+    }
+}
+
 fn estimate_fixture() -> Inputs {
     let mut inp = controlled();
     let mut target = json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());

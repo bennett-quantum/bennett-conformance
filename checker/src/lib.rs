@@ -11,6 +11,7 @@ mod accounting;
 pub mod cert;
 pub mod domain;
 pub mod eval;
+pub mod expressions;
 pub mod fault;
 pub mod json;
 pub mod matrix;
