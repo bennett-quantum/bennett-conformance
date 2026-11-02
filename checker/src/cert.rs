@@ -327,12 +327,7 @@ pub fn validate_budget(budget: &[BigUint; 4], object: &Object, path: &str, errs:
             }
         }
         Some(layout) => {
-            let lim = |key: &str| {
-                layout
-                    .get(key)
-                    .and_then(int_of)
-                    .map(|i| BigUint::from(i as u64))
-            };
+            let lim = |key: &str| layout.get(key).and_then(u64_of).map(BigUint::from);
             if let Some(max) = lim("heap_limit_max") {
                 if budget[1] > max {
                     errs.push(rej(
@@ -343,8 +338,13 @@ pub fn validate_budget(budget: &[BigUint; 4], object: &Object, path: &str, errs:
                     ));
                 }
             }
-            if let Some(s) = layout.get("S_cells").and_then(int_of) {
-                if s < 4096 && budget[2] > (BigUint::from(1u32) << (s as usize)) {
+            if let Some(s) = layout.get("S_cells").and_then(u64_of) {
+                let bits = budget[2].bits();
+                let exceeds = s
+                    .checked_add(1)
+                    .map(|b| bits > b || (bits == b && budget[2] > (BigUint::from(1u32) << s)))
+                    .unwrap_or(false);
+                if exceeds {
                     errs.push(rej(
                         "E_CERT_INVOCATION",
                         "§5.4",
@@ -1027,7 +1027,23 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     }
 
     // Root invocation (required for a scheduled certificate, K13).
-    let root_iface = object.interface(&root.name);
+    let root_iface = match object.interface_host_limit(&root.name) {
+        Ok(Some(limit)) => {
+            verdict.unchecked_items.push(format!(
+                "unchecked (host limit): {} (§12.2)",
+                limit.quantity
+            ));
+            return finish(verdict);
+        }
+        Err(error) => Err(error),
+        Ok(None) => object.interface(&root.name),
+    };
+    if let Err(error) = &root_iface {
+        verdict
+            .errors
+            .push(rej("E_CERT_OBJECT", "§9.1", "object", error));
+        return finish(verdict);
+    }
     let mut root_invocation: Option<Invocation> = None;
     match bindings.get("invocation") {
         Some(inv) => match &root_iface {

@@ -11,6 +11,7 @@ use crate::object::{Function, Object, Symbol};
 use num_bigint::BigUint;
 use num_traits::{One, Zero};
 use std::collections::{HashMap, HashSet, VecDeque};
+mod procedures;
 
 #[derive(Debug)]
 pub enum EvalError {
@@ -27,10 +28,14 @@ pub fn unchecked<T>(msg: impl Into<String>) -> Result<T, EvalError> {
 }
 
 fn mask(width: u64) -> BigUint {
-    if width >= 1_000_000 {
-        return BigUint::zero();
-    }
     (BigUint::one() << width) - BigUint::one()
+}
+
+fn reference_width(width: u64) -> Result<(), EvalError> {
+    if width >= 1_000_000 {
+        return unchecked("host limit: reference bit-vector width exceeds cap 999999 (§12.2); this is not an ISA width limit");
+    }
+    Ok(())
 }
 
 fn masked(v: &BigUint, width: u64) -> BigUint {
@@ -299,10 +304,16 @@ struct Lifted<'a, 'w> {
     tgt_width: u64,
     depth: usize,
     work: &'w mut u64,
+    oracle_name: String,
+    heap_limit: BigUint,
+    memory: Option<crate::lifted_memory::Memory>,
+    locations: HashSet<String>,
+    fault_width: u64,
 }
 
 /// F_B of an oracle on (ins, mem cells in interface-region order, args)
-/// under `budget`. Memory rows and lift.call/ret are outside the subset.
+/// under `budget`. Memory rows use the independent sparse byte model;
+/// call/return replay currently supports one empty-key lproc, recursively.
 pub fn eval_oracle(
     object: &Object,
     oracle: &Symbol,
@@ -358,6 +369,14 @@ fn eval_oracle_work(
     let iface = object
         .interface(&oracle.name)
         .map_err(EvalError::Unchecked)?;
+    for width in iface
+        .bundles
+        .iter()
+        .map(|b| b.width)
+        .chain(iface.regions.iter().map(|r| r.w))
+    {
+        reference_width(width)?;
+    }
     // Flatten rows in block text order; block first-row indices.
     let blocks = parse_blocks(func);
     let mut rows: Vec<Vec<String>> = Vec::new();
@@ -382,6 +401,16 @@ fn eval_oracle_work(
             .unwrap_or(0),
         depth,
         work,
+        oracle_name: oracle.name.clone(),
+        heap_limit: budget[1].clone(),
+        memory: None,
+        locations: HashSet::new(),
+        fault_width: iface
+            .bundles
+            .iter()
+            .find(|b| b.group == "fault")
+            .expect("oracle fault interface")
+            .width,
     };
     // Declared locations from the regs line.
     for line in func.bytes.split('\n') {
@@ -396,14 +425,24 @@ fn eval_oracle_work(
             if !inner.is_empty() {
                 for decl in inner.split(", ") {
                     if let Some((name, ty)) = decl.trim().split_once(':') {
-                        if let Some(w) = ty
+                        if let Some(digits) = ty
                             .trim()
                             .strip_prefix("reg[")
                             .and_then(|t| t.strip_suffix(']'))
-                            .and_then(|n| n.parse().ok())
                         {
+                            if !crate::rat::is_canonical_uint_str(digits) || digits == "0" {
+                                return Err(EvalError::Reject(Reject::new(
+                                    "E_CERT_OBJECT",
+                                    "§3.3",
+                                    "object",
+                                    "location width must be a positive canonical integer",
+                                )));
+                            }
+                            let w=digits.parse::<u64>().map_err(|_|EvalError::Unchecked("host limit: location width exceeds the u64 reference host representation".into()))?;
+                            reference_width(w)?;
                             env.widths.insert(name.trim().to_string(), w);
                             env.vals.insert(name.trim().to_string(), BigUint::zero());
+                            env.locations.insert(name.trim().to_string());
                         }
                     }
                 }
@@ -434,6 +473,7 @@ fn eval_oracle_work(
                         .and_then(|n| n.parse().ok())
                         .unwrap_or(0)
                 };
+                reference_width(width)?;
                 env.widths.insert(spec.name.clone(), width);
                 env.vals.insert(spec.name.clone(), v.clone());
             }
@@ -449,6 +489,9 @@ fn eval_oracle_work(
     let mut mem_by_name: HashMap<String, Vec<BigUint>> = HashMap::new();
     for (spec, cells) in func.groups[3].iter().zip(mem.iter()) {
         mem_by_name.insert(spec.name.clone(), cells.clone());
+    }
+    if procedures::has_call(&rows) {
+        return procedures::run(&mut env, &rows, &mut mem_by_name, args, budget);
     }
     loop {
         if steps >= *budget_b {
@@ -481,10 +524,100 @@ enum RowFlow {
 }
 
 impl Lifted<'_, '_> {
+    fn fault_cause(&self, text: &str) -> Result<BigUint, EvalError> {
+        let bad = || {
+            EvalError::Reject(Reject::new("E_CERT_OBJECT","§4.2/§5.4","object","fault cause must be a nonnegative canonical literal or standard cause, within the fault width"))
+        };
+        let standard = match text {
+            "FAULT_NONE" => Some(0u32),
+            "FAULT_BUDGET_STEPS" => Some(1),
+            "FAULT_BUDGET_HEAP" => Some(2),
+            "FAULT_BUDGET_DEPTH" => Some(3),
+            "FAULT_UB_TRAP" => Some(4),
+            "FAULT_UB_DIV0" => Some(5),
+            "FAULT_UB_SDIV_OVERFLOW" => Some(6),
+            "FAULT_UB_MEMFAULT" => Some(7),
+            "FAULT_EFFECT_UNMODELLED" => Some(8),
+            "FAULT_CALLEE" => Some(9),
+            "FAULT_ENTROPY_EXHAUSTED" => Some(10),
+            _ => None,
+        };
+        let code = match standard {
+            Some(n) => BigUint::from(n),
+            None => {
+                let digits = text.strip_prefix('-').unwrap_or(text);
+                if !crate::rat::is_canonical_uint_str(digits) {
+                    return Err(bad());
+                }
+                let n = digits.parse::<BigUint>().map_err(|_| bad())?;
+                if text.starts_with('-') && !n.is_zero() {
+                    return Err(bad());
+                }
+                n
+            }
+        };
+        if code.bits() > self.fault_width {
+            return Err(bad());
+        }
+        Ok(if code.is_zero() {
+            BigUint::from(FAULT_UB_TRAP)
+        } else {
+            code
+        })
+    }
+    fn memory(
+        &mut self,
+        mem: &HashMap<String, Vec<BigUint>>,
+    ) -> Result<&mut crate::lifted_memory::Memory, EvalError> {
+        if self.memory.is_none() {
+            self.memory = Some(crate::lifted_memory::Memory::new(
+                self.object,
+                &self.oracle_name,
+                mem,
+                &self.heap_limit,
+            )?);
+        }
+        Ok(self.memory.as_mut().unwrap())
+    }
+    fn pointer(&self, name: &str) -> Result<BigUint, EvalError> {
+        if self.width_of(name)? != self.object.header.ptr_width {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                "memory address is not a pointer-width location",
+            )));
+        }
+        self.read(name)
+    }
+    fn memory_length(&self, token: &str) -> Result<BigUint, EvalError> {
+        if self.vals.contains_key(token) {
+            return self.read(token);
+        }
+        let digits = token.strip_prefix('-').unwrap_or(token);
+        let value = digits.parse::<BigUint>().ok().filter(|v| {
+            crate::rat::is_canonical_uint_str(digits)
+                && (!token.starts_with('-') || v.is_zero())
+                && v.bits() <= self.object.header.ptr_width
+        });
+        value.ok_or_else(|| {
+            EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                "memory length literal is not canonical or exceeds pointer width",
+            ))
+        })
+    }
     fn width_of(&self, name: &str) -> Result<u64, EvalError> {
         self.widths.get(name).copied().ok_or_else(|| {
-            EvalError::Unchecked(format!(
-                "location {name:?} has no declared width in this subset"
+            EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.7",
+                "object",
+                format!(
+                    "operand {name:?} is not a declared bit-vector location or pseudo-location"
+                ),
             ))
         })
     }
@@ -495,9 +628,12 @@ impl Lifted<'_, '_> {
         if let Ok(lit) = tok.parse::<BigUint>() {
             return Ok(lit);
         }
-        unchecked(format!(
-            "operand {tok:?} is not a location known to this subset"
-        ))
+        Err(EvalError::Reject(Reject::new(
+            "E_CERT_OBJECT",
+            "§3.7",
+            "object",
+            format!("operand {tok:?} is not a declared bit-vector location or pseudo-location"),
+        )))
     }
     fn write(&mut self, name: &str, v: BigUint, width: u64) {
         self.widths.insert(name.to_string(), width);
@@ -548,6 +684,65 @@ impl Lifted<'_, '_> {
                 "lifted row {what} is outside this checker's F_B subset"
             ))
         };
+        let bad = || {
+            EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3/§3.7",
+                "object",
+                "lifted result/operand locations, widths or labels do not match the opcode schema",
+            ))
+        };
+        if let Some(names) = &lhs {
+            if names.is_empty() || names.iter().any(|n| !self.locations.contains(n)) {
+                return Err(bad());
+            }
+        }
+        let memory_shape = match op {
+            "lift.addr" | "lift.alloc" => Some((true, 1)),
+            "lift.free" => Some((false, 1)),
+            "lift.boundscheck" => Some((false, 2)),
+            "lift.label" | "lift.mov" => Some((true, 1)),
+            "qjump" | "qjumpr" => Some((false, 1)),
+            "qbranch" => Some((false, 3)),
+            "lift.select" => Some((true, 3)),
+            "fault" => Some((false, 1)),
+            "lift.faultif" => Some((false, 2)),
+            op if [
+                "lift.add",
+                "lift.sub",
+                "lift.mul",
+                "lift.and",
+                "lift.or",
+                "lift.xor",
+                "lift.shl",
+                "lift.lshr",
+                "lift.ashr",
+                "lift.udiv",
+                "lift.urem",
+                "lift.sdiv",
+                "lift.srem",
+            ]
+            .contains(&op)
+                || op.starts_with("lift.icmp.") =>
+            {
+                Some((true, 2))
+            }
+            op if op.starts_with("lift.load.") => Some((true, 1)),
+            op if op.starts_with("lift.store.") => Some((false, 2)),
+            _ => None,
+        };
+        if let Some((assigned, count)) = memory_shape {
+            if operands.len() != count
+                || lhs.as_ref().map(Vec::len) != if assigned { Some(1) } else { None }
+            {
+                return Err(EvalError::Reject(Reject::new(
+                    "E_CERT_OBJECT",
+                    "§4.2",
+                    "object",
+                    "lifted row has the wrong assignment/operand arity",
+                )));
+            }
+        }
         match op.split('.').take(2).collect::<Vec<_>>().join(".").as_str() {
             _ if op.starts_with("lift.const") => {
                 let bad = || {
@@ -558,9 +753,9 @@ impl Lifted<'_, '_> {
                 };
                 let width = op
                     .strip_prefix("lift.const.i")
-                    .filter(|s| crate::rat::is_canonical_uint_str(s) && *s!="0")
+                    .filter(|s| crate::rat::is_canonical_uint_str(s) && *s != "0")
                     .ok_or_else(bad)?;
-                let Some(n)=width.parse::<u64>().ok().filter(|n|*n<1_000_000) else {
+                let Some(n) = width.parse::<u64>().ok().filter(|n| *n < 1_000_000) else {
                     return unchecked("host limit: lifted constant width exceeds the reference bit-vector cap 999999 (§12.2); lifted widths have no ISA upper bound (§4.2)");
                 };
                 let dest = lhs.as_ref().filter(|v| v.len() == 1).ok_or_else(bad)?;
@@ -581,12 +776,12 @@ impl Lifted<'_, '_> {
                 self.write(&dest[0], bigint_to_masked(v, n), n);
                 Ok(RowFlow::Next)
             }
-            _ if op.starts_with("lift.label") => {
+            _ if op == "lift.label" => {
                 let target = operands
                     .first()
-                    .map(|x| x.trim_start_matches('^'))
+                    .and_then(|x| x.strip_prefix('^'))
                     .unwrap_or("");
-                let idx = *block_first.get(target).unwrap_or(&0);
+                let idx = *block_first.get(target).ok_or_else(bad)?;
                 let name = lhs.unwrap()[0].clone();
                 let w = self.width_of(&name)?;
                 self.write(&name, BigUint::from(idx), w);
@@ -595,26 +790,173 @@ impl Lifted<'_, '_> {
             _ if op == "lift.mov" => {
                 let v = self.read(&operands[0])?;
                 let name = lhs.unwrap()[0].clone();
-                let w = self.width_of(&operands[0]).unwrap_or(0);
+                let w = self.width_of(&operands[0])?;
+                if self.width_of(&name)? != w {
+                    return Err(bad());
+                }
                 self.write(&name, v, w);
                 Ok(RowFlow::Next)
             }
+            _ if op == "lift.addr" => {
+                let destination = &lhs
+                    .as_ref()
+                    .ok_or_else(|| EvalError::Unchecked("lift.addr has no destination".into()))?[0];
+                if self.width_of(destination)? != self.object.header.ptr_width {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.3",
+                        "object",
+                        "lift.addr destination has wrong width",
+                    )));
+                }
+                let name = operands[0].strip_prefix('@').ok_or_else(|| {
+                    EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.2",
+                        "object",
+                        "lift.addr requires an @name operand",
+                    ))
+                })?;
+                let base = self.memory(mem_by_name)?.address(name).ok_or_else(|| {
+                    EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.2",
+                        "object",
+                        "lift.addr does not name a global or mapped region of this oracle",
+                    ))
+                })?;
+                self.write(destination, base.into(), self.object.header.ptr_width);
+                Ok(RowFlow::Next)
+            }
+            _ if op == "lift.alloc" => {
+                let size = self.memory_length(&operands[0])?;
+                let destination = &lhs
+                    .as_ref()
+                    .ok_or_else(|| EvalError::Unchecked("lift.alloc has no destination".into()))?
+                    [0];
+                if self.width_of(destination)? != self.object.header.ptr_width {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.3",
+                        "object",
+                        "lift.alloc destination has wrong width",
+                    )));
+                }
+                match self.memory(mem_by_name)?.allocate(&size)? {
+                    Some(base) => {
+                        self.write(destination, base.into(), self.object.header.ptr_width);
+                        Ok(RowFlow::Next)
+                    }
+                    None => Ok(fault(FAULT_BUDGET_HEAP)),
+                }
+            }
+            _ if op == "lift.free" => {
+                let address = self.pointer(&operands[0])?;
+                if self.memory(mem_by_name)?.free(&address) {
+                    Ok(RowFlow::Next)
+                } else {
+                    Ok(fault(FAULT_UB_MEMFAULT))
+                }
+            }
+            _ if op == "lift.boundscheck" => {
+                let address = self.pointer(&operands[0])?;
+                let size = self.memory_length(&operands[1])?;
+                if self.memory(mem_by_name)?.inrange(&address, &size) {
+                    Ok(RowFlow::Next)
+                } else {
+                    Ok(fault(FAULT_UB_MEMFAULT))
+                }
+            }
+            _ if op.starts_with("lift.load.") || op.starts_with("lift.store.") => {
+                let width = op
+                    .rsplit_once(".i")
+                    .filter(|(_, n)| crate::rat::is_canonical_uint_str(n))
+                    .and_then(|(_, n)| n.parse::<u64>().ok())
+                    .filter(|n| *n >= 8 && *n <= 128 && *n % 8 == 0)
+                    .ok_or_else(|| {
+                        EvalError::Reject(Reject::new(
+                            "E_CERT_OBJECT",
+                            "§4.2",
+                            "object",
+                            "load/store width must be a multiple of eight from 8 through 128",
+                        ))
+                    })?;
+                let address = self.pointer(&operands[0])?;
+                let bytes = (width / 8) as usize;
+                let register = if op.starts_with("lift.load.") {
+                    &lhs.as_ref().ok_or_else(|| {
+                        EvalError::Unchecked("lift.load has no destination".into())
+                    })?[0]
+                } else {
+                    &operands[1]
+                };
+                if self.width_of(register)? != width {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.3",
+                        "object",
+                        "load/store value location has wrong width",
+                    )));
+                }
+                if !self
+                    .memory(mem_by_name)?
+                    .inrange(&address, &BigUint::from(bytes))
+                {
+                    return Ok(fault(FAULT_UB_MEMFAULT));
+                }
+                if op.starts_with("lift.load.") {
+                    let value = self.memory(mem_by_name)?.load(&address, bytes, mem_by_name);
+                    self.write(register, value, width);
+                } else {
+                    let value = self.read(register)?;
+                    if !self
+                        .memory(mem_by_name)?
+                        .store(&address, &value, bytes, mem_by_name)?
+                    {
+                        return Ok(fault(FAULT_UB_MEMFAULT));
+                    }
+                }
+                Ok(RowFlow::Next)
+            }
             _ if op == "lift.parmov" => {
+                if operands.len() != 1 || !toks[0].starts_with('(') || !operands[0].starts_with('(')
+                {
+                    return Err(bad());
+                }
                 let names = lhs.unwrap();
-                let srcs: Vec<BigUint> = operands
+                if names.iter().collect::<HashSet<_>>().len() != names.len() {
+                    return Err(bad());
+                }
+                let sources = list_items(&operands[0]);
+                if names.len() != sources.len() {
+                    return Err(bad());
+                }
+                let srcs: Vec<BigUint> = sources
                     .iter()
                     .map(|o| self.read(o))
                     .collect::<Result<_, _>>()?;
-                let widths: Vec<u64> = operands
+                let widths: Vec<u64> = sources
                     .iter()
-                    .map(|o| self.width_of(o).unwrap_or(0))
-                    .collect();
+                    .map(|o| self.width_of(o))
+                    .collect::<Result<_, _>>()?;
+                for (name, width) in names.iter().zip(&widths) {
+                    if self.width_of(name)? != *width {
+                        return Err(bad());
+                    }
+                }
                 for ((n, v), w) in names.into_iter().zip(srcs).zip(widths) {
                     self.write(&n, v, w);
                 }
                 Ok(RowFlow::Next)
             }
-            _ if op.starts_with("lift.select") => {
+            _ if op == "lift.select" => {
+                let w = self.width_of(&operands[1])?;
+                if self.width_of(&operands[0])? != 1
+                    || self.width_of(&operands[2])? != w
+                    || self.width_of(&lhs.as_ref().unwrap()[0])? != w
+                {
+                    return Err(bad());
+                }
                 let p = self.read(&operands[0])?;
                 let v = if p == BigUint::one() {
                     self.read(&operands[1])?
@@ -622,7 +964,6 @@ impl Lifted<'_, '_> {
                     self.read(&operands[2])?
                 };
                 let name = lhs.unwrap()[0].clone();
-                let w = self.width_of(&operands[1]).unwrap_or(0);
                 self.write(&name, v, w);
                 Ok(RowFlow::Next)
             }
@@ -630,11 +971,35 @@ impl Lifted<'_, '_> {
                 || op.starts_with("lift.sext")
                 || op.starts_with("lift.trunc") =>
             {
-                let m: u64 = op
-                    .rsplit('i')
-                    .next()
-                    .and_then(|x| x.parse().ok())
-                    .unwrap_or(0);
+                let bad = || {
+                    EvalError::Reject(Reject::new("E_CERT_OBJECT","§3.3","object","cast requires one declared source/destination with matching positive result width and the specified widening/narrowing relation"))
+                };
+                let digits = ["lift.zext.i", "lift.sext.i", "lift.trunc.i"]
+                    .iter()
+                    .find_map(|p| op.strip_prefix(p))
+                    .filter(|s| crate::rat::is_canonical_uint_str(s) && *s != "0")
+                    .ok_or_else(bad)?;
+                let m = digits.parse::<u64>().map_err(|_| {
+                    EvalError::Unchecked(
+                        "host limit: cast width exceeds the u64 reference host representation"
+                            .into(),
+                    )
+                })?;
+                reference_width(m)?;
+                if operands.len() != 1 || lhs.as_ref().map(Vec::len) != Some(1) {
+                    return Err(bad());
+                }
+                let destination = &lhs.as_ref().unwrap()[0];
+                let w = self.width_of(&operands[0]).map_err(|_| bad())?;
+                if self.width_of(destination).map_err(|_| bad())? != m
+                    || if op.starts_with("lift.trunc.") {
+                        m >= w
+                    } else {
+                        m <= w
+                    }
+                {
+                    return Err(bad());
+                }
                 let v = self.read(&operands[0])?;
                 let out = if op.contains("sext") {
                     let w = self.width_of(&operands[0])?;
@@ -646,11 +1011,16 @@ impl Lifted<'_, '_> {
                 self.write(&lhs.unwrap()[0], out, m);
                 Ok(RowFlow::Next)
             }
-            _ if op.starts_with("lift.icmp") => {
+            _ if op.starts_with("lift.icmp.") => {
                 let pred = op.rsplit('.').next().unwrap_or("");
                 let a = self.read(&operands[0])?;
                 let b = self.read(&operands[1])?;
-                let w = self.width_of(&operands[0]).unwrap_or(0);
+                let w = self.width_of(&operands[0])?;
+                if self.width_of(&operands[1])? != w
+                    || self.width_of(&lhs.as_ref().unwrap()[0])? != 1
+                {
+                    return Err(bad());
+                }
                 let (sa, sb) = (self.signed(&a, w), self.signed(&b, w));
                 let r = match pred {
                     "eq" => a == b,
@@ -668,15 +1038,16 @@ impl Lifted<'_, '_> {
                 );
                 Ok(RowFlow::Next)
             }
-            _ if op.starts_with("lift.udiv")
-                || op.starts_with("lift.urem")
-                || op.starts_with("lift.sdiv")
-                || op.starts_with("lift.srem") =>
-            {
+            _ if matches!(op, "lift.udiv" | "lift.urem" | "lift.sdiv" | "lift.srem") => {
                 let a = self.read(&operands[0])?;
                 let b = self.read(&operands[1])?;
                 let w = self.width_of(&operands[0])?;
                 let signed = op.contains("sdiv") || op.contains("srem");
+                if self.width_of(&operands[1])? != w
+                    || self.width_of(&lhs.as_ref().unwrap()[0])? != w
+                {
+                    return Err(bad());
+                }
                 if b.is_zero() {
                     return Ok(fault(FAULT_UB_DIV0));
                 }
@@ -710,27 +1081,21 @@ impl Lifted<'_, '_> {
                     code: BigUint::zero(),
                 }))
             }
-            _ if op == "fault" => {
-                let c: u64 = operands.first().and_then(|x| x.parse().ok()).unwrap_or(0);
-                Ok(fault(if c == 0 { FAULT_UB_TRAP } else { c }))
-            }
+            _ if op == "fault" => Ok(RowFlow::Halt(OracleOutcome {
+                payload: BigUint::zero(),
+                code: self.fault_cause(&operands[0])?,
+            })),
             _ if op == "lift.faultif" => {
+                if self.width_of(&operands[0])? != 1 {
+                    return Err(bad());
+                }
+                let cause = self.fault_cause(&operands[1])?;
                 let p = self.read(&operands[0])?;
                 if p == BigUint::one() {
-                    let code_tok = operands.get(1).cloned().unwrap_or_default();
-                    let c: u64 = match code_tok.as_str() {
-                        "FAULT_BUDGET_STEPS" => 1,
-                        "FAULT_BUDGET_HEAP" => FAULT_BUDGET_HEAP,
-                        "FAULT_BUDGET_DEPTH" => FAULT_BUDGET_DEPTH,
-                        "FAULT_UB_TRAP" => FAULT_UB_TRAP,
-                        "FAULT_UB_DIV0" => FAULT_UB_DIV0,
-                        "FAULT_UB_SDIV_OVERFLOW" => FAULT_UB_SDIV_OVERFLOW,
-                        "FAULT_UB_MEMFAULT" => FAULT_UB_MEMFAULT,
-                        "FAULT_EFFECT_UNMODELLED" => 8,
-                        "FAULT_CALLEE" => 9,
-                        other => other.parse().unwrap_or(FAULT_UB_TRAP),
-                    };
-                    Ok(fault(if c == 0 { FAULT_UB_TRAP } else { c }))
+                    Ok(RowFlow::Halt(OracleOutcome {
+                        payload: BigUint::zero(),
+                        code: cause,
+                    }))
                 } else {
                     Ok(RowFlow::Next)
                 }
@@ -742,7 +1107,7 @@ impl Lifted<'_, '_> {
                     .unwrap_or("");
                 match block_first.get(target) {
                     Some(i) => Ok(RowFlow::Jump(*i)),
-                    None => unchecked(format!("qjump to unknown block ^{target}")),
+                    None => Err(bad()),
                 }
             }
             _ if op == "qbranch" => {
@@ -760,7 +1125,7 @@ impl Lifted<'_, '_> {
                     .unwrap_or("");
                 match block_first.get(name) {
                     Some(i) => Ok(RowFlow::Jump(*i)),
-                    None => unchecked(format!("qbranch to unknown block ^{name}")),
+                    None => Err(bad()),
                 }
             }
             _ if op == "qjumpr" => {
@@ -893,6 +1258,11 @@ impl Lifted<'_, '_> {
                 let a = self.read(&operands[0])?;
                 let b = self.read(&operands[1])?;
                 let w = self.width_of(&operands[0])?;
+                if self.width_of(&operands[1])? != w
+                    || self.width_of(&lhs.as_ref().unwrap()[0])? != w
+                {
+                    return Err(bad());
+                }
                 let r = binop(base, &a, &b, w, |v| self.signed(v, w));
                 self.write(&lhs.unwrap()[0], r, w);
                 Ok(RowFlow::Next)
@@ -1059,6 +1429,22 @@ struct ActionEnv<'a, 'w> {
 }
 
 impl ActionEnv<'_, '_> {
+    fn storage_room(&self, wires: usize, cells: usize, width: u64) -> Result<(), EvalError> {
+        reference_width(width)?;
+        let live_wires: u128 = self.wires.values().map(|v| v.len() as u128).sum();
+        let live_regions: u128 = self
+            .regions
+            .iter()
+            .map(|(name, v)| v.len() as u128 * u128::from(self.region_width[name]))
+            .sum();
+        let total = live_wires + live_regions + wires as u128 + cells as u128 * u128::from(width);
+        if total >= 1_000_000 {
+            return unchecked(
+                "host limit: reference live wire/region storage exceeds cap 999999 bits (§12.2)",
+            );
+        }
+        Ok(())
+    }
     fn single_wire(&self, token: &str) -> Result<(String, usize), EvalError> {
         let (name, index) = wire_ref(token);
         if token.contains('[') && (index.is_none() || !token.ends_with(']')) {
@@ -1229,6 +1615,7 @@ impl ActionEnv<'_, '_> {
                     .get(1)
                     .and_then(|x| x.parse().ok())
                     .ok_or_else(|| EvalError::Unchecked("qalloc count is not a literal".into()))?;
+                self.storage_room(n, 0, 0)?;
                 self.wires.insert(name.clone(), vec![false; n]);
                 self.live_alloc.insert(name);
                 Ok(())
@@ -1282,6 +1669,7 @@ impl ActionEnv<'_, '_> {
             "qcopy" => {
                 let dst = lhs.ok_or_else(|| EvalError::Unchecked("qcopy without result".into()))?;
                 let src = self.wires.get(&operands[0]).cloned().unwrap_or_default();
+                self.storage_room(src.len(), 0, 0)?;
                 let on = self.controls_on()?;
                 self.wires
                     .insert(dst.clone(), if on { src } else { vec![false; src.len()] });
@@ -1351,10 +1739,12 @@ impl ActionEnv<'_, '_> {
                 let w: u64 = operands[2]
                     .parse()
                     .map_err(|_| EvalError::Unchecked("qregion W not literal".into()))?;
+                reference_width(w)?;
                 if a > 20 {
                     return unchecked(format!("local region[2^{a}] exceeds replay cap"));
                 }
                 let cells = 1usize << a;
+                self.storage_room(0, cells, w)?;
                 let mut values = vec![BigUint::zero(); cells];
                 if let Some(img) = operands.get(3) {
                     let data_name = img.trim_start_matches('@');
@@ -1385,6 +1775,7 @@ impl ActionEnv<'_, '_> {
                 let dst = lhs.ok_or_else(|| EvalError::Unchecked("qload without result".into()))?;
                 let idx = self.address_index(&operands[0], &operands[1])?;
                 let w = self.region_width[&operands[0]];
+                self.storage_room(w as usize, 0, 0)?;
                 let v = if self.controls_on()? {
                     self.regions[&operands[0]][idx].clone()
                 } else {
@@ -1922,6 +2313,25 @@ fn eval_action_tuple_work(
     if depth > 64 {
         return unchecked("action call depth exceeds this checker's replay cap (64)");
     }
+    let mut initial_bits = inherited_controls as u128;
+    for width in iface
+        .bundles
+        .iter()
+        .map(|b| b.width)
+        .chain(iface.borrowed_widths.iter().copied())
+    {
+        reference_width(width)?;
+        initial_bits += u128::from(width);
+    }
+    for (region, cells) in iface.regions.iter().zip(&before.regions) {
+        reference_width(region.w)?;
+        initial_bits += u128::from(region.w) * cells.len() as u128;
+    }
+    if initial_bits >= 1_000_000 {
+        return unchecked(
+            "host limit: reference interface storage exceeds cap 999999 bits (§12.2)",
+        );
+    }
     if symbol.kind != "perm_action" && crate::coherent::needed(object, symbol) {
         return crate::coherent::eval(
             object,
@@ -1978,7 +2388,11 @@ fn eval_action_tuple_work(
         env.args.insert(spec.name.clone(), value.clone());
     }
     // Also map args by the signature order for lifted call lookup parity.
-    for (_, stmts) in parse_blocks(func) {
+    let mut blocks = parse_blocks(func);
+    if adjoint {
+        blocks.reverse();
+    }
+    for (_, stmts) in blocks {
         let stmts = if adjoint {
             adjoint_stmts(&stmts)?
         } else {

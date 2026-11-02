@@ -814,7 +814,16 @@ fn scheme_covers(scheme: &Value, gate: &Gate) -> bool {
     scheme.get("realises").map(|r| {
         r.get("op").and_then(Value::as_str) == Some(gate.realised_opcode())
             && control_range(r, gate.controls.len() as u64)
+            && parameters_cover(r, gate)
     }) == Some(true)
+}
+fn parameters_cover(entry: &Value, gate: &Gate) -> bool {
+    let params = entry.get("params").and_then(Value::as_arr).unwrap_or(&[]);
+    if gate.angle_bits.is_some() {
+        params.len() == 1 && params[0].as_str() == Some("theta")
+    } else {
+        params.is_empty()
+    }
 }
 enum Choice<'a> {
     Native(&'a Value),
@@ -857,6 +866,9 @@ fn select<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Choice<'a>> {
     let gates = target.get("gates").and_then(Value::as_arr).unwrap_or(&[]);
     for entry in gates {
         if entry.get("op").and_then(Value::as_str) != Some(gate.realised_opcode()) {
+            continue;
+        }
+        if !parameters_cover(entry, gate) {
             continue;
         }
         let count = gate.controls.len() as u64;
@@ -994,10 +1006,18 @@ pub(crate) fn realised_leaf<'g>(docs: &LoadedDocs, gate: &'g Gate) -> Result<Cow
         Choice::Native(_) => return Ok(Cow::Borrowed(gate)),
         Choice::Scheme(scheme) => scheme,
     };
-    let vars = HashMap::from([
+    let mut vars = HashMap::from([
         ("k", Rat::from_integer(gate.own_controls.into())),
         ("c", Rat::from_integer(gate.controls.len().into())),
     ]);
+    if let Some(bits) = gate.angle_bits {
+        vars.insert(
+            "theta",
+            crate::transcendental::binary64_rational(bits).map_err(|message| {
+                ClaimOutcome::rejected(vec![rej("E_CERT_OBJECT", "§3.1", "object", message)])
+            })?,
+        );
+    }
     let count = scheme_expr(
         scheme
             .get("ancillae")

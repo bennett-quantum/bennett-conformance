@@ -1,0 +1,22 @@
+bennett-object isa=0.9 object=0.9 launch=0.9 sched=0.9 cert=0.9 coverage=0.9 target=0.9 ptr_width=8
+
+section symbols
+{"0":{"interface_hash":"df9b4e3c29f28eab28a8a487f1b3908258e34e7d64dfac9002c9a5b861acbec2","kind":"oracle","name":"o","signature":{"abi":"0.9","args":[],"fault":4,"in":[4],"kind":"oracle","mem":[],"tgt":4,"tier":"q"}},"1":{"interface_hash":"e891f30363ff5f7e6bf6c72b5a93ff2a569c197b89cc9f56986259cc8ceafe54","kind":"data","name":"g","signature":{"abi":"0.9","kind":"data","size":2,"tier":"-"}}}
+
+section functions
+oracle @o (x0:wire[4] in) (t:wire[4]) (f:wire[4]) () ()
+regs { n:reg[8], p:reg[8], v:reg[8], w:reg[8], r:reg[4] }
+^entry():
+n = lift.const.i8 1
+p = lift.alloc n
+w = lift.zext.i8 x0
+lift.store.i8 p w
+v = lift.load.i8 p
+r = lift.trunc.i4 v
+lift.retval r
+
+section data
+g 0a0b
+
+section layout
+{"A_tab":2,"H":6,"S_cells":5,"globals":{"g":{"base":4,"image":"g","size":2}},"heap_base":16,"heap_limit_max":32,"interface_regions":{},"null_size":4,"ptr_width":8}

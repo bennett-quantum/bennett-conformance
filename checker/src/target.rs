@@ -227,13 +227,23 @@ impl Check<'_> {
             }
         }
         let a = v.get("ancillae").unwrap();
+        let parametric = realises
+            .get("params")
+            .and_then(Value::as_arr)
+            .map(|a| a.len() == 1 && a[0].as_str() == Some("theta"))
+            == Some(true);
+        let scheme_vars = if parametric {
+            &["k", "c", "theta"][..]
+        } else {
+            &["k", "c"][..]
+        };
         if self.object(
             a,
             &["count", "state", "class"],
             &["count", "state", "class"],
             p,
         ) {
-            self.expression(a.get("count").unwrap(), &["k", "c"], p);
+            self.expression(a.get("count").unwrap(), scheme_vars, p);
             self.class(a.get("class"), p, false);
             if !matches!(
                 a.get("state").and_then(Value::as_str),
@@ -264,14 +274,21 @@ impl Check<'_> {
                             self.bad(p, "template repeat binds i");
                         }
                         for key in ["from", "to"] {
-                            self.expression(repeat.get(key).unwrap(), &["k", "c"], p);
+                            self.expression(repeat.get(key).unwrap(), scheme_vars, p);
                         }
                     }
                 }
                 if let Some(params) = leaf.get("params") {
+                    let mut vars = Vec::new();
+                    if parametric {
+                        vars.push("theta");
+                    }
+                    if leaf.get("repeat").is_some() {
+                        vars.push("i");
+                    }
                     if let Some(params) = self.array(Some(params), p) {
                         for param in params {
-                            self.expression(param, &["theta", "i"], p);
+                            self.expression(param, &vars, p);
                         }
                     }
                 }

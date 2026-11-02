@@ -32,6 +32,26 @@ fn negative_literal_witness_replays_all_sixteen_rows() {
     assert_eq!(claim.elements.as_deref(), Some("16"));
     assert_eq!(claim.covered_fraction.as_deref(), Some("1/256"));
 }
+
+#[test]
+fn heap_store_load_witness_replays_all_sixteen_rows() {
+    let verdict = check_certificate(&witness("oracle-store-load-heap"));
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    let claim = &verdict.regions[0].claims[0].1;
+    assert_eq!(claim.outcome, "evidence", "{claim:?}");
+    assert_eq!(claim.elements.as_deref(), Some("16"));
+    assert_eq!(claim.covered_fraction.as_deref(), Some("1/256"));
+}
+
+#[test]
+fn recursive_lproc_witness_replays_all_sixteen_rows() {
+    let verdict = check_certificate(&witness("lproc-recursive-sum"));
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    let claim = &verdict.regions[0].claims[0].1;
+    assert_eq!(claim.outcome, "evidence", "{claim:?}");
+    assert_eq!(claim.elements.as_deref(), Some("16"));
+    assert_eq!(claim.covered_fraction.as_deref(), Some("1/256"));
+}
 #[test]
 fn arithmetic_shift_witness_replays_all_256_rows() {
     let verdict = check_certificate(&witness("ashr-shift-ge-n"));
@@ -137,16 +157,212 @@ fn invalid_constant_literals_never_default_to_zero_or_wrap() {
 
 #[test]
 fn lifted_constants_are_not_limited_to_the_classical_128_bit_widths() {
-    for width in [129,256,1024,1_000_001] {
+    for width in [129, 256, 1024, 1_000_001] {
         let source=format!("oracle @o () (t:wire) (f:wire[4]) () ()\nregs {{ c:reg[{width}], r:reg[1] }}\n^entry():\nc = lift.const.i{width} -1\nr = lift.trunc.i1 c\nlift.retval r");
-        let (inputs,_)=standalone(&source,r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,"o",vec![]);
-        let object=Object::parse(&inputs.object_text).unwrap();
-        let result=eval_oracle(&object,object.symbol("o").unwrap(),&[],&[],&[],&[3u32.into(),0u32.into(),0u32.into(),0u32.into()],0);
-        if width>1_000_000 {
-            assert!(matches!(result,Err(EvalError::Unchecked(reason))if reason.contains("host limit")));
-        }else{
-            let result=result.unwrap();assert_eq!(result.payload,BigUint::from(1u32));assert_eq!(result.code,BigUint::from(0u32));
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,
+            "o",
+            vec![],
+        );
+        let object = Object::parse(&inputs.object_text).unwrap();
+        let result = eval_oracle(
+            &object,
+            object.symbol("o").unwrap(),
+            &[],
+            &[],
+            &[],
+            &[3u32.into(), 0u32.into(), 0u32.into(), 0u32.into()],
+            0,
+        );
+        if width > 1_000_000 {
+            assert!(
+                matches!(result,Err(EvalError::Unchecked(reason))if reason.contains("host limit"))
+            );
+        } else {
+            let result = result.unwrap();
+            assert_eq!(result.payload, BigUint::from(1u32));
+            assert_eq!(result.code, BigUint::from(0u32));
         }
+    }
+}
+
+#[test]
+fn lifted_parallel_moves_capture_all_sources_before_any_write() {
+    let source="oracle @o (x:wire[4] in) (t:wire[4]) (f:wire[4]) () ()\nregs { a:reg[4], b:reg[4], r:reg[4] }\n^entry():\na = lift.const.i4 1\nb = lift.const.i4 2\n(a, b) = lift.parmov (b, a)\nr = lift.sub b a\nlift.retval r";
+    let (inputs, _) = standalone(
+        source,
+        r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[4],"kind":"oracle","mem":[],"tgt":4,"tier":"q"}}"#,
+        "o",
+        vec![],
+    );
+    let object = Object::parse(&inputs.object_text).unwrap();
+    let result = eval_oracle(
+        &object,
+        object.symbol("o").unwrap(),
+        &[0u32.into()],
+        &[],
+        &[],
+        &[5u32.into(), 0u32.into(), 0u32.into(), 0u32.into()],
+        0,
+    )
+    .unwrap();
+    assert_eq!(result.payload, BigUint::from(15u32));
+    assert_eq!(result.code, BigUint::from(0u32));
+}
+
+#[test]
+fn invalid_lifted_destinations_widths_and_labels_reject_instead_of_defaulting() {
+    for body in [
+        "x = lift.const.i4 0\nlift.retval x",
+        "r = lift.label ^missing\nlift.retval r",
+        "qjump ^missing",
+        "p = lift.const.i1 1\nqbranch p ^missing ^entry",
+        "p = lift.add x x\nlift.retval x",
+        "p = lift.mov x\nlift.retval x",
+        "(r, r) = lift.parmov (x, x)\nlift.retval r",
+    ] {
+        let source=format!("oracle @o (x:wire[4] in) (t:wire[4]) (f:wire[4]) () ()\nregs {{ r:reg[4], p:reg[1] }}\n^entry():\n{body}");
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[4],"kind":"oracle","mem":[],"tgt":4,"tier":"q"}}"#,
+            "o",
+            vec![],
+        );
+        let object = Object::parse(&inputs.object_text).unwrap();
+        let result = eval_oracle(
+            &object,
+            object.symbol("o").unwrap(),
+            &[3u32.into()],
+            &[],
+            &[],
+            &[10u32.into(), 0u32.into(), 0u32.into(), 0u32.into()],
+            0,
+        );
+        assert!(
+            matches!(result,Err(EvalError::Reject(ref error))if error.code=="E_CERT_OBJECT"),
+            "{body}"
+        );
+    }
+}
+
+#[test]
+fn permutation_adjoints_reverse_block_order_on_all_twelve_controlled_basis_inputs() {
+    use bennett_cert_checker::domain::Tuple;
+    use bennett_cert_checker::eval::eval_action_tuple;
+    let (inputs, _) = standalone(
+        "perm_action @a (t:wire mut, u:wire mut) () () () ()\n^first():\nx t\n^second():\ncx t u",
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1,1],"tier":"q"}}"#,
+        "a",
+        vec![],
+    );
+    let object = Object::parse(&inputs.object_text).unwrap();
+    let symbol = object.symbol("a").unwrap();
+    let iface = object.interface("a").unwrap();
+    let mut cases = 0;
+    for control in [None, Some(0u32), Some(1)] {
+        for t in 0u32..2 {
+            for u in 0u32..2 {
+                let bundles = control
+                    .into_iter()
+                    .chain([t, u])
+                    .map(BigUint::from)
+                    .collect();
+                let before = Tuple {
+                    bundles,
+                    borrowed: vec![],
+                    regions: vec![],
+                    args: vec![],
+                };
+                let inherited = usize::from(control.is_some());
+                let forward =
+                    eval_action_tuple(&object, symbol, &iface, &before, &[], inherited, false, 0)
+                        .unwrap();
+                let restored =
+                    eval_action_tuple(&object, symbol, &iface, &forward, &[], inherited, true, 0)
+                        .unwrap();
+                assert_eq!(restored, before, "control={control:?},t={t},u={u}");
+                cases += 1;
+            }
+        }
+    }
+    assert_eq!(cases, 12);
+}
+
+#[test]
+fn lifted_fault_causes_preserve_all_declared_bits_and_standard_names() {
+    let large: BigUint = BigUint::from(1u32) << 100usize;
+    for (body, width, want) in [
+        (format!("fault {large}"), 128, large.clone()),
+        ("fault 0".into(), 4, BigUint::from(4u32)),
+        (
+            format!("p = lift.const.i1 1\nlift.faultif p {large}\nlift.retval p"),
+            128,
+            large,
+        ),
+        (
+            "p = lift.const.i1 1\nlift.faultif p FAULT_ENTROPY_EXHAUSTED\nlift.retval p".into(),
+            4,
+            BigUint::from(10u32),
+        ),
+    ] {
+        let source = format!(
+            "oracle @o () (t:wire) (f:wire[{width}]) () ()\nregs {{ p:reg[1] }}\n^entry():\n{body}"
+        );
+        let (inputs, _) = standalone(
+            &source,
+            &format!(
+                r#"{{"o":{{"abi":"0.9","args":[],"fault":{width},"in":[],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}}}"#
+            ),
+            "o",
+            vec![],
+        );
+        let object = Object::parse(&inputs.object_text).unwrap();
+        let result = eval_oracle(
+            &object,
+            object.symbol("o").unwrap(),
+            &[],
+            &[],
+            &[],
+            &[10u32.into(), 0u32.into(), 0u32.into(), 0u32.into()],
+            0,
+        )
+        .unwrap();
+        assert_eq!(result.code, want, "{body}");
+        assert_eq!(result.payload, BigUint::from(0u32));
+    }
+}
+
+#[test]
+fn ill_formed_fault_literals_reject_even_when_the_predicate_is_false() {
+    for body in [
+        "fault unknown_cause",
+        "fault 16",
+        "p = lift.const.i1 0\nlift.faultif p 16\nlift.retval p",
+    ] {
+        let source = format!(
+            "oracle @o () (t:wire) (f:wire[4]) () ()\nregs {{ p:reg[1] }}\n^entry():\n{body}"
+        );
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,
+            "o",
+            vec![],
+        );
+        let object = Object::parse(&inputs.object_text).unwrap();
+        let result = eval_oracle(
+            &object,
+            object.symbol("o").unwrap(),
+            &[],
+            &[],
+            &[],
+            &[10u32.into(), 0u32.into(), 0u32.into(), 0u32.into()],
+            0,
+        );
+        assert!(
+            matches!(result,Err(EvalError::Reject(ref r))if r.code=="E_CERT_OBJECT"),
+            "{body}"
+        );
     }
 }
 

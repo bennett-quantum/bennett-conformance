@@ -662,9 +662,119 @@ fn sig_widths(sig: &Value, key: &str) -> Option<Vec<u64>> {
 }
 
 impl Object {
+    /// Detect exact signature sizes beyond the interface's host integer type,
+    /// checking their source spelling before classifying a legal host limit.
+    pub(crate) fn interface_host_limit(
+        &self,
+        name: &str,
+    ) -> Result<Option<crate::fault::HostLimit>, String> {
+        let Some(symbol) = self.symbol(name) else {
+            return Ok(None);
+        };
+        let Some(function) = self.function(name) else {
+            return Ok(None);
+        };
+        if symbol.kind != function.kind {
+            return Err(sec_err(
+                "§9.1",
+                format!("@{name} symbol kind does not match its function header"),
+            ));
+        }
+        let mut limit = None;
+        let oversized = |value: &Value| {
+            value
+                .as_str()
+                .map(|s| crate::rat::is_canonical_uint_str(s) && s.parse::<u64>().is_err())
+                .unwrap_or(false)
+        };
+        let mut check = |value: Option<&Value>,
+                         source: Option<&str>,
+                         field: &str|
+         -> Result<(), String> {
+            let Some(text) = value
+                .and_then(Value::as_str)
+                .filter(|s| crate::rat::is_canonical_uint_str(s) && s.parse::<u64>().is_err())
+            else {
+                return Ok(());
+            };
+            if source.map(str::trim) != Some(text) {
+                return Err(sec_err(
+                    "§9.1",
+                    format!("@{name} {field}: signature size differs from the source declaration"),
+                ));
+            }
+            limit = Some(crate::fault::HostLimit {
+                quantity: format!(
+                    "@{name} {field} integer size exceeds the u64 interface host representation"
+                ),
+            });
+            Ok(())
+        };
+        let raw_wire = |ty: &str| {
+            ty.strip_prefix("wire[")
+                .and_then(|s| s.strip_suffix(']'))
+                .map(str::to_string)
+        };
+        let groups: &[(&str, usize)] = match symbol.kind.as_str() {
+            "oracle" => &[("in", 0)],
+            "action" | "perm_action" => &[("mut", 0), ("in", 1)],
+            _ => &[],
+        };
+        for (key, group) in groups {
+            if let Some(widths) = symbol.signature.get(key).and_then(Value::as_arr) {
+                for (i, value) in widths.iter().enumerate() {
+                    if !oversized(value) {
+                        continue;
+                    }
+                    let raw = function.groups[*group].get(i).and_then(|p| raw_wire(&p.ty));
+                    check(Some(value), raw.as_deref(), key)?;
+                }
+            }
+        }
+        if symbol.kind == "oracle" {
+            for (key, group) in [("tgt", 1), ("fault", 2)] {
+                let raw = function.groups[group].first().and_then(|p| raw_wire(&p.ty));
+                check(symbol.signature.get(key), raw.as_deref(), key)?;
+            }
+        }
+        let group = if symbol.kind == "oracle" { 3 } else { 2 };
+        if let Some(regions) = symbol.signature.get("mem").and_then(Value::as_arr) {
+            for (i, region) in regions.iter().enumerate() {
+                let raw = function
+                    .groups
+                    .get(group)
+                    .and_then(|g| g.get(i))
+                    .and_then(|p| p.ty.strip_prefix("region["))
+                    .and_then(|s| s.strip_suffix(']'))
+                    .and_then(|s| s.split_once(','));
+                check(region.get("A"), raw.map(|p| p.0), "mem.A")?;
+                check(region.get("W"), raw.map(|p| p.1), "mem.W")?;
+            }
+        }
+        if let Some(bounds) = symbol.signature.get("bounds").and_then(Value::as_arr) {
+            if bounds.iter().any(oversized) {
+                let declared = function
+                    .bytes
+                    .lines()
+                    .find_map(|line| {
+                        line.split_once("bounds {")
+                            .map(|(_, s)| s.trim_end_matches('}').trim())
+                    })
+                    .unwrap_or("");
+                let source_bounds: Vec<_> = declared.split(',').map(str::trim).collect();
+                for (i, value) in bounds.iter().enumerate() {
+                    check(Some(value), source_bounds.get(i).copied(), "bounds")?;
+                }
+            }
+        }
+        Ok(limit)
+    }
     /// The section 12 interface of an oracle/action/perm_action symbol:
     /// header names + signature widths, cross-checked.
     pub fn interface(&self, name: &str) -> Result<Interface, String> {
+        if let Some(limit) = self.interface_host_limit(name)? {
+            return Err(format!("host limit: {} (§12.2)", limit.quantity));
+        }
         let sym = self
             .symbol(name)
             .ok_or_else(|| format!("no symbol @{name}"))?;
@@ -695,7 +805,7 @@ impl Object {
                         format!("@{name} param {} has non-wire type {:?}", p.name, p.ty),
                     )
                 })?;
-                if hw != *w {
+                if hw != *w || *w == 0 {
                     return Err(sec_err(
                         "§9.1",
                         format!("@{name} param {} width {hw} != signature {w}", p.name),
@@ -735,6 +845,12 @@ impl Object {
                     .get("fault")
                     .and_then(crate::cert::u64_of)
                     .ok_or_else(|| sec_err("§9.1", "invalid or unmaterialisable fault width"))?;
+                if fault < 4 {
+                    return Err(sec_err(
+                        "§5.4",
+                        "an oracle fault width must be at least four",
+                    ));
+                }
                 add(&func.groups[1], &[tgt], "tgt", &mut bundles)?;
                 add(&func.groups[2], &[fault], "fault", &mut bundles)?;
                 self.interface_regions(name, func, sig, 3)?

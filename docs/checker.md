@@ -57,7 +57,12 @@ leaves names and other opaque strings untouched.
 
 Every object metadata section must itself contain JCS bytes. The §9.1 rule
 rejecting JSON numbers at or above 2^53 applies recursively to metadata in
-objects and supplied certificate, target and schedule documents. Exact decimal
+objects and supplied certificate, target and schedule documents. Signature
+widths, region A/W, bounds and literal frame widths accept canonical integer
+strings and retain their exact value; host integer conversions are checked.
+Quantum interface sizes beyond u64 are compared with their source declarations
+before returning a host limit. A source/signature mismatch still rejects.
+Exact decimal
 strings retain their field-specific interpretation and are not rounded into
 JSON numbers.
 
@@ -123,7 +128,15 @@ It does not establish another frame's entry domain or a target realisation.
 ## Current implementation boundary
 
 Reference replay covers an independently implemented subset of lifted arithmetic
-and permutation-action semantics. Signed `lift.const.iN` literals use the
+and permutation-action semantics. Lifted row widths are not restricted to classical 128-bit widths. Per-vector
+widths and aggregate live reference storage have a host cap of 999,999 bits;
+excess produces an unchecked result before materialisation.
+Fault causes retain every declared bit, including causes above u64; malformed
+or out-of-range literals reject even when a faultif predicate is false.
+Parallel moves snapshot all sources before writes. Lifted destinations must
+be declared locations, operand/result widths must match, and missing labels
+reject instead of defaulting to row zero.
+Signed `lift.const.iN` literals use the
 §3.3 modulo bit encoding after strict spelling/range checks; every oversized
 shift, including `ashr`, produces zero. MCX entries naming multi-wire bundles
 remain unchecked pending `b-isa-spec-sqr`; explicitly indexed controls are
@@ -142,8 +155,24 @@ permutation assertion. This path has a ten-wire host cap and a separate
 2^25 amplitude-visit cap, and shares the reference instruction work limit.
 Rotations and allocation/borrow/region lifetimes on this path stay unchecked.
 
-Reference replay has capability limits. Unsupported rows, lproc/stack machinery and
-unresolved invocation contexts are explicit unchecked outcomes. The native
+Lifted reference memory implements `addr`, `boundscheck`, `load`, `store`,
+`alloc` and `free` from §§4.2/7.2 using sparse little-endian bytes. It checks
+whole-access allocation bounds without wrapping, pinned globals and mapped
+W=8 interface regions, and monotonic heap/allocation-table history. Empty
+allocations advance by one byte; free never reclaims either counter. Invalid
+stores leave no partial delta. This model supports H ≤ 63, with host caps of
+one million sparse bytes/table entries. It establishes reference F_B results;
+it does not supply the realised quantum oracle expansion.
+
+Reference replay has capability limits. One empty-key lproc supports recursive calls with canonical global row
+indices, function-local indirect jumps, location capture/save/restore and
+result delivery. Stack use remains monotonic after returns; stack/depth
+checks precede effects and rows share the oracle's ISA and host budgets.
+Only active records are materialised; unread historical cells are compressed
+extensionally while their stack extent remains charged. Procedure plans
+have a 100,000-row host cap and active saved frames a 256 MiB cap. Multiple
+procedures, nonempty fixed-binding keys, unsupported rows and unresolved
+invocation contexts remain explicitly unchecked. The native
 matrix path currently handles single-class action calls, sequential action
 blocks, counted `qloop` bodies, coherent `qif` arms and
 X/CX/CCX/MCX/SWAP/H/S/S†/T/T†/CZ/RX/RY/RZ
@@ -217,7 +246,10 @@ expansion records, nonnegative error shares and exact budget encodings.
 
 Native costs and achieved epsilon use exact expression evaluation, including
 table lookups, `ceil`, and the integer `log2inv_eps`/`eps_decade` definitions.
-An entry exceeding the requested share is skipped in array order. Invalid
+Native and scheme matching checks parameter declarations against the source
+angle. Parametric scheme ancilla/repeat expressions bind exact binary64 theta,
+and template i is bound only within a repeat. An entry exceeding the requested
+share is skipped in array order. Invalid
 domains, out-of-range table indices, division by zero and exact entries that
 depend on `eps` reject. Nonzero native realisation models and positive default
 shares for expressions depending on `eps` remain unchecked. A zero region

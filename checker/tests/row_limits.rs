@@ -4,6 +4,74 @@ use bennett_cert_checker::object::Object;
 use common::*;
 use num_bigint::BigUint;
 
+#[test]
+fn an_oversized_lifted_cast_never_silently_masks_its_result_to_zero() {
+    for width in ["1000000", "18446744073709551616"] {
+        let source=format!("oracle @o (x:wire in) (t:wire) (f:wire[4]) () ()\nregs {{ wide:reg[{width}], r:reg[1] }}\n^entry():\nwide = lift.zext.i{width} x\nr = lift.trunc.i1 wide\nlift.retval r");
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,
+            "o",
+            vec![],
+        );
+        let object = Object::parse(&inputs.object_text).unwrap();
+        let result = eval_oracle_bounded(
+            &object,
+            object.symbol("o").unwrap(),
+            &[1u32.into()],
+            &[],
+            &[],
+            &[3u32.into(), 0u32.into(), 0u32.into(), 0u32.into()],
+            0,
+            10,
+        );
+        assert!(
+            matches!(result,Err(EvalError::Unchecked(reason))if reason.contains("host limit")),
+            "oversized width must not become a zero mask"
+        );
+    }
+}
+
+#[test]
+fn reference_storage_limits_precede_quantum_workspace_materialisation() {
+    use bennett_cert_checker::domain::Tuple;
+    use bennett_cert_checker::eval::eval_action_tuple;
+    for body in [
+        "a = qalloc fast 600000\nb = qalloc fast 600000\nqfree b\nqfree a",
+        "qregion db 18 8",
+    ] {
+        let source = format!("action @a (t:wire mut) () () () ()\n^entry():\n{body}");
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#,
+            "a",
+            vec![],
+        );
+        let object = Object::parse(&inputs.object_text).unwrap();
+        let iface = object.interface("a").unwrap();
+        let before = Tuple {
+            bundles: vec![0u32.into()],
+            borrowed: vec![],
+            regions: vec![],
+            args: vec![],
+        };
+        let result = eval_action_tuple(
+            &object,
+            object.symbol("a").unwrap(),
+            &iface,
+            &before,
+            &[],
+            0,
+            false,
+            0,
+        );
+        assert!(
+            matches!(result,Err(EvalError::Unchecked(reason))if reason.contains("host limit")),
+            "{body}: storage must be bounded before allocation"
+        );
+    }
+}
+
 fn spin() -> Object {
     let (inp, _) = standalone(
         "oracle @spin (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nqjump ^entry",

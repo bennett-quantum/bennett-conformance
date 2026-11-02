@@ -1,0 +1,28 @@
+bennett-object isa=0.9 object=0.9 launch=0.9 sched=0.9 cert=0.9 coverage=0.9 target=0.9 ptr_width=8
+
+section symbols
+{"0":{"interface_hash":"38fb9b9393c77e50308e7bc861ea8551e30391154ab506be4dd806336144669d","kind":"oracle","name":"o","signature":{"abi":"0.9","args":[],"fault":4,"in":[4],"kind":"oracle","mem":[],"tgt":4,"tier":"q"}},"1":{"interface_hash":"da02fae58ad154dd45ddaee088fa6798840ea7593c67fc2d33a61ff117d35c10","kind":"lproc","name":"f","signature":{"abi":"0.9","args":[],"kind":"lproc","mem":[],"params":[4],"result":4,"tier":"q","tokens":[]}}}
+
+section functions
+oracle @o (x0:wire[4] in) (t:wire[4]) (f:wire[4]) () ()
+regs { r:reg[4] }
+^entry():
+r = lift.call @f (x0)
+lift.retval r
+lproc @f (n:reg[4]) (r:reg[4]) () () ()
+regs { z:reg[4], one:reg[4], m:reg[4], qp:reg[1] }
+^entry():
+z = lift.const.i4 0
+qp = lift.icmp.eq n z
+qbranch qp ^d ^m
+^m():
+one = lift.const.i4 1
+m = lift.sub n one
+r = lift.call @f (m)
+one = lift.add r one
+lift.ret one
+^d():
+lift.ret z
+
+section layout
+{"A_tab":1,"H":4,"S_cells":8,"globals":{},"heap_base":1,"heap_limit_max":0,"interface_regions":{},"null_size":1,"ptr_width":8}

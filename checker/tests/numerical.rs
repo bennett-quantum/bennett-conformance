@@ -541,3 +541,58 @@ fn native_control_range_metadata_integers_are_compared_without_host_truncation()
         }
     }
 }
+
+#[test]
+fn native_parameter_declarations_must_cover_the_source_gate() {
+    for (rotating, params) in [(false, Some(r#"["theta"]"#)), (true, None)] {
+        let mut inp = if rotating {
+            rotation_inputs("rx", "1.0")
+        } else {
+            controlled()
+        };
+        let mut target = json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());
+        let Value::Obj(t) = &mut target else {
+            unreachable!()
+        };
+        let Value::Arr(gates) = t.get_mut("gates").unwrap() else {
+            unreachable!()
+        };
+        let Value::Obj(gate) = &mut gates[0] else {
+            unreachable!()
+        };
+        match params {
+            Some(value) => {
+                gate.insert("params".into(), json(value));
+            }
+            None => {
+                gate.remove("params");
+            }
+        }
+        let schedule = json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());
+        bind_schedule(&mut inp, schedule, target);
+        let verdict = check_certificate(&inp);
+        assert!(
+            codes(&verdict).contains(&"E_SCHEDULE_INFEASIBLE"),
+            "rotating={rotating}: {verdict:?}"
+        );
+    }
+}
+
+#[test]
+fn parametric_scheme_expressions_bind_theta_before_unimplemented_expansion() {
+    let mut inp = rotation_inputs("rx", "1.0");
+    let mut target = json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());
+    set(&mut target, "gates", Value::Arr(vec![]));
+    set(
+        &mut target,
+        "schemes",
+        json(
+            r#"[{"name":"rotation","realises":{"op":"rx","controls":{"min":0,"max":0},"params":["theta"]},"ancillae":{"class":"fast","state":"clean","count":{"op":"-","args":[{"var":"theta"},{"var":"theta"}]}},"template":[{"gate":"rx","wires":["t"],"params":[{"var":"theta"}],"repeat":{"var":"i","from":0,"to":{"var":"theta"}}}]}]"#,
+        ),
+    );
+    let schedule = json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());
+    bind_schedule(&mut inp, schedule, target);
+    let verdict = check_certificate(&inp);
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    assert_eq!(verdict.overall, "unchecked", "{verdict:?}");
+}

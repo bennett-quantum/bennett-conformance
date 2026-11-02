@@ -17,6 +17,7 @@ pub mod eval;
 pub mod expressions;
 pub mod fault;
 pub mod json;
+mod lifted_memory;
 pub mod matrix;
 pub mod numeric;
 pub mod object;

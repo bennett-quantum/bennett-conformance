@@ -145,3 +145,148 @@ fn a_legal_wide_string_signature_reaches_a_domain_host_limit_without_allocation(
         .contains("host limit"));
     assert!(claim.elements.is_none());
 }
+
+fn beyond_host_width(
+    signature_width: &str,
+    source_width: &str,
+) -> bennett_cert_checker::cert::Inputs {
+    let (mut inp, old) = standalone(
+        "action @a (t:wire mut) () () () ()\n^entry():\nx t[0]",
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#,
+        "a",
+        vec![],
+    );
+    let mut symbols = json(
+        inp.object_text
+            .split("section symbols\n")
+            .nth(1)
+            .unwrap()
+            .lines()
+            .next()
+            .unwrap(),
+    );
+    let Value::Obj(table) = &mut symbols else {
+        unreachable!()
+    };
+    let entry = table.get_mut("0").unwrap();
+    let mut signature = entry.get("signature").unwrap().clone();
+    set(
+        &mut signature,
+        "mut",
+        Value::Arr(vec![Value::Str(signature_width.into())]),
+    );
+    set(entry, "signature", signature.clone());
+    set(entry, "interface_hash", Value::Str("0".repeat(64)));
+    let header = inp.object_text.lines().next().unwrap().to_string();
+    let make = |symbols: &Value| {
+        format!("{header}\n\nsection symbols\n{}\n\nsection functions\naction @a (t:wire[{source_width}] mut) () () () ()\n^entry():\nx t[0]\n",encode(symbols))
+    };
+    let initial = Object::parse(&make(&symbols)).unwrap();
+    let Value::Obj(table) = &mut symbols else {
+        unreachable!()
+    };
+    set(
+        table.get_mut("0").unwrap(),
+        "interface_hash",
+        Value::Str(initial.symbol("a").unwrap().interface_hash.clone()),
+    );
+    inp.object_text = make(&symbols);
+    let object = Object::parse(&inp.object_text).unwrap();
+    assert!(object.stated_hashes_ok());
+    let root = object.symbol("a").unwrap();
+    let hash = root.closure_hash.as_ref().unwrap();
+    let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else {
+        unreachable!()
+    };
+    let bindings = top.get_mut("bindings").unwrap();
+    for key in ["closure_hash", "interface_hash", "reference_program_hash"] {
+        set(bindings, key, Value::Str(hash.clone()));
+    }
+    set(
+        bindings,
+        "object_hash",
+        Value::Str(object.object_hash.clone()),
+    );
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        unreachable!()
+    };
+    let mut region = regions.remove(&old).unwrap();
+    set(&mut region, "signature", signature);
+    let mut frame = region.get("frame").unwrap().clone();
+    let Value::Obj(f) = &mut frame else {
+        unreachable!()
+    };
+    let Value::Arr(slots) = f.get_mut("slots").unwrap() else {
+        unreachable!()
+    };
+    set(&mut slots[0], "width", Value::Str(signature_width.into()));
+    set(&mut region, "frame", frame);
+    regions.insert(hash.clone(), region);
+    inp.cert_bytes = jcs(&cert).unwrap();
+    inp
+}
+
+#[test]
+fn sizes_beyond_u64_are_host_limits_only_when_the_source_agrees() {
+    for width in [
+        "18446744073709551616",
+        "340282366920938463463374607431768211456",
+    ] {
+        let verdict = check_certificate(&beyond_host_width(width, width));
+        assert_eq!(verdict.overall, "unchecked", "{verdict:?}");
+        assert!(codes(&verdict).is_empty());
+        assert!(
+            verdict
+                .unchecked_items
+                .iter()
+                .any(|s| s.contains("host limit") && s.contains("u64 interface")),
+            "{verdict:?}"
+        );
+        assert!(verdict.regions.is_empty());
+        let wrong = check_certificate(&beyond_host_width(width, "1"));
+        assert!(codes(&wrong).contains(&"E_CERT_OBJECT"), "{wrong:?}");
+    }
+}
+
+#[test]
+fn source_interfaces_require_positive_widths_fault_width_four_and_matching_kinds() {
+    let (action, _) = standalone(
+        "action @a (t:wire mut) () () () ()\n^entry():\nx t",
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#,
+        "a",
+        vec![],
+    );
+    let (oracle, _) = standalone(
+        "oracle @o (x:wire[4] in) (t:wire[4]) (f:wire[4]) () ()\n^entry():\nlift.retval x",
+        r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[4],"kind":"oracle","mem":[],"tgt":4,"tier":"q"}}"#,
+        "o",
+        vec![],
+    );
+    let cases = [
+        (
+            action
+                .object_text
+                .replacen("action @a", "perm_action @a", 1),
+            "a",
+        ),
+        (
+            action
+                .object_text
+                .replacen(r#""mut":[1]"#, r#""mut":[0]"#, 1)
+                .replacen("t:wire mut", "t:wire[0] mut", 1),
+            "a",
+        ),
+        (
+            oracle
+                .object_text
+                .replacen(r#""fault":4"#, r#""fault":3"#, 1)
+                .replacen("f:wire[4]", "f:wire[3]", 1),
+            "o",
+        ),
+    ];
+    for (source, name) in cases {
+        let object = Object::parse(&source).unwrap();
+        assert!(object.interface(name).is_err(), "{source}");
+    }
+}
