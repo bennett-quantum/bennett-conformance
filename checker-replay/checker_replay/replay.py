@@ -426,6 +426,13 @@ class Checker:
             s = H.sha256hex(jcs.canonical(self.schedule))
             if b["schedule_hash"] != s:
                 raise _r("E_REPLAY_BINDING", "9.2; 12.3", "bindings.schedule_hash", f"recomputed {s}")
+            sb = self.schedule.get("bindings") if isinstance(self.schedule, dict) else None
+            root = sb.get("closure_hash") if isinstance(sb, dict) else None
+            if root != b["closure_hash"]:
+                # §12.1/§12.3: schedule_hash names the ROOT schedule; nested contexts live inside it.
+                raise _r("E_REPLAY_BINDING", "11; 12.1; 12.3", "schedule.bindings.closure_hash",
+                         f"{root!r} is not the certificate root {b['closure_hash']}"
+                         + ("" if root in self.by_closure else " and names no closure of this object"))
             if "invocation" not in b:
                 raise _r("E_REPLAY_INVOCATION", "12.3", "bindings.invocation", "a scheduled certificate must carry it")
 

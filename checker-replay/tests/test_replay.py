@@ -141,6 +141,23 @@ class PublishedFixture(unittest.TestCase):
                 c["subject"]["schedule_hash"] = sh
         return claim_of(self.text, cert, ROOT, target=self.target, schedule=sched)
 
+    def test_schedule_root_must_be_the_certificate_root(self):
+        """A rebound schedule whose root closure is not the certificate's root is a binding error,
+        not a nested invocation context (differential witness object:x_extra)."""
+        for bad in ("0" * 64, "f" * 64):
+            sched = copy.deepcopy(self.schedule)
+            sched["bindings"]["closure_hash"] = bad
+            sh = hashlib.sha256(jcs.canonical(sched)).hexdigest()
+            cert = copy.deepcopy(self.cert)
+            cert["bindings"]["schedule_hash"] = sh
+            for rec in cert["regions"].values():
+                for c in rec["claims"]:
+                    c["subject"]["schedule_hash"] = sh
+            v = check_certificate(cert, parse_object(self.text), self.text, target=self.target, schedule=sched)
+            with self.subTest(bad=bad):
+                self.assertEqual(v["overall"], "reject", v)
+                self.assertEqual(v["errors"][0]["path"], "schedule.bindings.closure_hash", v["errors"])
+
     def test_schedule_scheme_selection_is_unchecked(self):
         c = self.rebound(lambda s: s["entries"][0]["gate"].update(realisation="toffoli7"))
         self.assertEqual(c["outcome"], "unchecked", c)
