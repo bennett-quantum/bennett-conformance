@@ -17,6 +17,8 @@ use std::path::PathBuf;
 
 pub const CHECKER_NAME: &str = "bennett-cert-checker";
 pub const REF_09_HASH: &str = "5de4e4995350313e50217880ba1b95de39cd043283b726337d4894efb005d197";
+pub(crate) const BORROW_PROOF_PENDING:&str="verification.borrow_frames has not been mapped to every maximal frame and its normative entry-state domain D_F (§5.6)";
+pub(crate) const FRAME_STORAGE_PENDING:&str="frame descriptor lifetimes/storage widths have not been checked against the complete realised leaf expansion (§9.4)";
 
 #[derive(Debug, Clone)]
 pub struct Limits {
@@ -60,6 +62,7 @@ pub struct ClaimOutcome {
     pub contexts: Option<u64>,
     pub errors: Vec<Reject>,
     pub unchecked_reason: Option<String>,
+    pub(crate) borrow_frame:Option<crate::structural::BorrowFrameEvidence>,
 }
 
 impl ClaimOutcome {
@@ -119,6 +122,7 @@ pub struct RegionReport {
     pub claims: Vec<(String, ClaimOutcome)>,
     pub errors: Vec<Reject>,
     pub unchecked_items: Vec<String>,
+    pub establishes:Vec<String>,
 }
 
 #[derive(Debug, Default)]
@@ -163,6 +167,7 @@ impl Verdict {
         let mut regions = BTreeMap::new();
         for r in &self.regions {
             let mut rm = BTreeMap::new();
+            if !r.establishes.is_empty() {rm.insert("establishes".into(),Value::Arr(r.establishes.iter().map(|s|crate::json::s(s)).collect()));}
             if let Some(name) = &r.name {
                 rm.insert("name".into(), s(name));
             }
@@ -1311,7 +1316,8 @@ fn check_region(
     if let Some(sym) = &symbol {
         if let Ok(iface) = docs.object.interface(&sym.name) {
             if !iface.borrowed_widths.is_empty() {
-                report.unchecked_items.push("verification.borrow_frames has not been mapped to every maximal frame and its normative entry-state domain D_F (§5.6)".into());
+                report.unchecked_items.push(BORROW_PROOF_PENDING.into());
+                if !report.unchecked_items.iter().any(|s|s==FRAME_STORAGE_PENDING) {report.unchecked_items.push(FRAME_STORAGE_PENDING.into());}
             }
         }
         let mut seen = std::collections::HashSet::new();
@@ -1603,6 +1609,7 @@ fn check_region(
             ));
         }
     }
+    crate::structural::discharge_borrow_frames(region,docs,&mut report);
     report
 }
 
