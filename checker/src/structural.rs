@@ -4,7 +4,7 @@
 use crate::cert::{
     check_keys, claim_subject, parse_invocation, rej, schema_err, u64_of, ClaimOutcome, LoadedDocs,
 };
-use crate::eval::{list_items, tokenise};
+use crate::eval::{list_items, parse_blocks, tokenise, Stmt};
 use crate::json::Value;
 use crate::object::Symbol;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -67,6 +67,67 @@ fn set(v: Vec<String>, widths: &HashMap<String, u64>, path: &str) -> Result<Hash
 fn point(v: &str) -> Option<(&str, usize)> {
     let (b, i) = v.rsplit_once(':')?;
     Some((b, i.parse().ok()?))
+}
+
+#[derive(Default)]
+struct Sequences {
+    owner: HashMap<usize, usize>,
+    loops: HashSet<usize>,
+    bounds: Vec<u64>,
+}
+fn sequence_layout(
+    stmts: &[Stmt],
+    sequence: usize,
+    ordinal: &mut usize,
+    next: &mut usize,
+    layout: &mut Sequences,
+    depth: usize,
+) -> Result<()> {
+    if depth > 64 {
+        return Err(crate::cert::host_limit_outcome(crate::fault::HostLimit {
+            quantity: "structural source nesting exceeds 64 host levels".into(),
+        }));
+    }
+    for stmt in stmts {
+        let at = *ordinal;
+        *ordinal += 1;
+        layout.owner.insert(at, sequence);
+        match stmt {
+            Stmt::Line(tokens) if depth > 0 => {
+                let mut i = 0;
+                while tokens.get(i).map(String::as_str) == Some("ctl") {
+                    i += 2;
+                }
+                if !matches!(
+                    tokens.get(i).map(String::as_str),
+                    Some("x" | "cx" | "ccx" | "mcx")
+                ) {
+                    return Err(ClaimOutcome::unchecked("structural loop lifetime/predicate/call changes require visit-specific expansion; the current static proof handles X-family loop bodies"));
+                }
+            }
+            Stmt::Block { head, body, rest } => {
+                if head.first().map(String::as_str) != Some("qloop")
+                    || head.len() != 2
+                    || rest.is_some()
+                {
+                    return Err(ClaimOutcome::unchecked("structural qif/qloop-while control and lifetime expansion has not been implemented"));
+                }
+                let count = head[1].parse::<u64>().map_err(|_| {
+                    crate::cert::host_limit_outcome(crate::fault::HostLimit {
+                        quantity: "structural loop count exceeds host integer representation"
+                            .into(),
+                    })
+                })?;
+                layout.bounds.push(count);
+                layout.loops.insert(at);
+                let child = *next;
+                *next += 1;
+                sequence_layout(body, child, ordinal, next, layout, depth + 1)?;
+            }
+            _ => {}
+        }
+    }
+    Ok(())
 }
 
 pub fn check(
@@ -283,6 +344,53 @@ fn translation(
     if end >= block.instructions.len() {
         return bad(path, "frame endpoint is beyond the block");
     }
+    // This necessary side condition is decidable even when other loop
+    // lifetime mechanics are not yet supported.
+    for line in &block.instructions[start..=end] {
+        let tokens = tokenise(line);
+        let mut t = tokens.as_slice();
+        while t.first().map(String::as_str) == Some("ctl") {
+            t = t.get(2..).unwrap_or(&[]);
+        }
+        if !matches!(
+            t.first().map(String::as_str),
+            Some("x" | "cx" | "ccx" | "mcx")
+        ) {
+            return bad(
+                path,
+                "translation frame contains a non-X-family instruction",
+            );
+        }
+    }
+    let parsed = parse_blocks(f);
+    let stmts = &parsed
+        .iter()
+        .find(|(name, _)| name == start_block)
+        .expect("parsed source block exists")
+        .1;
+    let mut sequences = Sequences::default();
+    let mut ordinal = 0;
+    let mut next = 1;
+    sequence_layout(stmts, 0, &mut ordinal, &mut next, &mut sequences, 0)?;
+    if sequences.bounds != f.bounds {
+        return Err(ClaimOutcome::rejected(vec![rej(
+            "E_CERT_OBJECT",
+            "§5.3",
+            format!("object.@{}.bounds", f.name),
+            "declared bounds differ from static qloop counts in text order",
+        )]));
+    }
+    let owner = sequences.owner.get(&start);
+    if owner.is_none()
+        || owner != sequences.owner.get(&end)
+        || sequences.loops.iter().any(|i| (start..=end).contains(i))
+    {
+        return bad(
+            path,
+            "frame must lie within one containing static instruction sequence",
+        );
+    }
+    let owner = *owner.unwrap();
     let mut widths: HashMap<String, u64> = docs
         .object
         .interface(&symbol.name)
@@ -296,6 +404,11 @@ fn translation(
     let mut frame_borrow = HashSet::new();
     let mut gates: BTreeMap<usize, Flip> = BTreeMap::new();
     for (i, line) in block.instructions.iter().enumerate() {
+        // Counted X-only bodies preserve names, borrowed lifetimes and the
+        // predicate stack across every visit. Their header emits no flip.
+        if sequences.loops.contains(&i) {
+            continue;
+        }
         let tokens = tokenise(line);
         let mut t = tokens.as_slice();
         let mut controls = predicates.clone();
@@ -446,10 +559,12 @@ fn translation(
         }
     }
     for (i, gate) in &gates {
-        if (*i < start || *i > end) && (b.contains(&gate.target) || !gate.controls.is_disjoint(&b))
+        if sequences.owner.get(i) == Some(&owner)
+            && (*i < start || *i > end)
+            && (b.contains(&gate.target) || !gate.controls.is_disjoint(&b))
         {
             return bad(path, "borrow frame is not maximal for B");
         }
     }
-    Ok(ClaimOutcome{outcome:"accept".into(),establishes:format!("reference borrow frame {}..{} satisfies every translation-lemma side condition, restores B and acts independently of arbitrary borrowed states and external references{} (§5.6)",frame[0],frame[1],if universal {" for all well-typed classical arguments and budgets"} else {" at the explicit invocation"}),..Default::default()})
+    Ok(ClaimOutcome{outcome:"accept".into(),establishes:format!("reference borrow frame {}..{} satisfies every translation-lemma side condition, restores B and acts independently of arbitrary borrowed states and external references{}{} (§5.6)",frame[0],frame[1],if owner==0 {""}else{" on every visit of its containing counted-loop body"},if universal {" for all well-typed classical arguments and budgets"} else {" at the explicit invocation"}),..Default::default()})
 }

@@ -149,6 +149,13 @@ count. A scheme built from exact leaves is not assumed to realise its advertised
 operation. Nonzero native epsilon alone does not specify the actual operator;
 the missing realisation-model binding is recorded as a spec question.
 
+Translation-lemma checks include counted loop bodies whose instructions retain
+their wire bindings and borrowed lifetimes. Maximality is checked within the
+containing static sequence; outer borrow touches do not enlarge an inner frame.
+The published `borrow_demo` identity is pinned, and both printed orientations
+are replayed over all 8 uncontrolled and 16 controlled basis inputs each.
+Loops changing lifetimes or predicates still need visit-specific analysis.
+
 `adjoint_table` and independent library correspondence still need complete proof
 linkage. Verification-index shapes do not discharge borrow-frame entry-state or
 qinplace-entry-applicability obligations. Source coverage and expanded non-native
