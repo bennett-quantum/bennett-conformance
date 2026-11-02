@@ -627,7 +627,7 @@ pub(crate) fn trace(docs: &LoadedDocs, inputs: &Inputs) -> Result<(Vec<Context>,
         adjoint: false,
     };
     // Bound before materialising any wire vector.
-    check_width(&context, docs, inputs)?;
+    check_width(&context, docs, inputs, false)?;
     let mut contexts = Vec::new();
     let mut gates = Vec::new();
     collect(
@@ -647,7 +647,7 @@ pub(crate) fn trace(docs: &LoadedDocs, inputs: &Inputs) -> Result<(Vec<Context>,
 pub fn contexts(docs: &LoadedDocs, inputs: &Inputs) -> Result<Vec<Context>> {
     trace(docs, inputs).map(|(contexts, _)| contexts)
 }
-fn check_width(c: &Context, docs: &LoadedDocs, inputs: &Inputs) -> Result<usize> {
+fn check_width(c: &Context, docs: &LoadedDocs, inputs: &Inputs, dense: bool) -> Result<usize> {
     let iface = docs
         .object
         .interface(&c.symbol)
@@ -663,11 +663,19 @@ fn check_width(c: &Context, docs: &LoadedDocs, inputs: &Inputs) -> Result<usize>
         })?;
     // Dense cubic rational matrix multiplication is bounded separately from
     // legal ISA widths. No host cap is a domain rejection.
-    if width > u64::from(inputs.limits.max_wires.min(6)) {
+    if dense && width > u64::from(inputs.limits.max_wires.min(6)) {
         return Err(host_limit_outcome(HostLimit {
             quantity: format!(
                 "dense unitary requires {width} wires (host cap {})",
                 inputs.limits.max_wires.min(6)
+            ),
+        }));
+    }
+    if !dense && width > inputs.limits.max_elements.min(1 << 20) {
+        return Err(host_limit_outcome(HostLimit {
+            quantity: format!(
+                "native event trace requires {width} wire identities (host cap {})",
+                inputs.limits.max_elements.min(1 << 20)
             ),
         }));
     }
@@ -752,6 +760,19 @@ pub(crate) fn decision_kind<'a>(
     }
     Ok(best.and_then(|(_, e)| e.get(kind)))
 }
+fn integer_cmp(value:&Value,count:u64)->Option<std::cmp::Ordering>{
+    if let Some(value)=u64_of(value){return Some(value.cmp(&count));}
+    let text=value.as_str().filter(|s|crate::rat::is_canonical_uint_str(s))?;
+    let actual=count.to_string();Some(text.len().cmp(&actual.len()).then_with(||text.cmp(&actual)))
+}
+fn control_range(entry:&Value,count:u64)->bool{
+    let controls=entry.get("controls");
+    controls.and_then(|c|c.get("min")).and_then(|v|integer_cmp(v,count)).map(|o|o!=std::cmp::Ordering::Greater)==Some(true)
+    && controls.and_then(|c|c.get("max")).map(|v|v.as_str()==Some("unbounded") || integer_cmp(v,count).map(|o|o!=std::cmp::Ordering::Less)==Some(true))==Some(true)
+}
+fn scheme_covers(scheme:&Value,gate:&Gate)->bool{
+    scheme.get("realises").map(|r|r.get("op").and_then(Value::as_str)==Some(gate.realised_opcode()) && control_range(r,gate.controls.len() as u64))==Some(true)
+}
 pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value> {
     let target = docs
         .target
@@ -769,9 +790,14 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
     }
     let class = classes.keys().next().unwrap();
     let decision = decision_kind(docs, gate, "gate")?;
+    let schemes=target.get("schemes").and_then(Value::as_arr).unwrap_or(&[]);
     if let Some(g) = decision {
         if g.get("realisation").and_then(Value::as_str) != Some("native") {
-            return pending("scheduled scheme template expansion has not been implemented");
+            let name=g.get("realisation").and_then(Value::as_str);
+            if schemes.iter().any(|s|s.get("name").and_then(Value::as_str)==name && scheme_covers(s,gate)) {
+                return pending("scheduled scheme template expansion has not been implemented");
+            }
+            return invalid("schedule.gate.realisation","named scheme does not exist or its opcode/control range does not cover the generated gate");
         }
     }
     let gates = target.get("gates").and_then(Value::as_arr).unwrap_or(&[]);
@@ -779,20 +805,8 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
         if entry.get("op").and_then(Value::as_str) != Some(gate.realised_opcode()) {
             continue;
         }
-        let min = entry
-            .get("controls")
-            .and_then(|v| v.get("min"))
-            .and_then(u64_of);
-        let max = entry.get("controls").and_then(|v| v.get("max"));
         let count = gate.controls.len() as u64;
-        if min.map(|n| n <= count) != Some(true)
-            || !max
-                .map(|v| {
-                    v.as_str() == Some("unbounded")
-                        || u64_of(v).map(|n| count <= n).unwrap_or(false)
-                })
-                .unwrap_or(false)
-        {
+        if !control_range(entry,count) {
             continue;
         }
         let pattern = entry.get("classes").and_then(Value::as_arr).unwrap_or(&[]);
@@ -810,7 +824,8 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
             .expect("target schema validated epsilon");
         let share = decision
             .and_then(|g| g.get("epsilon_share"))
-            .and_then(|e| rat_of_json(e).ok());
+            .and_then(|e| rat_of_json(e).ok())
+            .or_else(||docs.schedule.as_ref().and_then(|s|s.get("bindings")).and_then(|b|b.get("epsilon")).and_then(|e|rat_of_json(e).ok()).filter(|e|e.is_zero()));
         if let Some(share) = &share {
             vars.insert("eps", share.clone());
         } else if crate::expressions::uses_epsilon(epsilon) {
@@ -858,8 +873,11 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
             "nonzero native epsilon needs a specified realised operator before numerical replay",
         );
     }
-    pending(format!(
-        "gate {} with {} total controls has no checked exact native match",
+    if decision.is_none() && schemes.iter().any(|s|scheme_covers(s,gate)) {
+        return pending("default scheme template expansion has not been implemented");
+    }
+    invalid("target.gates/schemes",format!(
+        "gate {} with {} total controls has no matching selected native entry or scheme",
         gate.realised_opcode(),
         gate.controls.len()
     ))
@@ -1026,7 +1044,7 @@ pub fn subject_matrices(
         {
             continue;
         }
-        let wires = check_width(&context, docs, inputs)?;
+        let wires = check_width(&context, docs, inputs, true)?;
         let mut gates = Vec::new();
         collect(
             &context,

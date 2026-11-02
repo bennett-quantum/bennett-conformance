@@ -382,9 +382,17 @@ fn parse_metadata(body: Option<&Vec<String>>, name: &str) -> Result<Option<Value
                 ));
             }
             let v = parse(&body[0]).map_err(|e| sec_err("§9.1", format!("{name}: {e}")))?;
-            let canonical=jcs(&v).map_err(|e|sec_err("§9.1",format!("{name}: cannot encode JCS: {e}")))?;
-            if canonical!=body[0].as_bytes() {return Err(sec_err("§9.1",format!("{name} metadata bytes are not RFC 8785 canonical")));}
-            if let Some(path)=crate::json::oversized_metadata_number(&v,name){return Err(sec_err("§9.1",format!("{path}: JSON metadata numbers >= 2^53 are forbidden; use exact decimal strings")));}
+            let canonical =
+                jcs(&v).map_err(|e| sec_err("§9.1", format!("{name}: cannot encode JCS: {e}")))?;
+            if canonical != body[0].as_bytes() {
+                return Err(sec_err(
+                    "§9.1",
+                    format!("{name} metadata bytes are not RFC 8785 canonical"),
+                ));
+            }
+            if let Some(path) = crate::json::oversized_metadata_number(&v, name) {
+                return Err(sec_err("§9.1",format!("{path}: JSON metadata numbers >= 2^53 are forbidden; use exact decimal strings")));
+            }
             Ok(Some(v))
         }
     }

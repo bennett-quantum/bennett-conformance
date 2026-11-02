@@ -641,9 +641,18 @@ fn load_jcs_doc(bytes: &[u8], what: &str, verdict: &mut Verdict) -> Option<Value
     };
     match jcs(&v) {
         Ok(canon) if canon == bytes => {
-            if let Some(path)=crate::json::oversized_metadata_number(&v,what) {
-                let code=match what {"target"=>"E_CERT_TARGET","schedule"=>"E_CERT_SCHEDULE_BINDING",_=>"E_CERT_SCHEMA"};
-                verdict.errors.push(rej(code,"§9.1",path,"JSON metadata numbers >= 2^53 are forbidden; use exact decimal strings"));
+            if let Some(path) = crate::json::oversized_metadata_number(&v, what) {
+                let code = match what {
+                    "target" => "E_CERT_TARGET",
+                    "schedule" => "E_CERT_SCHEDULE_BINDING",
+                    _ => "E_CERT_SCHEMA",
+                };
+                verdict.errors.push(rej(
+                    code,
+                    "§9.1",
+                    path,
+                    "JSON metadata numbers >= 2^53 are forbidden; use exact decimal strings",
+                ));
                 return None;
             }
             if let Some(limit) = crate::decimal_limits::document(&v, what) {

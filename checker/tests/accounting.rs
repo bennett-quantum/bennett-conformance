@@ -182,6 +182,107 @@ fn native_cost_table_lookup_checks_own_controls_and_array_bounds() {
     }
 }
 
+#[test]
+fn wide_interface_accounting_does_not_require_a_dense_matrix() {
+    for numerical in [false, true] {
+        let claims = if numerical {
+            vec![json(
+                r#"{"kind":"numerical","bound":0,"metric":"operator_norm","precision_bits":64}"#,
+            )]
+        } else {
+            vec![]
+        };
+        let (mut inp, h) = standalone(
+            "perm_action @wide (t:wire[64] mut) () () () ()\n^entry():\nx t[0]",
+            r#"{"wide":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[64],"tier":"q"}}"#,
+            "wide",
+            claims,
+        );
+        let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+        let Value::Obj(top) = &mut cert else {
+            unreachable!()
+        };
+        let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+            unreachable!()
+        };
+        let r = regions.get_mut(&h).unwrap();
+        set(
+            r,
+            "resources",
+            json(r#"{"peak_qubits":64,"qubit_second":64,"time":1}"#),
+        );
+        set(r, "gates_used", json(r#"{"x":{"count":1}}"#));
+        set(
+            r,
+            "error",
+            json(r#"{"forward:0":{"local":{"operator_norm":0},"inclusive":{"operator_norm":0}}}"#),
+        );
+        let mut multiplicities = json("{}");
+        set(&mut multiplicities, &format!("{h}:forward:0"), n(1));
+        set(
+            top.get_mut("composition").unwrap(),
+            "multiplicities",
+            multiplicities,
+        );
+        inp.cert_bytes = jcs(&cert).unwrap();
+        let base = controlled();
+        let mut target = json(std::str::from_utf8(base.target_bytes.as_ref().unwrap()).unwrap());
+        set(
+            &mut target,
+            "gates",
+            json(
+                r#"[{"op":"x","classes":["fast"],"controls":{"min":0,"max":0},"epsilon":0,"cost":{"time":1}}]"#,
+            ),
+        );
+        let Value::Obj(t) = &mut target else {
+            unreachable!()
+        };
+        let Value::Obj(classes) = t.get_mut("classes").unwrap() else {
+            unreachable!()
+        };
+        set(
+            classes.get_mut("fast").unwrap(),
+            "capacity",
+            Value::Str("unbounded".into()),
+        );
+        let mut schedule =
+            json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
+        set(&mut schedule, "entries", Value::Arr(vec![]));
+        bind_schedule(&mut inp, schedule, target);
+        let v = check_certificate(&inp);
+        assert!(codes(&v).is_empty(), "{v:?}");
+        assert_eq!(
+            v.overall,
+            if numerical { "unchecked" } else { "verified" },
+            "{v:?}"
+        );
+        assert!(
+            v.establishes
+                .iter()
+                .any(|s| s.contains("native leaf timing")),
+            "{v:?}"
+        );
+        assert!(
+            v.regions[0]
+                .unchecked_items
+                .iter()
+                .all(|s| !s.starts_with("resources producer report")),
+            "{v:?}"
+        );
+        if numerical {
+            assert!(
+                v.regions[0].claims[0]
+                    .1
+                    .unchecked_reason
+                    .as_ref()
+                    .unwrap()
+                    .contains("dense unitary"),
+                "{v:?}"
+            );
+        }
+    }
+}
+
 fn estimate_fixture() -> Inputs {
     let mut inp = controlled();
     let mut target = json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());

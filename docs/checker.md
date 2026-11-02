@@ -35,7 +35,9 @@ changes its separate binding.
 
 `--max-elements N` bounds replay and native expansion work. `--max-wires N`
 bounds matrix work; the current dense rational implementation also has a
-six-wire host cap. Channel LDL work has an eight-dimensional interface cap,
+six-wire host cap. Event/resource tracing uses a separate bound of at most
+1,048,576 wire identities and can verify wide interfaces without matrix work.
+Channel LDL work has an eight-dimensional interface cap,
 and interval precision has a 4096-bit host cap. These are implementation
 limits, never ISA legality limits. Retained replay/table/coverage storage is
 also bounded by a conservative 256 MiB estimate before allocation. `--library` accepts additional JCS documents;
@@ -50,6 +52,12 @@ decimal fields produce an explicit host-limit verdict before constructing
 powers of ten; exponents never truncate into machine-sized powers. This
 preflight applies to decimal fields, including embedded schedule fields, and
 leaves names and other opaque strings untouched.
+
+Every object metadata section must itself contain JCS bytes. The §9.1 rule
+rejecting JSON numbers at or above 2^53 applies recursively to metadata in
+objects and supplied certificate, target and schedule documents. Exact decimal
+strings retain their field-specific interpretation and are not rounded into
+JSON numbers.
 
 Reference oracle replay has a separate 1,048,576-row work limit per evaluation,
 shared by its nested oracle calls. Each nested call still uses its own ISA
