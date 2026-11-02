@@ -72,3 +72,41 @@ class SameBytes(unittest.TestCase):
             differential.run_binary = differential_run
         hi = seen["cert"]["regions"][key]["claims"][0]["domain"]["bundles"][0]["hi"]
         self.assertIs(type(hi), int)
+
+
+class DocumentLevel(unittest.TestCase):
+    def run_one(self, mine, theirs):
+        import pathlib, tempfile
+        from checker_replay import differential
+        orig_c, orig_b = differential.check_certificate, differential.run_binary
+        differential.check_certificate = lambda *a, **k: mine
+        differential.run_binary = lambda *a, **k: (theirs, 1, "")
+        try:
+            with tempfile.TemporaryDirectory(dir=pathlib.Path(__file__).resolve().parents[2] / ".tmp") as d:
+                run = differential.Run("/bin/true", d)
+                p = [p for p in arith_objects() if p.name == "arith.add.cuccaro.w1.bisa"][0]
+                text = p.read_bytes().decode()
+                run.compare("t", "t", text, {}, "s")
+                return run.counts
+        finally:
+            differential.check_certificate, differential.run_binary = orig_c, orig_b
+
+    def test_both_reject_the_document_is_agreement(self):
+        claim = {"index": 0, "kind": "exhaustive", "outcome": "unchecked"}
+        mine = {"overall": "reject", "errors": [{"code": "E"}], "regions": {"k": {"claims": [claim]}}}
+        theirs = {"overall": "rejected", "errors": [{"code": "F"}], "regions": {}}
+        counts = self.run_one(mine, theirs)
+        self.assertEqual(counts["disagreements"], 0, counts)
+        self.assertEqual(counts["agree_document_reject"], 1, counts)
+
+    def test_binary_document_reject_alone_still_compares_claims(self):
+        claim = {"index": 0, "kind": "exhaustive", "outcome": "proof"}
+        mine = {"overall": "replayed", "errors": [], "regions": {"k": {"claims": [claim]}}}
+        theirs = {"overall": "rejected", "errors": [{"code": "F"}], "regions": {}}
+        self.assertEqual(self.run_one(mine, theirs)["disagreements"], 1)
+
+    def test_committed_witnesses_are_not_published_objects(self):
+        import pathlib
+        from checker_replay.differential import published_objects
+        ws = pathlib.Path(__file__).resolve().parents[3]
+        self.assertFalse([p for p in published_objects(ws) if "checker-replay" in p.parts])

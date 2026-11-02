@@ -263,6 +263,10 @@ class Run:
         found = []
         if mine.get("overall") == "crash" or theirs.get("overall") in ("crash", "timeout"):
             found.append(f"crash:{mine.get('overall')}|{theirs.get('overall')}")
+        elif mine.get("errors") and theirs.get("errors"):
+            # Both reject the document; the binary then reports no claims, so claim-level
+            # comparison would only measure that omission.
+            self.counts["agree_document_reject"] += 1
         else:
             bregs = theirs.get("regions") or {}
             for key, rec in (mine.get("regions") or {}).items():
@@ -347,7 +351,7 @@ def published_objects(ws):
         names = subprocess.run(["git", "-C", str(repo), "grep", "-lE", "^section certificate$", "--", "*.bisa"],
                                capture_output=True, text=True).stdout.split("\n")
         for n in names:
-            if n:
+            if n and not n.startswith("checker-replay/"):  # our own committed witnesses
                 yield repo / n
 
 
