@@ -59,10 +59,12 @@ objects and supplied certificate, target and schedule documents. Exact decimal
 strings retain their field-specific interpretation and are not rounded into
 JSON numbers.
 
-Reference oracle replay has a separate 1,048,576-row work limit per evaluation,
-shared by its nested oracle calls. Each nested call still uses its own ISA
-budget. A host work limit gives no proof label, evidence count or coverage;
-ISA budget exhaustion at that boundary remains the specified budget fault.
+Reference replay has a separate default limit of 1,048,576 work steps per
+evaluation, shared through nested oracle and action calls. Oracle rows, action
+instructions and loop visits consume work; an embedding can set
+`Limits.max_reference_steps`. Each oracle still uses its own ISA budget. A
+host work limit gives no proof label, evidence count or coverage; ISA budget
+exhaustion at that boundary remains the specified budget fault.
 
 The executable prints exactly one canonical JSON verdict line on stdout.
 Usage and file/UTF-8 input errors go to stderr. Exit status is:
@@ -180,8 +182,13 @@ Native costs and achieved epsilon use exact expression evaluation, including
 table lookups, `ceil`, and the integer `log2inv_eps`/`eps_decade` definitions.
 An entry exceeding the requested share is skipped in array order. Invalid
 domains, out-of-range table indices, division by zero and exact entries that
-depend on `eps` reject. Nonzero native realisation models and default shares
-for expressions depending on `eps` remain unchecked.
+depend on `eps` reject. Nonzero native realisation models and positive default
+shares for expressions depending on `eps` remain unchecked. A zero region
+accuracy gives a known zero default share. Missing selected native entries,
+unknown named schemes and schemes whose opcode/control range does not match
+reject with `E_SCHEDULE_INFEASIBLE`. Matching schemes remain unchecked until
+their templates have been independently expanded and verified. Control-range
+integers are compared exactly even above the host integer range.
 
 Launch estimates on this path use exact reduced numerator/denominator rows,
 percent-encoded resource/class names and canonical upward 34-digit decimal

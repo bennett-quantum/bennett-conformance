@@ -760,18 +760,37 @@ pub(crate) fn decision_kind<'a>(
     }
     Ok(best.and_then(|(_, e)| e.get(kind)))
 }
-fn integer_cmp(value:&Value,count:u64)->Option<std::cmp::Ordering>{
-    if let Some(value)=u64_of(value){return Some(value.cmp(&count));}
-    let text=value.as_str().filter(|s|crate::rat::is_canonical_uint_str(s))?;
-    let actual=count.to_string();Some(text.len().cmp(&actual.len()).then_with(||text.cmp(&actual)))
+fn integer_cmp(value: &Value, count: u64) -> Option<std::cmp::Ordering> {
+    if let Some(value) = u64_of(value) {
+        return Some(value.cmp(&count));
+    }
+    let text = value
+        .as_str()
+        .filter(|s| crate::rat::is_canonical_uint_str(s))?;
+    let actual = count.to_string();
+    Some(
+        text.len()
+            .cmp(&actual.len())
+            .then_with(|| text.cmp(&actual)),
+    )
 }
-fn control_range(entry:&Value,count:u64)->bool{
-    let controls=entry.get("controls");
-    controls.and_then(|c|c.get("min")).and_then(|v|integer_cmp(v,count)).map(|o|o!=std::cmp::Ordering::Greater)==Some(true)
-    && controls.and_then(|c|c.get("max")).map(|v|v.as_str()==Some("unbounded") || integer_cmp(v,count).map(|o|o!=std::cmp::Ordering::Less)==Some(true))==Some(true)
+fn control_range(entry: &Value, count: u64) -> bool {
+    let controls = entry.get("controls");
+    controls
+        .and_then(|c| c.get("min"))
+        .and_then(|v| integer_cmp(v, count))
+        .map(|o| o != std::cmp::Ordering::Greater)
+        == Some(true)
+        && controls.and_then(|c| c.get("max")).map(|v| {
+            v.as_str() == Some("unbounded")
+                || integer_cmp(v, count).map(|o| o != std::cmp::Ordering::Less) == Some(true)
+        }) == Some(true)
 }
-fn scheme_covers(scheme:&Value,gate:&Gate)->bool{
-    scheme.get("realises").map(|r|r.get("op").and_then(Value::as_str)==Some(gate.realised_opcode()) && control_range(r,gate.controls.len() as u64))==Some(true)
+fn scheme_covers(scheme: &Value, gate: &Gate) -> bool {
+    scheme.get("realises").map(|r| {
+        r.get("op").and_then(Value::as_str) == Some(gate.realised_opcode())
+            && control_range(r, gate.controls.len() as u64)
+    }) == Some(true)
 }
 pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value> {
     let target = docs
@@ -790,11 +809,14 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
     }
     let class = classes.keys().next().unwrap();
     let decision = decision_kind(docs, gate, "gate")?;
-    let schemes=target.get("schemes").and_then(Value::as_arr).unwrap_or(&[]);
+    let schemes = target.get("schemes").and_then(Value::as_arr).unwrap_or(&[]);
     if let Some(g) = decision {
         if g.get("realisation").and_then(Value::as_str) != Some("native") {
-            let name=g.get("realisation").and_then(Value::as_str);
-            if schemes.iter().any(|s|s.get("name").and_then(Value::as_str)==name && scheme_covers(s,gate)) {
+            let name = g.get("realisation").and_then(Value::as_str);
+            if schemes
+                .iter()
+                .any(|s| s.get("name").and_then(Value::as_str) == name && scheme_covers(s, gate))
+            {
                 return pending("scheduled scheme template expansion has not been implemented");
             }
             return invalid("schedule.gate.realisation","named scheme does not exist or its opcode/control range does not cover the generated gate");
@@ -806,7 +828,7 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
             continue;
         }
         let count = gate.controls.len() as u64;
-        if !control_range(entry,count) {
+        if !control_range(entry, count) {
             continue;
         }
         let pattern = entry.get("classes").and_then(Value::as_arr).unwrap_or(&[]);
@@ -825,7 +847,14 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
         let share = decision
             .and_then(|g| g.get("epsilon_share"))
             .and_then(|e| rat_of_json(e).ok())
-            .or_else(||docs.schedule.as_ref().and_then(|s|s.get("bindings")).and_then(|b|b.get("epsilon")).and_then(|e|rat_of_json(e).ok()).filter(|e|e.is_zero()));
+            .or_else(|| {
+                docs.schedule
+                    .as_ref()
+                    .and_then(|s| s.get("bindings"))
+                    .and_then(|b| b.get("epsilon"))
+                    .and_then(|e| rat_of_json(e).ok())
+                    .filter(|e| e.is_zero())
+            });
         if let Some(share) = &share {
             vars.insert("eps", share.clone());
         } else if crate::expressions::uses_epsilon(epsilon) {
@@ -873,14 +902,17 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
             "nonzero native epsilon needs a specified realised operator before numerical replay",
         );
     }
-    if decision.is_none() && schemes.iter().any(|s|scheme_covers(s,gate)) {
+    if decision.is_none() && schemes.iter().any(|s| scheme_covers(s, gate)) {
         return pending("default scheme template expansion has not been implemented");
     }
-    invalid("target.gates/schemes",format!(
-        "gate {} with {} total controls has no matching selected native entry or scheme",
-        gate.realised_opcode(),
-        gate.controls.len()
-    ))
+    invalid(
+        "target.gates/schemes",
+        format!(
+            "gate {} with {} total controls has no matching selected native entry or scheme",
+            gate.realised_opcode(),
+            gate.controls.len()
+        ),
+    )
 }
 fn gate_matrix(g: &Gate, wires: usize, p: u32) -> Result<Matrix> {
     let dim = 1usize << wires;

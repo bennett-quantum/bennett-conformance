@@ -22,12 +22,15 @@ pub const REF_09_HASH: &str = "5de4e4995350313e50217880ba1b95de39cd043283b726337
 pub struct Limits {
     pub max_elements: u64,
     pub max_wires: u32,
+    /// Per relation-side replay, shared through nested oracle/action calls.
+    pub max_reference_steps: u64,
 }
 impl Default for Limits {
     fn default() -> Self {
         Limits {
             max_elements: 1 << 20,
             max_wires: 10,
+            max_reference_steps: 1 << 20,
         }
     }
 }

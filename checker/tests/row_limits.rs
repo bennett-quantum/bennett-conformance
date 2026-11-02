@@ -108,6 +108,7 @@ fn host_row_limit_discharges_no_proof_request_or_evidence_count() {
         json(&format!(r#"{{"program":"{h}"}}"#)),
     );
     inp.cert_bytes = jcs(&cert).unwrap();
+    inp.limits.max_reference_steps = 4;
     let verdict = check_certificate(&inp);
     assert_eq!(verdict.overall, "unchecked", "{verdict:?}");
     assert!(codes(&verdict).is_empty(), "{verdict:?}");
@@ -121,5 +122,85 @@ fn host_row_limit_discharges_no_proof_request_or_evidence_count() {
     assert!(
         claim.elements.is_none() && claim.draws.is_none() && claim.covered_fraction.is_none(),
         "{claim:?}"
+    );
+}
+
+#[test]
+fn action_to_oracle_calls_use_the_configured_reference_row_limit() {
+    use bennett_cert_checker::cert::check_certificate;
+    let source="perm_action @outer (t:wire mut) (x:wire in) () (tk:token) ()\n^entry():\nf = qalloc fast 4\noracle_call @spin tk (x) t f () ()\noracle_call @spin tk (x) t f () ()\nqfree f\noracle @spin (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nqjump ^entry";
+    let sig = r#"{"outer":{"abi":"0.9","args":["token"],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"},"spin":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#;
+    let claim = json(
+        r#"{"kind":"exhaustive","label":"proof","domain":{"bundles":[],"borrowed":[],"regions":[]},"invocation":{"args":[["100","0","0","0"]],"budget":["0","0","0","0"]},"expected":{"table":[{"before":{"bundles":["0","0"],"borrowed":[],"regions":[]},"after":{"bundles":["0","0"],"borrowed":[],"regions":[]}}]}}"#,
+    );
+    let (mut inp, _) = standalone(source, sig, "outer", vec![claim]);
+    inp.limits.max_reference_steps = 4;
+    let v = check_certificate(&inp);
+    assert_eq!(v.overall, "unchecked", "{v:?}");
+    assert!(codes(&v).is_empty(), "{v:?}");
+    assert!(
+        v.regions[0].claims[0]
+            .1
+            .unchecked_reason
+            .as_ref()
+            .unwrap()
+            .contains("host limit"),
+        "{v:?}"
+    );
+}
+
+#[test]
+fn reference_work_limit_counts_empty_loop_visits() {
+    use bennett_cert_checker::cert::check_certificate;
+    use bennett_cert_checker::json::{jcs, Value};
+    let source="perm_action @loops (t:wire mut) () () () ()\nregs {  } bounds {1000}\n^entry():\nqloop 1000 {\n}";
+    let sig = r#"{"loops":{"abi":"0.9","args":[],"bounds":[1000],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#;
+    let claim = json(
+        r#"{"kind":"exhaustive","label":"proof","domain":{"bundles":[],"borrowed":[],"regions":[]},"invocation":{"args":[],"budget":["0","0","0","0"]},"expected":{"table":[{"before":{"bundles":["0"],"borrowed":[],"regions":[]},"after":{"bundles":["0"],"borrowed":[],"regions":[]}}]}}"#,
+    );
+    let (mut inp, h) = standalone(source, sig, "loops", vec![claim]);
+    inp.limits.max_reference_steps = 4;
+    let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else {
+        unreachable!()
+    };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        unreachable!()
+    };
+    set(regions.get_mut(&h).unwrap(), "bounds", json("[1000]"));
+    inp.cert_bytes = jcs(&cert).unwrap();
+    let v = check_certificate(&inp);
+    assert_eq!(v.overall, "unchecked", "{v:?}");
+    assert!(codes(&v).is_empty(), "{v:?}");
+    assert!(
+        v.regions[0].claims[0]
+            .1
+            .unchecked_reason
+            .as_ref()
+            .unwrap()
+            .contains("host limit"),
+        "{v:?}"
+    );
+}
+
+#[test]
+fn lifted_permutation_calls_keep_the_shared_reference_work_counter() {
+    let source="oracle @outer (x:wire in) (t:wire) (f:wire[4]) () (tk:token)\nregs { r:reg[1] }\n^entry():\nr = lift.const.i1 0\nlift.perm_call @middle (r) (x) () (tk)\nlift.retval r\nperm_action @middle (t:wire mut) (x:wire in) () (tk:token) ()\n^entry():\nf = qalloc fast 4\noracle_call @spin tk (x) t f () ()\noracle_call @spin tk (x) t f () ()\nqfree f\noracle @spin (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nqjump ^entry";
+    let sig = r#"{"outer":{"abi":"0.9","args":["token"],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"},"middle":{"abi":"0.9","args":["token"],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"},"spin":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#;
+    let (inp, _) = standalone(source, sig, "outer", vec![]);
+    let object = Object::parse(&inp.object_text).unwrap();
+    let budget = [100u32.into(), 0u32.into(), 0u32.into(), 0u32.into()];
+    let result = eval_oracle_bounded(
+        &object,
+        object.symbol("outer").unwrap(),
+        &[0u32.into()],
+        &[],
+        &[Classical::Token(budget.clone())],
+        &budget,
+        0,
+        4,
+    );
+    assert!(
+        matches!(result,Err(EvalError::Unchecked(s)) if s.contains("host limit") && s.contains("reference replay"))
     );
 }

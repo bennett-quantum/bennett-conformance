@@ -221,8 +221,11 @@ fn adjoint_calls_match_the_inverse_primitive_in_the_target() {
         bind_schedule(&mut inp, schedule, target);
         let v = check_certificate(&inp);
         let outcome = &v.regions[0].claims[0].1;
-        if op=="tdg" {assert!(codes(&v).is_empty(),"{v:?}");}
-        else {assert!(codes(&v).contains(&"E_SCHEDULE_INFEASIBLE"),"{v:?}");}
+        if op == "tdg" {
+            assert!(codes(&v).is_empty(), "{v:?}");
+        } else {
+            assert!(codes(&v).contains(&"E_SCHEDULE_INFEASIBLE"), "{v:?}");
+        }
         assert_eq!(
             outcome.outcome,
             if op == "tdg" { "accept" } else { "reject" },
@@ -384,6 +387,7 @@ fn native_epsilon_expressions_are_evaluated_before_ordered_matching() {
         ),
         ("-1", "0", "rejected"),
         ("0.1", "0", "verified"),
+        ("0.1", "default", "verified"),
         (r#"{"op":"*","args":[0,{"var":"eps"}]}"#, "0.1", "rejected"),
     ] {
         let mut inp = rotation_inputs("rx", "1.0");
@@ -394,13 +398,14 @@ fn native_epsilon_expressions_are_evaluated_before_ordered_matching() {
         let second = target.get("gates").unwrap().as_arr().unwrap()[0].clone();
         set(&mut target, "gates", Value::Arr(vec![first, second]));
         let mut schedule = json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());
-        set(
-            &mut schedule,
-            "entries",
+        let entries = if share == "default" {
+            Value::Arr(vec![])
+        } else {
             json(&format!(
                 r#"[{{"path":[],"step":"*","phase":"*","generated":"*","kind":"gate","gate":{{"realisation":"native","epsilon_share":{share}}}}}]"#
-            )),
-        );
+            ))
+        };
+        set(&mut schedule, "entries", entries);
         bind_schedule(&mut inp, schedule, target);
         let verdict = check_certificate(&inp);
         assert_eq!(verdict.overall, expected, "{expression}: {verdict:?}");
@@ -411,32 +416,115 @@ fn native_epsilon_expressions_are_evaluated_before_ordered_matching() {
 }
 
 #[test]
-fn missing_native_and_named_scheme_matches_are_infeasible(){
-    for case in ["missing-name","wrong-range","no-realisation","unrelated-default","matching-default","native-with-only-scheme","matching-name"] {
-        let mut inp=controlled();let mut target=json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());let mut schedule=json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());
-        if case!="missing-name" && case!="no-realisation" {
-            let op=if case=="unrelated-default"{"h"}else{"x"};let max=if case=="wrong-range"{0}else{1};
-            set(&mut target,"schemes",json(&format!(r#"[{{"name":"controlled-x","realises":{{"op":"{op}","controls":{{"min":0,"max":{max}}}}},"ancillae":{{"count":0,"state":"clean","class":"fast"}},"template":[{{"gate":"cx","wires":["c[0]","t"]}}]}}]"#)));
+fn missing_native_and_named_scheme_matches_are_infeasible() {
+    for case in [
+        "missing-name",
+        "wrong-range",
+        "no-realisation",
+        "unrelated-default",
+        "matching-default",
+        "native-with-only-scheme",
+        "matching-name",
+    ] {
+        let mut inp = controlled();
+        let mut target = json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());
+        let mut schedule = json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());
+        if case != "missing-name" && case != "no-realisation" {
+            let op = if case == "unrelated-default" {
+                "h"
+            } else {
+                "x"
+            };
+            let max = if case == "wrong-range" { 0 } else { 1 };
+            set(
+                &mut target,
+                "schemes",
+                json(&format!(
+                    r#"[{{"name":"controlled-x","realises":{{"op":"{op}","controls":{{"min":0,"max":{max}}}}},"ancillae":{{"count":0,"state":"clean","class":"fast"}},"template":[{{"gate":"cx","wires":["c[0]","t"]}}]}}]"#
+                )),
+            );
         }
-        if matches!(case,"no-realisation"|"unrelated-default") {set(&mut target,"gates",Value::Arr(vec![]));}
-        if matches!(case,"matching-default"|"native-with-only-scheme"|"matching-name") {set(&mut target,"gates",json(r#"[{"op":"cx","classes":["fast"],"controls":{"min":1,"max":1},"epsilon":0,"cost":{"time":1}}]"#));}
-        if matches!(case,"unrelated-default"|"matching-default") {set(&mut schedule,"entries",Value::Arr(vec![]));}
-        else if matches!(case,"missing-name"|"wrong-range"|"matching-name") {
-            let Value::Obj(top)=&mut schedule else {unreachable!()};let Value::Arr(entries)=top.get_mut("entries").unwrap() else {unreachable!()};
-            let Value::Obj(e)=&mut entries[0] else {unreachable!()};set(e.get_mut("gate").unwrap(),"realisation",Value::Str(if case=="missing-name"{"missing"}else{"controlled-x"}.into()));
+        if matches!(case, "no-realisation" | "unrelated-default") {
+            set(&mut target, "gates", Value::Arr(vec![]));
         }
-        bind_schedule(&mut inp,schedule,target);let v=check_certificate(&inp);
-        if matches!(case,"matching-default"|"matching-name") {assert_eq!(v.overall,"unchecked","{case}: {v:?}");assert!(codes(&v).is_empty(),"{case}: {v:?}");}
-        else {assert_eq!(v.overall,"rejected","{case}: {v:?}");assert!(codes(&v).contains(&"E_SCHEDULE_INFEASIBLE"),"{case}: {v:?}");}
+        if matches!(
+            case,
+            "matching-default" | "native-with-only-scheme" | "matching-name"
+        ) {
+            set(
+                &mut target,
+                "gates",
+                json(
+                    r#"[{"op":"cx","classes":["fast"],"controls":{"min":1,"max":1},"epsilon":0,"cost":{"time":1}}]"#,
+                ),
+            );
+        }
+        if matches!(case, "unrelated-default" | "matching-default") {
+            set(&mut schedule, "entries", Value::Arr(vec![]));
+        } else if matches!(case, "missing-name" | "wrong-range" | "matching-name") {
+            let Value::Obj(top) = &mut schedule else {
+                unreachable!()
+            };
+            let Value::Arr(entries) = top.get_mut("entries").unwrap() else {
+                unreachable!()
+            };
+            let Value::Obj(e) = &mut entries[0] else {
+                unreachable!()
+            };
+            set(
+                e.get_mut("gate").unwrap(),
+                "realisation",
+                Value::Str(
+                    if case == "missing-name" {
+                        "missing"
+                    } else {
+                        "controlled-x"
+                    }
+                    .into(),
+                ),
+            );
+        }
+        bind_schedule(&mut inp, schedule, target);
+        let v = check_certificate(&inp);
+        if matches!(case, "matching-default" | "matching-name") {
+            assert_eq!(v.overall, "unchecked", "{case}: {v:?}");
+            assert!(codes(&v).is_empty(), "{case}: {v:?}");
+        } else {
+            assert_eq!(v.overall, "rejected", "{case}: {v:?}");
+            assert!(
+                codes(&v).contains(&"E_SCHEDULE_INFEASIBLE"),
+                "{case}: {v:?}"
+            );
+        }
     }
 }
 
 #[test]
-fn native_control_range_metadata_integers_are_compared_without_host_truncation(){
-    for (min,max,expected) in [("1","1","verified"),("0","18446744073709551616","verified"),("18446744073709551616","18446744073709551616","rejected")] {
-        let mut inp=controlled();let mut target=json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());
-        let Value::Obj(top)=&mut target else {unreachable!()};let Value::Arr(gates)=top.get_mut("gates").unwrap() else {unreachable!()};set(&mut gates[0],"controls",json(&format!(r#"{{"min":"{min}","max":"{max}"}}"#)));
-        let schedule=json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());bind_schedule(&mut inp,schedule,target);let v=check_certificate(&inp);
-        assert_eq!(v.overall,expected,"{min}..{max}: {v:?}");if expected=="rejected" {assert!(codes(&v).contains(&"E_SCHEDULE_INFEASIBLE"),"{v:?}");}
+fn native_control_range_metadata_integers_are_compared_without_host_truncation() {
+    for (min, max, expected) in [
+        ("1", "1", "verified"),
+        ("0", "18446744073709551616", "verified"),
+        ("18446744073709551616", "18446744073709551616", "rejected"),
+    ] {
+        let mut inp = controlled();
+        let mut target = json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());
+        let Value::Obj(top) = &mut target else {
+            unreachable!()
+        };
+        let Value::Arr(gates) = top.get_mut("gates").unwrap() else {
+            unreachable!()
+        };
+        set(
+            &mut gates[0],
+            "controls",
+            json(&format!(r#"{{"min":"{min}","max":"{max}"}}"#)),
+        );
+        let schedule = json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());
+        bind_schedule(&mut inp, schedule, target);
+        let v = check_certificate(&inp);
+        assert_eq!(v.overall, expected, "{min}..{max}: {v:?}");
+        if expected == "rejected" {
+            assert!(codes(&v).contains(&"E_SCHEDULE_INFEASIBLE"), "{v:?}");
+        }
     }
 }

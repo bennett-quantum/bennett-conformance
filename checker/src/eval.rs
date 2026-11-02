@@ -255,6 +255,14 @@ pub struct OracleOutcome {
     pub code: BigUint,
 }
 
+fn reference_step(work: &mut u64) -> Result<(), EvalError> {
+    if *work == 0 {
+        return unchecked("unchecked (host limit): reference replay work (rows, instructions and loop visits) exceeds the shared host limit (§12.2)");
+    }
+    *work -= 1;
+    Ok(())
+}
+
 struct Lifted<'a, 'w> {
     object: &'a Object,
     vals: HashMap<String, BigUint>,
@@ -277,7 +285,16 @@ pub fn eval_oracle(
     budget: &[BigUint; 4],
     depth: usize,
 ) -> Result<OracleOutcome, EvalError> {
-    eval_oracle_bounded(object, oracle, ins, mem, args, budget, depth, 1 << 20)
+    eval_oracle_bounded(
+        object,
+        oracle,
+        ins,
+        mem,
+        args,
+        budget,
+        depth,
+        crate::cert::Limits::default().max_reference_steps,
+    )
 }
 
 /// Bound host work independently of the ISA budget. Nested oracle invocations
@@ -419,10 +436,7 @@ fn eval_oracle_work(
                 oracle.name
             ));
         }
-        if *env.work == 0 {
-            return unchecked("unchecked (host limit): oracle row work, including nested calls, exceeds the shared host limit (§12.2)");
-        }
-        *env.work -= 1;
+        reference_step(env.work)?;
         let toks = rows[pc].clone();
         steps += BigUint::one();
         match env.exec_row(&toks, &rows, &block_first, &mut mem_by_name, args)? {
@@ -801,7 +815,7 @@ impl Lifted<'_, '_> {
                     regions: regs,
                     args: vec![],
                 };
-                let after = eval_action_tuple(
+                let after = eval_action_tuple_work(
                     self.object,
                     &callee,
                     &iface,
@@ -810,6 +824,7 @@ impl Lifted<'_, '_> {
                     0,
                     false,
                     self.depth + 1,
+                    self.work,
                 )?;
                 for (t, v) in mut_toks.iter().zip(after.bundles.iter()) {
                     let w = self.width_of(t)?;
@@ -904,6 +919,28 @@ pub fn eval_oracle_tuple(
     budget: &[BigUint; 4],
     inherited_controls: usize,
 ) -> Result<Tuple, EvalError> {
+    let mut work = crate::cert::Limits::default().max_reference_steps;
+    eval_oracle_tuple_work(
+        object,
+        oracle,
+        iface,
+        before,
+        args,
+        budget,
+        inherited_controls,
+        &mut work,
+    )
+}
+fn eval_oracle_tuple_work(
+    object: &Object,
+    oracle: &Symbol,
+    iface: &crate::object::Interface,
+    before: &Tuple,
+    args: &[Classical],
+    budget: &[BigUint; 4],
+    inherited_controls: usize,
+    work: &mut u64,
+) -> Result<Tuple, EvalError> {
     let controls_on = before.bundles[..inherited_controls]
         .iter()
         .all(|b| *b == BigUint::one());
@@ -918,7 +955,7 @@ pub fn eval_oracle_tuple(
         }
         pos += 1;
     }
-    let outcome = eval_oracle(object, oracle, &ins, &before.regions, args, budget, 0)?;
+    let outcome = eval_oracle_work(object, oracle, &ins, &before.regions, args, budget, 0, work)?;
     let mut after = before.clone();
     let mut pos = inherited_controls;
     for b in &iface.bundles {
@@ -963,7 +1000,7 @@ fn wire_ref(tok: &str) -> (String, Option<usize>) {
     }
 }
 
-struct ActionEnv<'a> {
+struct ActionEnv<'a, 'w> {
     object: &'a Object,
     wires: HashMap<String, Vec<bool>>,
     regions: HashMap<String, Vec<BigUint>>,
@@ -976,9 +1013,10 @@ struct ActionEnv<'a> {
     live_alloc: HashSet<String>,
     depth: usize,
     kind: String,
+    work: &'w mut u64,
 }
 
-impl ActionEnv<'_> {
+impl ActionEnv<'_, '_> {
     fn bit(&self, bundle: &str, idx: usize) -> Result<bool, EvalError> {
         self.wires
             .get(bundle)
@@ -1016,6 +1054,7 @@ impl ActionEnv<'_> {
 
     fn exec_stmts(&mut self, stmts: &[Stmt]) -> Result<(), EvalError> {
         for s in stmts {
+            reference_step(self.work)?;
             match s {
                 Stmt::Line(t) => self.exec_line(t)?,
                 Stmt::Block { head, body, rest } => self.exec_block(head, body, rest.as_deref())?,
@@ -1042,6 +1081,7 @@ impl ActionEnv<'_> {
                     let flag_bundle = "$loopflag".to_string();
                     self.wires.insert(flag_bundle.clone(), vec![flag]);
                     for i in 0..n {
+                        reference_step(self.work)?;
                         self.wires.insert(flag_bundle.clone(), vec![flag]);
                         self.predicates.push((flag_bundle.clone(), 0));
                         let r = self.exec_stmts(body);
@@ -1061,6 +1101,7 @@ impl ActionEnv<'_> {
                         return unchecked(format!("qloop bound {n} exceeds replay cap"));
                     }
                     for _ in 0..n {
+                        reference_step(self.work)?;
                         self.exec_stmts(body)?;
                     }
                     Ok(())
@@ -1472,7 +1513,16 @@ impl ActionEnv<'_> {
                 }
             }
         }
-        let outcome = eval_oracle(self.object, &g, &ins, &mem, &cargs, &budget, self.depth + 1)?;
+        let outcome = eval_oracle_work(
+            self.object,
+            &g,
+            &ins,
+            &mem,
+            &cargs,
+            &budget,
+            self.depth + 1,
+            self.work,
+        )?;
         if !outcome.code.is_zero() {
             return Err(EvalError::Reject(Reject::new(
                 "E_CERT_REPLAY",
@@ -1495,7 +1545,7 @@ impl ActionEnv<'_> {
         }
         let mut inverse_ins = ins.clone();
         inverse_ins[0] = outcome.payload.clone();
-        let recovered = eval_oracle(
+        let recovered = eval_oracle_work(
             self.object,
             inverse,
             &inverse_ins,
@@ -1503,6 +1553,7 @@ impl ActionEnv<'_> {
             &cargs,
             &budget,
             self.depth + 1,
+            self.work,
         )?;
         if !recovered.code.is_zero() || recovered.payload != ins[0] {
             return Err(EvalError::Reject(Reject::new(
@@ -1564,7 +1615,7 @@ impl ActionEnv<'_> {
                         }
                     }
                 }
-                let outcome = eval_oracle(
+                let outcome = eval_oracle_work(
                     self.object,
                     &callee,
                     &ins,
@@ -1572,6 +1623,7 @@ impl ActionEnv<'_> {
                     &cargs,
                     &budget,
                     self.depth + 1,
+                    self.work,
                 )?;
                 if self.controls_on()? {
                     let tw = self.wires[&tgt].len() as u64;
@@ -1640,7 +1692,7 @@ impl ActionEnv<'_> {
                     regions: regs.clone(),
                     args: vec![],
                 };
-                let after = eval_action_tuple(
+                let after = eval_action_tuple_work(
                     self.object,
                     &callee,
                     &iface,
@@ -1649,6 +1701,7 @@ impl ActionEnv<'_> {
                     nctl,
                     adjoint,
                     self.depth + 1,
+                    self.work,
                 )?;
                 let mut pos = nctl;
                 for t in &mut_toks {
@@ -1779,6 +1832,30 @@ pub fn eval_action_tuple(
     adjoint: bool,
     depth: usize,
 ) -> Result<Tuple, EvalError> {
+    let mut work = crate::cert::Limits::default().max_reference_steps;
+    eval_action_tuple_work(
+        object,
+        symbol,
+        iface,
+        before,
+        args,
+        inherited_controls,
+        adjoint,
+        depth,
+        &mut work,
+    )
+}
+fn eval_action_tuple_work(
+    object: &Object,
+    symbol: &Symbol,
+    iface: &crate::object::Interface,
+    before: &Tuple,
+    args: &[Classical],
+    inherited_controls: usize,
+    adjoint: bool,
+    depth: usize,
+    work: &mut u64,
+) -> Result<Tuple, EvalError> {
     if depth > 64 {
         return unchecked("action call depth exceeds this checker's replay cap (64)");
     }
@@ -1803,6 +1880,7 @@ pub fn eval_action_tuple(
         live_alloc: HashSet::new(),
         depth,
         kind: symbol.kind.clone(),
+        work,
     };
     for i in 0..inherited_controls {
         let name = format!("$ctl{i}");
@@ -1917,9 +1995,29 @@ pub fn eval_subject_tuple(
     invocation: &Invocation,
     inherited_controls: usize,
 ) -> Result<Tuple, EvalError> {
+    eval_subject_tuple_bounded(
+        object,
+        symbol,
+        iface,
+        before,
+        invocation,
+        inherited_controls,
+        crate::cert::Limits::default().max_reference_steps,
+    )
+}
+fn eval_subject_tuple_bounded(
+    object: &Object,
+    symbol: &Symbol,
+    iface: &crate::object::Interface,
+    before: &Tuple,
+    invocation: &Invocation,
+    inherited_controls: usize,
+    row_limit: u64,
+) -> Result<Tuple, EvalError> {
+    let mut work = row_limit;
     let args = decode_invocation_args(&invocation.args, &iface.args)?;
     let after = match symbol.kind.as_str() {
-        "oracle" => eval_oracle_tuple(
+        "oracle" => eval_oracle_tuple_work(
             object,
             symbol,
             iface,
@@ -1927,8 +2025,9 @@ pub fn eval_subject_tuple(
             &args,
             &invocation.budget,
             inherited_controls,
+            &mut work,
         ),
-        "action" | "perm_action" => eval_action_tuple(
+        "action" | "perm_action" => eval_action_tuple_work(
             object,
             symbol,
             iface,
@@ -1937,6 +2036,7 @@ pub fn eval_subject_tuple(
             inherited_controls,
             false,
             0,
+            &mut work,
         ),
         other => unchecked(format!(
             "subject kind {other} cannot be replayed as a region"
@@ -2652,7 +2752,15 @@ fn check_replay_inner(
     let mut replayed = 0usize;
     for (i, before) in elements.iter().enumerate() {
         let left = outcome_from_eval(
-            eval_subject_tuple(&docs.object, &symbol, &iface, before, &invocation, c),
+            eval_subject_tuple_bounded(
+                &docs.object,
+                &symbol,
+                &iface,
+                before,
+                &invocation,
+                c,
+                inputs.limits.max_reference_steps,
+            ),
             path,
         )?;
         let right: Tuple = match &expected {
@@ -2677,7 +2785,15 @@ fn check_replay_inner(
             Expected::Program(_) => {
                 let (psym, piface) = program.as_ref().unwrap();
                 outcome_from_eval(
-                    eval_subject_tuple(&docs.object, psym, piface, before, &invocation, c),
+                    eval_subject_tuple_bounded(
+                        &docs.object,
+                        psym,
+                        piface,
+                        before,
+                        &invocation,
+                        c,
+                        inputs.limits.max_reference_steps,
+                    ),
                     path,
                 )?
             }
@@ -3027,7 +3143,16 @@ fn check_inverse_pair(
         let cargs = assemble_args(element);
         let run = |sym: &Symbol, ins: &[BigUint]| -> Result<OracleOutcome, ClaimOutcome> {
             outcome_from_eval(
-                eval_oracle(&docs.object, sym, ins, &element.regions, &cargs, &budget, 0),
+                eval_oracle_bounded(
+                    &docs.object,
+                    sym,
+                    ins,
+                    &element.regions,
+                    &cargs,
+                    &budget,
+                    0,
+                    inputs.limits.max_reference_steps,
+                ),
                 path,
             )
         };
