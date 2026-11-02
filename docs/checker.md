@@ -51,6 +51,11 @@ powers of ten; exponents never truncate into machine-sized powers. This
 preflight applies to decimal fields, including embedded schedule fields, and
 leaves names and other opaque strings untouched.
 
+Reference oracle replay has a separate 1,048,576-row work limit per evaluation,
+shared by its nested oracle calls. Each nested call still uses its own ISA
+budget. A host work limit gives no proof label, evidence count or coverage;
+ISA budget exhaustion at that boundary remains the specified budget fault.
+
 The executable prints exactly one canonical JSON verdict line on stdout.
 Usage and file/UTF-8 input errors go to stderr. Exit status is:
 
@@ -141,7 +146,7 @@ accounting remain explicitly unchecked where they have not been independently
 recomputed. Malformed shapes
 are still rejected before claiming support.
 
-For exact native straight-line realisations with one context per region, the
+For exact native realisations with one context per region, the
 checker now recomputes scheduled leaf timing, all declared resource values,
 gate counts, capacity and predicate limits, invocation multiplicities, and
 local/inclusive error recurrence. Target metadata is validated through its
@@ -149,6 +154,13 @@ nested closed schemas. Gate costs distinguish own controls `k` from total
 controls `c`; adjoint calls match and count the inverse primitive (`tdg`, not
 `t`, for an adjointed T). Symbolic source-slot widths are evaluated at each
 resolved inherited-control count.
+
+Disjoint gates in a root action may overlap. Timing uses the maximum event end,
+including when the last source event ends earlier, and default starts follow
+that complete makespan. A sweep of half-open event intervals checks
+`max_parallel`; gates sharing a wire retain their source-order dependencies.
+Overlapping nested-call resource reports still require call-boundary lifetime
+modelling and remain unchecked.
 
 Mutation tests visit every field and array position of the published positive
 certificate (250), target (43), and schedule (54), with exact expected rejection
@@ -183,7 +195,7 @@ remains unchecked.
 checker-code registry. Important families include `JSON`, `JCS`, `SCHEMA`,
 `VERSION`, `OBJECT`, `HASH`, `BINDING`, `INVOCATION`, `DOMAIN`, `TABLE`, `REPLAY`,
 `SAMPLER`, `COVERAGE_LABEL`, `FRAME`, `VERIFICATION_INDEX`, `NUMERICAL`, `CHANNEL`,
-`STRUCTURAL`, `RESOURCE`, `GATE_COUNT`, `ESTIMATE`, `MULTIPLICITY` and
+`STRUCTURAL`, `COVERAGE`, `RESOURCE`, `GATE_COUNT`, `ESTIMATE`, `MULTIPLICITY` and
 `COMPOSITION`. Schedule decision ties use the contract's
 `E_SCHEDULE_INFEASIBLE` code.
 
@@ -199,9 +211,17 @@ CLI determinism. The certificate field mutation sweep visits all **250** object
 fields and array positions of the published positive fixture, replacing each
 with an invalid type and requiring its individually specified diagnostic code.
 A second sweep mutates all **43** fields and positions of the published target,
-rebinding its hashes before checking and requiring `E_CERT_TARGET`. Neither
-sweep samples fields. These invalid-type checks are one part of mutation
+rebinding its hashes before checking and requiring `E_CERT_TARGET`. Schedule
+hash rebinding covers all **54** published schedule fields and positions;
+the three-classification coverage fixture covers all **30** with
+`E_CERT_COVERAGE`. These sweeps do not sample fields. These checks are one part of mutation
 coverage; they do not claim that every legal metadata edit must be rejected.
+
+Coverage metadata gets closed-schema checks, conditional `fault_code` and
+`shim_hash` fields, exact nonnegative counts, JCS bytes and program-point
+bindings through symbol interface hashes. Correct source classification and
+shim correspondence remain unchecked without dialect source evidence; valid
+coverage metadata alone does not discharge those obligations.
 
 JCS tests include all finite number samples from
 [RFC 8785 Appendix B](https://www.rfc-editor.org/rfc/rfc8785.html#appendix-B),

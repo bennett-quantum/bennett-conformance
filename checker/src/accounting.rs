@@ -183,7 +183,7 @@ fn resources(
         .iter()
         .filter(|e| e.gate.path.starts_with(&c.key))
         .collect();
-    if !c.key.is_empty() && selected.iter().any(|e|e.start<e.before) {
+    if !c.key.is_empty() && selected.iter().any(|e| e.start < e.before) {
         return pending("overlapping nested invocation events require explicit call-boundary lifetime accounting before per-region resources can be discharged");
     }
     // An action with no emitted events retains its interface for zero elapsed
@@ -245,16 +245,27 @@ fn resources(
         }
     }
     let caps = target.get("capabilities");
-    if let Some(max) = caps.and_then(|c| c.get("max_parallel")).filter(|v|v.as_str()!=Some("unbounded")) {
-        let maximum=decimal(Some(max),"target.capabilities.max_parallel")?;
-        let mut edges=Vec::new();
-        for event in &selected {if event.end>event.start {
-            edges.push((event.start.clone(),1i64));edges.push((event.end.clone(),-1i64));
-        }}
+    if let Some(max) = caps
+        .and_then(|c| c.get("max_parallel"))
+        .filter(|v| v.as_str() != Some("unbounded"))
+    {
+        let maximum = decimal(Some(max), "target.capabilities.max_parallel")?;
+        let mut edges = Vec::new();
+        for event in &selected {
+            if event.end > event.start {
+                edges.push((event.start.clone(), 1i64));
+                edges.push((event.end.clone(), -1i64));
+            }
+        }
         // Endpoints are half-open: releases at a time precede new starts.
-        edges.sort();let mut active=0i64;let mut peak=0i64;
-        for (_,change) in edges {active+=change;peak=peak.max(active);}
-        if Rat::from_integer(peak.into())>maximum {
+        edges.sort();
+        let mut active = 0i64;
+        let mut peak = 0i64;
+        for (_, change) in edges {
+            active += change;
+            peak = peak.max(active);
+        }
+        if Rat::from_integer(peak.into()) > maximum {
             return bad(
                 "E_SCHEDULE_INFEASIBLE",
                 "target.capabilities.max_parallel",

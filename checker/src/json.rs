@@ -62,6 +62,18 @@ impl Value {
     }
 }
 
+/// ISA §9.1 forbids JSON numbers >= 2^53 anywhere in metadata. Integer
+/// strings remain exact and are checked by each field's own schema. This
+/// scan runs after JSON parsing/JCS validation and does not parse strings.
+pub fn oversized_metadata_number(v:&Value,path:&str)->Option<String>{
+    match v {
+        Value::Num(text) if text.parse::<f64>().map(|n|n>=9_007_199_254_740_992.0).unwrap_or(true)=>Some(path.into()),
+        Value::Obj(m)=>m.iter().find_map(|(k,v)|oversized_metadata_number(v,&format!("{path}.{k}"))),
+        Value::Arr(a)=>a.iter().enumerate().find_map(|(i,v)|oversized_metadata_number(v,&format!("{path}[{i}]"))),
+        _=>None,
+    }
+}
+
 #[derive(Debug)]
 pub struct ParseError(pub String);
 impl fmt::Display for ParseError {

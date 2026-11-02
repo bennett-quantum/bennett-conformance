@@ -255,7 +255,7 @@ pub struct OracleOutcome {
     pub code: BigUint,
 }
 
-struct Lifted<'a> {
+struct Lifted<'a, 'w> {
     object: &'a Object,
     vals: HashMap<String, BigUint>,
     widths: HashMap<String, u64>,
@@ -263,6 +263,7 @@ struct Lifted<'a> {
     result_val: BigUint,
     tgt_width: u64,
     depth: usize,
+    work: &'w mut u64,
 }
 
 /// F_B of an oracle on (ins, mem cells in interface-region order, args)
@@ -276,8 +277,36 @@ pub fn eval_oracle(
     budget: &[BigUint; 4],
     depth: usize,
 ) -> Result<OracleOutcome, EvalError> {
+    eval_oracle_bounded(object, oracle, ins, mem, args, budget, depth, 1 << 20)
+}
+
+/// Bound host work independently of the ISA budget. Nested oracle invocations
+/// use their own ISA tuples but share this invocation's host row counter.
+pub fn eval_oracle_bounded(
+    object: &Object,
+    oracle: &Symbol,
+    ins: &[BigUint],
+    mem: &[Vec<BigUint>],
+    args: &[Classical],
+    budget: &[BigUint; 4],
+    depth: usize,
+    row_limit: u64,
+) -> Result<OracleOutcome, EvalError> {
+    let mut work = row_limit;
+    eval_oracle_work(object, oracle, ins, mem, args, budget, depth, &mut work)
+}
+fn eval_oracle_work(
+    object: &Object,
+    oracle: &Symbol,
+    ins: &[BigUint],
+    mem: &[Vec<BigUint>],
+    args: &[Classical],
+    budget: &[BigUint; 4],
+    depth: usize,
+    work: &mut u64,
+) -> Result<OracleOutcome, EvalError> {
     if depth > 64 {
-        return unchecked("oracle call depth exceeds this checker's replay cap (64)");
+        return unchecked("unchecked (host limit): oracle call depth exceeds 64 (§12.2)");
     }
     let func = object.function(&oracle.name).ok_or_else(|| {
         EvalError::Unchecked(format!("oracle @{} has no body in the object", oracle.name))
@@ -308,6 +337,7 @@ pub fn eval_oracle(
             .map(|b| b.width)
             .unwrap_or(0),
         depth,
+        work,
     };
     // Declared locations from the regs line.
     for line in func.bytes.split('\n') {
@@ -389,6 +419,10 @@ pub fn eval_oracle(
                 oracle.name
             ));
         }
+        if *env.work == 0 {
+            return unchecked("unchecked (host limit): oracle row work, including nested calls, exceeds the shared host limit (§12.2)");
+        }
+        *env.work -= 1;
         let toks = rows[pc].clone();
         steps += BigUint::one();
         match env.exec_row(&toks, &rows, &block_first, &mut mem_by_name, args)? {
@@ -405,7 +439,7 @@ enum RowFlow {
     Halt(OracleOutcome),
 }
 
-impl Lifted<'_> {
+impl Lifted<'_, '_> {
     fn width_of(&self, name: &str) -> Result<u64, EvalError> {
         self.widths.get(name).copied().ok_or_else(|| {
             EvalError::Unchecked(format!(
@@ -713,7 +747,7 @@ impl Lifted<'_> {
                         callee_args.push(Classical::Bits(self.read(t)?));
                     }
                 }
-                let outcome = eval_oracle(
+                let outcome = eval_oracle_work(
                     self.object,
                     &callee,
                     &ins_vals,
@@ -721,6 +755,7 @@ impl Lifted<'_> {
                     &callee_args,
                     &budget,
                     self.depth + 1,
+                    self.work,
                 )?;
                 let tgt_cur = self.read(&tgt_loc).unwrap_or_default();
                 let tgt_w = self.width_of(&tgt_loc)?;

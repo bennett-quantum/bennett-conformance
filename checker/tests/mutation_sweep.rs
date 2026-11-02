@@ -303,3 +303,107 @@ fn schedule_binding_values_and_closed_records_are_checked() {
     let verdict = check_certificate(&inp);
     assert_eq!(verdict.overall, "verified", "{verdict:?}");
 }
+
+fn coverage_fixture() -> (bennett_cert_checker::cert::Inputs, Value) {
+    let inp = controlled();
+    let cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let interface = cert
+        .get("bindings")
+        .unwrap()
+        .get("interface_hash")
+        .unwrap()
+        .as_str()
+        .unwrap();
+    let point = format!(r#"["{interface}","entry",0]"#);
+    let coverage = json(&format!(
+        r#"{{"entries":[{{"point":{point},"source":"DLT-example","classification":"lowered","reason":"literal gate","count":1}},{{"point":{point},"source":"DLT-example","classification":"trapped","reason":"unsupported source operation","count":1,"fault_code":4}},{{"point":{point},"source":"DLT-example","classification":"shimmed","reason":"shim binding","count":1,"shim_hash":"{}"}}]}}"#,
+        "a".repeat(64)
+    ));
+    (inp, coverage)
+}
+fn attach_coverage(inp: &mut bennett_cert_checker::cert::Inputs, coverage: &Value) {
+    inp.object_text
+        .push_str(&format!("\nsection coverage\n{}\n", encode(coverage)));
+}
+#[test]
+fn coverage_every_field_type_mutation_and_interface_point_binding() {
+    let (base, coverage) = coverage_fixture();
+    let mut paths = vec![];
+    walk(&coverage, &mut vec![], &mut paths);
+    let mut failures = vec![];
+    for path in &paths {
+        let mut changed = coverage.clone();
+        *at(&mut changed, path) = Value::Null;
+        let mut inp = base.clone();
+        attach_coverage(&mut inp, &changed);
+        let verdict = check_certificate(&inp);
+        if verdict.overall != "rejected" || !codes(&verdict).contains(&"E_CERT_COVERAGE") {
+            failures.push(format!(
+                "{path:?}: {} {:?}",
+                verdict.overall,
+                codes(&verdict)
+            ));
+        }
+    }
+    eprintln!(
+        "coverage field sweep: {} fields/positions; {} failures",
+        paths.len(),
+        failures.len()
+    );
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+    assert_eq!(paths.len(), 30, "coverage fixture inventory changed");
+    let mut good = base.clone();
+    attach_coverage(&mut good, &coverage);
+    let v = check_certificate(&good);
+    assert_eq!(v.overall, "unchecked", "{v:?}");
+    assert!(codes(&v).is_empty(), "{v:?}");
+    assert!(
+        v.establishes
+            .iter()
+            .any(|s| s.contains("coverage") && s.contains("program-point")),
+        "{v:?}"
+    );
+    for (path, value) in [
+        (
+            vec![
+                Part::Key("entries".into()),
+                Part::Index(0),
+                Part::Key("point".into()),
+                Part::Index(0),
+            ],
+            Value::Str("b".repeat(64)),
+        ),
+        (
+            vec![
+                Part::Key("entries".into()),
+                Part::Index(0),
+                Part::Key("point".into()),
+                Part::Index(2),
+            ],
+            json("999"),
+        ),
+        (
+            vec![
+                Part::Key("entries".into()),
+                Part::Index(1),
+                Part::Key("classification".into()),
+            ],
+            Value::Str("lowered".into()),
+        ),
+        (
+            vec![
+                Part::Key("entries".into()),
+                Part::Index(2),
+                Part::Key("shim_hash".into()),
+            ],
+            Value::Str("BAD".into()),
+        ),
+    ] {
+        let mut changed = coverage.clone();
+        *at(&mut changed, &path) = value;
+        let mut inp = base.clone();
+        attach_coverage(&mut inp, &changed);
+        let v = check_certificate(&inp);
+        assert!(codes(&v).contains(&"E_CERT_COVERAGE"), "{path:?}: {v:?}");
+    }
+}
