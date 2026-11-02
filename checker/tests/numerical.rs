@@ -229,3 +229,48 @@ fn adjoint_calls_match_the_inverse_primitive_in_the_target() {
         );
     }
 }
+
+fn rotation_inputs(op:&str,angle:&str)->bennett_cert_checker::cert::Inputs {
+    let arg_group=if angle=="theta" {"(theta:f64)"}else{"()"};
+    let source=format!("action @rotation (t:wire mut) () () {arg_group} ()\n^entry():\n{op} {angle} t");
+    let sigs=if angle=="theta" {r#"{"rotation":{"abi":"0.9","args":["f64"],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#}else{r#"{"rotation":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#};
+    let (mut inp,h)=standalone(&source,sigs,"rotation",vec![json(r#"{"bound":0.000000000000001,"kind":"numerical","metric":"operator_norm","precision_bits":128}"#)]);
+    let mut cert=json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let Value::Obj(top)=&mut cert else {unreachable!()};
+    if angle=="theta" {set(top.get_mut("bindings").unwrap(),"invocation",json(r#"{"args":["0x3ff0000000000000"],"budget":["0","0","0","0"]}"#));}
+    let Value::Obj(regions)=top.get_mut("regions").unwrap() else {unreachable!()};let region=regions.get_mut(&h).unwrap();
+    set(region,"resources",json(r#"{"peak_qubits":1,"qubit_second":1,"time":1}"#));set(region,"gates_used",json(&format!(r#"{{"{op}":{{"count":1}}}}"#)));
+    set(region,"error",json(r#"{"forward:0":{"inclusive":{"operator_norm":0},"local":{"operator_norm":0}}}"#));
+    let mut counts=json("{}");set(&mut counts,&format!("{h}:forward:0"),n(1));set(top.get_mut("composition").unwrap(),"multiplicities",counts);inp.cert_bytes=jcs(&cert).unwrap();
+    let base=controlled();let mut target=json(std::str::from_utf8(base.target_bytes.as_ref().unwrap()).unwrap());
+    set(&mut target,"gates",json(&format!(r#"[{{"op":"{op}","params":["theta"],"classes":["fast"],"controls":{{"min":0,"max":0}},"epsilon":0,"cost":{{"time":1}}}}]"#)));
+    let mut schedule=json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());set(&mut schedule,"entries",Value::Arr(vec![]));bind_schedule(&mut inp,schedule,target);inp
+}
+#[test]
+fn exact_native_rotations_verify_the_requested_rigorous_bound() {
+    for op in ["rx","ry","rz"] {for angle in ["-0.0","0.0","1.0","-1.0","10.0"] {
+        let verdict=check_certificate(&rotation_inputs(op,angle));assert_eq!(verdict.overall,"verified","{op} {angle}: {verdict:?}");
+        let claim=&verdict.regions[0].claims[0].1;assert_eq!(claim.outcome,"accept");assert_eq!(claim.contexts,Some(1));assert!(claim.computed.is_some());
+    }}
+}
+#[test]
+fn malformed_rotation_literals_are_rejected_and_huge_angles_report_host_limits() {
+    for angle in ["1","1.00","NaN","inf","1e999"] {
+        let verdict=check_certificate(&rotation_inputs("rx",angle));assert!(codes(&verdict).contains(&"E_CERT_OBJECT"),"{angle}: {verdict:?}");
+    }
+    let verdict=check_certificate(&rotation_inputs("rx","1e+100"));assert_eq!(verdict.overall,"unchecked","{verdict:?}");
+    assert!(verdict.regions[0].claims[0].1.unchecked_reason.as_ref().unwrap().contains("host limit"));
+}
+
+#[test]
+fn rotation_classical_arguments_preserve_bits_and_reject_nonfinite_angles() {
+    for bits in ["0x0000000000000000","0x8000000000000000","0x3ff0000000000000","0xbff0000000000000","0x7ff8000000000001","0x7ff0000000000000"] {
+        let mut inp=rotation_inputs("rz","theta");
+        let mut cert=json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+        let Value::Obj(m)=&mut cert else {unreachable!()};set(m.get_mut("bindings").unwrap(),"invocation",json(&format!(r#"{{"args":["{bits}"],"budget":["0","0","0","0"]}}"#)));inp.cert_bytes=jcs(&cert).unwrap();
+        let schedule=json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap());let target=json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap());bind_schedule(&mut inp,schedule,target);
+        let verdict=check_certificate(&inp);
+        if bits.starts_with("0x7ff") {assert!(codes(&verdict).contains(&"E_CERT_OBJECT"),"{bits}: {verdict:?}");}
+        else {assert_eq!(verdict.overall,"verified","{bits}: {verdict:?}");}
+    }
+}

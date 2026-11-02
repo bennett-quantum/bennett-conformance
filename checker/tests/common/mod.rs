@@ -153,6 +153,7 @@ pub fn bind_schedule(inp: &mut Inputs, mut schedule: Value, target: Value) {
         .unwrap();
     let root = object.symbol_by_closure(root).unwrap();
     let th = bennett_cert_checker::sha256_hex(&jcs(&target).unwrap());
+    let invocation=cert.get("bindings").and_then(|b|b.get("invocation")).cloned().unwrap_or_else(||json(r#"{"args":[],"budget":["0","0","0","0"]}"#));
     let mut sb = schedule.get("bindings").unwrap().clone();
     set(
         &mut sb,
@@ -161,6 +162,7 @@ pub fn bind_schedule(inp: &mut Inputs, mut schedule: Value, target: Value) {
     );
     set(&mut sb, "region", Value::Str(root.name.clone()));
     set(&mut sb, "target_hash", Value::Str(th.clone()));
+    set(&mut sb,"params_hash",Value::Str(bennett_cert_checker::sha256_hex(&jcs(invocation.get("args").unwrap()).unwrap())));
     set(&mut schedule, "bindings", sb);
     let sh = bennett_cert_checker::sha256_hex(&jcs(&schedule).unwrap());
     let mut bindings = cert.get("bindings").unwrap().clone();
@@ -169,7 +171,7 @@ pub fn bind_schedule(inp: &mut Inputs, mut schedule: Value, target: Value) {
     set(
         &mut bindings,
         "invocation",
-        json(r#"{"args":[],"budget":["0","0","0","0"]}"#),
+        invocation,
     );
     set(&mut cert, "bindings", bindings);
     let Value::Obj(top) = &mut cert else {

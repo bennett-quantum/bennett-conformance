@@ -40,7 +40,27 @@ pub(crate) struct Gate {
     pub(crate) controls: Vec<usize>,
     pub(crate) targets: Vec<usize>,
     pub(crate) path: Vec<Value>,
+    angle_bits: Option<u64>,
     adjoint: bool,
+}
+fn resolve_angle(text:&str,context:&Context,docs:&LoadedDocs)->Result<u64> {
+    let bad=|message:String|ClaimOutcome::rejected(vec![rej("E_CERT_OBJECT","§3.1/§16.1",format!("object.@{}",context.symbol),message)]);
+    let f=docs.object.function(&context.symbol).expect("expanded function exists");
+    let bits=if let Some((i,param))=f.groups[3].iter().enumerate().find(|(_,p)|p.name==text) {
+        if param.ty!="f64" {return Err(bad(format!("gate angle argument {text} has type {}, expected f64",param.ty)));}
+        let encoded=context.invocation.args.get(i).and_then(Value::as_str).unwrap_or("");
+        if encoded.len()!=18 || !encoded.starts_with("0x") {return Err(bad("angle argument is not a bound binary64 bit pattern".into()));}
+        u64::from_str_radix(&encoded[2..],16).map_err(|_|bad("invalid binary64 angle argument".into()))?
+    }else {
+        let value=text.parse::<f64>().map_err(|_|bad(format!("gate angle {text:?} is not a finite canonical FLOAT or bound f64 argument")))?;
+        if !value.is_finite(){return Err(bad("gate angle is NaN or infinite".into()));}
+        let mut spelling=if value==0.0 && value.is_sign_negative(){"-0.0".to_string()}else{crate::json::ecmascript_number(value)};
+        if !spelling.contains(['.','e']) {spelling.push_str(".0");}
+        if text!=spelling{return Err(bad(format!("noncanonical gate angle {text:?}; expected {spelling:?}")));}
+        value.to_bits()
+    };
+    crate::transcendental::binary64_rational(bits).map_err(bad)?;
+    Ok(bits)
 }
 impl Gate {
     /// §5.3 replaces a primitive by its adjoint before target matching and
@@ -290,9 +310,9 @@ fn collect(
                 }
                 body_gates.extend(nested_gates);
             }
-            "x" | "cx" | "ccx" | "mcx" | "swap" | "h" | "s" | "sdg" | "t" | "tdg" | "cz" => {
+            "x" | "cx" | "ccx" | "mcx" | "swap" | "h" | "s" | "sdg" | "t" | "tdg" | "cz" | "rx" | "ry" | "rz" => {
                 let arity = match op {
-                    "cx" | "mcx" | "swap" | "cz" => 3,
+                    "cx" | "mcx" | "swap" | "cz" | "rx" | "ry" | "rz" => 3,
                     "ccx" => 4,
                     _ => 2,
                 };
@@ -303,6 +323,7 @@ fn collect(
                     );
                 }
                 let operands = &tokens[1..];
+                let angle_bits=if matches!(op,"rx"|"ry"|"rz"){Some(resolve_angle(&operands[0],context,docs)?)}else{None};
                 let inherited_count = controls.len();
                 let targets = match op {
                     "cx" => {
@@ -339,6 +360,7 @@ fn collect(
                         .iter()
                         .map(|t| one_wire(t, &wires))
                         .collect::<Result<Vec<_>>>()?,
+                    "rx"|"ry"|"rz"=>vec![one_wire(&operands[1],&wires)?],
                     _ => vec![one_wire(
                         operands.first().map(String::as_str).unwrap_or(""),
                         &wires,
@@ -356,6 +378,7 @@ fn collect(
                     controls,
                     targets,
                     path,
+                    angle_bits,
                     adjoint,
                 });
             }
@@ -612,7 +635,7 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
         gate.controls.len()
     ))
 }
-fn gate_matrix(g: &Gate, wires: usize, p: u32) -> Matrix {
+fn gate_matrix(g: &Gate, wires: usize, p: u32) -> Result<Matrix> {
     let dim = 1usize << wires;
     let mut m = Matrix::identity(dim);
     let one = C::real(Rat::one());
@@ -690,9 +713,25 @@ fn gate_matrix(g: &Gate, wires: usize, p: u32) -> Matrix {
                 }
             }
         }
+        "rx"|"ry"|"rz"=>{
+            let bits=g.angle_bits.expect("rotation angle resolved") ^ if g.adjoint {1u64<<63}else{0};
+            let angle=crate::transcendental::binary64_rational(bits).expect("finite angle checked")/Rat::from_integer(2.into());
+            let (sin,cos)=crate::transcendental::sin_cos(&angle,p).map_err(host_limit_outcome)?;
+            let real=|re:Interval|C{re,im:Interval::exact(Rat::zero())};
+            for i in 0..dim {if on(i) && i&(1usize<<target)==0 {
+                let j=i|(1usize<<target);
+                if g.op=="rz" {
+                    m.set(i,i,C{re:cos.clone(),im:sin.neg()});m.set(j,j,C{re:cos.clone(),im:sin.clone()});
+                }else {
+                    m.set(i,i,real(cos.clone()));m.set(j,j,real(cos.clone()));
+                    if g.op=="rx" {let z=C{re:Interval::exact(Rat::zero()),im:sin.neg()};m.set(i,j,z.clone());m.set(j,i,z);}
+                    else {m.set(i,j,real(sin.neg()));m.set(j,i,real(sin.clone()));}
+                }
+            }}
+        }
         _ => unreachable!("gate op validated during collection"),
     }
-    m
+    Ok(m)
 }
 pub fn subject_matrices(
     subject: &Subject,
@@ -752,9 +791,9 @@ pub fn subject_matrices(
             native(docs, gate)?;
             // Build both matrices from their operation streams. Native exact
             // entries have the §4.4 matrix; schemes must supply expanded leaves.
-            let v = gate_matrix(gate, wires, p);
+            let v = gate_matrix(gate, wires, p)?;
             reference = v.mul(&reference, p);
-            let u = gate_matrix(gate, wires, p);
+            let u = gate_matrix(gate, wires, p)?;
             realised = u.mul(&realised, p);
         }
         let iface = docs
@@ -842,4 +881,32 @@ pub fn exact_native_subject(subject: &Subject, docs: &LoadedDocs, inputs: &Input
         return invalid("subject", "subject has no invocation in this schedule");
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod rotation_columns {
+    use super::*;
+    fn bracket(token:&str)->(Interval,Interval) {
+        let r=|x:&str|crate::rat::parse_decimal(x).unwrap();
+        let zero=Interval::exact(Rat::zero());
+        let c=Interval{lo:r("0.8775825618903727161162815826038296519916"),hi:r("0.8775825618903727161162815826038296519917")};
+        let s=Interval{lo:r("0.4794255386042030002732879352155713880818"),hi:r("0.4794255386042030002732879352155713880819")};
+        match token {"0"=>(zero.clone(),zero),"1"=>(Interval::exact(Rat::one()),zero),"c"=>(c,zero),"s"=>(s,zero),"-s"=>(s.neg(),zero),"-is"=>(zero,s.neg()),"c-is"=>(c,s.neg()),"c+is"=>(c,s),_=>unreachable!()}
+    }
+    #[test]
+    fn all_controlled_rotation_columns_match_independent_decimal_brackets_and_adjoint() {
+        // These full 4x4 columns pin §4.4's phases/signs and §12.1's control-
+        // first order. The constants bracket sin(1/2), cos(1/2) independently.
+        for (op,block) in [("rx",[["c","-is"],["-is","c"]]),("ry",[["c","-s"],["s","c"]]),("rz",[["c-is","0"],["0","c+is"]])] {
+            let mut gate=Gate{op:op.into(),own_controls:0,controls:vec![0],targets:vec![1],path:vec![],angle_bits:Some(1.0f64.to_bits()),adjoint:false};
+            let forward=gate_matrix(&gate,2,128).unwrap();
+            for row in 0..4 {for col in 0..4 {
+                let token=if col%2==0 {if row==col {"1"}else{"0"}}else if row%2==0 {"0"}else{block[row/2][col/2]};
+                let (re,im)=bracket(token);let z=forward.get(row,col);
+                assert!(z.re.lo<=re.lo && z.re.hi>=re.hi,"{op} [{row},{col}] real {z:?}");
+                assert!(z.im.lo<=im.lo && z.im.hi>=im.hi,"{op} [{row},{col}] imaginary {z:?}");
+            }}
+            gate.adjoint=true;assert_eq!(gate_matrix(&gate,2,128).unwrap(),forward.adjoint(),"{op} adjoint");
+        }
+    }
 }
