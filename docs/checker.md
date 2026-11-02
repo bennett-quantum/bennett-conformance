@@ -43,6 +43,14 @@ independent library-proof provenance is still unchecked. `--oracle-bin` is
 reserved for differential replay and explicitly reports that the optional
 comparison has not been performed.
 
+Native source expansion currently permits at most 100,000 expanded rows and
+64 loop/invocation levels. Exact decimal materialisation permits at most
+100,000 significand digits and an absolute decimal scale of 100,000. Oversized
+decimal fields produce an explicit host-limit verdict before constructing
+powers of ten; exponents never truncate into machine-sized powers. This
+preflight applies to decimal fields, including embedded schedule fields, and
+leaves names and other opaque strings untouched.
+
 The executable prints exactly one canonical JSON verdict line on stdout.
 Usage and file/UTF-8 input errors go to stderr. Exit status is:
 
@@ -101,13 +109,15 @@ Reference replay covers an independently implemented subset of lifted arithmetic
 and permutation-action semantics. Unsupported rows, lproc/stack machinery and
 unresolved invocation contexts are explicit unchecked outcomes. The native
 matrix path currently handles single-class action calls, sequential action
-blocks, counted `qloop` bodies and X/CX/CCX/MCX/SWAP/H/S/S†/T/T†/CZ/RX/RY/RZ
+blocks, counted `qloop` bodies, coherent `qif` arms and
+X/CX/CCX/MCX/SWAP/H/S/S†/T/T†/CZ/RX/RY/RZ
 gates. It includes invocations covered entirely
 by defaults, forwards classical arguments, and checks maximal gate selector
 specificity and ties. Static source ordinals are retained across loop visits;
 iteration selectors use the complete dynamic nesting vector. Zero-trip loops
-emit no events and cannot witness a selector tie. Scheme expansion, coherent
-`qif`/`qloop while`, topology, multi-class
+emit no events and cannot witness a selector tie. The two selector flips of
+`qif` retain their own generated ordinals; full complex-column tests check
+both arms and global phase. Scheme expansion, `qloop while`, topology, multi-class
 allocation and complete oracle expansion remain unchecked.
 
 Rotation literals and bound `f64` arguments are decoded to exact binary64
@@ -145,6 +155,13 @@ certificate (250), target (43), and schedule (54), with exact expected rejection
 codes. The target and schedule sweeps rebind their hashes so a stale digest
 cannot mask a malformed nested value. Schedule bindings validate scheduler and
 expansion records, nonnegative error shares and exact budget encodings.
+
+Native costs and achieved epsilon use exact expression evaluation, including
+table lookups, `ceil`, and the integer `log2inv_eps`/`eps_decade` definitions.
+An entry exceeding the requested share is skipped in array order. Invalid
+domains, out-of-range table indices, division by zero and exact entries that
+depend on `eps` reject. Nonzero native realisation models and default shares
+for expressions depending on `eps` remain unchecked.
 
 Launch estimates on this path use exact reduced numerator/denominator rows,
 percent-encoded resource/class names and canonical upward 34-digit decimal

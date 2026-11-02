@@ -13,55 +13,117 @@ pub type Rat = BigRational;
 /// Parse canonical decimal text exactly. Accepts JSON-number grammar
 /// (optional exponent); rejects fractions, leading zeros like `01`,
 /// bare `.`, and empty text. `+` signs are rejected (no spec decimal has one).
-pub fn parse_decimal(text: &str) -> Result<Rat, String> {
-    if text.is_empty() {
-        return Err("empty decimal".to_string());
+const DECIMAL_DIGIT_LIMIT: usize = 100_000;
+struct DecimalParts<'a> {
+    negative: bool,
+    integer: &'a str,
+    fraction: &'a str,
+    scale: i128,
+}
+enum DecimalError {
+    Invalid(String),
+    Host(crate::fault::HostLimit),
+}
+impl DecimalError {
+    fn message(self) -> String {
+        match self {
+            Self::Invalid(s) => s,
+            Self::Host(h) => format!("host limit: {}", h.quantity),
+        }
     }
-    let (neg, body) = match text.strip_prefix('-') {
+}
+fn decimal_parts(text: &str) -> Result<DecimalParts<'_>, DecimalError> {
+    let invalid = || DecimalError::Invalid("invalid decimal syntax".into());
+    let host = |what: &str| {
+        DecimalError::Host(crate::fault::HostLimit {
+            quantity: format!(
+                "decimal {what} exceeds the host limit of {DECIMAL_DIGIT_LIMIT} digits/scale"
+            ),
+        })
+    };
+    let (negative, body) = match text.strip_prefix('-') {
         Some(rest) => (true, rest),
         None => (false, text),
     };
-    if body.is_empty() || body.starts_with('+') {
-        return Err(format!("invalid decimal {text:?}"));
+    let (mantissa, exponent) = match body.find(['e', 'E']) {
+        Some(pos) => (&body[..pos], &body[pos + 1..]),
+        None => (body, "0"),
+    };
+    let exp_digits = exponent.strip_prefix(['+', '-']).unwrap_or(exponent);
+    if exp_digits.is_empty() || !exp_digits.bytes().all(|b| b.is_ascii_digit()) {
+        return Err(invalid());
     }
-    // Split exponent.
-    let (mant, exp): (&str, i64) = match body.find(['e', 'E']) {
-        Some(pos) => {
-            let e: i64 = body[pos + 1..]
-                .parse()
-                .map_err(|_| format!("invalid decimal exponent in {text:?}"))?;
-            (&body[..pos], e)
-        }
-        None => (body, 0),
+    let (integer, fraction) = match mantissa.split_once('.') {
+        Some(pair) => pair,
+        None => (mantissa, ""),
     };
-    let (int_part, frac_part) = match mant.split_once('.') {
-        Some((a, b)) => (a, b),
-        None => (mant, ""),
-    };
-    if int_part.is_empty()
-        || !int_part.bytes().all(|b| b.is_ascii_digit())
-        || !frac_part.bytes().all(|b| b.is_ascii_digit())
-        || (int_part.len() > 1 && int_part.starts_with('0'))
-        || (mant.contains('.') && frac_part.is_empty())
+    if integer.is_empty()
+        || !integer.bytes().all(|b| b.is_ascii_digit())
+        || (integer.len() > 1 && integer.starts_with('0'))
+        || !fraction.bytes().all(|b| b.is_ascii_digit())
+        || (mantissa.contains('.') && fraction.is_empty())
     {
-        return Err(format!("non-canonical decimal {text:?}"));
+        return Err(invalid());
     }
-    let mut digits = int_part.to_string();
-    digits.push_str(frac_part);
-    let numer = BigInt::from_str(&digits).map_err(|_| format!("invalid decimal {text:?}"))?;
-    let scale = frac_part.len() as i64 - exp;
-    let mut r = if scale >= 0 {
-        Rat::new(numer, BigInt::from(10u32).pow(scale as u32))
+    // Zero does not require an enormous power, even with an enormous valid
+    // exponent. Validate its grammar, then retain its exact value directly.
+    if integer.bytes().chain(fraction.bytes()).all(|b| b == b'0') {
+        return Ok(DecimalParts {
+            negative,
+            integer: "0",
+            fraction: "",
+            scale: 0,
+        });
+    }
+    if integer.len().saturating_add(fraction.len()) > DECIMAL_DIGIT_LIMIT {
+        return Err(host("significand"));
+    }
+    let trimmed = exp_digits.trim_start_matches('0');
+    if trimmed.len() > 6 {
+        return Err(host("exponent"));
+    }
+    let mut exp = if trimmed.is_empty() {
+        0
     } else {
-        Rat::new(
-            numer * BigInt::from(10u32).pow((-scale) as u32),
-            BigInt::one(),
-        )
+        trimmed.parse::<i128>().map_err(|_| host("exponent"))?
     };
-    if neg {
-        r = -r;
+    if exponent.starts_with('-') {
+        exp = -exp;
     }
-    Ok(r)
+    let scale = fraction.len() as i128 - exp;
+    if scale.unsigned_abs() > DECIMAL_DIGIT_LIMIT as u128 {
+        return Err(host("scale"));
+    }
+    Ok(DecimalParts {
+        negative,
+        integer,
+        fraction,
+        scale,
+    })
+}
+/// Preflight a decimal without constructing its significand or power of ten.
+/// Malformed syntax is left to the ordinary schema diagnostics.
+pub fn decimal_host_limit(text: &str) -> Option<crate::fault::HostLimit> {
+    match decimal_parts(text) {
+        Err(DecimalError::Host(h)) => Some(h),
+        _ => None,
+    }
+}
+pub fn parse_decimal(text: &str) -> Result<Rat, String> {
+    let parts = decimal_parts(text).map_err(DecimalError::message)?;
+    let digits = format!("{}{}", parts.integer, parts.fraction);
+    let numer = BigInt::from_str(&digits).map_err(|_| "invalid decimal significand".to_string())?;
+    // Both conversions are checked by decimal_parts, never truncated casts.
+    let power = u32::try_from(parts.scale.unsigned_abs()).expect("bounded decimal scale");
+    let mut value = if parts.scale >= 0 {
+        Rat::new(numer, BigInt::from(10u32).pow(power))
+    } else {
+        Rat::from_integer(numer * BigInt::from(10u32).pow(power))
+    };
+    if parts.negative {
+        value = -value;
+    }
+    Ok(value)
 }
 
 /// A spec decimal appears either as a JSON number or as a decimal string;

@@ -50,6 +50,11 @@ pub fn uses_epsilon(v: &Value) -> bool {
         }
 }
 pub fn evaluate(v: &Value, vars: &HashMap<&str, Rat>, tables: &Value) -> Result<Rat> {
+    if let Value::Num(text) | Value::Str(text) = v {
+        if let Some(limit) = crate::rat::decimal_host_limit(text) {
+            return Err(Error::HostLimit(limit));
+        }
+    }
     if let Ok(r) = rat_of_json(v) {
         return Ok(r);
     }

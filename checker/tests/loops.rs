@@ -119,48 +119,133 @@ fn zero_trip_loop_has_no_operation_and_cannot_witness_a_selector_tie() {
 #[test]
 fn coherent_qif_emits_both_arms_and_selector_flips_with_distinct_generated_ordinals() {
     let source="action @branch (t:wire mut) (c:wire in) () () ()\n^entry():\nqif c {\nh t\n} {\ns t\n}\nx t";
-    let sig=r#"{"branch":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#;
-    let (mut inp,h)=standalone(source,sig,"branch",vec![json(r#"{"bound":0.0000000001,"kind":"numerical","metric":"operator_norm","precision_bits":128}"#)]);
-    let object=bennett_cert_checker::object::Object::parse(&inp.object_text).unwrap();
-    assert_eq!(object.instruction_count("branch","entry"),Some(4),"closing braces do not have instruction ordinals");
-    let mut cert=json(std::str::from_utf8(&inp.cert_bytes).unwrap());let Value::Obj(top)=&mut cert else {unreachable!()};let Value::Obj(regions)=top.get_mut("regions").unwrap() else {unreachable!()};let region=regions.get_mut(&h).unwrap();
-    set(region,"resources",json(r#"{"peak_qubits":2,"qubit_second":14,"time":7}"#));
-    set(region,"gates_used",json(r#"{"h":{"count":1},"s":{"count":1},"x":{"count":3}}"#));
-    set(region,"error",json(r#"{"forward:0":{"inclusive":{"operator_norm":0},"local":{"operator_norm":0}}}"#));
-    let mut counts=json("{}");set(&mut counts,&format!("{h}:forward:0"),n(1));set(top.get_mut("composition").unwrap(),"multiplicities",counts);inp.cert_bytes=jcs(&cert).unwrap();
-    let base=controlled();let mut target=json(std::str::from_utf8(base.target_bytes.as_ref().unwrap()).unwrap());
-    set(&mut target,"gates",json(r#"[{"op":"x","classes":["fast"],"controls":{"min":0,"max":1},"epsilon":0,"cost":{"time":1}},{"op":"h","classes":["fast"],"controls":{"min":0,"max":1},"epsilon":0,"cost":{"time":1}},{"op":"s","classes":["fast"],"controls":{"min":0,"max":1},"epsilon":0,"cost":{"time":1}}]"#));
-    let mut schedule=json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
+    let sig = r#"{"branch":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#;
+    let (mut inp, h) = standalone(
+        source,
+        sig,
+        "branch",
+        vec![json(
+            r#"{"bound":0.0000000001,"kind":"numerical","metric":"operator_norm","precision_bits":128}"#,
+        )],
+    );
+    let object = bennett_cert_checker::object::Object::parse(&inp.object_text).unwrap();
+    assert_eq!(
+        object.instruction_count("branch", "entry"),
+        Some(4),
+        "closing braces do not have instruction ordinals"
+    );
+    let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else {
+        unreachable!()
+    };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        unreachable!()
+    };
+    let region = regions.get_mut(&h).unwrap();
+    set(
+        region,
+        "resources",
+        json(r#"{"peak_qubits":2,"qubit_second":14,"time":7}"#),
+    );
+    set(
+        region,
+        "gates_used",
+        json(r#"{"h":{"count":1},"s":{"count":1},"x":{"count":3}}"#),
+    );
+    set(
+        region,
+        "error",
+        json(r#"{"forward:0":{"inclusive":{"operator_norm":0},"local":{"operator_norm":0}}}"#),
+    );
+    let mut counts = json("{}");
+    set(&mut counts, &format!("{h}:forward:0"), n(1));
+    set(
+        top.get_mut("composition").unwrap(),
+        "multiplicities",
+        counts,
+    );
+    inp.cert_bytes = jcs(&cert).unwrap();
+    let base = controlled();
+    let mut target = json(std::str::from_utf8(base.target_bytes.as_ref().unwrap()).unwrap());
+    set(
+        &mut target,
+        "gates",
+        json(
+            r#"[{"op":"x","classes":["fast"],"controls":{"min":0,"max":1},"epsilon":0,"cost":{"time":1}},{"op":"h","classes":["fast"],"controls":{"min":0,"max":1},"epsilon":0,"cost":{"time":1}},{"op":"s","classes":["fast"],"controls":{"min":0,"max":1},"epsilon":0,"cost":{"time":1}}]"#,
+        ),
+    );
+    let mut schedule = json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
     // The second flip starts at 5; the following source X is entry:3 and
     // follows at 6. Confusing generated=0 with generated=1 breaks this report.
-    set(&mut schedule,"entries",json(&format!(r#"[{{"path":[{{"symbol":"{h}","point":"entry:0","iteration":[]}}],"step":"*","phase":"*","generated":1,"kind":"start","start":{{"time":5}}}}]"#)));
-    bind_schedule(&mut inp,schedule,target);
-    let verdict=check_certificate(&inp);assert_eq!(verdict.overall,"verified","{verdict:?}");
+    set(
+        &mut schedule,
+        "entries",
+        json(&format!(
+            r#"[{{"path":[{{"symbol":"{h}","point":"entry:0","iteration":[]}}],"step":"*","phase":"*","generated":1,"kind":"start","start":{{"time":5}}}}]"#
+        )),
+    );
+    bind_schedule(&mut inp, schedule, target);
+    let verdict = check_certificate(&inp);
+    assert_eq!(verdict.overall, "verified", "{verdict:?}");
 
     // Pin both reconstructions to independently specified full complex
     // columns: X*S when c=0; X*H when c=1. This also fixes global phase.
-    use bennett_cert_checker::cert::{LoadedDocs,Subject,parse_invocation,REF_09_HASH};
-    use bennett_cert_checker::rat::{parse_decimal,Rat};
-    let cert=json(std::str::from_utf8(&inp.cert_bytes).unwrap());
-    let invocation=parse_invocation(cert.get("bindings").unwrap().get("invocation").unwrap(),&[],&object,"test").unwrap();
-    let schedule_hash=bennett_cert_checker::sha256_hex(inp.schedule_bytes.as_ref().unwrap());
-    let docs=LoadedDocs{root_closure:h.clone(),root_invocation:Some(invocation),object,
-        target:Some(json(std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap())),
-        schedule:Some(json(std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap())),
-        schedule_hash:Some(schedule_hash.clone()),expansion:Some(("ref".into(),"0.9".into(),REF_09_HASH.into())),expansion_unknown:false};
-    let subject=Subject{closure_hash:h,variant:"forward".into(),inherited_controls:0,schedule_hash:Some(schedule_hash)};
-    let matrices=bennett_cert_checker::realisation::subject_matrices(&subject,&docs,&inp,128).unwrap();
-    let rlo=parse_decimal("0.7071067811865475244008443621048490392848").unwrap();
-    let rhi=parse_decimal("0.7071067811865475244008443621048490392849").unwrap();
-    for matrix in [&matrices[0].1,&matrices[0].2] {for row in 0..4 {for col in 0..4 {
-        let (lo,hi)=match (row,col) {
-            (1,0)=>(Rat::from_integer(1.into()),Rat::from_integer(1.into())),
-            (2,2)|(3,2)|(3,3)=>(rlo.clone(),rhi.clone()),
-            (2,3)=>(-rhi.clone(),-rlo.clone()),
-            _=>(Rat::from_integer(0.into()),Rat::from_integer(0.into())),
-        };
-        let im=Rat::from_integer(if (row,col)==(0,1){1.into()}else{0.into()});
-        let z=matrix.get(row,col);assert!(z.re.lo<=lo && z.re.hi>=hi,"real[{row},{col}]: {z:?}");
-        assert!(z.im.lo<=im && z.im.hi>=im,"imaginary[{row},{col}]: {z:?}");
-    }}}
+    use bennett_cert_checker::cert::{parse_invocation, LoadedDocs, Subject, REF_09_HASH};
+    use bennett_cert_checker::rat::{parse_decimal, Rat};
+    let cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let invocation = parse_invocation(
+        cert.get("bindings").unwrap().get("invocation").unwrap(),
+        &[],
+        &object,
+        "test",
+    )
+    .unwrap();
+    let schedule_hash = bennett_cert_checker::sha256_hex(inp.schedule_bytes.as_ref().unwrap());
+    let docs = LoadedDocs {
+        root_closure: h.clone(),
+        root_invocation: Some(invocation),
+        object,
+        target: Some(json(
+            std::str::from_utf8(inp.target_bytes.as_ref().unwrap()).unwrap(),
+        )),
+        schedule: Some(json(
+            std::str::from_utf8(inp.schedule_bytes.as_ref().unwrap()).unwrap(),
+        )),
+        schedule_hash: Some(schedule_hash.clone()),
+        expansion: Some(("ref".into(), "0.9".into(), REF_09_HASH.into())),
+        expansion_unknown: false,
+    };
+    let subject = Subject {
+        closure_hash: h,
+        variant: "forward".into(),
+        inherited_controls: 0,
+        schedule_hash: Some(schedule_hash),
+    };
+    let matrices =
+        bennett_cert_checker::realisation::subject_matrices(&subject, &docs, &inp, 128).unwrap();
+    let rlo = parse_decimal("0.7071067811865475244008443621048490392848").unwrap();
+    let rhi = parse_decimal("0.7071067811865475244008443621048490392849").unwrap();
+    for matrix in [&matrices[0].1, &matrices[0].2] {
+        for row in 0..4 {
+            for col in 0..4 {
+                let (lo, hi) = match (row, col) {
+                    (1, 0) => (Rat::from_integer(1.into()), Rat::from_integer(1.into())),
+                    (2, 2) | (3, 2) | (3, 3) => (rlo.clone(), rhi.clone()),
+                    (2, 3) => (-rhi.clone(), -rlo.clone()),
+                    _ => (Rat::from_integer(0.into()), Rat::from_integer(0.into())),
+                };
+                let im = Rat::from_integer(if (row, col) == (0, 1) {
+                    1.into()
+                } else {
+                    0.into()
+                });
+                let z = matrix.get(row, col);
+                assert!(z.re.lo <= lo && z.re.hi >= hi, "real[{row},{col}]: {z:?}");
+                assert!(
+                    z.im.lo <= im && z.im.hi >= im,
+                    "imaginary[{row},{col}]: {z:?}"
+                );
+            }
+        }
+    }
 }

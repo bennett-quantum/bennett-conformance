@@ -125,12 +125,11 @@ fn events<'a>(gates: &'a [Gate], docs: &LoadedDocs) -> Result<Vec<Event<'a>>> {
                 );
             }
         }
-        if start < cursor {
-            return pending("overlapping disjoint native events require per-context lifetime accounting before resource reports can be discharged");
-        }
         let end = &start + duration;
         let before = cursor.clone();
-        cursor = end.clone();
+        // A later source event may explicitly start earlier on disjoint
+        // wires. The default for the next event follows the full makespan.
+        cursor = cursor.max(end.clone());
         for wire in gate.controls.iter().chain(&gate.targets) {
             wire_ends.insert(*wire, end.clone());
         }
@@ -184,11 +183,14 @@ fn resources(
         .iter()
         .filter(|e| e.gate.path.starts_with(&c.key))
         .collect();
+    if !c.key.is_empty() && selected.iter().any(|e|e.start<e.before) {
+        return pending("overlapping nested invocation events require explicit call-boundary lifetime accounting before per-region resources can be discharged");
+    }
     // An action with no emitted events retains its interface for zero elapsed
     // time; peak occupancy still includes the live interface at entry.
     let duration = selected
         .first()
-        .map(|first| &selected.last().unwrap().end - &first.before)
+        .map(|first| selected.iter().map(|e| &e.end).max().unwrap() - &first.before)
         .unwrap_or_else(Rat::zero);
     let declarations = target
         .get("resources")
@@ -243,12 +245,20 @@ fn resources(
         }
     }
     let caps = target.get("capabilities");
-    if let Some(max) = caps.and_then(|c| c.get("max_parallel")).and_then(u64_of) {
-        if max == 0 && selected.iter().any(|e| e.end > e.start) {
+    if let Some(max) = caps.and_then(|c| c.get("max_parallel")).filter(|v|v.as_str()!=Some("unbounded")) {
+        let maximum=decimal(Some(max),"target.capabilities.max_parallel")?;
+        let mut edges=Vec::new();
+        for event in &selected {if event.end>event.start {
+            edges.push((event.start.clone(),1i64));edges.push((event.end.clone(),-1i64));
+        }}
+        // Endpoints are half-open: releases at a time precede new starts.
+        edges.sort();let mut active=0i64;let mut peak=0i64;
+        for (_,change) in edges {active+=change;peak=peak.max(active);}
+        if Rat::from_integer(peak.into())>maximum {
             return bad(
                 "E_SCHEDULE_INFEASIBLE",
                 "target.capabilities.max_parallel",
-                "nonzero-duration gate exceeds zero parallel capacity",
+                format!("{peak} simultaneous native leaf events exceed max_parallel {maximum}"),
             );
         }
     }

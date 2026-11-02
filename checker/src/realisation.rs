@@ -172,12 +172,42 @@ fn loop_bounds(stmts: &[Stmt], bounds: &mut Vec<u64>) -> Result<()> {
     }
     Ok(())
 }
-fn emit_row(tokens:Vec<String>, block:&str, ordinal:usize, iteration:&[u64], generated:u64, rows:&mut Vec<SourceRow>,max:u64)->Result<()> {
-    if rows.len() as u64 >= max.min(100_000) {return Err(host_limit_outcome(HostLimit{quantity:"expanded source row count exceeds host work/storage limit".into()}));}
-    rows.push(SourceRow{tokens,block:block.into(),ordinal,iteration:iteration.to_vec(),generated});Ok(())
+fn emit_row(
+    tokens: Vec<String>,
+    block: &str,
+    ordinal: usize,
+    iteration: &[u64],
+    generated: u64,
+    rows: &mut Vec<SourceRow>,
+    max: u64,
+) -> Result<()> {
+    if rows.len() as u64 >= max.min(100_000) {
+        return Err(host_limit_outcome(HostLimit {
+            quantity: "expanded source row count exceeds host work/storage limit".into(),
+        }));
+    }
+    rows.push(SourceRow {
+        tokens,
+        block: block.into(),
+        ordinal,
+        iteration: iteration.to_vec(),
+        generated,
+    });
+    Ok(())
 }
-fn expand_rows(stmts:&[Stmt],block:&str,mut ordinal:usize,iteration:&mut Vec<u64>,rows:&mut Vec<SourceRow>,max:u64)->Result<()> {
-    if iteration.len()>64 {return Err(host_limit_outcome(HostLimit{quantity:"qloop nesting exceeds 64 host levels".into()}));}
+fn expand_rows(
+    stmts: &[Stmt],
+    block: &str,
+    mut ordinal: usize,
+    iteration: &mut Vec<u64>,
+    rows: &mut Vec<SourceRow>,
+    max: u64,
+) -> Result<()> {
+    if iteration.len() > 64 {
+        return Err(host_limit_outcome(HostLimit {
+            quantity: "qloop nesting exceeds 64 host levels".into(),
+        }));
+    }
     for stmt in stmts {
         match stmt {
             Stmt::Line(tokens)=>emit_row(tokens.clone(),block,ordinal,iteration,0,rows,max)?,
@@ -205,7 +235,12 @@ fn expand_rows(stmts:&[Stmt],block:&str,mut ordinal:usize,iteration:&mut Vec<u64
                 _=>return pending("structured form requires its complete coherent control and unconditional lifetime expansion"),
             },
         }
-        ordinal+=match stmt {Stmt::Line(_)=>1,Stmt::Block{body,rest,..}=>1+static_size(body)+rest.as_ref().map(|r|static_size(r)).unwrap_or(0)};
+        ordinal += match stmt {
+            Stmt::Line(_) => 1,
+            Stmt::Block { body, rest, .. } => {
+                1 + static_size(body) + rest.as_ref().map(|r| static_size(r)).unwrap_or(0)
+            }
+        };
     }
     Ok(())
 }
@@ -683,7 +718,9 @@ pub(crate) fn decision_kind<'a>(
     let mut best: Option<((usize, usize, u8, u8, u8), &Value)> = None;
     let mut tied = false;
     for entry in entries {
-        if entry.get("kind").and_then(Value::as_str) != Some(kind) || !selector(entry, &gate.path, gate.generated) {
+        if entry.get("kind").and_then(Value::as_str) != Some(kind)
+            || !selector(entry, &gate.path, gate.generated)
+        {
             continue;
         }
         let p = entry.get("path").and_then(Value::as_arr).unwrap();

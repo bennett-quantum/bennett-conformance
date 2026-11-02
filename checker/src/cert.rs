@@ -640,7 +640,17 @@ fn load_jcs_doc(bytes: &[u8], what: &str, verdict: &mut Verdict) -> Option<Value
         }
     };
     match jcs(&v) {
-        Ok(canon) if canon == bytes => Some(v),
+        Ok(canon) if canon == bytes => {
+            if let Some(limit) = crate::decimal_limits::document(&v, what) {
+                verdict.unchecked_items.push(format!(
+                    "unchecked (host limit): {} (§12.2)",
+                    limit.quantity
+                ));
+                None
+            } else {
+                Some(v)
+            }
+        }
         _ => {
             verdict.errors.push(rej(
                 "E_CERT_JCS",
@@ -910,6 +920,9 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
             }
         }
         target_doc = load_jcs_doc(tb, "target", &mut verdict);
+        if !verdict.unchecked_items.is_empty() {
+            return finish(verdict);
+        }
         if let Some(t) = &target_doc {
             numeric::validate_target_shape(t, &mut verdict.errors);
         }
@@ -927,6 +940,19 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                 _ => (None, None),
             },
         };
+    if !verdict.unchecked_items.is_empty() {
+        return finish(verdict);
+    }
+    if let Some(schedule) = &schedule_doc {
+        // Embedded schedules use the same decimal preflight as detached ones.
+        if let Some(limit) = crate::decimal_limits::document(schedule, "schedule") {
+            verdict.unchecked_items.push(format!(
+                "unchecked (host limit): {} (§12.2)",
+                limit.quantity
+            ));
+            return finish(verdict);
+        }
+    }
     if let Some(h) = &schedule_hash_val {
         verdict.hashes.insert("schedule_hash".into(), h.clone());
         if let Some(want) = bindings.get("schedule_hash").and_then(Value::as_str) {
