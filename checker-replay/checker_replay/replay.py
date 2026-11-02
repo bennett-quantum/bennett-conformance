@@ -20,7 +20,7 @@ SCOPE_NOTES = [
     "§12.1 sampled, structural, numerical and channel claims: reported unchecked per claim",
     "§12.3 resources, gates_used, estimate, frame, cleanup, error, composition: not recomputed",
     "§12.3 verification.borrow_frames, unitary, channel, oracle, fault_rate indices: not recomputed",
-    "§4.5 qinplace coverage by inverse_pairs entries: not recomputed (dirty t/f is detected in replay)",
+    "§4.5 qinplace coverage: recomputed only at the root bindings.invocation; other regions' sites are unchecked",
     "§16/suite F object well-formedness: only rules the replay relies on are enforced",
     "§9.3 linked libraries: symbols outside the given object are unchecked",
 ]
@@ -438,7 +438,115 @@ class Checker:
             return out
         for i, claim in enumerate(rec["claims"]):
             out["claims"].append(self.check_claim(key, rec, i, claim))
+        name = self.by_closure.get(key)
+        if name is not None:
+            try:
+                out["qinplace_coverage"] = self.qinplace_coverage(key, name, rec, out)
+            except Reject as e:
+                out["errors"].append(e.diag)
+            except ObjectError as e:
+                out["errors"].append(_diag("E_REPLAY_OBJECT", e.section, "object", e.message))
+            except Unchecked as e:
+                out["unchecked"].append({"section": e.section, "reason": e.message})
         return out
+
+    # ---- §4.5 qinplace coverage
+    def qinplace_coverage(self, key, name, rec, out):
+        """Each qinplace in this region's body needs a covering entry of this record (§4.5, §12.3).
+
+        No entry for the pair: reject (the obligation is carried by no entry). With the region's
+        invocation bound (bindings.invocation of the root), the tuple of tk and the args are resolved
+        and the §4.5 covering test runs; unbound, coverage depends on the caller and is unchecked.
+        """
+        fn = self.obj.functions[name]
+        if fn.kind not in ('action', 'perm_action'):
+            return []
+        sites = [r for _b, _p, rows in fn.blocks for r in _flat(rows) if r.op == 'qinplace']
+        if not sites:
+            return []
+        vf = rec.get("verification")
+        entries = vf.get("inverse_pairs") if isinstance(vf, dict) else None
+        entries = [e for e in entries if isinstance(e, dict)] if isinstance(entries, list) else []
+        params = [(n, t) for n, t, _s in fn.groups[3]]
+        resolved = None
+        b = self.cert.get("bindings") if isinstance(self.cert.get("bindings"), dict) else {}
+        if b.get("closure_hash") == key and "invocation" in b:
+            vals, _budget = _resolve_invocation(self.obj, b["invocation"], [t for _n, t in params], "bindings.invocation")
+            resolved = {n: v for (n, _t), v in zip(params, vals)}
+        report = []
+        for k, ins in enumerate(sites):
+            ops = ins.operands
+            g, ginv = ops[0][1:], ops[1][1:]
+            if g not in self.closure_of_name or ginv not in self.closure_of_name:
+                report.append({"site": k, "status": "unresolved", "reason": "linked library callee"})
+                out["unchecked"].append({"section": "9.3", "reason": f"qinplace {k}: @{g}/@{ginv} are not in this object"})
+                continue
+            pair = {self.closure_of_name[g], self.closure_of_name[ginv]}
+            matching = [e for e in entries if {e.get("g"), e.get("ginv")} == pair
+                        and (len(pair) == 2 or e.get("g") == e.get("ginv"))]
+            site = {"site": k, "g": g, "ginv": ginv}
+            if not matching:
+                site["status"] = "uncovered"
+                report.append(site)
+                out["errors"].append(_diag("E_REPLAY_COVERAGE", "4.5; 12.3", f"qinplace {k}",
+                                           f"no inverse_pairs entry of this region record carries @{g}/@{ginv}"))
+                continue
+            if resolved is None:
+                site["status"] = "unresolved"
+                report.append(site)
+                out["unchecked"].append({"section": "4.5", "reason": f"qinplace {k} @{g}/@{ginv}: an entry exists, but "
+                                         "the tuple of tk and the args are resolved only at a call and no invocation "
+                                         "is bound for this region"})
+                continue
+            tk = self._site_value(ops[2], resolved, k)
+            arg_ops = parse_list(ops[6]) if len(ops) > 6 else []
+            gparams = self.obj.functions[g].groups[4]
+            if len(arg_ops) != len(gparams):
+                raise ObjectError("4.5", f"qinplace {k}: {len(arg_ops)} args for @{g}'s {len(gparams)}")
+            avals = [(pn, pt, self._site_value(a, resolved, k)) for a, (pn, pt, _s) in zip(arg_ops, gparams)]
+            why = [self._entry_miss(e, rec, tk, avals) for e in matching]
+            if None in why:
+                site["status"] = "covered"
+            else:
+                site["status"] = "uncovered"
+                out["errors"].append(_diag("E_REPLAY_COVERAGE", "4.5", f"qinplace {k}",
+                                           f"the bound invocation (tk={list(tk)}) is covered by no entry: " + "; ".join(why)))
+            report.append(site)
+        return report
+
+    @staticmethod
+    def _site_value(tok, resolved, k):
+        if tok not in resolved:
+            raise Unchecked(f"qinplace {k}: operand {tok!r} is not a classical parameter of the region", "4.5")
+        return resolved[tok]
+
+    def _entry_miss(self, e, rec, tk, avals):
+        """None if entry e covers the site at tuple tk with argument values avals, else the reason."""
+        bud = e.get("budget")
+        if not isinstance(bud, list) or len(bud) != 4 or not all(isinstance(x, str) and DEC.match(x) for x in bud):
+            return f"entry budget {bud!r} is malformed"
+        if any(int(x) > y for x, y in zip(bud, tk)):
+            return f"entry budget {bud} is not componentwise <= {list(tk)}"
+        toks = e.get("arg_tokens", {})
+        claims = rec.get("claims") or []
+        ci = e.get("claim")
+        claim = claims[ci] if isinstance(ci, int) and not isinstance(ci, bool) and 0 <= ci < len(claims) else None
+        if not isinstance(claim, dict):
+            return f"entry claim {ci!r} indexes no claim"
+        if claim.get("kind") != "exhaustive" or claim.get("expected") != "inverse_pair":
+            raise Unchecked(f"entry claim {ci} is a {claim.get('kind')} claim; library coverage is not replayed", "4.5")
+        ranges = {a.get("name"): a for a in (claim.get("domain") or {}).get("args", []) if isinstance(a, dict)}
+        for pn, pt, v in avals:
+            if pt == 'token':
+                want = toks.get(pn) if isinstance(toks, dict) else None
+                if not isinstance(want, list) or tuple(int(x) if isinstance(x, str) and DEC.match(x) else -1
+                                                       for x in want) != tuple(v):
+                    return f"token argument {pn} tuple {list(v)} != arg_tokens {want!r}"
+            else:
+                r = ranges.get(pn)
+                if r is None or not (_nat(r.get("lo"), "domain.args") <= v <= _nat(r.get("hi"), "domain.args")):
+                    return f"argument {pn}={v} lies outside the claim's args domain"
+        return None
 
     # ---- claim level
     def check_claim(self, key, rec, index, claim):
@@ -762,7 +870,7 @@ def _final(forced, errors, regions, checker, reason=None):
         overall = forced
     elif errors or region_errors or "reject" in outcomes:
         overall = "reject"
-    elif "unchecked" in outcomes:
+    elif "unchecked" in outcomes or any(r.get("unchecked") for r in regions.values()):
         overall = "unchecked"
     else:
         overall = "replayed"

@@ -41,3 +41,34 @@ class ObjectMutants(unittest.TestCase):
             new_text, cert = rebound_pair(text, edited)
             v = check_certificate(cert, parse_object(new_text), new_text)
             self.assertEqual(v["errors"], [], tag)
+
+
+class SameBytes(unittest.TestCase):
+    def test_replay_sees_the_canonical_bytes_the_binary_sees(self):
+        """A float 1.0 mutant canonicalises to 1: the replay must judge the bytes, not the dict."""
+        import json, pathlib, tempfile
+        from checker_replay import differential
+        seen = {}
+        orig = differential.check_certificate
+
+        def spy(cert, *a, **k):
+            seen["cert"] = cert
+            return {"overall": "replayed", "regions": {}, "errors": []}
+        differential.check_certificate = spy
+        differential_run = differential.run_binary
+        differential.run_binary = lambda *a, **k: ({"overall": "verified", "regions": {}, "errors": []}, 0, "")
+        try:
+            with tempfile.TemporaryDirectory(dir=pathlib.Path(__file__).resolve().parents[2] / ".tmp") as d:
+                run = differential.Run("/bin/true", d)
+                p = [p for p in arith_objects() if p.name == "arith.add.cuccaro.w1.bisa"][0]
+                text = p.read_bytes().decode()
+                lines = text.split('\n')
+                cert = json.loads(lines[lines.index('section certificate') + 1])
+                key = next(iter(cert["regions"]))
+                cert["regions"][key]["claims"][0]["domain"]["bundles"][0]["hi"] = 1.0
+                run.compare("t", "t", text, cert, "s")
+        finally:
+            differential.check_certificate = orig
+            differential.run_binary = differential_run
+        hi = seen["cert"]["regions"][key]["claims"][0]["domain"]["bundles"][0]["hi"]
+        self.assertIs(type(hi), int)

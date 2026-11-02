@@ -488,3 +488,74 @@ class InversePair(unittest.TestCase):
     def test_args_slice_reports_declared_elements(self):
         c = self.build(mutate=lambda cl, e, v: cl["domain"]["args"][0].update(lo=1, hi=2))
         self.assertEqual((c["outcome"], c["elements"]), ("proof", 32), c)
+
+
+class QinplaceCoverage(unittest.TestCase):
+    """§4.5: every qinplace of a certified region is carried by a covering inverse_pairs entry."""
+    TEXT = EX[7] if 7 in EX else None
+
+    def verdict(self, entry_mut=None, claim_mut=None, root_inv=None, entries=None):
+        h = hashes.compute_hashes(parse_object(self.TEXT))
+        claim = {"kind": "exhaustive", "expected": "inverse_pair",
+                 "subject": {"closure_hash": h["g"][1], "variant": "forward", "inherited_controls": 0},
+                 "domain": {"args": [rng("a", 2)], "borrowed": [], "bundles": [rng("x", 2), rng("y", 2)], "regions": []}}
+        entry = {"g": h["g"][1], "ginv": h["ginv"][1], "claim": 0, "budget": ["3", "0", "0", "0"]}
+        ver = {"inverse_pairs": [entry] if entries is None else entries}
+        cert, ch, _ = cert_for(self.TEXT, "addya", [claim], ver)
+        if entry_mut:
+            entry_mut(entry)
+        if claim_mut:
+            claim_mut(claim)
+        if root_inv is not None:
+            cert["bindings"]["invocation"] = root_inv
+        v = check_certificate(cert, parse_object(self.TEXT), self.TEXT)
+        return v, v["regions"][ch]
+
+    def inv(self, tk=("3", "0", "0", "0"), a="1"):
+        return {"args": [list(tk), a], "budget": ["3", "0", "0", "0"]}
+
+    def test_root_invocation_covered(self):
+        v, r = self.verdict(root_inv=self.inv())
+        self.assertEqual(r["errors"], [], r)
+        self.assertEqual([s["status"] for s in r["qinplace_coverage"]], ["covered"], r)
+        self.assertEqual(v["overall"], "replayed", v)
+
+    def test_larger_tuple_is_covered(self):
+        _v, r = self.verdict(root_inv=self.inv(tk=("9", "0", "0", "0")))
+        self.assertEqual(r["qinplace_coverage"][0]["status"], "covered", r)
+
+    def test_tuple_below_entry_budget_rejects(self):
+        v, r = self.verdict(root_inv=self.inv(tk=("2", "0", "0", "0")))
+        self.assertEqual(r["errors"][0]["code"], "E_REPLAY_COVERAGE", r)
+        self.assertIn("4.5", r["errors"][0]["section"])
+        self.assertEqual(v["overall"], "reject")
+
+    def test_arg_outside_claim_args_domain_rejects(self):
+        _v, r = self.verdict(root_inv=self.inv(a="3"),
+                             claim_mut=lambda c: c["domain"]["args"][0].update(lo=0, hi=2))
+        self.assertEqual(r["errors"][0]["code"], "E_REPLAY_COVERAGE", r)
+
+    def test_swapped_entry_orientation_covers(self):
+        h = hashes.compute_hashes(parse_object(self.TEXT))
+        _v, r = self.verdict(root_inv=self.inv(),
+                             entry_mut=lambda e: e.update(g=h["ginv"][1], ginv=h["g"][1]),
+                             claim_mut=lambda c: c["subject"].update(closure_hash=h["ginv"][1]))
+        self.assertEqual(r["qinplace_coverage"][0]["status"], "covered", r)
+
+    def test_no_entry_for_the_pair_rejects(self):
+        h = hashes.compute_hashes(parse_object(self.TEXT))
+        _v, r = self.verdict(entry_mut=lambda e: e.update(ginv=h["g"][1]))
+        codes = [e["code"] for e in r["errors"]]
+        self.assertIn("E_REPLAY_COVERAGE", codes, r)
+        self.assertEqual(r["qinplace_coverage"][0]["status"], "uncovered", r)
+
+    def test_no_inverse_pairs_at_all_rejects(self):
+        _v, r = self.verdict(entries=[])
+        self.assertIn("E_REPLAY_COVERAGE", [e["code"] for e in r["errors"]], r)
+
+    def test_unbound_tuple_is_unchecked_never_covered(self):
+        v, r = self.verdict()
+        self.assertEqual(r["errors"], [], r)
+        self.assertEqual(r["qinplace_coverage"][0]["status"], "unresolved", r)
+        self.assertTrue(r["unchecked"] and r["unchecked"][0]["section"], r)
+        self.assertEqual(v["overall"], "unchecked", v)

@@ -6,7 +6,8 @@ row families the published corpus lacks. Compared per exhaustive claim: outcome,
 element count and covered fraction. A non-claim rejection by the binary is outside
 this replay's scope and counted separately, never treated as agreement on a claim.
 
-python3 -I -m checker_replay.differential --checker BIN --out DIR
+cd checker-replay; python3 -m checker_replay.differential --checker BIN --out DIR
+(-I would drop the cwd from sys.path and fail to find the package)
 """
 import argparse, collections, copy, json, os, pathlib, re, subprocess, sys
 from . import hashes as H, jcs
@@ -248,7 +249,10 @@ class Run:
         work = self.out / "work"
         obj_p, cert_p = work / "o.bisa", work / "c.json"
         obj_p.write_bytes(text.encode())
-        cert_p.write_bytes(jcs.canonical(cert))
+        cert_bytes = jcs.canonical(cert)
+        cert_p.write_bytes(cert_bytes)
+        # Both sides read the same bytes: JCS erases JSON-only distinctions such as 1.0 vs 1.
+        cert = json.loads(cert_bytes)
         self.counts["cases"] += 1
         try:
             mine = check_certificate(cert, parse_object(text), text, target=target, schedule=schedule)
