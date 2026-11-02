@@ -86,13 +86,28 @@ pub fn standalone(
     );
     set(&mut region, "kind", Value::Str(sym.kind.clone()));
     set(&mut region, "signature", sym.signature.clone());
+    set(
+        &mut region,
+        "bounds",
+        sym.signature
+            .get("bounds")
+            .cloned()
+            .unwrap_or_else(|| Value::Arr(vec![])),
+    );
     let slots = iface
         .bundles
         .iter()
         .map(|b| {
             json(&format!(
                 r#"{{"class":"fast","id":"{}:{}","role":"{}","width":{}}}"#,
-                b.group, b.slot, b.group, b.width
+                b.group,
+                b.slot,
+                b.group,
+                if b.width < (1 << 53) {
+                    b.width.to_string()
+                } else {
+                    format!("\"{}\"", b.width)
+                }
             ))
         })
         .collect();

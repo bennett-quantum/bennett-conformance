@@ -136,6 +136,21 @@ fn invalid_constant_literals_never_default_to_zero_or_wrap() {
 }
 
 #[test]
+fn lifted_constants_are_not_limited_to_the_classical_128_bit_widths() {
+    for width in [129,256,1024,1_000_001] {
+        let source=format!("oracle @o () (t:wire) (f:wire[4]) () ()\nregs {{ c:reg[{width}], r:reg[1] }}\n^entry():\nc = lift.const.i{width} -1\nr = lift.trunc.i1 c\nlift.retval r");
+        let (inputs,_)=standalone(&source,r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,"o",vec![]);
+        let object=Object::parse(&inputs.object_text).unwrap();
+        let result=eval_oracle(&object,object.symbol("o").unwrap(),&[],&[],&[],&[3u32.into(),0u32.into(),0u32.into(),0u32.into()],0);
+        if width>1_000_000 {
+            assert!(matches!(result,Err(EvalError::Unchecked(reason))if reason.contains("host limit")));
+        }else{
+            let result=result.unwrap();assert_eq!(result.payload,BigUint::from(1u32));assert_eq!(result.code,BigUint::from(0u32));
+        }
+    }
+}
+
+#[test]
 fn definitively_absent_closures_and_wrong_oracle_subject_reject() {
     for name in [
         "unchecked-subject-closure-absent",
@@ -320,6 +335,7 @@ fn exact_phase_cancellation_controls_and_adjoint_calls_preserve_all_four_inputs(
         ),
         ("h t\nt t\nt t\nt t\nt t\nt t\nt t\nt t\nt t\nh t", "x t"),
         ("cz c t\ncz c t\nh t\nh t", "x t"),
+        ("qpred c\nctl c h t\nctl c h t\nqunpred c", "x t"),
         ("qif c {\nh t\nh t\n} {\nt t\ntdg t\n}", "x t"),
     ] {
         let (inputs, root) = coherent_fixture(body, inner, false);

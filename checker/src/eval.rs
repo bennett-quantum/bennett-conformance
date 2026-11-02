@@ -107,6 +107,33 @@ pub enum Stmt {
     },
 }
 
+/// Check recursive-AST host depth with a flat scan before constructing any
+/// nested Stmt vectors. This does not classify ISA source as ill-formed.
+pub(crate) fn source_nesting_limit(object: &Object) -> Option<crate::fault::HostLimit> {
+    for function in &object.functions {
+        let mut depth = 0usize;
+        for line in function.bytes.lines().skip(1) {
+            if line == "}" {
+                depth = depth.saturating_sub(1);
+            } else if line != "} {"
+                && !line.starts_with("regs ")
+                && tokenise(line).last().map(String::as_str) == Some("{")
+            {
+                depth += 1;
+                if depth > 64 {
+                    return Some(crate::fault::HostLimit {
+                        quantity: format!(
+                            "structured source nesting in @{} exceeds the host depth cap 64",
+                            function.name
+                        ),
+                    });
+                }
+            }
+        }
+    }
+    None
+}
+
 /// Parse block bodies from raw function lines (starting after the header).
 /// Returns (block name -> statements) preserving order.
 pub fn parse_blocks(func: &Function) -> Vec<(String, Vec<Stmt>)> {
@@ -526,15 +553,16 @@ impl Lifted<'_, '_> {
                 let bad = || {
                     EvalError::Reject(Reject::new(
                     "E_CERT_REPLAY", "§3.3", "",
-                    "lift.const.iN requires one canonical INT in [-2^(N-1), 2^N), a matching destination and 1 <= N <= 128",
+                    "lift.const.iN requires one canonical INT in [-2^(N-1), 2^N), a matching destination and positive N",
                 ))
                 };
-                let n = op
+                let width = op
                     .strip_prefix("lift.const.i")
-                    .filter(|s| crate::rat::is_canonical_uint_str(s))
-                    .and_then(|x| x.parse::<u64>().ok())
-                    .filter(|n| (1..=128).contains(n))
+                    .filter(|s| crate::rat::is_canonical_uint_str(s) && *s!="0")
                     .ok_or_else(bad)?;
+                let Some(n)=width.parse::<u64>().ok().filter(|n|*n<1_000_000) else {
+                    return unchecked("host limit: lifted constant width exceeds the reference bit-vector cap 999999 (§12.2); lifted widths have no ISA upper bound (§4.2)");
+                };
                 let dest = lhs.as_ref().filter(|v| v.len() == 1).ok_or_else(bad)?;
                 if operands.len() != 1 || self.width_of(&dest[0])? != n {
                     return Err(bad());

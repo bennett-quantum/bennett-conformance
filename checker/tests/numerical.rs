@@ -485,9 +485,22 @@ fn missing_native_and_named_scheme_matches_are_infeasible() {
             );
         }
         bind_schedule(&mut inp, schedule, target);
+        if matches!(case, "matching-default" | "matching-name") {
+            let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+            let Value::Obj(top) = &mut cert else {
+                unreachable!()
+            };
+            let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+                unreachable!()
+            };
+            for region in regions.values_mut() {
+                set(region, "gates_used", json(r#"{"cx":{"count":1}}"#));
+            }
+            inp.cert_bytes = jcs(&cert).unwrap();
+        }
         let v = check_certificate(&inp);
         if matches!(case, "matching-default" | "matching-name") {
-            assert_eq!(v.overall, "unchecked", "{case}: {v:?}");
+            assert_eq!(v.overall, "verified", "{case}: {v:?}");
             assert!(codes(&v).is_empty(), "{case}: {v:?}");
         } else {
             assert_eq!(v.overall, "rejected", "{case}: {v:?}");

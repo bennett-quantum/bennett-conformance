@@ -39,7 +39,9 @@ six-wire host cap. Event/resource tracing uses a separate bound of at most
 1,048,576 wire identities and can verify wide interfaces without matrix work.
 Channel LDL work has an eight-dimensional interface cap,
 and interval precision has a 4096-bit host cap. These are implementation
-limits, never ISA legality limits. Retained replay/table/coverage storage is
+limits, never ISA legality limits. Structured source nesting above 64
+levels is detected by a flat scan before recursive AST analysis and returns
+an unchecked host limit. Retained replay/table/coverage storage is
 also bounded by a conservative 256 MiB estimate before allocation. `--library` accepts additional JCS documents;
 independent library-proof provenance is still unchecked. `--oracle-bin` is
 reserved for differential replay and explicitly reports that the optional
@@ -151,7 +153,7 @@ specificity and ties. Static source ordinals are retained across loop visits;
 iteration selectors use the complete dynamic nesting vector. Zero-trip loops
 emit no events and cannot witness a selector tie. The two selector flips of
 `qif` retain their own generated ordinals; full complex-column tests check
-both arms and global phase. Scheme expansion, `qloop while`, topology, multi-class
+both arms and global phase. Schemes beyond the exact one-leaf case described below, `qloop while`, topology, multi-class
 allocation and complete oracle expansion remain unchecked.
 
 Rotation literals and bound `f64` arguments are decoded to exact binary64
@@ -207,7 +209,8 @@ Overlapping nested-call resource reports still require call-boundary lifetime
 modelling and remain unchecked.
 
 Mutation tests visit every field and array position of the published positive
-certificate (250), target (43), and schedule (54), with exact expected rejection
+certificate (250), target (43), schedule (54), coverage (30), and the
+scheme-bearing target (67), with exact expected rejection
 codes. The target and schedule sweeps rebind their hashes so a stale digest
 cannot mask a malformed nested value. Schedule bindings validate scheduler and
 expansion records, nonnegative error shares and exact budget encodings.
@@ -220,8 +223,13 @@ depend on `eps` reject. Nonzero native realisation models and positive default
 shares for expressions depending on `eps` remain unchecked. A zero region
 accuracy gives a known zero default share. Missing selected native entries,
 unknown named schemes and schemes whose opcode/control range does not match
-reject with `E_SCHEDULE_INFEASIBLE`. Matching schemes remain unchecked until
-their templates have been independently expanded and verified. Control-range
+reject with `E_SCHEDULE_INFEASIBLE`. Zero-ancilla, nonparametric single-leaf schemes are independently expanded.
+The source and actual leaf operators must agree exactly, including controls
+and phase. Native matching never recursively selects a scheme for a template
+leaf. The leaf supplies its own controls, cost and opcode to accounting,
+while predicate-depth checks retain the source effective context. Multiple
+leaves, repeats, parameters and positive ancilla lifetimes remain unchecked.
+Control-range
 integers are compared exactly even above the host integer range.
 
 Launch estimates on this path use exact reduced numerator/denominator rows,

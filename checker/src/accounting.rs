@@ -6,6 +6,7 @@ use crate::json::Value;
 use crate::rat::{rat_of_json, Rat};
 use crate::realisation::{Context, Gate};
 use num_traits::{One, Signed, Zero};
+use std::borrow::Cow;
 use std::collections::{BTreeMap, HashMap, HashSet};
 type Result<T> = std::result::Result<T, ClaimOutcome>;
 fn bad<T>(code: &'static str, path: impl AsRef<str>, message: impl AsRef<str>) -> Result<T> {
@@ -44,7 +45,8 @@ fn expr(v: &Value, vars: &HashMap<&str, Rat>, tables: &Value, path: &str) -> Res
     })
 }
 struct Event<'a> {
-    gate: &'a Gate,
+    gate: Cow<'a, Gate>,
+    predicate_depth: usize,
     start: Rat,
     end: Rat,
     before: Rat,
@@ -54,9 +56,10 @@ fn events<'a>(gates: &'a [Gate], docs: &LoadedDocs) -> Result<Vec<Event<'a>>> {
     let mut cursor = Rat::zero();
     let mut wire_ends: HashMap<usize, Rat> = HashMap::new();
     let mut out = vec![];
-    for gate in gates {
-        let entry = crate::realisation::native(docs, gate)?;
-        let decision = crate::realisation::decision_kind(docs, gate, "gate")?;
+    for source in gates {
+        let gate = crate::realisation::realised_leaf(docs, source)?;
+        let entry = crate::realisation::native(docs, &gate)?;
+        let decision = crate::realisation::decision_kind(docs, source, "gate")?;
         let eps = decision
             .and_then(|d| d.get("epsilon_share"))
             .map(|v| decimal(Some(v), "schedule.gate.epsilon_share"))
@@ -104,7 +107,7 @@ fn events<'a>(gates: &'a [Gate], docs: &LoadedDocs) -> Result<Vec<Event<'a>>> {
                 "native gate has no duration",
             )])
         })?;
-        let selected = crate::realisation::decision_kind(docs, gate, "start")?;
+        let selected = crate::realisation::decision_kind(docs, source, "start")?;
         let start = match selected {
             Some(s) => decimal(s.get("time"), "schedule.start.time")?,
             None => cursor.clone(),
@@ -135,6 +138,7 @@ fn events<'a>(gates: &'a [Gate], docs: &LoadedDocs) -> Result<Vec<Event<'a>>> {
         }
         out.push(Event {
             gate,
+            predicate_depth: source.controls.len() - source.own_controls,
             start,
             end,
             before,
@@ -280,7 +284,7 @@ fn resources(
         let max = decimal(Some(max), "target.capabilities.max_predicate_depth")?;
         if selected
             .iter()
-            .any(|e| Rat::from_integer((e.gate.controls.len() - e.gate.own_controls).into()) > max)
+            .any(|e| Rat::from_integer(e.predicate_depth.into()) > max)
         {
             return bad(
                 "E_SCHEDULE_INFEASIBLE",

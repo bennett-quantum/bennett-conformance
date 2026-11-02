@@ -657,7 +657,7 @@ fn sig_widths(sig: &Value, key: &str) -> Option<Vec<u64>> {
     sig.get(key)?
         .as_arr()?
         .iter()
-        .map(|v| v.as_i128().map(|i| i as u64))
+        .map(crate::cert::u64_of)
         .collect()
 }
 
@@ -727,8 +727,14 @@ impl Object {
                     "in",
                     &mut bundles,
                 )?;
-                let tgt = sig.get("tgt").and_then(Value::as_i128).unwrap_or(0) as u64;
-                let fault = sig.get("fault").and_then(Value::as_i128).unwrap_or(0) as u64;
+                let tgt = sig
+                    .get("tgt")
+                    .and_then(crate::cert::u64_of)
+                    .ok_or_else(|| sec_err("§9.1", "invalid or unmaterialisable target width"))?;
+                let fault = sig
+                    .get("fault")
+                    .and_then(crate::cert::u64_of)
+                    .ok_or_else(|| sec_err("§9.1", "invalid or unmaterialisable fault width"))?;
                 add(&func.groups[1], &[tgt], "tgt", &mut bundles)?;
                 add(&func.groups[2], &[fault], "fault", &mut bundles)?;
                 self.interface_regions(name, func, sig, 3)?
@@ -818,9 +824,9 @@ impl Object {
                 .and_then(Value::as_str)
                 .unwrap_or("")
                 .to_string();
-            let sa = m.get("A").and_then(Value::as_i128).unwrap_or(-1);
-            let sw = m.get("W").and_then(Value::as_i128).unwrap_or(-1);
-            if sa != a as i128 || sw != w as i128 {
+            let sa = m.get("A").and_then(crate::cert::u64_of);
+            let sw = m.get("W").and_then(crate::cert::u64_of);
+            if sa != Some(a) || sw != Some(w) {
                 return Err(sec_err(
                     "§9.1",
                     format!("@{fname} region {} shape mismatch", p.name),

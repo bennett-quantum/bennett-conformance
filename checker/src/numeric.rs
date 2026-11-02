@@ -744,7 +744,7 @@ pub fn validate_path_element(el: &Value, object: &Object, path: &str, errs: &mut
 
 fn width_expr(v: &Value) -> bool {
     match v {
-        Value::Num(_) => rat_of_json(v).is_ok(),
+        Value::Num(_) | Value::Str(_) => rat_of_json(v).is_ok(),
         Value::Obj(m) if m.len() == 1 && m.get("var").and_then(Value::as_str) == Some("c") => true,
         Value::Obj(m) if m.len() == 2 => {
             let arity = match m.get("op").and_then(Value::as_str) {

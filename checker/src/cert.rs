@@ -274,7 +274,10 @@ pub fn int_of(v: &Value) -> Option<i128> {
 }
 
 pub fn u64_of(v: &Value) -> Option<u64> {
-    int_of(v).filter(|i| *i >= 0).map(|i| i as u64)
+    match v {
+        Value::Str(text) if is_canonical_uint_str(text) => text.parse().ok(),
+        _ => u64::try_from(int_of(v)?).ok(),
+    }
 }
 
 fn hash_field(v: &Value, path: &str, errs: &mut Vec<Reject>) -> Option<String> {
@@ -937,6 +940,14 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
         return finish(verdict);
     }
     let root = root.unwrap().clone();
+
+    if let Some(limit) = eval::source_nesting_limit(&object) {
+        verdict.unchecked_items.push(format!(
+            "unchecked (host limit): {} (§12.2)",
+            limit.quantity
+        ));
+        return finish(verdict);
+    }
 
     // Target document.
     let mut target_doc: Option<Value> = None;

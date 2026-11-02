@@ -12,6 +12,7 @@ use crate::matrix::{ComplexInterval as C, Matrix};
 use crate::object::Object;
 use crate::rat::{rat_of_json, Interval, Rat};
 use num_traits::{One, Signed, Zero};
+use std::borrow::Cow;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 type Result<T> = std::result::Result<T, ClaimOutcome>;
@@ -44,6 +45,8 @@ pub(crate) struct Gate {
     generated: u64,
     angle_bits: Option<u64>,
     adjoint: bool,
+    template_leaf: bool,
+    requested_share: Option<Rat>,
 }
 fn resolve_angle(text: &str, context: &Context, object: &Object) -> Result<u64> {
     let bad = |message: String| {
@@ -393,6 +396,12 @@ fn collect(
         let mut controls = predicates.clone();
         let mut adjoint = false;
         let tokens = prefixes(&tokens, &mut controls, &wires, &mut adjoint)?;
+        // §2 defines the effective context as a set, even when an inherited
+        // control, local predicate and ctl prefix name the same wire. Keep
+        // its outermost occurrence for §8.3's control ordering. The raw stack
+        // below still retains every push so qunpred remains LIFO checked.
+        let mut seen = HashSet::new();
+        controls.retain(|wire| seen.insert(*wire));
         let op = tokens.first().map(String::as_str).unwrap_or("");
         let mut path = context.key.clone();
         path.push(element(hash, &row.block, row.ordinal, &row.iteration));
@@ -553,6 +562,8 @@ fn collect(
                     angle_bits,
                     generated: row.generated,
                     adjoint,
+                    template_leaf: false,
+                    requested_share: None,
                 });
             }
             _ => {
@@ -805,7 +816,11 @@ fn scheme_covers(scheme: &Value, gate: &Gate) -> bool {
             && control_range(r, gate.controls.len() as u64)
     }) == Some(true)
 }
-pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value> {
+enum Choice<'a> {
+    Native(&'a Value),
+    Scheme(&'a Value),
+}
+fn select<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Choice<'a>> {
     let target = docs
         .target
         .as_ref()
@@ -821,16 +836,20 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
         return pending("native matrix builder needs resolved multi-class allocation");
     }
     let class = classes.keys().next().unwrap();
-    let decision = decision_kind(docs, gate, "gate")?;
+    let decision = if gate.template_leaf {
+        None
+    } else {
+        decision_kind(docs, gate, "gate")?
+    };
     let schemes = target.get("schemes").and_then(Value::as_arr).unwrap_or(&[]);
     if let Some(g) = decision {
         if g.get("realisation").and_then(Value::as_str) != Some("native") {
             let name = g.get("realisation").and_then(Value::as_str);
-            if schemes
+            if let Some(scheme) = schemes
                 .iter()
-                .any(|s| s.get("name").and_then(Value::as_str) == name && scheme_covers(s, gate))
+                .find(|s| s.get("name").and_then(Value::as_str) == name && scheme_covers(s, gate))
             {
-                return pending("scheduled scheme template expansion has not been implemented");
+                return Ok(Choice::Scheme(scheme));
             }
             return invalid("schedule.gate.realisation","named scheme does not exist or its opcode/control range does not cover the generated gate");
         }
@@ -857,9 +876,14 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
         let epsilon = entry
             .get("epsilon")
             .expect("target schema validated epsilon");
-        let share = decision
-            .and_then(|g| g.get("epsilon_share"))
-            .and_then(|e| rat_of_json(e).ok())
+        let share = gate
+            .requested_share
+            .clone()
+            .or_else(|| {
+                decision
+                    .and_then(|g| g.get("epsilon_share"))
+                    .and_then(|e| rat_of_json(e).ok())
+            })
             .or_else(|| {
                 docs.schedule
                     .as_ref()
@@ -906,7 +930,7 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
                     "an exact entry must not reference eps or an epsilon logarithm/index",
                 )]));
             }
-            return Ok(entry);
+            return Ok(Choice::Native(entry));
         }
         if share.as_ref().map(|eps| &achieved > eps) == Some(true) {
             continue;
@@ -915,8 +939,10 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
             "nonzero native epsilon needs a specified realised operator before numerical replay",
         );
     }
-    if decision.is_none() && schemes.iter().any(|s| scheme_covers(s, gate)) {
-        return pending("default scheme template expansion has not been implemented");
+    if !gate.template_leaf && decision.is_none() {
+        if let Some(scheme) = schemes.iter().find(|s| scheme_covers(s, gate)) {
+            return Ok(Choice::Scheme(scheme));
+        }
     }
     invalid(
         "target.gates/schemes",
@@ -926,6 +952,206 @@ pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value>
             gate.controls.len()
         ),
     )
+}
+pub(crate) fn native<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<&'a Value> {
+    match select(docs, gate)? {
+        Choice::Native(entry) => Ok(entry),
+        Choice::Scheme(_) => pending("selected scheme needs leaf expansion before native matching"),
+    }
+}
+fn scheme_bad<T>(message: impl AsRef<str>) -> Result<T> {
+    Err(ClaimOutcome::rejected(vec![rej(
+        "E_CERT_TARGET",
+        "§8.3",
+        "target.schemes",
+        message,
+    )]))
+}
+fn scheme_expr(value: &Value, vars: &HashMap<&str, Rat>, docs: &LoadedDocs) -> Result<Rat> {
+    crate::expressions::evaluate(
+        value,
+        vars,
+        docs.target
+            .as_ref()
+            .and_then(|t| t.get("tables"))
+            .unwrap_or(&Value::Null),
+    )
+    .map_err(|error| match error {
+        crate::expressions::Error::Invalid(message) => ClaimOutcome::rejected(vec![rej(
+            "E_CERT_TARGET",
+            "§8.1",
+            "target.schemes",
+            message,
+        )]),
+        crate::expressions::Error::HostLimit(limit) => host_limit_outcome(limit),
+    })
+}
+/// Expand the supported zero-ancilla, nonparametric one-leaf case. The source
+/// address remains the schedule selector address; the leaf's own k differs
+/// from the source operation's k when an inherited control becomes explicit.
+pub(crate) fn realised_leaf<'g>(docs: &LoadedDocs, gate: &'g Gate) -> Result<Cow<'g, Gate>> {
+    let scheme = match select(docs, gate)? {
+        Choice::Native(_) => return Ok(Cow::Borrowed(gate)),
+        Choice::Scheme(scheme) => scheme,
+    };
+    let vars = HashMap::from([
+        ("k", Rat::from_integer(gate.own_controls.into())),
+        ("c", Rat::from_integer(gate.controls.len().into())),
+    ]);
+    let count = scheme_expr(
+        scheme
+            .get("ancillae")
+            .and_then(|a| a.get("count"))
+            .expect("validated scheme ancilla count"),
+        &vars,
+        docs,
+    )?;
+    if count.is_negative() || !count.is_integer() {
+        return scheme_bad("ancilla count must evaluate to a nonnegative integer");
+    }
+    if !count.is_zero() {
+        return pending(
+            "scheme ancilla lifetimes, cleanliness and storage descriptors need expansion",
+        );
+    }
+    let template = scheme
+        .get("template")
+        .and_then(Value::as_arr)
+        .expect("validated scheme template");
+    if template.len() != 1 {
+        return pending(
+            "multi-leaf scheme timing and intermediate state expansion has not been implemented",
+        );
+    }
+    let item = &template[0];
+    if item.get("repeat").is_some()
+        || gate.angle_bits.is_some()
+        || item
+            .get("params")
+            .and_then(Value::as_arr)
+            .map(|p| !p.is_empty())
+            .unwrap_or(false)
+    {
+        return pending("scheme repeat/parameter expansion has not been implemented");
+    }
+    // §8.3 puts own controls before the outermost-first effective context.
+    let inherited = gate.controls.len() - gate.own_controls;
+    let ordered: Vec<usize> = gate.controls[inherited..]
+        .iter()
+        .chain(&gate.controls[..inherited])
+        .copied()
+        .collect();
+    let mut wires = Vec::new();
+    for value in item
+        .get("wires")
+        .and_then(Value::as_arr)
+        .expect("validated scheme wires")
+    {
+        let name = value.as_str().expect("validated scheme wire string");
+        let wire = match name {
+            "t" => gate.targets.first().copied(),
+            "t2" => gate.targets.get(1).copied(),
+            _ => {
+                let Some((kind, index)) = name.strip_suffix(']').and_then(|n| n.split_once('['))
+                else {
+                    return scheme_bad("invalid template wire");
+                };
+                let index = if let Some(value) = vars.get(index) {
+                    value.clone()
+                } else {
+                    let value = crate::json::parse(index).map_err(|_| {
+                        ClaimOutcome::unchecked(
+                            "template subscript expression spelling requires further parsing",
+                        )
+                    })?;
+                    scheme_expr(&value, &vars, docs)?
+                };
+                if index.is_negative() || !index.is_integer() {
+                    return scheme_bad("template wire index must be a nonnegative integer");
+                }
+                if kind != "c" {
+                    return scheme_bad(
+                        "template ancilla index exceeds the zero-ancilla allocation",
+                    );
+                }
+                if index >= Rat::from_integer(ordered.len().into()) {
+                    return scheme_bad("template control index is out of range");
+                }
+                Some(
+                    ordered[index
+                        .to_integer()
+                        .to_string()
+                        .parse::<usize>()
+                        .expect("index bounded by control vector")],
+                )
+            }
+        };
+        wires.push(wire.ok_or_else(|| {
+            ClaimOutcome::rejected(vec![rej(
+                "E_CERT_TARGET",
+                "§8.3",
+                "target.schemes",
+                "template target does not exist",
+            )])
+        })?);
+    }
+    if wires.iter().copied().collect::<HashSet<_>>().len() != wires.len() {
+        return scheme_bad("template gate operands are not disjoint");
+    }
+    let op = item
+        .get("gate")
+        .and_then(Value::as_str)
+        .expect("validated scheme gate");
+    let (own, targets) = match op {
+        "x" | "h" | "s" | "sdg" | "t" | "tdg" if wires.len() == 1 => (0, 1),
+        "cx" if wires.len() == 2 => (1, 1),
+        "ccx" if wires.len() == 3 => (2, 1),
+        "mcx" if !wires.is_empty() => (wires.len() - 1, 1),
+        "swap" | "cz" if wires.len() == 2 => (0, 2),
+        _ => {
+            return scheme_bad(
+                "template primitive has an invalid arity or needs parameter expansion",
+            )
+        }
+    };
+    let decision = decision_kind(docs, gate, "gate")?;
+    let leaf = Gate {
+        op: op.into(),
+        own_controls: own,
+        controls: wires[..own].to_vec(),
+        targets: wires[own..own + targets].to_vec(),
+        path: gate.path.clone(),
+        generated: gate.generated,
+        adjoint: false,
+        angle_bits: None,
+        template_leaf: true,
+        requested_share: decision
+            .and_then(|d| d.get("epsilon_share"))
+            .and_then(|v| rat_of_json(v).ok()),
+    };
+    // A one-leaf exact scheme must implement the advertised ideal operator.
+    // Normalize the X family and symmetric two-wire primitives from §4.4.
+    let identity = |g: &Gate| {
+        let op = match g.realised_opcode() {
+            "x" | "cx" | "ccx" | "mcx" => "x",
+            op => op,
+        }
+        .to_string();
+        let mut controls = g.controls.clone();
+        controls.sort_unstable();
+        let mut targets = g.targets.clone();
+        if matches!(op.as_str(), "swap" | "cz") {
+            targets.sort_unstable();
+        }
+        (op, controls, targets)
+    };
+    if identity(gate) != identity(&leaf) {
+        return scheme_bad(
+            "single exact template leaf does not implement its advertised source operator",
+        );
+    }
+    native(docs, &leaf)?; // A template gate must match a native entry; no nesting.
+    Ok(Cow::Owned(leaf))
 }
 fn gate_matrix(g: &Gate, wires: usize, p: u32) -> Result<Matrix> {
     let dim = 1usize << wires;
@@ -1114,12 +1340,12 @@ pub fn subject_matrices(
             );
         }
         for gate in &gates {
-            native(docs, gate)?;
+            let leaf = realised_leaf(docs, gate)?;
             // Build both matrices from their operation streams. Native exact
             // entries have the §4.4 matrix; schemes must supply expanded leaves.
             let v = gate_matrix(gate, wires, p)?;
             reference = v.mul(&reference, p);
-            let u = gate_matrix(gate, wires, p)?;
+            let u = gate_matrix(&leaf, wires, p)?;
             realised = u.mul(&realised, p);
         }
         let iface = docs
@@ -1200,7 +1426,7 @@ pub fn exact_native_subject(subject: &Subject, docs: &LoadedDocs, inputs: &Input
             0,
         )?;
         for gate in &gates {
-            native(docs, gate)?;
+            realised_leaf(docs, gate)?;
         }
     }
     if !found {
@@ -1253,6 +1479,8 @@ mod rotation_columns {
                 angle_bits: Some(1.0f64.to_bits()),
                 generated: 0,
                 adjoint: false,
+                template_leaf: false,
+                requested_share: None,
             };
             let forward = gate_matrix(&gate, 2, 128).unwrap();
             for row in 0..4 {
