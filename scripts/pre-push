@@ -1,69 +1,20 @@
 #!/usr/bin/env bash
-# Push gate (no CI). Layers of quick checks, each loud, run against a clean detached
-# worktree of the commit being pushed (local sha from the refs git supplies on stdin;
-# HEAD when run directly), never the possibly dirty working tree. The worktree sits
-# beside the repo so sibling paths (../bennett-isa-spec-review) resolve.
-#  1. cargo test for every crate in the repo (crates under .tmp are not ours);
-#  2. clause-graph unit tests (clauses/tests);
-#  3. suite runner unit tests (suite/tests, fake binary);
-#  4. the neutral suite against a real implementation binary
-#     (BENNETT_ISA_BINARY, else the detached review worktree's release or debug build).
+# Push gate (no CI). Runs the [[check]]s of gate.toml on the pushed sha in a clean detached
+# worktree, with siblings at the shas pinned there. See bennett/tools/gate_README.md in the
+# meta repo. The tool is run, never imported: it is a dev tool at a pinned commit, like cargo.
 set -euo pipefail
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
-script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-root="$(git -C "$script_dir" rev-parse --show-toplevel)"
-shas=()
-if [ ! -t 0 ]; then
-  while read -r -t 10 _ref sha _rref _rsha; do
-    case "$sha" in ''|*[!0-9a-f]*|0000000000000000000000000000000000000000) continue;; esac
-    shas+=("$sha")
-  done || true
+root="$(git -C "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" rev-parse --show-toplevel)"
+if [ "${BENNETT_GATE_HOOK_PROBE:-}" = 1 ]; then echo "bennett-gate-hook-chained $root"; exit 0; fi
+pin="$(git -C "$root" show HEAD:gate.toml 2>/dev/null)" || { echo "pre-push: HEAD has no gate.toml" >&2; exit 3; }
+tool_sha="$(sed -n 's/^tool_sha = "\([0-9a-f]\{40\}\)"$/\1/p' <<<"$pin")"
+[ -n "$tool_sha" ] || { echo "pre-push: gate.toml has no full tool_sha" >&2; exit 3; }
+common="$(git -C "$root" rev-parse --path-format=absolute --git-common-dir)"
+meta="${BENNETT_GATE_WORKSPACE:-$(dirname "$(dirname "$common")")}/bennett"
+tool="$root/.tmp/gate/tool/gate_run-$tool_sha.py"
+if [ ! -s "$tool" ]; then
+  mkdir -p "$(dirname "$tool")"
+  git -C "$meta" show "$tool_sha:tools/gate_run.py" >"$tool.$$"
+  mv "$tool.$$" "$tool"
 fi
-if [ "${#shas[@]}" -eq 0 ]; then shas=("$(git -C "$root" rev-parse HEAD)"); fi
-review="$(dirname "$root")/bennett-isa-spec-review/reference-interpreter/target"
-bin="${BENNETT_ISA_BINARY:-}"
-if [ -z "$bin" ]; then
-  if [ -x "$review/release/bennett-isa-ref" ]; then bin="$review/release/bennett-isa-ref";
-  elif [ -x "$review/debug/bennett-isa-ref" ]; then bin="$review/debug/bennett-isa-ref"; fi
-fi
-if [ -z "$bin" ] || [ ! -x "$bin" ]; then
-  echo "pre-push: FAIL: no implementation binary (set BENNETT_ISA_BINARY or build ../bennett-isa-spec-review); the neutral suite must run before a push" >&2
-  exit 1
-fi
-declare -A seen=()
-status=0
-for sha in "${shas[@]}"; do
-  sha="$(git -C "$root" rev-parse --verify "${sha}^{commit}")"
-  [ -n "${seen[$sha]:-}" ] && continue
-  seen[$sha]=1
-  wt="$(dirname "$root")/$(basename "$root")-gate-${sha:0:12}"
-  cleanup() {
-    git -C "$root" worktree remove --force "$wt" >/dev/null 2>&1 || true
-    rm -rf "$wt"
-    git -C "$root" worktree prune
-  }
-  cleanup
-  mkdir -p "$root/.tmp/gate-target"
-  trap cleanup EXIT
-  git -C "$root" worktree add --detach "$wt" "$sha" >/dev/null
-  echo "pre-push: gating $sha in $wt (neutral suite against $bin)" >&2
-  mkdir -p "$wt/.tmp"
-  gate() { env TMPDIR="$wt/.tmp" CARGO_TARGET_DIR="$root/.tmp/gate-target" "$@"; }
-  run_gate() {
-    local m
-    for m in $(env -C "$wt" find . -name Cargo.toml -not -path './.tmp/*' -not -path '*/target/*' | sort); do
-      echo "pre-push: cargo test --manifest-path $m" >&2
-      gate cargo test --offline --manifest-path "$wt/$m" || return $?
-    done
-    echo "pre-push: clause-graph tests" >&2 &&
-    gate env -C "$wt" python3 -I -m unittest discover -s clauses/tests &&
-    echo "pre-push: suite tests and neutral suite" >&2 &&
-    gate env -C "$wt" BENNETT_ISA_BINARY="$bin" python3 -I -m unittest discover -s suite/tests &&
-    gate env -C "$wt" python3 -I suite/run.py --binary "$bin" --cases suite/cases
-  }
-  run_gate || status=$?
-  cleanup
-  trap - EXIT
-  [ "$status" -eq 0 ] || break
-done
-exit "$status"
+exec python3 -I "$tool" run --repo "$root" --tool-sha "$tool_sha" "$@"
