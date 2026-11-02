@@ -1,0 +1,20 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "replayed",
+ "regions": {
+  "8d87fc79f58ec9902f1c74461fcd78ed5d0a39893c07d10c0c94dcd3c2cc3a78": {
+   "claims": [
+    {
+     "covered_fraction": "1/256",
+     "elements": 16,
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "evidence"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

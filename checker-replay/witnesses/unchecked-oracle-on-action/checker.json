@@ -1,0 +1,44 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "unchecked",
+ "regions": {
+  "7ff7153a2ad3b857ec9eb86ca99b9bcbc605f60093d28e99fb749ed16d13274b": {
+   "claims": [
+    {
+     "computed_bound": "0",
+     "contexts": 1,
+     "errors": [],
+     "establishes": "for all 1 resolved invocation contexts, interval V\u2020U-I has Frobenius upper bound 0, no greater than the claimed operator-norm bound 0 (\u00a712.1)",
+     "index": 0,
+     "kind": "numerical",
+     "outcome": "accept"
+    }
+   ],
+   "errors": []
+  },
+  "df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12": {
+   "claims": [
+    {
+     "errors": [],
+     "establishes": "",
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "unchecked",
+     "unchecked_reason": "expected \"oracle\" compares the realised (\u00a75.2-constructed) operation with F_B; re-deriving that construction requires the \u00a711.1 expansion/step-machine simulation this checker does not yet perform"
+    },
+    {
+     "computed_bound": "0",
+     "contexts": 1,
+     "errors": [],
+     "establishes": "for all 1 resolved invocation contexts, interval V\u2020U-I has Frobenius upper bound 0, no greater than the claimed operator-norm bound 0 (\u00a712.1)",
+     "index": 1,
+     "kind": "numerical",
+     "outcome": "accept"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

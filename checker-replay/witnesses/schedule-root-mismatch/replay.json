@@ -1,0 +1,39 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "unchecked",
+ "regions": {
+  "7f2bdd1ef3d33793fe5b238b4a632eed016f416f4c82c213eff1b5c034001964": {
+   "claims": [
+    {
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "unchecked",
+     "reason": "subject is a nested invocation context of the root schedule; context enumeration is not replayed",
+     "section": "12.1"
+    },
+    {
+     "index": 1,
+     "kind": "numerical",
+     "outcome": "unchecked",
+     "reason": "numerical claims are outside this replay (exhaustive only)",
+     "section": "12.1"
+    }
+   ],
+   "errors": []
+  },
+  "f57169e4b603fac517de8a88ab97c097f231630558a3ac1d8aac7cb650c0c252": {
+   "claims": [
+    {
+     "index": 0,
+     "kind": "numerical",
+     "outcome": "unchecked",
+     "reason": "numerical claims are outside this replay (exhaustive only)",
+     "section": "12.1"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

@@ -1,0 +1,21 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "unchecked",
+ "regions": {
+  "38fb9b9393c77e50308e7bc861ea8551e30391154ab506be4dd806336144669d": {
+   "claims": [
+    {
+     "errors": [],
+     "establishes": "",
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "unchecked",
+     "unchecked_reason": "lifted row lift.call is outside this checker's F_B subset"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

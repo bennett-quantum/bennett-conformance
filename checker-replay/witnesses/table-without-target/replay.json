@@ -1,0 +1,72 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "reject",
+ "regions": {
+  "7ff7153a2ad3b857ec9eb86ca99b9bcbc605f60093d28e99fb749ed16d13274b": {
+   "claims": [
+    {
+     "index": 0,
+     "kind": "numerical",
+     "outcome": "unchecked",
+     "reason": "numerical claims are outside this replay (exhaustive only)",
+     "section": "12.1"
+    }
+   ],
+   "errors": []
+  },
+  "df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12": {
+   "claims": [
+    {
+     "errors": [
+      {
+       "code": "E_REPLAY_MISMATCH",
+       "message": "full tuple differs from the expected relation",
+       "path": "element 0",
+       "section": "12.1",
+       "witness": {
+        "before": {
+         "borrowed": [],
+         "bundles": [
+          "0",
+          "0"
+         ],
+         "regions": []
+        },
+        "element": 0,
+        "expected": {
+         "borrowed": [],
+         "bundles": [
+          "1",
+          "0"
+         ],
+         "regions": []
+        },
+        "replayed": {
+         "borrowed": [],
+         "bundles": [
+          "0",
+          "0"
+         ],
+         "regions": []
+        }
+       }
+      }
+     ],
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "reject"
+    },
+    {
+     "index": 1,
+     "kind": "numerical",
+     "outcome": "unchecked",
+     "reason": "numerical claims are outside this replay (exhaustive only)",
+     "section": "12.1"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

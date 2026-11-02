@@ -1,0 +1,44 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "unchecked",
+ "regions": {
+  "8782e1f9d83ea69f3a95716ed92cb0e9ee82c130d3f5068dc093ce0b4a8ad2f5": {
+   "claims": [
+    {
+     "index": 0,
+     "kind": "sampled",
+     "outcome": "unchecked",
+     "reason": "sampled claims are outside this replay (exhaustive only)",
+     "section": "12.1"
+    },
+    {
+     "elements": 65536,
+     "index": 1,
+     "kind": "exhaustive",
+     "outcome": "proof"
+    }
+   ],
+   "errors": []
+  },
+  "8b2db16faad2bcc592304a962893e36b517fe495d1479e4f89e183c3808c189d": {
+   "claims": [
+    {
+     "index": 0,
+     "kind": "sampled",
+     "outcome": "unchecked",
+     "reason": "sampled claims are outside this replay (exhaustive only)",
+     "section": "12.1"
+    },
+    {
+     "elements": 65536,
+     "index": 1,
+     "kind": "exhaustive",
+     "outcome": "proof"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

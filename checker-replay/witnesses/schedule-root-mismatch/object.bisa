@@ -1,0 +1,17 @@
+bennett-object isa=0.9 object=0.9 launch=0.9 sched=0.9 cert=0.9 coverage=0.9 target=0.9 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"7f2bdd1ef3d33793fe5b238b4a632eed016f416f4c82c213eff1b5c034001964","kind":"perm_action","name":"controlled","signature":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}},"1":{"interface_hash":"f57169e4b603fac517de8a88ab97c097f231630558a3ac1d8aac7cb650c0c252","kind":"perm_action","name":"flip","signature":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}}
+
+section functions
+perm_action @controlled (t:wire mut) (c:wire in) () () ()
+^entry():
+ctl c action_call @flip (t) () () ()
+perm_action @flip (t:wire mut) () () () ()
+^entry():
+x t
+x t
+x t
+
+section schedule
+{"bindings":{"budget":[0,0,0,0],"closure_hash":"df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12","epsilon":0,"expansion":{"hash":"5de4e4995350313e50217880ba1b95de39cd043283b726337d4894efb005d197","name":"ref","version":"0.9"},"inherited_controls":0,"params_hash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","region":"controlled","scheduler":{"name":"worked-ctl","version":"1"},"target_hash":"8bca53a4d728590191a300947342481224f3fa0468a5e121197cbcc10957e4c9","variant":"forward"},"entries":[{"gate":{"epsilon_share":0,"realisation":"native"},"generated":0,"kind":"gate","path":[{"iteration":[],"point":"entry:0","symbol":"df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12"},{"iteration":[],"point":"entry:0","symbol":"7ff7153a2ad3b857ec9eb86ca99b9bcbc605f60093d28e99fb749ed16d13274b"}],"phase":"*","step":"*"},{"generated":0,"kind":"start","path":[{"iteration":[],"point":"entry:0","symbol":"df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12"},{"iteration":[],"point":"entry:0","symbol":"7ff7153a2ad3b857ec9eb86ca99b9bcbc605f60093d28e99fb749ed16d13274b"}],"phase":"*","start":{"time":0},"step":"*"}]}

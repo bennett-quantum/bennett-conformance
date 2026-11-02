@@ -1,0 +1,21 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "unchecked",
+ "regions": {
+  "7a8182fc6d259ade18b08efd5b698c85aed70d890fbee1181ab81b8874c5db65": {
+   "claims": [
+    {
+     "errors": [],
+     "establishes": "",
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "unchecked",
+     "unchecked_reason": "basis replay of non-permutation gate h needs statevector evaluation (use numerical/channel claims, \u00a712.1)"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

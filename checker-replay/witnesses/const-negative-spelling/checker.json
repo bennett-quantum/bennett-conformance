@@ -1,0 +1,27 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "rejected",
+ "regions": {
+  "8d87fc79f58ec9902f1c74461fcd78ed5d0a39893c07d10c0c94dcd3c2cc3a78": {
+   "claims": [
+    {
+     "errors": [
+      {
+       "code": "E_CERT_REPLAY",
+       "message": "tuple mismatch at element 0: before {bundles:[0,0,0],borrowed:[],regions:[]} replayed {bundles:[0,0,0],borrowed:[],regions:[]} but expected {bundles:[0,15,0],borrowed:[],regions:[]}",
+       "path": "regions.8d87fc79f58ec9902f1c74461fcd78ed5d0a39893c07d10c0c94dcd3c2cc3a78.claims[0]",
+       "section": "\u00a712.1"
+      }
+     ],
+     "establishes": "",
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "reject"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

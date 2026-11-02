@@ -1,0 +1,21 @@
+{
+ "errors": [],
+ "exception": null,
+ "overall": "unchecked",
+ "regions": {
+  "df9b4e3c29f28eab28a8a487f1b3908258e34e7d64dfac9002c9a5b861acbec2": {
+   "claims": [
+    {
+     "errors": [],
+     "establishes": "",
+     "index": 0,
+     "kind": "exhaustive",
+     "outcome": "unchecked",
+     "unchecked_reason": "lifted row lift.alloc is outside this checker's F_B subset"
+    }
+   ],
+   "errors": []
+  }
+ },
+ "stderr": null
+}

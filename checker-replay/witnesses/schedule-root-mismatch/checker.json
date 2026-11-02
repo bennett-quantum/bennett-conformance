@@ -1,0 +1,38 @@
+{
+ "errors": [
+  {
+   "code": "E_CERT_SCHEDULE_BINDING",
+   "message": "does not equal the certificate root closure_hash",
+   "path": "schedule.bindings.closure_hash",
+   "section": "\u00a711"
+  },
+  {
+   "code": "E_CERT_SCHEDULE_BINDING",
+   "message": "path symbol hash names no symbol of the object",
+   "path": "schedule.entries[0].path[0].symbol",
+   "section": "\u00a711"
+  },
+  {
+   "code": "E_CERT_SCHEDULE_BINDING",
+   "message": "path symbol hash names no symbol of the object",
+   "path": "schedule.entries[0].path[1].symbol",
+   "section": "\u00a711"
+  },
+  {
+   "code": "E_CERT_SCHEDULE_BINDING",
+   "message": "path symbol hash names no symbol of the object",
+   "path": "schedule.entries[1].path[0].symbol",
+   "section": "\u00a711"
+  },
+  {
+   "code": "E_CERT_SCHEDULE_BINDING",
+   "message": "path symbol hash names no symbol of the object",
+   "path": "schedule.entries[1].path[1].symbol",
+   "section": "\u00a711"
+  }
+ ],
+ "exception": null,
+ "overall": "rejected",
+ "regions": {},
+ "stderr": null
+}
