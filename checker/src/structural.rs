@@ -29,26 +29,64 @@ struct Flip {
     controls: HashSet<String>,
     target: String,
 }
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct BorrowFrameEvidence {
-    universal:bool,
-    closed:bool,
-    touches:BTreeSet<(usize,String)>,
-    protected:BTreeSet<(usize,String)>,
+    universal: bool,
+    closed: bool,
+    touches: BTreeSet<(usize, String)>,
+    protected: BTreeSet<(usize, String)>,
 }
 
-pub(crate) fn discharge_borrow_frames(region:&Value,docs:&LoadedDocs,report:&mut crate::cert::RegionReport){
-    if docs.schedule.is_some() || !report.errors.is_empty() || report.claims.iter().any(|(_,c)|c.outcome=="reject") {return;}
-    if !report.unchecked_items.iter().any(|s|s==crate::cert::BORROW_PROOF_PENDING){return;}
-    let Some(indices)=region.get("verification").and_then(|v|v.get("borrow_frames")).and_then(Value::as_arr) else{return;};
-    let Some(universe)=report.claims.iter().filter_map(|(_,c)|c.borrow_frame.as_ref()).find(|e|e.universal && e.closed) else{return;};
-    let mut protected=BTreeSet::new();
+pub(crate) fn discharge_borrow_frames(
+    region: &Value,
+    docs: &LoadedDocs,
+    report: &mut crate::cert::RegionReport,
+) {
+    if docs.schedule.is_some()
+        || !report.errors.is_empty()
+        || report.claims.iter().any(|(_, c)| c.outcome == "reject")
+    {
+        return;
+    }
+    if !report
+        .unchecked_items
+        .iter()
+        .any(|s| s == crate::cert::BORROW_PROOF_PENDING)
+    {
+        return;
+    }
+    let Some(indices) = region
+        .get("verification")
+        .and_then(|v| v.get("borrow_frames"))
+        .and_then(Value::as_arr)
+    else {
+        return;
+    };
+    let Some(universe) = report
+        .claims
+        .iter()
+        .filter_map(|(_, c)| c.borrow_frame.as_ref())
+        .find(|e| e.universal && e.closed)
+    else {
+        return;
+    };
+    let mut protected = BTreeSet::new();
     for index in indices {
-        let evidence=index.as_i128().and_then(|i|usize::try_from(i).ok()).and_then(|i|report.claims.get(i)).and_then(|(_,c)|c.borrow_frame.as_ref());
-        if let Some(e)=evidence {if e.universal && e.closed && e.touches==universe.touches {protected.extend(e.protected.iter().cloned());}}
+        let evidence = index
+            .as_i128()
+            .and_then(|i| usize::try_from(i).ok())
+            .and_then(|i| report.claims.get(i))
+            .and_then(|(_, c)| c.borrow_frame.as_ref());
+        if let Some(e) = evidence {
+            if e.universal && e.closed && e.touches == universe.touches {
+                protected.extend(e.protected.iter().cloned());
+            }
+        }
     }
     if universe.touches.is_subset(&protected) {
-        report.unchecked_items.retain(|s|s!=crate::cert::BORROW_PROOF_PENDING);
+        report
+            .unchecked_items
+            .retain(|s| s != crate::cert::BORROW_PROOF_PENDING);
         report.establishes.push("indexed universal translation proofs cover every borrowed-wire touch in this reference region, on every counted-loop visit; their composition restores the borrowed lifetimes independently of arbitrary borrowed states and external references (§5.6)".into());
     }
 }
@@ -203,7 +241,7 @@ fn inner(
             "structural claim's region is not linked",
         ));
     };
-    if rule=="translation_lemma" && !matches!(symbol.kind.as_str(),"action"|"perm_action") {
+    if rule == "translation_lemma" && !matches!(symbol.kind.as_str(), "action" | "perm_action") {
         return bad(&format!("{path}.rule"),"translation_lemma applies to action borrow frames; an oracle is one frame verified by its own T3 claim over D (§5.6)");
     }
     let iface = docs
@@ -427,9 +465,9 @@ fn translation(
         .collect();
     let mut predicates = vec![];
     let mut active_borrow = HashSet::new();
-    let mut active_bundles=HashSet::new();
-    let mut valid_returns=true;
-    let mut touches=BTreeSet::new();
+    let mut active_bundles = HashSet::new();
+    let mut valid_returns = true;
+    let mut touches = BTreeSet::new();
     let mut frame_borrow = HashSet::new();
     let mut gates: BTreeMap<usize, Flip> = BTreeMap::new();
     for (i, line) in block.instructions.iter().enumerate() {
@@ -517,7 +555,9 @@ fn translation(
                 return bad(path, "flip target also occurs as a control");
             }
             for w in controls.iter().chain(std::iter::once(&target)) {
-                if active_borrow.contains(w) {touches.insert((i,w.clone()));}
+                if active_borrow.contains(w) {
+                    touches.insert((i, w.clone()));
+                }
             }
             gates.insert(i, Flip { controls, target });
         }
@@ -600,7 +640,16 @@ fn translation(
             return bad(path, "borrow frame is not maximal for B");
         }
     }
-    let protected=touches.iter().filter(|(i,w)|(start..=end).contains(i) && b.contains(w)).cloned().collect();
-    let evidence=BorrowFrameEvidence{universal,closed:valid_returns && active_bundles.is_empty() && predicates.is_empty(),touches,protected};
+    let protected = touches
+        .iter()
+        .filter(|(i, w)| (start..=end).contains(i) && b.contains(w))
+        .cloned()
+        .collect();
+    let evidence = BorrowFrameEvidence {
+        universal,
+        closed: valid_returns && active_bundles.is_empty() && predicates.is_empty(),
+        touches,
+        protected,
+    };
     Ok(ClaimOutcome{outcome:"accept".into(),establishes:format!("reference borrow frame {}..{} satisfies every translation-lemma side condition, restores B and acts independently of arbitrary borrowed states and external references{}{} (§5.6)",frame[0],frame[1],if owner==0 {""}else{" on every visit of its containing counted-loop body"},if universal {" for all well-typed classical arguments and budgets"} else {" at the explicit invocation"}),borrow_frame:Some(evidence),..Default::default()})
 }

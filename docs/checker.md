@@ -121,7 +121,26 @@ It does not establish another frame's entry domain or a target realisation.
 ## Current implementation boundary
 
 Reference replay covers an independently implemented subset of lifted arithmetic
-and permutation-action semantics. Unsupported rows, lproc/stack machinery and
+and permutation-action semantics. Signed `lift.const.iN` literals use the
+§3.3 modulo bit encoding after strict spelling/range checks; every oversized
+shift, including `ashr`, produces zero. MCX entries naming multi-wire bundles
+remain unchecked pending `b-isa-spec-sqr`; explicitly indexed controls are
+replayed without truncation. An absent subject or expected-program closure in
+an object with no imports rejects, as does an oracle relation on an action.
+Table schemas, full-tuple encodings, widths, cardinality and input enumeration
+are checked before target-dependent replay; output values still require the
+realised operation for a scheduled claim.
+
+For supported action bodies, reference replay retains exact amplitudes in
+Q(√2,i) through H, S/S†, T/T†, CZ and permutation gates, predicates, counted
+loops and nested/adjoint action calls. It accepts a table tuple only when the
+final state is exactly one basis vector with phase +1. Intermediate
+superpositions are retained; final superpositions or other phases reject a
+permutation assertion. This path has a ten-wire host cap and a separate
+2^25 amplitude-visit cap, and shares the reference instruction work limit.
+Rotations and allocation/borrow/region lifetimes on this path stay unchecked.
+
+Reference replay has capability limits. Unsupported rows, lproc/stack machinery and
 unresolved invocation contexts are explicit unchecked outcomes. The native
 matrix path currently handles single-class action calls, sequential action
 blocks, counted `qloop` bodies, coherent `qif` arms and

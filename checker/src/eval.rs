@@ -523,16 +523,34 @@ impl Lifted<'_, '_> {
         };
         match op.split('.').take(2).collect::<Vec<_>>().join(".").as_str() {
             _ if op.starts_with("lift.const") => {
-                let n: u64 = op
-                    .rsplit('i')
-                    .next()
-                    .and_then(|x| x.parse().ok())
-                    .unwrap_or(0);
-                let v: BigUint = operands
-                    .first()
-                    .and_then(|x| x.parse().ok())
-                    .unwrap_or_default();
-                self.write(&lhs.unwrap()[0], v, n);
+                let bad = || {
+                    EvalError::Reject(Reject::new(
+                    "E_CERT_REPLAY", "§3.3", "",
+                    "lift.const.iN requires one canonical INT in [-2^(N-1), 2^N), a matching destination and 1 <= N <= 128",
+                ))
+                };
+                let n = op
+                    .strip_prefix("lift.const.i")
+                    .filter(|s| crate::rat::is_canonical_uint_str(s))
+                    .and_then(|x| x.parse::<u64>().ok())
+                    .filter(|n| (1..=128).contains(n))
+                    .ok_or_else(bad)?;
+                let dest = lhs.as_ref().filter(|v| v.len() == 1).ok_or_else(bad)?;
+                if operands.len() != 1 || self.width_of(&dest[0])? != n {
+                    return Err(bad());
+                }
+                let literal = &operands[0];
+                if !crate::rat::is_canonical_uint_str(literal.strip_prefix('-').unwrap_or(literal))
+                {
+                    return Err(bad());
+                }
+                let v = literal.parse::<num_bigint::BigInt>().map_err(|_| bad())?;
+                let lower = -(num_bigint::BigInt::one() << (n - 1));
+                let upper = num_bigint::BigInt::one() << n;
+                if v < lower || v >= upper {
+                    return Err(bad());
+                }
+                self.write(&dest[0], bigint_to_masked(v, n), n);
                 Ok(RowFlow::Next)
             }
             _ if op.starts_with("lift.label") => {
@@ -886,11 +904,7 @@ fn binop(
         }
         "ashr" => {
             if *b >= BigUint::from(w) {
-                if w > 0 && (a >> (w - 1)) == BigUint::one() {
-                    mask(w)
-                } else {
-                    BigUint::zero()
-                }
+                BigUint::zero()
             } else {
                 let shift = b.to_string().parse::<usize>().unwrap_or(0);
                 let s = signed(a) >> shift;
@@ -1017,6 +1031,27 @@ struct ActionEnv<'a, 'w> {
 }
 
 impl ActionEnv<'_, '_> {
+    fn single_wire(&self, token: &str) -> Result<(String, usize), EvalError> {
+        let (name, index) = wire_ref(token);
+        if token.contains('[') && (index.is_none() || !token.ends_with(']')) {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_REPLAY",
+                "§3.3",
+                "",
+                format!("invalid wire operand {token:?}"),
+            )));
+        }
+        let wires = self.wires.get(&name).ok_or_else(|| {
+            EvalError::Unchecked(format!("wire {name:?} is not live in this replay"))
+        })?;
+        let index = match index {
+            Some(index) => index,
+            None if wires.len() == 1 => 0,
+            None => return unchecked(format!("whole bundle {token:?} does not resolve to one wire; MCX bundle-list semantics await b-isa-spec-sqr (§4.4)")),
+        };
+        self.bit(&name, index)?;
+        Ok((name, index))
+    }
     fn bit(&self, bundle: &str, idx: usize) -> Result<bool, EvalError> {
         self.wires
             .get(bundle)
@@ -1108,8 +1143,8 @@ impl ActionEnv<'_, '_> {
                 }
             }
             Some("qif") => {
-                let (bundle, idx) = wire_ref(head.get(1).map(String::as_str).unwrap_or(""));
-                let idx = idx.unwrap_or(0);
+                let (bundle, idx) =
+                    self.single_wire(head.get(1).map(String::as_str).unwrap_or(""))?;
                 if self.bit(&bundle, idx)? {
                     self.exec_stmts(body)
                 } else if let Some(els) = rest {
@@ -1130,8 +1165,8 @@ impl ActionEnv<'_, '_> {
         }
         // Prefix modifiers: ctl <wire>, adj
         if toks[0] == "ctl" {
-            let (bundle, idx) = wire_ref(&toks[1]);
-            self.predicates.push((bundle, idx.unwrap_or(0)));
+            let (bundle, idx) = self.single_wire(&toks[1])?;
+            self.predicates.push((bundle, idx));
             let r = self.exec_line(&toks[2..]);
             self.predicates.pop();
             return r;
@@ -1385,14 +1420,14 @@ impl ActionEnv<'_, '_> {
                 Ok(())
             }
             "qpred" => {
-                let (bundle, idx) = wire_ref(&operands[0]);
-                self.predicates.push((bundle, idx.unwrap_or(0)));
+                let (bundle, idx) = self.single_wire(&operands[0])?;
+                self.predicates.push((bundle, idx));
                 Ok(())
             }
             "qunpred" => {
-                let (bundle, idx) = wire_ref(&operands[0]);
+                let (bundle, idx) = self.single_wire(&operands[0])?;
                 match self.predicates.pop() {
-                    Some(top) if top == (bundle, idx.unwrap_or(0)) => Ok(()),
+                    Some(top) if top == (bundle, idx) => Ok(()),
                     _ => unchecked("qunpred does not match the active predicate stack"),
                 }
             }
@@ -1440,32 +1475,32 @@ impl ActionEnv<'_, '_> {
             }
             Ok(true)
         };
-        let wr = |t: &String| -> (String, usize) {
-            let (b, i) = wire_ref(t);
-            (b, i.unwrap_or(0))
-        };
         match op {
             "x" => {
-                let (b, i) = wr(&operands[0]);
+                let (b, i) = self.single_wire(&operands[0])?;
                 self.flip_if(&b, i, pred_on)
             }
             "cx" | "ccx" => {
-                let controls: Vec<(String, usize)> =
-                    operands[..operands.len() - 1].iter().map(wr).collect();
-                let (b, i) = wr(&operands[operands.len() - 1]);
+                let controls: Vec<(String, usize)> = operands[..operands.len() - 1]
+                    .iter()
+                    .map(|t| self.single_wire(t))
+                    .collect::<Result<_, _>>()?;
+                let (b, i) = self.single_wire(&operands[operands.len() - 1])?;
                 let on = pred_on && bits_on(self, &controls)?;
                 self.flip_if(&b, i, on)
             }
             "mcx" => {
-                let controls: Vec<(String, usize)> =
-                    list_items(&operands[0]).iter().map(wr).collect();
-                let (b, i) = wr(&operands[1]);
+                let controls: Vec<(String, usize)> = list_items(&operands[0])
+                    .iter()
+                    .map(|t| self.single_wire(t))
+                    .collect::<Result<_, _>>()?;
+                let (b, i) = self.single_wire(&operands[1])?;
                 let on = pred_on && bits_on(self, &controls)?;
                 self.flip_if(&b, i, on)
             }
             "swap" => {
-                let (b1, i1) = wr(&operands[0]);
-                let (b2, i2) = wr(&operands[1]);
+                let (b1, i1) = self.single_wire(&operands[0])?;
+                let (b2, i2) = self.single_wire(&operands[1])?;
                 if pred_on {
                     let v1 = self.bit(&b1, i1)?;
                     let v2 = self.bit(&b2, i2)?;
@@ -1858,6 +1893,18 @@ fn eval_action_tuple_work(
 ) -> Result<Tuple, EvalError> {
     if depth > 64 {
         return unchecked("action call depth exceeds this checker's replay cap (64)");
+    }
+    if symbol.kind != "perm_action" && crate::coherent::needed(object, symbol) {
+        return crate::coherent::eval(
+            object,
+            symbol,
+            iface,
+            before,
+            args,
+            inherited_controls,
+            adjoint,
+            work,
+        );
     }
     let func = object
         .function(&symbol.name)
@@ -2313,6 +2360,14 @@ fn check_replay_inner(
     let subject = claim_subject(claim, path, region_hash, false)?;
     let symbol = match docs.object.symbol_by_closure(&subject.closure_hash) {
         Some(s) => s.clone(),
+        None if docs.object.imports.is_empty() => {
+            return Err(ClaimOutcome::rejected(vec![rej(
+                "E_CERT_BINDING",
+                "§12.1",
+                format!("{path}.subject.closure_hash"),
+                "subject closure is absent from the complete supplied object (no imports)",
+            )]))
+        }
         None => {
             return Ok(ClaimOutcome::unchecked(
                 "subject region is not in the supplied object",
@@ -2370,6 +2425,14 @@ fn check_replay_inner(
             )]))
         }
     };
+    if expected == Expected::Oracle && symbol.kind != "oracle" {
+        return Err(ClaimOutcome::rejected(vec![rej(
+            "E_CERT_BINDING",
+            "§12.1",
+            format!("{path}.expected"),
+            "expected oracle requires an oracle subject and its §5.2 map",
+        )]));
+    }
     if expected == Expected::InversePair {
         if kind != "exhaustive" {
             return Err(ClaimOutcome::rejected(vec![rej(
@@ -2423,6 +2486,58 @@ fn check_replay_inner(
         }
         Err(ResolveError::HostLimit(h)) => return Ok(host_limit_outcome(h)),
     };
+    // Table correspondence.
+    let table_rows: Option<Vec<(Tuple, Tuple)>> = match &expected {
+        Expected::Table(rows) => {
+            let mut parsed = Vec::new();
+            for (i, row) in rows.iter().enumerate() {
+                let mut errors = vec![];
+                if !crate::cert::check_keys(
+                    row,
+                    &["before", "after"],
+                    &["before", "after"],
+                    &format!("{path}.expected.table[{i}]"),
+                    &mut errors,
+                ) {
+                    for error in &mut errors {
+                        error.code = "E_CERT_TABLE";
+                    }
+                    return Err(ClaimOutcome::rejected(errors));
+                }
+                let before = parse_tuple(
+                    row.get("before").unwrap_or(&Value::Null),
+                    &domain,
+                    &format!("{path}.expected.table[{i}].before"),
+                )
+                .map_err(|e| ClaimOutcome::rejected(vec![e]))?;
+                let after = parse_tuple(
+                    row.get("after").unwrap_or(&Value::Null),
+                    &domain,
+                    &format!("{path}.expected.table[{i}].after"),
+                )
+                .map_err(|e| ClaimOutcome::rejected(vec![e]))?;
+                parsed.push((before, after));
+            }
+            Some(parsed)
+        }
+        _ => None,
+    };
+    // Shape, encodings, widths and exhaustive cardinality are obligations
+    // independent of the target's realised operation.
+    if let Some(rows) = &table_rows {
+        if kind == "exhaustive" && BigUint::from(rows.len()) != domain.n {
+            return Err(ClaimOutcome::rejected(vec![rej(
+                "E_CERT_TABLE",
+                "§12.1",
+                format!("{path}.expected.table"),
+                format!(
+                    "table has {} rows; the domain has {} elements",
+                    rows.len(),
+                    domain.n
+                ),
+            )]));
+        }
+    }
     // Invocation.
     let scheduled = subject.schedule_hash.is_some();
     if scheduled && subject.schedule_hash.as_deref() != cert_schedule_hash {
@@ -2480,33 +2595,15 @@ fn check_replay_inner(
     } else if scheduled {
         return Ok(ClaimOutcome::unchecked("nested scheduled invocation: explicit arguments/budget cannot be trusted until every invocation context has been independently resolved (§12.3)"));
     }
-    // Scheduled replay compares the realised operation; require an exact
-    // realisation so reference replay is the same operation.
-    if scheduled {
-        if docs.schedule.is_none() {
-            return Ok(ClaimOutcome::unchecked(
-                "scheduled claim but no schedule document supplied",
-            ));
-        }
-        if docs.expansion_unknown {
-            return Ok(ClaimOutcome::unchecked(
-                "schedule binds an expansion library this checker does not implement",
-            ));
-        }
-        if let Err(outcome) = crate::realisation::exact_native_subject(&subject, docs, inputs) {
-            return Ok(outcome);
-        }
-    }
-    if expected == Expected::Oracle {
-        return Ok(ClaimOutcome::unchecked(
-            "expected \"oracle\" compares the realised (§5.2-constructed) operation with F_B; re-deriving that construction requires the §11.1 expansion/step-machine simulation this checker does not yet perform",
-        ));
-    }
     // Expected program compatibility (K73: positional, never by name).
     let program: Option<(Symbol, Interface)> = match &expected {
         Expected::Program(h) => {
             let sym = match docs.object.symbol_by_closure(h) {
                 Some(s) => s.clone(),
+                None if docs.object.imports.is_empty() => return Err(ClaimOutcome::rejected(vec![rej(
+                    "E_CERT_BINDING", "§12.1", format!("{path}.expected.program"),
+                    "expected program closure is absent from the complete supplied object (no imports)",
+                )])),
                 None => {
                     return Ok(ClaimOutcome::unchecked(
                         "expected program is not in the supplied object",
@@ -2544,6 +2641,11 @@ fn check_replay_inner(
         _ => None,
     };
 
+    if expected == Expected::Oracle {
+        return Ok(ClaimOutcome::unchecked(
+            "expected \"oracle\" compares the realised (§5.2-constructed) operation with F_B; re-deriving that construction requires the §11.1 expansion/step-machine simulation this checker does not yet perform",
+        ));
+    }
     // Elements to replay.
     let (elements, draws_count, distinct_count): (Vec<Tuple>, Option<u64>, Option<usize>) = if kind
         == "exhaustive"
@@ -2649,42 +2751,6 @@ fn check_replay_inner(
         (draws, Some(count), Some(distinct.len()))
     };
 
-    // Table correspondence.
-    let table_rows: Option<Vec<(Tuple, Tuple)>> = match &expected {
-        Expected::Table(rows) => {
-            let mut parsed = Vec::new();
-            for (i, row) in rows.iter().enumerate() {
-                let mut errors = vec![];
-                if !crate::cert::check_keys(
-                    row,
-                    &["before", "after"],
-                    &["before", "after"],
-                    &format!("{path}.expected.table[{i}]"),
-                    &mut errors,
-                ) {
-                    for error in &mut errors {
-                        error.code = "E_CERT_TABLE";
-                    }
-                    return Err(ClaimOutcome::rejected(errors));
-                }
-                let before = parse_tuple(
-                    row.get("before").unwrap_or(&Value::Null),
-                    &domain,
-                    &format!("{path}.expected.table[{i}].before"),
-                )
-                .map_err(|e| ClaimOutcome::rejected(vec![e]))?;
-                let after = parse_tuple(
-                    row.get("after").unwrap_or(&Value::Null),
-                    &domain,
-                    &format!("{path}.expected.table[{i}].after"),
-                )
-                .map_err(|e| ClaimOutcome::rejected(vec![e]))?;
-                parsed.push((before, after));
-            }
-            Some(parsed)
-        }
-        _ => None,
-    };
     if let Some(rows) = &table_rows {
         if kind == "exhaustive" {
             if rows.len() != elements.len() {
@@ -2747,6 +2813,23 @@ fn check_replay_inner(
         }
     }
 
+    // Scheduled replay compares the realised operation; require an exact
+    // realisation so reference replay is the same operation.
+    if scheduled {
+        if docs.schedule.is_none() {
+            return Ok(ClaimOutcome::unchecked(
+                "scheduled claim but no schedule document supplied",
+            ));
+        }
+        if docs.expansion_unknown {
+            return Ok(ClaimOutcome::unchecked(
+                "schedule binds an expansion library this checker does not implement",
+            ));
+        }
+        if let Err(outcome) = crate::realisation::exact_native_subject(&subject, docs, inputs) {
+            return Ok(outcome);
+        }
+    }
     // Replay.
     let c = subject.inherited_controls as usize;
     let mut replayed = 0usize;

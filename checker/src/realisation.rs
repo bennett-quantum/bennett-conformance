@@ -9,6 +9,7 @@ use crate::eval::{list_items, parse_blocks, Stmt};
 use crate::fault::HostLimit;
 use crate::json::{jcs, n, s, Value};
 use crate::matrix::{ComplexInterval as C, Matrix};
+use crate::object::Object;
 use crate::rat::{rat_of_json, Interval, Rat};
 use num_traits::{One, Signed, Zero};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -44,7 +45,7 @@ pub(crate) struct Gate {
     angle_bits: Option<u64>,
     adjoint: bool,
 }
-fn resolve_angle(text: &str, context: &Context, docs: &LoadedDocs) -> Result<u64> {
+fn resolve_angle(text: &str, context: &Context, object: &Object) -> Result<u64> {
     let bad = |message: String| {
         ClaimOutcome::rejected(vec![rej(
             "E_CERT_OBJECT",
@@ -53,8 +54,7 @@ fn resolve_angle(text: &str, context: &Context, docs: &LoadedDocs) -> Result<u64
             message,
         )])
     };
-    let f = docs
-        .object
+    let f = object
         .function(&context.symbol)
         .expect("expanded function exists");
     let bits =
@@ -290,9 +290,8 @@ fn one_wire(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<usize> {
     }
     Ok(b[0])
 }
-fn child_invocation(tokens: &[String], parent: &Context, docs: &LoadedDocs) -> Result<Invocation> {
-    let f = docs
-        .object
+fn child_invocation(tokens: &[String], parent: &Context, object: &Object) -> Result<Invocation> {
+    let f = object
         .function(&parent.symbol)
         .ok_or_else(|| ClaimOutcome::unchecked("parent action has no body"))?;
     let arg_values: HashMap<&str, &Value> = f.groups[3]
@@ -318,10 +317,7 @@ fn child_invocation(tokens: &[String], parent: &Context, docs: &LoadedDocs) -> R
         .get(1)
         .map(|s| s.trim_start_matches('@'))
         .unwrap_or("");
-    let iface = docs
-        .object
-        .interface(callee)
-        .map_err(ClaimOutcome::unchecked)?;
+    let iface = object.interface(callee).map_err(ClaimOutcome::unchecked)?;
     let value = Value::Obj(BTreeMap::from([
         ("args".into(), Value::Arr(resolved)),
         (
@@ -336,12 +332,12 @@ fn child_invocation(tokens: &[String], parent: &Context, docs: &LoadedDocs) -> R
             ),
         ),
     ]));
-    parse_invocation(&value, &iface.args, &docs.object, "resolved invocation")
+    parse_invocation(&value, &iface.args, object, "resolved invocation")
         .map_err(ClaimOutcome::rejected)
 }
 fn collect(
     context: &Context,
-    docs: &LoadedDocs,
+    object: &Object,
     wires: HashMap<String, Vec<usize>>,
     inherited: Vec<usize>,
     contexts: &mut Vec<Context>,
@@ -355,8 +351,7 @@ fn collect(
         }));
     }
     contexts.push(context.clone());
-    let f = docs
-        .object
+    let f = object
         .function(&context.symbol)
         .ok_or_else(|| ClaimOutcome::unchecked("action context has no body"))?;
     if !matches!(f.kind.as_str(), "action" | "perm_action") {
@@ -382,8 +377,7 @@ fn collect(
     for (block, stmts) in &blocks {
         expand_rows(stmts, block, 0, &mut Vec::new(), &mut rows, max)?;
     }
-    let hash = docs
-        .object
+    let hash = object
         .symbol(&context.symbol)
         .and_then(|s| s.closure_hash.as_deref())
         .ok_or_else(|| ClaimOutcome::unchecked("context symbol has no closure identity"))?;
@@ -424,10 +418,7 @@ fn collect(
                     .map(|s| s.trim_start_matches('@'))
                     .unwrap_or("")
                     .to_string();
-                let iface = docs
-                    .object
-                    .interface(&name)
-                    .map_err(ClaimOutcome::unchecked)?;
+                let iface = object.interface(&name).map_err(ClaimOutcome::unchecked)?;
                 if !iface.regions.is_empty() || !iface.borrowed_widths.is_empty() {
                     return pending("nested regions/borrow lifetimes need expansion before native matrix construction");
                 }
@@ -452,14 +443,14 @@ fn collect(
                 let child = Context {
                     symbol: name,
                     controls: controls.len() as u64,
-                    invocation: child_invocation(tokens, context, docs)?,
+                    invocation: child_invocation(tokens, context, object)?,
                     key: path,
                     adjoint: adjoint ^ context.adjoint,
                 };
                 let mut nested_gates = Vec::new();
                 collect(
                     &child,
-                    docs,
+                    object,
                     child_wires,
                     controls,
                     contexts,
@@ -480,6 +471,14 @@ fn collect(
             }
             "x" | "cx" | "ccx" | "mcx" | "swap" | "h" | "s" | "sdg" | "t" | "tdg" | "cz" | "rx"
             | "ry" | "rz" => {
+                if f.kind == "perm_action" && !matches!(op, "x" | "cx" | "ccx" | "mcx" | "swap") {
+                    return Err(ClaimOutcome::rejected(vec![rej(
+                        "E_CERT_OBJECT",
+                        "§5.3",
+                        format!("object.@{}", f.name),
+                        "perm_action contains a nonpermutation primitive",
+                    )]));
+                }
                 let arity = match op {
                     "cx" | "mcx" | "swap" | "cz" | "rx" | "ry" | "rz" => 3,
                     "ccx" => 4,
@@ -493,7 +492,7 @@ fn collect(
                 }
                 let operands = &tokens[1..];
                 let angle_bits = if matches!(op, "rx" | "ry" | "rz") {
-                    Some(resolve_angle(&operands[0], context, docs)?)
+                    Some(resolve_angle(&operands[0], context, object)?)
                 } else {
                     None
                 };
@@ -575,9 +574,8 @@ fn collect(
     gates.extend(body_gates);
     Ok(())
 }
-fn root_wires(context: &Context, docs: &LoadedDocs) -> Result<HashMap<String, Vec<usize>>> {
-    let iface = docs
-        .object
+fn root_wires(context: &Context, object: &Object) -> Result<HashMap<String, Vec<usize>>> {
+    let iface = object
         .interface(&context.symbol)
         .map_err(ClaimOutcome::unchecked)?;
     if !iface.regions.is_empty() || !iface.borrowed_widths.is_empty() {
@@ -632,8 +630,8 @@ pub(crate) fn trace(docs: &LoadedDocs, inputs: &Inputs) -> Result<(Vec<Context>,
     let mut gates = Vec::new();
     collect(
         &context,
-        docs,
-        root_wires(&context, docs)?,
+        &docs.object,
+        root_wires(&context, &docs.object)?,
         (0..controls as usize).collect(),
         &mut contexts,
         &mut gates,
@@ -643,6 +641,21 @@ pub(crate) fn trace(docs: &LoadedDocs, inputs: &Inputs) -> Result<(Vec<Context>,
     contexts
         .sort_by_key(|c| jcs(&Value::Arr(c.key.clone())).expect("concrete context key is JSON"));
     Ok((contexts, gates))
+}
+/// Source reference gates, without any target, schedule, or producer reports.
+pub(crate) fn reference_gates(object: &Object, context: &Context, max: u64) -> Result<Vec<Gate>> {
+    let mut gates = Vec::new();
+    collect(
+        context,
+        object,
+        root_wires(context, object)?,
+        (0..context.controls as usize).collect(),
+        &mut Vec::new(),
+        &mut gates,
+        max,
+        0,
+    )?;
+    Ok(gates)
 }
 pub fn contexts(docs: &LoadedDocs, inputs: &Inputs) -> Result<Vec<Context>> {
     trace(docs, inputs).map(|(contexts, _)| contexts)
@@ -1080,8 +1093,8 @@ pub fn subject_matrices(
         let mut gates = Vec::new();
         collect(
             &context,
-            docs,
-            root_wires(&context, docs)?,
+            &docs.object,
+            root_wires(&context, &docs.object)?,
             (0..context.controls as usize).collect(),
             &mut vec![],
             &mut gates,
@@ -1178,8 +1191,8 @@ pub fn exact_native_subject(subject: &Subject, docs: &LoadedDocs, inputs: &Input
         let mut gates = vec![];
         collect(
             &context,
-            docs,
-            root_wires(&context, docs)?,
+            &docs.object,
+            root_wires(&context, &docs.object)?,
             (0..context.controls as usize).collect(),
             &mut vec![],
             &mut gates,

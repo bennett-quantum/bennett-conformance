@@ -206,46 +206,148 @@ fn normative_borrow_demo_and_printed_adjoint_replay_all_8_and_16_basis_inputs() 
     );
 }
 
-fn borrow_indices(inp:&mut bennett_cert_checker::cert::Inputs,indices:&[usize]){
-    use bennett_cert_checker::json::{jcs,n};
-    let mut cert=json(std::str::from_utf8(&inp.cert_bytes).unwrap());let h=cert.get("bindings").unwrap().get("closure_hash").unwrap().as_str().unwrap().to_string();
-    let Value::Obj(top)=&mut cert else{unreachable!()};let Value::Obj(regions)=top.get_mut("regions").unwrap() else{unreachable!()};let Value::Obj(region)=regions.get_mut(&h).unwrap() else{unreachable!()};
-    set(region.get_mut("verification").unwrap(),"borrow_frames",Value::Arr(indices.iter().map(n).collect()));inp.cert_bytes=jcs(&cert).unwrap();
+fn borrow_indices(inp: &mut bennett_cert_checker::cert::Inputs, indices: &[usize]) {
+    use bennett_cert_checker::json::{jcs, n};
+    let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let h = cert
+        .get("bindings")
+        .unwrap()
+        .get("closure_hash")
+        .unwrap()
+        .as_str()
+        .unwrap()
+        .to_string();
+    let Value::Obj(top) = &mut cert else {
+        unreachable!()
+    };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        unreachable!()
+    };
+    let Value::Obj(region) = regions.get_mut(&h).unwrap() else {
+        unreachable!()
+    };
+    set(
+        region.get_mut("verification").unwrap(),
+        "borrow_frames",
+        Value::Arr(indices.iter().map(n).collect()),
+    );
+    inp.cert_bytes = jcs(&cert).unwrap();
 }
-fn borrow_covered(v:&bennett_cert_checker::cert::Verdict)->bool{
-    let value=v.to_value();value.get("regions").unwrap().as_obj().unwrap().values().any(|r|r.get("establishes").and_then(Value::as_arr).map(|a|a.iter().any(|s|s.as_str().map(|s|s.contains("every borrowed-wire touch")).unwrap_or(false))).unwrap_or(false))
+fn borrow_covered(v: &bennett_cert_checker::cert::Verdict) -> bool {
+    let value = v.to_value();
+    value
+        .get("regions")
+        .unwrap()
+        .as_obj()
+        .unwrap()
+        .values()
+        .any(|r| {
+            r.get("establishes")
+                .and_then(Value::as_arr)
+                .map(|a| {
+                    a.iter().any(|s| {
+                        s.as_str()
+                            .map(|s| s.contains("every borrowed-wire touch"))
+                            .unwrap_or(false)
+                    })
+                })
+                .unwrap_or(false)
+        })
 }
 #[test]
-fn indexed_universal_frames_cover_only_their_checked_borrowed_touches(){
-    let normal="b = qborrow any 1\nqloop 1 {\ncx x b[0]\ncx b[0] t\ncx x b[0]\ncx b[0] t\n}\nqreturn b";
+fn indexed_universal_frames_cover_only_their_checked_borrowed_touches() {
+    let normal =
+        "b = qborrow any 1\nqloop 1 {\ncx x b[0]\ncx b[0] t\ncx x b[0]\ncx b[0] t\n}\nqreturn b";
     let outer="b = qborrow any 1\ncx x b[0]\nqloop 1 {\ncx x b[0]\ncx b[0] t\ncx x b[0]\ncx b[0] t\n}\ncx x b[0]\nqreturn b";
-    for (body,start,indexed,universal,covered) in [(normal,2,true,true,true),(normal,2,false,true,false),(outer,3,true,true,false),(normal,2,true,false,false)] {
-        let (mut inp,_)=counted_fixture(body,start);borrow_indices(&mut inp,if indexed{&[0]}else{&[]});
+    for (body, start, indexed, universal, covered) in [
+        (normal, 2, true, true, true),
+        (normal, 2, false, true, false),
+        (outer, 3, true, true, false),
+        (normal, 2, true, false, false),
+    ] {
+        let (mut inp, _) = counted_fixture(body, start);
+        borrow_indices(&mut inp, if indexed { &[0] } else { &[] });
         if !universal {
             use bennett_cert_checker::json::jcs;
-            let mut cert=json(std::str::from_utf8(&inp.cert_bytes).unwrap());let Value::Obj(top)=&mut cert else{unreachable!()};let Value::Obj(regions)=top.get_mut("regions").unwrap() else{unreachable!()};let Value::Obj(region)=regions.values_mut().next().unwrap() else{unreachable!()};let Value::Arr(claims)=region.get_mut("claims").unwrap() else{unreachable!()};set(&mut claims[0],"invocation",json(r#"{"args":[],"budget":["0","0","0","0"]}"#));inp.cert_bytes=jcs(&cert).unwrap();
+            let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+            let Value::Obj(top) = &mut cert else {
+                unreachable!()
+            };
+            let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+                unreachable!()
+            };
+            let Value::Obj(region) = regions.values_mut().next().unwrap() else {
+                unreachable!()
+            };
+            let Value::Arr(claims) = region.get_mut("claims").unwrap() else {
+                unreachable!()
+            };
+            set(
+                &mut claims[0],
+                "invocation",
+                json(r#"{"args":[],"budget":["0","0","0","0"]}"#),
+            );
+            inp.cert_bytes = jcs(&cert).unwrap();
         }
-        let v=check_certificate(&inp);assert!(codes(&v).is_empty(),"{v:?}");assert_eq!(v.regions[0].claims[0].1.outcome,"accept","{v:?}");
-        let pending=v.regions[0].unchecked_items.iter().any(|s|s.starts_with("verification.borrow_frames has not"));
-        assert_eq!(!pending,covered,"{v:?}");assert_eq!(borrow_covered(&v),covered,"{v:?}");
-        assert_eq!(v.overall,"unchecked","storage descriptors remain unverified: {v:?}");
+        let v = check_certificate(&inp);
+        assert!(codes(&v).is_empty(), "{v:?}");
+        assert_eq!(v.regions[0].claims[0].1.outcome, "accept", "{v:?}");
+        let pending = v.regions[0]
+            .unchecked_items
+            .iter()
+            .any(|s| s.starts_with("verification.borrow_frames has not"));
+        assert_eq!(!pending, covered, "{v:?}");
+        assert_eq!(borrow_covered(&v), covered, "{v:?}");
+        assert_eq!(
+            v.overall, "unchecked",
+            "storage descriptors remain unverified: {v:?}"
+        );
     }
 }
 #[test]
-fn separate_borrowed_lifetimes_require_all_of_their_frame_proofs(){
+fn separate_borrowed_lifetimes_require_all_of_their_frame_proofs() {
     use bennett_cert_checker::json::jcs;
     let body="b = qborrow any 1\nqloop 1 {\ncx x b[0]\ncx b[0] t\ncx x b[0]\ncx b[0] t\n}\nqreturn b\nb2 = qborrow any 1\ncx x b2[0]\ncx b2[0] t\ncx x b2[0]\ncx b2[0] t\nqreturn b2";
-    let (mut inp,_)=counted_fixture(body,2);
-    let second=json(r#"{"invocation":{"args":"all","budget":"all"},"kind":"structural","rule":"translation_lemma","subclaims":[],"witness":{"B":["b2[0]"],"X":["x"],"V":["entry:8"],"W":["entry:9"],"frame":["entry:8","entry:11"]}}"#);
-    let mut cert=json(std::str::from_utf8(&inp.cert_bytes).unwrap());let Value::Obj(top)=&mut cert else{unreachable!()};let Value::Obj(regions)=top.get_mut("regions").unwrap() else{unreachable!()};let Value::Obj(region)=regions.values_mut().next().unwrap() else{unreachable!()};let Value::Arr(claims)=region.get_mut("claims").unwrap() else{unreachable!()};claims.push(second);inp.cert_bytes=jcs(&cert).unwrap();
-    for (indices,covered) in [(&[0][..],false),(&[0,1][..],true)] {
-        borrow_indices(&mut inp,indices);let v=check_certificate(&inp);assert!(codes(&v).is_empty(),"{v:?}");assert!(v.regions[0].claims.iter().all(|(_,c)|c.outcome=="accept"),"{v:?}");assert_eq!(borrow_covered(&v),covered,"{v:?}");
+    let (mut inp, _) = counted_fixture(body, 2);
+    let second = json(
+        r#"{"invocation":{"args":"all","budget":"all"},"kind":"structural","rule":"translation_lemma","subclaims":[],"witness":{"B":["b2[0]"],"X":["x"],"V":["entry:8"],"W":["entry:9"],"frame":["entry:8","entry:11"]}}"#,
+    );
+    let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else {
+        unreachable!()
+    };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        unreachable!()
+    };
+    let Value::Obj(region) = regions.values_mut().next().unwrap() else {
+        unreachable!()
+    };
+    let Value::Arr(claims) = region.get_mut("claims").unwrap() else {
+        unreachable!()
+    };
+    claims.push(second);
+    inp.cert_bytes = jcs(&cert).unwrap();
+    for (indices, covered) in [(&[0][..], false), (&[0, 1][..], true)] {
+        borrow_indices(&mut inp, indices);
+        let v = check_certificate(&inp);
+        assert!(codes(&v).is_empty(), "{v:?}");
+        assert!(
+            v.regions[0]
+                .claims
+                .iter()
+                .all(|(_, c)| c.outcome == "accept"),
+            "{v:?}"
+        );
+        assert_eq!(borrow_covered(&v), covered, "{v:?}");
     }
 }
 
 #[test]
-fn oracles_cannot_substitute_translation_lemma_for_their_t3_frame_proof(){
-    let claim=json(r#"{"invocation":{"args":"all","budget":"all"},"kind":"structural","rule":"translation_lemma","subclaims":[],"witness":{"B":["b[0]"],"X":["x"],"V":["entry:1"],"W":["entry:2"],"frame":["entry:1","entry:4"]}}"#);
+fn oracles_cannot_substitute_translation_lemma_for_their_t3_frame_proof() {
+    let claim = json(
+        r#"{"invocation":{"args":"all","budget":"all"},"kind":"structural","rule":"translation_lemma","subclaims":[],"witness":{"B":["b[0]"],"X":["x"],"V":["entry:1"],"W":["entry:2"],"frame":["entry:1","entry:4"]}}"#,
+    );
     let (inp,_)=standalone("oracle @wrong_kind (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nb = qborrow any 1\ncx x b[0]\ncx b[0] t\ncx x b[0]\ncx b[0] t\nqreturn b",r#"{"wrong_kind":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,"wrong_kind",vec![claim]);
-    let v=check_certificate(&inp);assert!(codes(&v).contains(&"E_CERT_STRUCTURAL"),"{v:?}");
+    let v = check_certificate(&inp);
+    assert!(codes(&v).contains(&"E_CERT_STRUCTURAL"), "{v:?}");
 }

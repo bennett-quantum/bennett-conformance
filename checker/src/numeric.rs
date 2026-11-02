@@ -1062,7 +1062,9 @@ pub fn check_frame(
                 == Some(true)
         })
     {
-        report.unchecked_items.push(crate::cert::FRAME_STORAGE_PENDING.into());
+        report
+            .unchecked_items
+            .push(crate::cert::FRAME_STORAGE_PENDING.into());
     }
     if frame
         .get("slots")

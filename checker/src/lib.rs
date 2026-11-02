@@ -9,6 +9,7 @@
 
 mod accounting;
 pub mod cert;
+mod coherent;
 mod coverage;
 mod decimal_limits;
 pub mod domain;
