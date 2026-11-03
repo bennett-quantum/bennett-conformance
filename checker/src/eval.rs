@@ -121,6 +121,18 @@ pub fn list_items(tok: &str) -> Vec<String> {
     }
     inner.split(", ").map(|x| x.trim().to_string()).collect()
 }
+pub(crate) fn canonical_list(text: &str) -> Option<Vec<String>> {
+    if !text.starts_with('(') || !text.ends_with(')') {
+        return None;
+    }
+    let entries = list_items(text);
+    if format!("({})", entries.join(", ")) != text
+        || entries.iter().any(|s| s.is_empty() || s.contains(','))
+    {
+        return None;
+    }
+    Some(entries)
+}
 
 #[derive(Debug, Clone)]
 pub enum Stmt {
@@ -1520,6 +1532,13 @@ fn wire_ref(tok: &str) -> (String, Option<usize>) {
         (tok.to_string(), None)
     }
 }
+pub(crate) fn literal_wire_index(text: &str) -> Option<usize> {
+    let digits = text.strip_prefix('-').unwrap_or(text);
+    if !crate::rat::is_canonical_uint_str(digits) || (text.starts_with('-') && digits != "0") {
+        return None;
+    }
+    digits.parse().ok()
+}
 
 struct ActionEnv<'a, 'w> {
     object: &'a Object,
@@ -1529,6 +1548,7 @@ struct ActionEnv<'a, 'w> {
     local_region_image: HashMap<String, Vec<BigUint>>,
     args: HashMap<String, Classical>,
     predicates: Vec<(String, usize)>,
+    loop_serial: u64,
     borrowed_queue: VecDeque<Vec<bool>>,
     borrowed_live: Vec<(String, Vec<bool>)>,
     live_alloc: HashSet<String>,
@@ -1555,24 +1575,46 @@ impl ActionEnv<'_, '_> {
         Ok(())
     }
     fn single_wire(&self, token: &str) -> Result<(String, usize), EvalError> {
-        let (name, index) = wire_ref(token);
+        let (name, mut index) = wire_ref(token);
+        if let Some((_, digits)) = token.strip_suffix(']').and_then(|s| s.split_once('[')) {
+            index = literal_wire_index(digits);
+        }
         if token.contains('[') && (index.is_none() || !token.ends_with(']')) {
             return Err(EvalError::Reject(Reject::new(
-                "E_CERT_REPLAY",
+                "E_CERT_OBJECT",
                 "§3.3",
                 "",
                 format!("invalid wire operand {token:?}"),
             )));
         }
         let wires = self.wires.get(&name).ok_or_else(|| {
-            EvalError::Unchecked(format!("wire {name:?} is not live in this replay"))
+            EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                format!("wire {name:?} is not live"),
+            ))
         })?;
         let index = match index {
             Some(index) => index,
             None if wires.len() == 1 => 0,
-            None => return unchecked(format!("whole bundle {token:?} does not resolve to one wire; MCX bundle-list semantics await b-isa-spec-sqr (§4.4)")),
+            None => {
+                return Err(EvalError::Reject(Reject::new(
+                    "E_CERT_OBJECT",
+                    "§4.4 K93",
+                    "object",
+                    format!("{token:?} must denote exactly one wire"),
+                )))
+            }
         };
-        self.bit(&name, index)?;
+        if index >= wires.len() {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                "wire index is outside its live bundle",
+            )));
+        }
         Ok((name, index))
     }
     fn bit(&self, bundle: &str, idx: usize) -> Result<bool, EvalError> {
@@ -1634,9 +1676,29 @@ impl ActionEnv<'_, '_> {
                         .parse()
                         .map_err(|_| EvalError::Unchecked("qloop bound is not a literal".into()))?;
                     let cond_name = head.get(3).cloned().unwrap_or_default();
-                    let cond = self.wires.get(&cond_name).cloned().unwrap_or_default();
+                    let cond = self.wires.get(&cond_name).cloned().ok_or_else(|| {
+                        EvalError::Reject(Reject::new(
+                            "E_CERT_OBJECT",
+                            "§4.6",
+                            "object",
+                            "qloop-while selector is not a live wire bundle",
+                        ))
+                    })?;
+                    if cond.len() != n {
+                        return Err(EvalError::Reject(Reject::new(
+                            "E_CERT_OBJECT",
+                            "§4.6",
+                            "object",
+                            "qloop-while selector width must equal its bound",
+                        )));
+                    }
                     let mut flag = n > 0 && cond.first().copied().unwrap_or(false);
-                    let flag_bundle = "$loopflag".to_string();
+                    let flag_bundle = format!("$loopflag.{}", self.loop_serial);
+                    self.loop_serial = self.loop_serial.checked_add(1).ok_or_else(|| {
+                        EvalError::Unchecked(
+                            "host limit: private loop identity counter exceeds u64".into(),
+                        )
+                    })?;
                     self.wires.insert(flag_bundle.clone(), vec![flag]);
                     for i in 0..n {
                         reference_step(self.work)?;
@@ -1666,15 +1728,30 @@ impl ActionEnv<'_, '_> {
                 }
             }
             Some("qif") => {
-                let (bundle, idx) =
-                    self.single_wire(head.get(1).map(String::as_str).unwrap_or(""))?;
-                if self.bit(&bundle, idx)? {
-                    self.exec_stmts(body)
-                } else if let Some(els) = rest {
-                    self.exec_stmts(els)
-                } else {
-                    Ok(())
+                let selector = head.get(1).ok_or_else(|| {
+                    EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.6",
+                        "object",
+                        "qif requires one selector",
+                    ))
+                })?;
+                self.single_wire(selector)?;
+                // Execute the published expansion. Both arms' allocations,
+                // images and releases happen regardless of the selector.
+                let push = vec!["qpred".into(), selector.clone()];
+                let pop = vec!["qunpred".into(), selector.clone()];
+                let flip = vec!["x".into(), selector.clone()];
+                self.exec_line(&push)?;
+                self.exec_stmts(body)?;
+                self.exec_line(&pop)?;
+                self.exec_line(&flip)?;
+                self.exec_line(&push)?;
+                if let Some(else_body) = rest {
+                    self.exec_stmts(else_body)?;
                 }
+                self.exec_line(&pop)?;
+                self.exec_line(&flip)
             }
             other => unchecked(format!(
                 "structured form {other:?} is outside this checker's action subset"
@@ -1994,51 +2071,90 @@ impl ActionEnv<'_, '_> {
     }
 
     fn exec_perm_gate(&mut self, op: &str, operands: &[String]) -> Result<(), EvalError> {
-        let pred_on = self.controls_on()?;
-        let bits_on = |env: &ActionEnv, refs: &[(String, usize)]| -> Result<bool, EvalError> {
-            for (b, i) in refs {
-                if !env.bit(b, *i)? {
-                    return Ok(false);
-                }
-            }
-            Ok(true)
+        let bad = || {
+            EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3/§4.4 K93",
+                "object",
+                "invalid permutation-gate arity or repeated/overlapping operands",
+            ))
         };
-        match op {
-            "x" => {
-                let (b, i) = self.single_wire(&operands[0])?;
-                self.flip_if(&b, i, pred_on)
-            }
-            "cx" | "ccx" => {
-                let controls: Vec<(String, usize)> = operands[..operands.len() - 1]
-                    .iter()
-                    .map(|t| self.single_wire(t))
-                    .collect::<Result<_, _>>()?;
-                let (b, i) = self.single_wire(&operands[operands.len() - 1])?;
-                let on = pred_on && bits_on(self, &controls)?;
-                self.flip_if(&b, i, on)
-            }
-            "mcx" => {
-                let controls: Vec<(String, usize)> = list_items(&operands[0])
-                    .iter()
-                    .map(|t| self.single_wire(t))
-                    .collect::<Result<_, _>>()?;
-                let (b, i) = self.single_wire(&operands[1])?;
-                let on = pred_on && bits_on(self, &controls)?;
-                self.flip_if(&b, i, on)
-            }
-            "swap" => {
-                let (b1, i1) = self.single_wire(&operands[0])?;
-                let (b2, i2) = self.single_wire(&operands[1])?;
-                if pred_on {
-                    let v1 = self.bit(&b1, i1)?;
-                    let v2 = self.bit(&b2, i2)?;
-                    self.flip_if(&b1, i1, v1 != v2)?;
-                    self.flip_if(&b2, i2, v1 != v2)?;
-                }
-                Ok(())
-            }
-            _ => unreachable!(),
+        let arity = match op {
+            "x" => 1,
+            "ccx" => 3,
+            _ => 2,
+        };
+        if operands.len() != arity {
+            return Err(bad());
         }
+        let mut controls = Vec::new();
+        let target = if op == "mcx" {
+            let text = &operands[0];
+            let entries = canonical_list(text).ok_or_else(bad)?;
+            let mut seen = HashSet::new();
+            let mut retained = 0u128;
+            for entry in entries {
+                let expanded = if entry.contains('[') {
+                    vec![self.single_wire(&entry)?]
+                } else {
+                    let bits = self.wires.get(&entry).ok_or_else(bad)?;
+                    if bits.is_empty() {
+                        return Err(bad());
+                    }
+                    retained += bits.len() as u128 * (entry.len() as u128 + 64);
+                    if retained > 256 * 1024 * 1024 {
+                        return unchecked(
+                            "host limit: flattened MCX control identities exceed 256 MiB",
+                        );
+                    }
+                    (0..bits.len()).map(|i| (entry.clone(), i)).collect()
+                };
+                for wire in expanded {
+                    if !seen.insert(wire.clone()) {
+                        return Err(bad());
+                    }
+                    controls.push(wire);
+                }
+            }
+            self.single_wire(&operands[1])?
+        } else {
+            if matches!(op, "cx" | "ccx") {
+                for source in &operands[..operands.len() - 1] {
+                    controls.push(self.single_wire(source)?);
+                }
+            }
+            self.single_wire(operands.last().unwrap())?
+        };
+        let other = if op == "swap" {
+            Some(self.single_wire(&operands[0])?)
+        } else {
+            None
+        };
+        let mut all = HashSet::new();
+        for wire in controls
+            .iter()
+            .chain(std::iter::once(&target))
+            .chain(other.iter())
+        {
+            if !all.insert(wire) || self.predicates.contains(wire) {
+                return Err(bad());
+            }
+        }
+        let pred_on = self.controls_on()?;
+        if let Some((b, i)) = other {
+            if pred_on {
+                let a = self.bit(&b, i)?;
+                let v = self.bit(&target.0, target.1)?;
+                self.flip_if(&b, i, a != v)?;
+                self.flip_if(&target.0, target.1, a != v)?;
+            }
+            return Ok(());
+        }
+        let mut on = pred_on;
+        for (bundle, index) in controls {
+            on &= self.bit(&bundle, index)?;
+        }
+        self.flip_if(&target.0, target.1, on)
     }
 
     fn exec_qinplace(&mut self, toks: &[String]) -> Result<(), EvalError> {
@@ -2464,6 +2580,7 @@ fn eval_action_tuple_work(
         local_region_image: HashMap::new(),
         args: HashMap::new(),
         predicates: Vec::new(),
+        loop_serial: 0,
         borrowed_queue: before
             .borrowed
             .iter()

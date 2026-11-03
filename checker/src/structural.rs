@@ -4,7 +4,7 @@
 use crate::cert::{
     check_keys, claim_subject, parse_invocation, rej, schema_err, u64_of, ClaimOutcome, LoadedDocs,
 };
-use crate::eval::{list_items, parse_blocks, tokenise, Stmt};
+use crate::eval::{parse_blocks, tokenise, Stmt};
 use crate::json::Value;
 use crate::object::Symbol;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -529,6 +529,7 @@ fn translation(
                 }
                 return Ok(ClaimOutcome::unchecked(format!("entry/lifetime analysis of {op:?} outside the structural frame has not been implemented")));
             }
+            let own_start = controls.len();
             let target = match op {
                 "x" => t.get(1),
                 "cx" => {
@@ -542,14 +543,49 @@ fn translation(
                     t.get(3)
                 }
                 "mcx" => {
-                    for operand in list_items(t.get(1).map(String::as_str).unwrap_or("()")) {
-                        controls.push(wire(&operand, &widths)?);
+                    let entries =
+                        crate::eval::canonical_list(t.get(1).map(String::as_str).unwrap_or(""))
+                            .ok_or_else(|| {
+                                ClaimOutcome::rejected(vec![rej(
+                                    "E_CERT_STRUCTURAL",
+                                    "§4.4 K93",
+                                    path,
+                                    "MCX controls require a canonical parenthesised list",
+                                )])
+                            })?;
+                    for operand in entries {
+                        if let Some(width) = widths.get(&operand).copied() {
+                            if u128::from(width) * (operand.len() as u128 + 64) > 256 * 1024 * 1024
+                            {
+                                return Ok(crate::cert::host_limit_outcome(
+                                    crate::fault::HostLimit {
+                                        quantity:
+                                            "flattened structural MCX controls exceed 256 MiB"
+                                                .into(),
+                                    },
+                                ));
+                            }
+                            for bit in 0..width {
+                                controls.push(format!("{operand}[{bit}]"));
+                            }
+                        } else {
+                            controls.push(wire(&operand, &widths)?);
+                        }
                     }
                     t.get(2)
                 }
                 _ => unreachable!(),
             };
             let target = wire(target.map(String::as_str).unwrap_or(""), &widths)?;
+            let own = &controls[own_start..];
+            if own.iter().collect::<HashSet<_>>().len() != own.len()
+                || own.iter().any(|c| controls[..own_start].contains(c))
+            {
+                return bad(
+                    path,
+                    "explicit flattened controls repeat or overlap the effective context",
+                );
+            }
             let controls: HashSet<_> = controls.into_iter().collect();
             if controls.contains(&target) {
                 return bad(path, "flip target also occurs as a control");

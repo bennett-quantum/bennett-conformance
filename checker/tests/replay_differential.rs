@@ -63,7 +63,17 @@ fn arithmetic_shift_witness_replays_all_256_rows() {
 }
 #[test]
 fn mcx_bundle_controls_expand_every_bit_under_k93() {
-    let verdict = check_certificate(&witness("mcx-bundle-control"));
+    let inputs = witness("mcx-bundle-control");
+    let object = Object::parse(&inputs.object_text).unwrap();
+    assert_eq!(
+        object.object_hash,
+        "db3d3f92a79077074901449d83532f1a0d82ef1621bd833adb7ad14d1aedd467"
+    );
+    assert_eq!(
+        object.symbol("a").unwrap().closure_hash.as_deref(),
+        Some("e38d5da64f9a0ae89a66243bcbe5a321cb807a5bbabf83952b63d3465dfab346")
+    );
+    let verdict = check_certificate(&inputs);
     assert!(codes(&verdict).is_empty(), "{verdict:?}");
     let claim = &verdict.regions[0].claims[0].1;
     assert_eq!(claim.outcome, "proof", "{claim:?}");

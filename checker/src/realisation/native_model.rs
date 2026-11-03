@@ -306,7 +306,7 @@ fn exact_expression(value: &Value, vars: &HashMap<String, Rat>, depth: usize) ->
         return fraction(value);
     }
     if let Some(var) = value.get("var").and_then(Value::as_str) {
-        let value=vars.get(var).cloned().ok_or_else(|| {
+        let value = vars.get(var).cloned().ok_or_else(|| {
             ClaimOutcome::rejected(vec![rej(
                 "E_CERT_TARGET",
                 "§8.3 K86",
@@ -333,9 +333,11 @@ fn exact_expression(value: &Value, vars: &HashMap<String, Rat>, depth: usize) ->
         _ => return bad("native exact expression divides by zero"),
     })
 }
-fn bounded(value:Rat)->Result<Rat> {
-    if value.numer().bits()>65_536 || value.denom().bits()>65_536 {
-        return pending("host limit: native rational expression exceeds 65536 numerator/denominator bits");
+fn bounded(value: Rat) -> Result<Rat> {
+    if value.numer().bits() > 65_536 || value.denom().bits() > 65_536 {
+        return pending(
+            "host limit: native rational expression exceeds 65536 numerator/denominator bits",
+        );
     }
     Ok(value)
 }

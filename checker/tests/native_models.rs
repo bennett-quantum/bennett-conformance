@@ -38,6 +38,13 @@ fn fixture(model: Value, epsilon: u32, bound: u32) -> Inputs {
         )),
     );
     bind_schedule(&mut inputs, schedule, target);
+    if epsilon == 0 {
+        single_root_zero_error_reports(
+            &mut inputs,
+            json(r#"{"time":1,"peak_qubits":1,"qubit_second":1}"#),
+            json(r#"{"x":{"count":1}}"#),
+        );
+    }
     inputs
 }
 #[test]
@@ -52,6 +59,7 @@ fn an_exact_rational_model_is_reconstructed_before_a_numerical_claim_passes() {
         verdict.regions[0].claims[0].1.computed.as_deref(),
         Some("0")
     );
+    assert_eq!(verdict.overall, "verified", "{verdict:?}");
 }
 #[test]
 fn a_supplied_model_cannot_contradict_a_zero_epsilon_opcode() {

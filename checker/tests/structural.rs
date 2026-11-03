@@ -37,6 +37,31 @@ fn translation_lemma_proves_the_dirty_ancilla_pattern_without_enumeration() {
     assert_eq!(v.regions[0].claims[0].1.outcome, "accept", "{v:?}");
 }
 #[test]
+fn translation_frames_expand_bundle_controls_without_hiding_duplicates() {
+    let claim = json(
+        r#"{"invocation":{"args":"all","budget":"all"},"kind":"structural","rule":"translation_lemma","subclaims":[],"witness":{"B":["b[0]"],"X":["x[0]","x[1]"],"V":["entry:1"],"W":["entry:2"],"frame":["entry:1","entry:4"]}}"#,
+    );
+    for controls in ["(x)", "(x, x[0])"] {
+        let source=format!("perm_action @a (t:wire mut) (x:wire[2] in) () () ()\n^entry():\nb = qborrow fast 1\nmcx {controls} b[0]\ncx b[0] t\nmcx {controls} b[0]\ncx b[0] t\nqreturn b");
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[2],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+            "a",
+            vec![claim.clone()],
+        );
+        let verdict = check_certificate(&inputs);
+        if controls == "(x)" {
+            assert!(codes(&verdict).is_empty(), "{verdict:?}");
+            assert_eq!(verdict.regions[0].claims[0].1.outcome, "accept");
+        } else {
+            assert!(
+                codes(&verdict).contains(&"E_CERT_STRUCTURAL"),
+                "{verdict:?}"
+            );
+        }
+    }
+}
+#[test]
 fn translation_lemma_rejects_wrong_shape_wrong_target_and_swap() {
     let patterns = [
         (

@@ -41,6 +41,33 @@ pub fn encode(v: &Value) -> String {
     String::from_utf8(jcs(v).unwrap()).unwrap()
 }
 
+/// Complete independently specified reports for a single zero-error root event.
+pub fn single_root_zero_error_reports(inputs: &mut Inputs, resources: Value, gates: Value) {
+    let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else { panic!() };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        panic!()
+    };
+    assert_eq!(regions.len(), 1);
+    let (hash, region) = regions.iter_mut().next().unwrap();
+    let hash = hash.clone();
+    set(region, "resources", resources);
+    set(region, "gates_used", gates);
+    set(
+        region,
+        "error",
+        json(r#"{"forward:0":{"local":{"operator_norm":0},"inclusive":{"operator_norm":0}}}"#),
+    );
+    set(
+        &mut cert,
+        "composition",
+        json(&format!(
+            r#"{{"method":"sum_over_multiplicities","epsilon_total":{{"diamond":0}},"multiplicities":{{"{hash}:forward:0":1}}}}"#
+        )),
+    );
+    inputs.cert_bytes = jcs(&cert).unwrap();
+}
+
 /// Build a standalone reference certificate for independent test programs.
 /// Hashes come from the checker's separately tested §9.2 implementation;
 /// expected truth tables in the tests are specified independently.

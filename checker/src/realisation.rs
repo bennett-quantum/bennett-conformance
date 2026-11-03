@@ -274,24 +274,45 @@ fn prefixes<'a>(
 }
 fn bundle(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<Vec<usize>> {
     if let Some((name, index)) = name.strip_suffix(']').and_then(|s| s.split_once('[')) {
-        let index = index.parse::<usize>().map_err(|_| {
-            ClaimOutcome::unchecked("nonliteral wire subscript in native matrix builder")
+        let index = crate::eval::literal_wire_index(index).ok_or_else(|| {
+            ClaimOutcome::rejected(vec![rej(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                "wire subscript is not a canonical in-range nonnegative integer",
+            )])
         })?;
         return wires
             .get(name)
             .and_then(|b| b.get(index))
             .map(|i| vec![*i])
-            .ok_or_else(|| ClaimOutcome::unchecked("wire subscript out of range"));
+            .ok_or_else(|| {
+                ClaimOutcome::rejected(vec![rej(
+                    "E_CERT_OBJECT",
+                    "§3.3",
+                    "object",
+                    "wire subscript out of range",
+                )])
+            });
     }
-    wires
-        .get(name)
-        .cloned()
-        .ok_or_else(|| ClaimOutcome::unchecked(format!("unresolved wire {name:?}")))
+    wires.get(name).cloned().ok_or_else(|| {
+        ClaimOutcome::rejected(vec![rej(
+            "E_CERT_OBJECT",
+            "§3.3",
+            "object",
+            format!("wire {name:?} is not live"),
+        )])
+    })
 }
 fn one_wire(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<usize> {
     let b = bundle(name, wires)?;
     if b.len() != 1 {
-        return pending(format!("expected a single wire, got {name:?}"));
+        return Err(ClaimOutcome::rejected(vec![rej(
+            "E_CERT_OBJECT",
+            "§4.4 K93",
+            "object",
+            format!("expected exactly one wire, got {name:?}"),
+        )]));
     }
     Ok(b[0])
 }
@@ -529,10 +550,23 @@ fn collect(
                         )?]
                     }
                     "mcx" => {
-                        for operand in
-                            list_items(operands.first().map(String::as_str).unwrap_or("()"))
-                        {
-                            controls.push(one_wire(&operand, &wires)?);
+                        let entries =
+                            crate::eval::canonical_list(&operands[0]).ok_or_else(|| {
+                                ClaimOutcome::rejected(vec![rej(
+                                    "E_CERT_OBJECT",
+                                    "§4.4 K93",
+                                    "object",
+                                    "MCX controls require a canonical parenthesised list",
+                                )])
+                            })?;
+                        let mut distinct = controls.iter().copied().collect::<HashSet<_>>();
+                        for operand in entries {
+                            for wire in bundle(&operand, &wires)? {
+                                if !distinct.insert(wire) {
+                                    return Err(ClaimOutcome::rejected(vec![rej("E_CERT_OBJECT", "§4.4 K93", "object", "flattened MCX controls repeat or overlap the effective context")]));
+                                }
+                                controls.push(wire);
+                            }
                         }
                         vec![one_wire(
                             operands.get(1).map(String::as_str).unwrap_or(""),
@@ -553,7 +587,12 @@ fn collect(
                 all.extend(&targets);
                 let unique: HashSet<usize> = all.iter().copied().collect();
                 if all.len() != unique.len() {
-                    return invalid("object", "gate controls and targets are not disjoint");
+                    return Err(ClaimOutcome::rejected(vec![rej(
+                        "E_CERT_OBJECT",
+                        "§3.3/§4.4",
+                        "object",
+                        "gate controls and targets are not disjoint",
+                    )]));
                 }
                 body_gates.push(Gate {
                     op: op.into(),
@@ -1564,5 +1603,35 @@ mod rotation_columns {
                 "{op} adjoint"
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod mcx_order {
+    use super::*;
+    #[test]
+    fn bundle_entries_flatten_in_written_order_after_the_effective_context() {
+        let source =
+            include_str!("../tests/fixtures/replay-differential/mcx-bundle-control/object.bisa")
+                .replace("mcx (c) p", "mcx (c, q) p");
+        let object = Object::parse(&source).unwrap();
+        let context = Context {
+            symbol: "a".into(),
+            controls: 1,
+            invocation: Invocation {
+                args: vec![],
+                budget: std::array::from_fn(|_| 0u32.into()),
+                params_hash: crate::sha256::sha256_hex(b"[]"),
+            },
+            key: vec![],
+            adjoint: false,
+        };
+        let gates = reference_gates(&object, &context, 100).unwrap();
+        assert_eq!(gates.len(), 2);
+        // Allocation: external=0, p=1, q=2, c[0]=3, c[1]=4.
+        let gate = &gates[1];
+        assert_eq!(gate.controls, vec![0, 3, 4, 2]);
+        assert_eq!(gate.own_controls, 3);
+        assert_eq!(gate.targets, vec![1]);
     }
 }
