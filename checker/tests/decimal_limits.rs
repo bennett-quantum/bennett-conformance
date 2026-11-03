@@ -52,7 +52,7 @@ fn excessive_report_decimals_are_unchecked_host_limits() {
                 set(
                     region.get_mut("resources").unwrap(),
                     "time",
-                    Value::Str("1e4294967296".into()),
+                    Value::Str(format!("1{}", "0".repeat(100_001))),
                 );
                 inp.cert_bytes = jcs(&cert).unwrap();
             }

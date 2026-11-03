@@ -7,7 +7,7 @@ use crate::rat::{rat_of_json, Rat};
 use crate::realisation::{Context, Gate};
 use num_traits::{One, Signed, Zero};
 use std::borrow::Cow;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 type Result<T> = std::result::Result<T, ClaimOutcome>;
 fn bad<T>(code: &'static str, path: impl AsRef<str>, message: impl AsRef<str>) -> Result<T> {
     Err(ClaimOutcome::rejected(vec![rej(
@@ -312,6 +312,66 @@ fn escape(name: &str) -> String {
     }
     out
 }
+fn resource_rows(values: &BTreeMap<String, Rat>, docs: &LoadedDocs) -> BTreeMap<String, Rat> {
+    let target = docs.target.as_ref().expect("accounting target");
+    let class = target
+        .get("classes")
+        .and_then(Value::as_obj)
+        .unwrap()
+        .keys()
+        .next()
+        .unwrap();
+    let declarations = target.get("resources").and_then(Value::as_obj).unwrap();
+    values
+        .iter()
+        .map(|(name, value)| {
+            let kind = declarations[name]
+                .get("kind")
+                .and_then(Value::as_str)
+                .unwrap();
+            let key = if matches!(kind, "occupancy" | "peak") {
+                format!("{}[{}]", escape(name), escape(class))
+            } else {
+                escape(name)
+            };
+            (key, value.clone())
+        })
+        .collect()
+}
+fn context_reports<'a>(record: &'a Value, contexts: &[&Context]) -> Result<Vec<&'a Value>> {
+    let Some(value) = record.get("resource_contexts") else {
+        if contexts.len() != 1 {
+            return bad(
+                "E_CERT_RESOURCE",
+                "resource_contexts",
+                "repeated invocations require exactly one keyed resource report per context (K87)",
+            );
+        }
+        return Ok(vec![record]);
+    };
+    let entries = value.as_arr().expect("context resource schema checked");
+    if entries.len() != contexts.len()
+        || entries
+            .iter()
+            .zip(contexts)
+            .any(|(entry, c)| entry.get("context_key") != Some(&Value::Arr(c.key.clone())))
+    {
+        return bad("E_CERT_RESOURCE","resource_contexts","resource reports must cover exactly the reached contexts in canonical key order, including default-covered and predicated-off invocations");
+    }
+    let Some(first) = entries.first() else {
+        return bad(
+            "E_CERT_RESOURCE",
+            "resource_contexts",
+            "reached invocation has no resource report",
+        );
+    };
+    for field in ["resources", "gates_used", "estimate"] {
+        if record.get(field) != first.get(field) {
+            return bad("E_CERT_RESOURCE",field,"unkeyed resources/gates_used/estimate must equal the first canonical context's projection, including optional estimate presence");
+        }
+    }
+    Ok(entries.iter().collect())
+}
 fn check_estimate(
     record: &Value,
     values: &BTreeMap<String, Rat>,
@@ -339,23 +399,7 @@ fn check_estimate(
             "launch estimates use exactly 34 display digits",
         );
     }
-    let target = docs.target.as_ref().unwrap();
-    let classes = target.get("classes").and_then(Value::as_obj).unwrap();
-    let class = classes.keys().next().unwrap();
-    let declarations = target.get("resources").and_then(Value::as_obj).unwrap();
-    let mut rows = BTreeMap::new();
-    for (name, value) in values {
-        let kind = declarations[name]
-            .get("kind")
-            .and_then(Value::as_str)
-            .unwrap();
-        let key = if matches!(kind, "occupancy" | "peak") {
-            format!("{}[{}]", escape(name), escape(class))
-        } else {
-            escape(name)
-        };
-        rows.insert(key, value.clone());
-    }
+    let rows = resource_rows(values, docs);
     let exact = estimate
         .get("exact_resources")
         .and_then(Value::as_obj)
@@ -434,6 +478,7 @@ fn check_estimate(
 fn check_resources(
     c: &Context,
     record: &Value,
+    frame: &Value,
     events: &[Event<'_>],
     docs: &LoadedDocs,
 ) -> Result<()> {
@@ -447,21 +492,14 @@ fn check_resources(
             .get("resources")
             .and_then(Value::as_obj)
             .expect("resource schema checked");
-        if supplied.len() != values.len() {
-            return bad(
-                "E_CERT_RESOURCE",
-                format!("{base}.resources"),
-                "resource report must contain every declared target resource exactly once",
-            );
+        let rows = resource_rows(&values, docs);
+        if supplied.len() != rows.len() {
+            return bad("E_CERT_RESOURCE",format!("{base}.resources"),"resource report requires every encoded target resource row, including class-qualified occupancy and peak rows");
         }
-        for (name, computed) in &values {
-            let got = decimal(supplied.get(name), &format!("{base}.resources.{name}"))?;
-            if &got != computed {
-                return bad(
-                    "E_CERT_RESOURCE",
-                    format!("{base}.resources.{name}"),
-                    format!("declared {got}, independently recomputed {computed}"),
-                );
+        for (name, computed) in &rows {
+            let display = crate::rat::upward_decimal_34(computed).expect("nonnegative resource");
+            if supplied.get(name).and_then(Value::as_str) != Some(display.as_str()) {
+                return bad("E_CERT_RESOURCE",format!("{base}.resources.{name}"),format!("expected canonical upward 34-digit display {display} for independently computed {computed}"));
             }
         }
     }
@@ -490,7 +528,6 @@ fn check_resources(
             );
         }
     }
-    let frame = record.get("frame").expect("frame schema checked");
     let slots = frame.get("slots").and_then(Value::as_arr).unwrap_or(&[]);
     let iface = docs
         .object
@@ -548,7 +585,12 @@ fn check_errors(
             .get("error")
             .and_then(Value::as_obj)
             .expect("error schema checked");
-        if map.len() != 1 || !map.contains_key(&inner) {
+        let reached_keys: HashSet<_> = contexts
+            .iter()
+            .filter(|other| context_hash(other, docs) == hash)
+            .map(|other| inner_key(variant, other.controls))
+            .collect();
+        if map.len() != reached_keys.len() || !map.contains_key(&inner) {
             return pending("error report includes unresolved variants or omits the realised variant/control key");
         }
         for (part, out) in [("local", &mut local), ("inclusive", &mut inclusive)] {
@@ -705,7 +747,7 @@ fn inner(cert: &Value, docs: &LoadedDocs, inputs: &Inputs, verdict: &Verdict) ->
         .and_then(Value::as_str)
         .unwrap();
     let mut multiplicities: BTreeMap<String, u64> = BTreeMap::new();
-    let mut hashes = HashSet::new();
+    let mut hashes = BTreeSet::new();
     for c in &contexts {
         *multiplicities
             .entry(key_of(context_hash(c, docs), variant, c.controls))
@@ -735,23 +777,29 @@ fn inner(cert: &Value, docs: &LoadedDocs, inputs: &Inputs, verdict: &Verdict) ->
             ),
         );
     }
-    if hashes.len() != contexts.len() {
-        return pending("per-region resource accounting for repeated contexts requires an explicit aggregation contract; each context is still numerically checked");
-    }
     if records.len() != hashes.len() || records.keys().any(|h| !hashes.contains(h.as_str())) {
         return pending("certificate includes region records outside the realised invocation tree");
     }
-    for record in records.values() {
+    let mut selected_reports = Vec::new();
+    for hash in &hashes {
+        let reached: Vec<_> = contexts
+            .iter()
+            .filter(|c| context_hash(c, docs) == *hash)
+            .collect();
+        let record = &records[*hash];
+        let reports = context_reports(record, &reached)?;
+        selected_reports.extend(
+            reached
+                .into_iter()
+                .zip(reports)
+                .map(|(context, report)| (context, report, record)),
+        );
+    }
+    for c in &contexts {
+        let frame = crate::frames::selected(&records[context_hash(c, docs)], c)?;
         if ["scratch", "history", "borrow", "ancillae"]
             .iter()
-            .any(|k| {
-                record
-                    .get("frame")
-                    .and_then(|f| f.get(k))
-                    .and_then(Value::as_arr)
-                    .map(|a| !a.is_empty())
-                    == Some(true)
-            })
+            .any(|k| frame.get(k).and_then(Value::as_arr).map(|a| !a.is_empty()) == Some(true))
         {
             return pending(
                 "nontrivial frame descriptors need allocation/lifetime expansion before accounting",
@@ -759,8 +807,14 @@ fn inner(cert: &Value, docs: &LoadedDocs, inputs: &Inputs, verdict: &Verdict) ->
         }
     }
     let events = events(&gates, docs)?;
-    for c in &contexts {
-        check_resources(c, &records[context_hash(c, docs)], &events, docs)?;
+    for (c, report, record) in selected_reports {
+        check_resources(
+            c,
+            report,
+            crate::frames::selected(record, c)?,
+            &events,
+            docs,
+        )?;
     }
     check_errors(cert, &contexts, docs, verdict)
 }

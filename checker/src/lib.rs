@@ -16,6 +16,7 @@ pub mod domain;
 pub mod eval;
 pub mod expressions;
 pub mod fault;
+mod frames;
 pub mod json;
 mod lifted_memory;
 pub mod matrix;

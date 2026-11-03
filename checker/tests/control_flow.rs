@@ -579,3 +579,52 @@ fn indexed_bulk_gates_preserve_other_bits_and_allow_read_only_predicate_sources(
         );
     }
 }
+
+#[test]
+fn malformed_predicate_scopes_and_dangling_control_prefixes_cannot_prove_tables() {
+    for (body, conditional) in [
+        ("qpred c\nx t", true),
+        ("qunpred c", false),
+        ("qpred c\nqunpred t", false),
+        ("qpred c\nqunpred c ignored", false),
+        ("ctl c", false),
+        ("qloop 1 while c {\nqpred c\n}", false),
+    ] {
+        let source = format!("perm_action @a (t:wire mut) (c:wire in) () () ()\n^entry():\n{body}");
+        let rows = (0..2)
+            .flat_map(|t| {
+                (0..2).map(move |c| row(&[t, c], &[t ^ if conditional { c } else { 0 }, c]))
+            })
+            .collect();
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+            "a",
+            vec![table_claim(&[("t", 1), ("c", 1)], rows)],
+        );
+        let verdict = check_certificate(&inputs);
+        assert!(
+            codes(&verdict).contains(&"E_CERT_OBJECT"),
+            "{body}: {verdict:?}"
+        );
+    }
+}
+#[test]
+fn repeated_predicate_pushes_can_balance_across_counted_loops_and_blocks() {
+    let source="perm_action @a (t:wire mut) (c:wire in) () () ()\nregs {  } bounds {2, 2}\n^entry():\nqloop 2 {\nqpred c\n}\n^middle():\nx t\nqloop 2 {\nqunpred c\n}";
+    let rows = (0..2)
+        .flat_map(|t| (0..2).map(move |c| row(&[t, c], &[t ^ c, c])))
+        .collect();
+    let (inputs, _) = standalone(
+        source,
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[2,2],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+        "a",
+        vec![table_claim(&[("t", 1), ("c", 1)], rows)],
+    );
+    let verdict = check_certificate(&inputs);
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    assert_eq!(
+        verdict.regions[0].claims[0].1.outcome, "proof",
+        "{verdict:?}"
+    );
+}

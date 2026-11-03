@@ -17,7 +17,7 @@ struct Fixture {
 }
 
 fn controlled() -> Fixture {
-    let d = isa_dir().join("conformance/fixtures/controlled-action-09");
+    let d = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/controlled-action-k87");
     Fixture {
         cert: std::fs::read(d.join("certificate.json")).unwrap(),
         object: std::fs::read_to_string(d.join("controlled.bisa")).unwrap(),

@@ -7,9 +7,23 @@ use bennett_cert_checker::{
 use common::*;
 
 fn object(body: &str, a: u32, w: u32, t: u32) -> Object {
-    let source=format!("perm_action @a (t:wire[{t}] mut) (c:wire in) (r:region[{a},{w}] mut) () ()\n^entry():\n{body}");
+    object_with_image(body, a, w, t, None)
+}
+fn object_with_image(body: &str, a: u32, w: u32, t: u32, image: Option<&str>) -> Object {
+    let data = image
+        .map(|hex| format!("\n\nsection data\nimg {hex}\n\nsection devices\n{{\"models\":{{}},\"services\":{{}}}}"))
+        .unwrap_or_default();
+    let data_sig = image
+        .map(|hex| {
+            format!(
+                r#", "img":{{"abi":"0.9","kind":"data","size":{},"tier":"-"}}"#,
+                hex.len() / 2
+            )
+        })
+        .unwrap_or_default();
+    let source=format!("perm_action @a (t:wire[{t}] mut) (c:wire in) (r:region[{a},{w}] mut) () ()\n^entry():\n{body}{data}");
     let sig = format!(
-        r#"{{"a":{{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[{{"A":{a},"W":{w},"role":"mut"}}],"mut":[{t}],"tier":"q"}}}}"#
+        r#"{{"a":{{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[{{"A":{a},"W":{w},"role":"mut"}}],"mut":[{t}],"tier":"q"}}{data_sig}}}"#
     );
     let (inputs, _) = standalone(&source, &sig, "a", vec![]);
     let text=rebind_object_symbols(&format!("{}\nsection layout\n{{\"A_tab\":0,\"H\":4,\"S_cells\":0,\"globals\":{{}},\"heap_base\":1,\"heap_limit_max\":0,\"interface_regions\":{{}},\"null_size\":1,\"ptr_width\":32}}\n",inputs.object_text));
@@ -147,6 +161,55 @@ fn duplicate_local_regions_cannot_erase_dirty_storage_and_overlapping_names_reje
         assert!(
             matches!(&result,Err(EvalError::Reject(e)) if e.code=="E_CERT_OBJECT"),
             "{body}: {result:?}"
+        );
+    }
+}
+
+#[test]
+fn local_images_bind_exact_bytes_and_little_endian_cells_across_adjoint_replay() {
+    let mut checked = 0;
+    for (a, w, image) in [(0, 8, "a5"), (1, 4, "a5")] {
+        let address = if a == 0 { "()" } else { "t[0]" };
+        let xor = if a == 0 {
+            "qxor d t".to_string()
+        } else {
+            (0..4)
+                .map(|i| format!("cx d[{i}] t[{}]", i + 4))
+                .collect::<Vec<_>>()
+                .join("\n")
+        };
+        let body=format!("qpred c\nd = qload local {address}\n{xor}\nqunload local {address} d\nqunpred c\nqloop 0 {{\nqregion local {a} {w} @img\n}}");
+        let object = object_with_image(&body, 0, 1, 8, Some(image));
+        for t in 0..256 {
+            for c in 0..2 {
+                let before = tuple(t, c, &[0]);
+                let mut expected = before.clone();
+                if c != 0 {
+                    expected.bundles[0] = (t ^ if a == 0 {
+                        0xa5
+                    } else {
+                        if t & 1 == 0 {
+                            5 << 4
+                        } else {
+                            10 << 4
+                        }
+                    })
+                    .into();
+                }
+                let after = run(&object, &before, false).unwrap();
+                assert_eq!(after, expected, "A={a} W={w} t={t} c={c}");
+                assert_eq!(run(&object, &after, true).unwrap(), before);
+                checked += 1;
+            }
+        }
+    }
+    assert_eq!(checked, 1024);
+    for image in ["", "00", "000000"] {
+        let object = object_with_image("qregion local 1 8 @img", 0, 1, 1, Some(image));
+        let result = run(&object, &tuple(0, 0, &[0]), false);
+        assert!(
+            matches!(&result,Err(EvalError::Reject(e))if e.code=="E_CERT_OBJECT"),
+            "{image}: {result:?}"
         );
     }
 }

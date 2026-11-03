@@ -1079,6 +1079,17 @@ pub fn check_frame(
 
 // ---------- region reports / cleanup / error maps (shapes) ----------
 
+pub(crate) fn resource_display(text: &str) -> bool {
+    let (integer, fraction) = match text.split_once('.') {
+        Some((i, f)) => (i, Some(f)),
+        None => (text, None),
+    };
+    crate::rat::is_canonical_uint_str(integer)
+        && fraction.is_none_or(|f| {
+            !f.is_empty() && f.bytes().all(|c| c.is_ascii_digit()) && !f.ends_with('0')
+        })
+}
+
 pub fn check_region_reports(
     region: &Value,
     docs: &LoadedDocs,
@@ -1090,10 +1101,10 @@ pub fn check_region_reports(
         match res.as_obj() {
             Some(m) => {
                 for (k, v) in m {
-                    if rat_of_json(v).is_err() {
+                    if !v.as_str().is_some_and(resource_display) {
                         errs.push(schema_err(
                             format!("{base}.resources.{k}"),
-                            "resource values are decimals",
+                            "resource values are canonical nonnegative decimal display strings (K87)",
                         ));
                     }
                 }
@@ -1134,6 +1145,49 @@ pub fn check_region_reports(
     }
     let _ = docs;
     report.errors.extend(errs);
+    if let Some(value) = region.get("resource_contexts") {
+        if let Some(entries) = value.as_arr() {
+            let mut previous = None;
+            for (i, entry) in entries.iter().enumerate() {
+                let p = format!("{base}.resource_contexts[{i}]");
+                let mut errors = vec![];
+                if keys_strict(
+                    entry,
+                    &["context_key", "resources", "gates_used", "estimate"],
+                    &["context_key", "resources", "gates_used"],
+                    &p,
+                    "E_CERT_SCHEMA",
+                    "§12.3/K87",
+                    &mut errors,
+                ) {
+                    crate::frames::key_schema(
+                        entry.get("context_key").unwrap(),
+                        &format!("{p}.context_key"),
+                        &mut errors,
+                    );
+                    let key =
+                        crate::json::jcs(entry.get("context_key").unwrap()).expect("parsed JSON");
+                    if previous.as_ref().is_some_and(|old| old >= &key) {
+                        errors.push(schema_err(
+                            &p,
+                            "context keys must be distinct and in bytewise JCS order",
+                        ));
+                    }
+                    previous = Some(key);
+                    check_region_reports(entry, docs, &p, report);
+                }
+                for error in &mut errors {
+                    error.code = "E_CERT_SCHEMA";
+                }
+                report.errors.extend(errors);
+            }
+        } else {
+            report.errors.push(schema_err(
+                format!("{base}.resource_contexts"),
+                "expected an array of context resource reports",
+            ));
+        }
+    }
     for key in ["resources", "gates_used"] {
         if region
             .get(key)

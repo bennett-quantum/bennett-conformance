@@ -50,7 +50,7 @@ pub struct Inputs {
 
 #[derive(Debug, Clone, Default)]
 pub struct ClaimOutcome {
-    /// proof | evidence | accept | reject | unchecked
+    /// proof | proof_relative_to_image | evidence | accept | reject | unchecked
     pub outcome: String,
     pub establishes: String,
     pub elements: Option<String>,
@@ -60,6 +60,8 @@ pub struct ClaimOutcome {
     /// Checker-computed bound (rational "n/d" or decimal), numerical/channel.
     pub computed: Option<String>,
     pub contexts: Option<u64>,
+    /// K85 image theorem scope, never a preparation assertion.
+    pub image_bindings: Option<Value>,
     pub errors: Vec<Reject>,
     pub unchecked_reason: Option<String>,
     pub(crate) borrow_frame: Option<crate::structural::BorrowFrameEvidence>,
@@ -104,6 +106,7 @@ impl ClaimOutcome {
         if let Some(v) = self.contexts {
             m.insert("contexts".into(), n(v));
         }
+        if let Some(v)=&self.image_bindings {m.insert("image_bindings".into(),v.clone());}
         if let Some(v) = &self.unchecked_reason {
             m.insert("unchecked_reason".into(), s(v));
         }
@@ -1239,7 +1242,9 @@ fn check_region(
             "bounds",
             "estimate",
             "frame",
+            "frame_contexts",
             "resources",
+            "resource_contexts",
             "gates_used",
             "claims",
             "verification",
@@ -1251,7 +1256,6 @@ fn check_region(
             "kind",
             "signature",
             "bounds",
-            "frame",
             "resources",
             "gates_used",
             "claims",
@@ -1314,10 +1318,7 @@ fn check_region(
             }
         }
     }
-    // Frame descriptor: schema now, semantics in numeric::check_frame.
-    if let Some(frame) = region.get("frame") {
-        numeric::check_frame(frame, symbol.as_ref(), docs, &base, &mut report);
-    }
+    crate::frames::check(region, symbol.as_ref(), docs, inputs, &base, &mut report);
     // definedness_assumptions: array (of dialect-spec ids; strings).
     if let Some(v) = region.get("definedness_assumptions") {
         if v.as_arr().map(|a| {

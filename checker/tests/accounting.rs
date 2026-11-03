@@ -31,13 +31,19 @@ fn published_positive_certificate_checks_resources_and_composition() {
 #[test]
 fn every_published_resource_and_gate_count_value_is_checked() {
     let mut mutations = 0;
-    for field in ["time", "peak_qubits", "qubit_second"] {
+    for field in ["time", "peak_qubits[fast]", "qubit_second[fast]"] {
         for delta in [-1, 1] {
             let mut inp = controlled();
             change_root(&mut inp, |r| {
                 let mut resources = r.get("resources").unwrap().clone();
-                let old = resources.get(field).unwrap().as_i128().unwrap();
-                set(&mut resources, field, n(old + delta));
+                let old = resources
+                    .get(field)
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .parse::<i128>()
+                    .unwrap();
+                set(&mut resources, field, Value::Str((old + delta).to_string()));
                 set(r, "resources", resources);
             });
             let v = check_certificate(&inp);
@@ -209,7 +215,7 @@ fn wide_interface_accounting_does_not_require_a_dense_matrix() {
         set(
             r,
             "resources",
-            json(r#"{"peak_qubits":64,"qubit_second":64,"time":1}"#),
+            json(r#"{"peak_qubits[fast]":"64","qubit_second[fast]":"64","time":"1"}"#),
         );
         set(r, "gates_used", json(r#"{"x":{"count":1}}"#));
         set(
@@ -446,7 +452,7 @@ fn gate_cost_distinguishes_own_controls_from_inherited_controls() {
     set(
         region,
         "resources",
-        json(r#"{"peak_qubits":3,"qubit_second":9,"time":3}"#),
+        json(r#"{"peak_qubits[fast]":"3","qubit_second[fast]":"9","time":"3"}"#),
     );
     set(region, "gates_used", json(r#"{"mcx":{"count":1}}"#));
     set(

@@ -31,7 +31,7 @@ fn program(
         region,
         "resources",
         json(&format!(
-            r#"{{"peak_qubits":2,"time":{time},"qubit_second":{}}}"#,
+            r#"{{"peak_qubits[fast]":"2","time":"{time}","qubit_second[fast]":"{}"}}"#,
             2 * time
         )),
     );

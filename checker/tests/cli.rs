@@ -1,8 +1,7 @@
 use std::path::PathBuf;
 use std::process::Command;
 fn fixture() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../bennett-isa-spec/conformance/fixtures/controlled-action-09")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/controlled-action-k87")
 }
 fn bin() -> Command {
     Command::new(env!("CARGO_BIN_EXE_bennett-check"))

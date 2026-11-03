@@ -166,7 +166,12 @@ expansion across all blocks. Reused names, implicit allocations and borrowed
 release recovery still yield unchecked. Local allocation results must be fresh;
 release checks ownership and cleanliness. Indexed wire actuals preserve the
 other bundle bits, and action calls check exact widths, region shapes and wire
-disjointness before effects, including disabled calls.
+disjointness before effects, including disabled calls. Bulk operations accept
+disjoint indexed views and reject overlap or unequal widths. Quantum memory
+requires exactly A address wires (only `()` at A=0), W value wires and matching
+owned cleanup. Local regions exist once per invocation from function entry,
+including declarations in zero-trip loops. Images have exact sizes and
+little-endian packed cells.
 
 For supported action bodies, reference replay retains exact amplitudes in
 Q(√2,i) through H, S/S†, T/T†, CZ and permutation gates, predicates, counted
@@ -267,14 +272,20 @@ accounting remain explicitly unchecked where they have not been independently
 recomputed. Malformed shapes
 are still rejected before claiming support.
 
-For exact native realisations with one context per region, the
-checker now recomputes scheduled leaf timing, all declared resource values,
+For supported native action realisations, including repeated invocation
+contexts, the checker recomputes scheduled leaf timing, all declared resource values,
 gate counts, capacity and predicate limits, invocation multiplicities, and
 local/inclusive error recurrence. Target metadata is validated through its
 nested closed schemas. Gate costs distinguish own controls `k` from total
 controls `c`; adjoint calls match and count the inverse primitive (`tdg`, not
 `t`, for an adjointed T). Symbolic source-slot widths are evaluated at each
-resolved inherited-control count.
+resolved inherited-control count. K87 `resource_contexts` must cover every
+reached invocation in canonical full-key order. Unkeyed resources, gate counts
+and optional estimates equal the first canonical context. Child reports use
+invocation-local elapsed time; root reports count their own complete event list
+once. Every resource display is a canonical upward 34-digit decimal string;
+occupancy and peak rows carry their encoded class qualification. Exact
+accounting precedes display rounding, with or without `estimate`.
 
 Disjoint gates in a root action may overlap. Timing uses the maximum event end,
 including when the last source event ends earlier, and default starts follow
@@ -285,7 +296,8 @@ modelling and remain unchecked.
 
 Mutation tests visit every field and array position of the published positive
 certificate (250), target (43), schedule (54), coverage (30), and the
-scheme-bearing target (67), with exact expected rejection
+scheme-bearing target (67), frame-context records (39), and resource-context
+records (26), with exact expected rejection
 codes. The target and schedule sweeps rebind their hashes so a stale digest
 cannot mask a malformed nested value. Schedule bindings validate scheduler and
 expansion records, nonnegative error shares and exact budget encodings.
@@ -363,3 +375,16 @@ JCS tests include all finite number samples from
 UTF-16 property sorting and invalid surrogate rejection. The binary64
 `43143ff3c1cb0959` tie is a regression for the standard Rust formatter's different
 choice, which is why number rendering uses `ryu-js`.
+
+The K90 `frame_contexts` alternative validates full concrete invocation keys,
+canonical order and complete coverage of default-covered and predicated-off
+calls in the supported native action tree. Each selected descriptor is checked;
+a uniform `frame` evaluates its slot widths at every reached control count.
+Allocation lifetimes and multi-class placement remain separate unchecked
+obligations where their expansion is unfinished.
+
+The checker-owned `controlled-action-k87` fixture repairs the published
+`controlled-action-09` resource encodings in detached and embedded certificates.
+Its source, interface, closure, stripped-object, target and schedule hashes are
+unchanged. A separate regression checks that the upstream numeric pre-K87
+report rejects; the required upstream fixture migration is recorded for its owner.

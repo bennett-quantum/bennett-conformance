@@ -2014,9 +2014,26 @@ impl ActionEnv<'_, '_> {
         }
         // Prefix modifiers: ctl <wire>, adj
         if toks[0] == "ctl" {
+            if toks.len() < 3 {
+                return Err(EvalError::Reject(Reject::new(
+                    "E_CERT_OBJECT",
+                    "§4.7",
+                    "object",
+                    "ctl requires a wire and an operation",
+                )));
+            }
             let (bundle, idx) = self.single_wire(&toks[1])?;
             self.predicates.push((bundle, idx));
+            let scope = self.predicates.clone();
             let r = self.exec_line(&toks[2..]);
+            if r.is_ok() && self.predicates != scope {
+                return Err(EvalError::Reject(Reject::new(
+                    "E_CERT_OBJECT",
+                    "§3.5/§4.7",
+                    "object",
+                    "controlled operation does not restore its predicate scope",
+                )));
+            }
             self.predicates.pop();
             return r;
         }
@@ -2341,15 +2358,36 @@ impl ActionEnv<'_, '_> {
                 Ok(())
             }
             "qpred" => {
+                if lhs.is_some() || operands.len() != 1 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.5",
+                        "object",
+                        "qpred requires exactly one wire and no result",
+                    )));
+                }
                 let (bundle, idx) = self.single_wire(&operands[0])?;
                 self.predicates.push((bundle, idx));
                 Ok(())
             }
             "qunpred" => {
+                if lhs.is_some() || operands.len() != 1 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.5",
+                        "object",
+                        "qunpred requires exactly one wire and no result",
+                    )));
+                }
                 let (bundle, idx) = self.single_wire(&operands[0])?;
                 match self.predicates.pop() {
                     Some(top) if top == (bundle, idx) => Ok(()),
-                    _ => unchecked("qunpred does not match the active predicate stack"),
+                    _ => Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.5",
+                        "object",
+                        "qunpred does not match the active predicate stack",
+                    ))),
                 }
             }
             "qinplace" => self.exec_qinplace(toks),
@@ -3093,6 +3131,7 @@ fn eval_action_tuple_guarded(
         }
     }
     // Also map args by the signature order for lifted call lookup parity.
+    let entry_predicates = env.predicates.clone();
     let mut blocks = parse_blocks(func);
     let sites = if adjoint {
         allocation_sites(func)
@@ -3109,6 +3148,14 @@ fn eval_action_tuple_guarded(
             stmts
         };
         env.exec_stmts(&stmts)?;
+    }
+    if env.predicates != entry_predicates {
+        return Err(EvalError::Reject(Reject::new(
+            "E_CERT_OBJECT",
+            "§3.5",
+            "object",
+            "action does not restore its inherited predicate stack at exit",
+        )));
     }
     if !env.live_alloc.is_empty() {
         return Err(EvalError::Reject(Reject::new(
@@ -3569,11 +3616,11 @@ fn check_replay_inner(
     };
     let requested_label = match claim.get("label") {
         None => None,
-        Some(Value::Str(x)) if x == "proof" || x == "evidence" => Some(x.clone()),
+        Some(Value::Str(x)) if matches!(x.as_str(),"proof"|"proof_relative_to_image"|"evidence") => Some(x.clone()),
         Some(_) => {
             return Err(ClaimOutcome::rejected(vec![schema_err(
                 format!("{path}.label"),
-                "label must be proof or evidence",
+                "label must be proof, proof_relative_to_image or evidence",
             )]))
         }
     };
@@ -4008,6 +4055,8 @@ fn check_replay_inner(
         (
             if domain.covers_full {
                 "proof"
+            } else if domain.covers_relative_to_image {
+                "proof_relative_to_image"
             } else {
                 "evidence"
             },
@@ -4028,6 +4077,17 @@ fn check_replay_inner(
         draws: draws_count.map(|d| d.to_string()),
         distinct: distinct_count.map(|d| d.to_string()),
         covered_fraction: Some(fraction.clone()),
+        image_bindings: if domain.fixed_regions.is_empty() {None}else{
+            let regions=domain.fixed_regions.iter().map(|r|Value::Obj(std::collections::BTreeMap::from([
+                ("identity".into(),Value::Arr(vec![Value::Str("mem".into()),crate::json::n(r.position)])),
+                ("A".into(),crate::json::n(r.a)),("W".into(),crate::json::n(r.w)),("sha256".into(),Value::Str(r.sha256.clone())),
+            ]))).collect();
+            Some(Value::Obj(std::collections::BTreeMap::from([
+                ("fixed_regions".into(),Value::Arr(regions)),
+                ("context_key".into(),Value::Arr(vec![])),
+                ("invocation".into(),claim.get("invocation").cloned().or_else(||docs.cert.get("bindings").and_then(|b|b.get("invocation")).cloned()).unwrap_or(Value::Null)),
+            ])))
+        },
         ..Default::default()
     };
     out.establishes = if computed == "proof" {
@@ -4037,6 +4097,8 @@ fn check_replay_inner(
             subject.variant,
             subject.inherited_controls
         )
+    } else if computed=="proof_relative_to_image" {
+        format!("all {elements_s} tuples of every remaining unrestricted component were replayed with the independently bound fixed image(s); this is a conditional proof_relative_to_image theorem with exact +1 phase, full outputs, input-image restoration and clean workspace, covering {fraction} of unrestricted D; executable preparation and entry factorisation are separate obligations, not established by this theorem")
     } else if kind == "exhaustive" {
         format!("all {elements_s} domain elements were replayed and agree; this is evidence over a strict slice of D (covered fraction {fraction}), never proof")
     } else {
@@ -4046,18 +4108,19 @@ fn check_replay_inner(
             distinct_count.unwrap_or(0)
         )
     };
-    if requested_label.as_deref() == Some("proof") && computed != "proof" {
+    if requested_label.as_deref().is_some_and(|label|matches!(label,"proof"|"proof_relative_to_image")&&label!=computed) {
         let mut rejected = ClaimOutcome::rejected(vec![Reject::new(
             "E_CERT_COVERAGE_LABEL",
             "§12.2",
             format!("{path}.label"),
-            format!("producer requested proof; the checker-computed outcome is {computed} (fraction {fraction})"),
+            format!("producer requested {}; the checker-computed outcome is {computed} (fraction {fraction})",requested_label.unwrap()),
         )]);
         rejected.elements = out.elements;
         rejected.draws = out.draws;
         rejected.distinct = out.distinct;
         rejected.covered_fraction = out.covered_fraction;
         rejected.establishes = out.establishes;
+        rejected.image_bindings=out.image_bindings;
         return Err(rejected);
     }
     Ok(out)

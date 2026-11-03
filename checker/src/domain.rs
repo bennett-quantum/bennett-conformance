@@ -11,6 +11,7 @@ use num_bigint::BigUint;
 use num_traits::{One, Zero};
 use std::collections::HashSet;
 use std::str::FromStr;
+mod fixed_images;
 
 /// Host cap on bits per domain element / full-domain bit size. Larger legal
 /// domains resolve as HostLimit, never as ill-formed (K75).
@@ -51,6 +52,15 @@ pub struct Tuple {
 }
 
 #[derive(Debug, Clone)]
+pub struct FixedRegion {
+    pub position: usize,
+    pub a: u64,
+    pub w: u64,
+    pub sha256: String,
+    pub cells: Vec<BigUint>,
+}
+
+#[derive(Debug, Clone)]
 pub struct ResolvedDomain {
     /// Resolved components in enumeration order (listed order; last fastest).
     pub components: Vec<Component>,
@@ -63,6 +73,8 @@ pub struct ResolvedDomain {
     pub n: BigUint,
     pub full_n: BigUint,
     pub covers_full: bool,
+    pub covers_relative_to_image: bool,
+    pub fixed_regions: Vec<FixedRegion>,
     /// Tuple layout: bundle position i holds this component identity.
     pub bundle_positions: Vec<ComponentId>,
     /// Region position i identifies its (group, slot) via a probe cell id.
@@ -146,7 +158,7 @@ impl ResolvedDomain {
     }
 
     pub fn zero_tuple(&self) -> Tuple {
-        Tuple {
+        let mut tuple=Tuple {
             bundles: vec![BigUint::zero(); self.bundle_widths.len()],
             borrowed: vec![BigUint::zero(); self.borrowed_widths.len()],
             regions: self
@@ -157,7 +169,9 @@ impl ResolvedDomain {
                 })
                 .collect(),
             args: vec![BigUint::zero(); self.arg_widths.len()],
-        }
+        };
+        for fixed in &self.fixed_regions {tuple.regions[fixed.position]=fixed.cells.clone();}
+        tuple
     }
 
     pub fn set_component(&self, tuple: &mut Tuple, c: &Component, v: BigUint) {
@@ -346,7 +360,7 @@ pub fn resolve_domain(
         .as_obj()
         .ok_or_else(|| domain_reject("domain is not an object".into()))?;
     for k in obj.keys() {
-        if !matches!(k.as_str(), "bundles" | "borrowed" | "regions" | "args") {
+        if !matches!(k.as_str(), "bundles" | "borrowed" | "regions" | "args" | "fixed_regions") {
             return Err(reject(
                 "E_CERT_SCHEMA",
                 "§12.2",
@@ -366,6 +380,7 @@ pub fn resolve_domain(
             ))),
         }
     };
+    let fixed_regions=fixed_images::resolve(domain,iface)?;
     let c = inherited_controls as usize;
     let mut components: Vec<Component> = Vec::new();
     let mut seen: HashSet<ComponentId> = HashSet::new();
@@ -511,6 +526,9 @@ pub fn resolve_domain(
                 ))
             })?;
         let region = &iface.regions[rpos];
+        if fixed_regions.iter().any(|r|r.position==rpos) {
+            return Err(domain_reject("a fixed region must not also occur in domain.regions".into()));
+        }
         match e.get("cells") {
             Some(Value::Str(s)) if s == "all" => {
                 // Every cell at full range. Materialise components lazily by
@@ -685,14 +703,15 @@ pub fn resolve_domain(
     for comp in &components {
         n *= &comp.size;
     }
-    let covers_full = covered
+    let other_components_full = covered
         .iter()
         .filter(|id| matches!(id, ComponentId::Control(_)))
         .count()
         == c
         && full_bundles.iter().all(|id| covered.contains(id))
-        && (0..iface.borrowed_widths.len()).all(|k| covered.contains(&ComponentId::Borrowed(k)))
-        && region_full.iter().all(|f| *f);
+        && (0..iface.borrowed_widths.len()).all(|k| covered.contains(&ComponentId::Borrowed(k)));
+    let covers_full=other_components_full && region_full.iter().all(|f|*f);
+    let covers_relative_to_image=!fixed_regions.is_empty() && other_components_full && region_full.iter().enumerate().all(|(i,full)|*full || fixed_regions.iter().any(|r|r.position==i));
 
     let bundle_widths: Vec<u64> = std::iter::repeat(1u64)
         .take(c)
@@ -724,6 +743,8 @@ pub fn resolve_domain(
         n,
         full_n,
         covers_full,
+        covers_relative_to_image,
+        fixed_regions,
         bundle_positions,
         region_positions,
     })

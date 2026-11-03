@@ -14,8 +14,7 @@ pub fn set(v: &mut Value, key: &str, x: Value) {
     m.insert(key.to_string(), x);
 }
 pub fn controlled() -> Inputs {
-    let d = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../bennett-isa-spec/conformance/fixtures/controlled-action-09");
+    let d = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/controlled-action-k87");
     Inputs {
         cert_bytes: std::fs::read(d.join("certificate.json")).unwrap(),
         object_text: std::fs::read_to_string(d.join("controlled.bisa")).unwrap(),

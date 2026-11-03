@@ -31,7 +31,7 @@ fn fixture(body: &str, bounds: &str, count: u64, time: u64) -> (Inputs, String) 
         region,
         "resources",
         json(&format!(
-            r#"{{"peak_qubits":1,"qubit_second":{time},"time":{time}}}"#
+            r#"{{"peak_qubits[fast]":"1","qubit_second[fast]":"{time}","time":"{time}"}}"#
         )),
     );
     set(
@@ -145,7 +145,7 @@ fn coherent_qif_emits_both_arms_and_selector_flips_with_distinct_generated_ordin
     set(
         region,
         "resources",
-        json(r#"{"peak_qubits":2,"qubit_second":14,"time":7}"#),
+        json(r#"{"peak_qubits[fast]":"2","qubit_second[fast]":"14","time":"7"}"#),
     );
     set(
         region,

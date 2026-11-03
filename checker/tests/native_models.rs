@@ -41,7 +41,7 @@ fn fixture(model: Value, epsilon: u32, bound: u32) -> Inputs {
     if epsilon == 0 {
         single_root_zero_error_reports(
             &mut inputs,
-            json(r#"{"time":1,"peak_qubits":1,"qubit_second":1}"#),
+            json(r#"{"time":"1","peak_qubits[fast]":"1","qubit_second[fast]":"1"}"#),
             json(r#"{"x":{"count":1}}"#),
         );
     }

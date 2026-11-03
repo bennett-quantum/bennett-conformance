@@ -273,7 +273,7 @@ fn rotation_inputs(op: &str, angle: &str) -> bennett_cert_checker::cert::Inputs 
     set(
         region,
         "resources",
-        json(r#"{"peak_qubits":1,"qubit_second":1,"time":1}"#),
+        json(r#"{"peak_qubits[fast]":"1","qubit_second[fast]":"1","time":"1"}"#),
     );
     set(
         region,

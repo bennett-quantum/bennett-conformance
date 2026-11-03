@@ -46,10 +46,41 @@ fn certificate(v: &Value) -> Found {
     if let Some(regions) = v.get("regions").and_then(Value::as_obj) {
         for (hash, r) in regions {
             let path = format!("certificate.regions.{hash}");
-            for field in ["resources", "error"] {
+            for field in ["error"] {
                 if let Some(v) = r.get(field) {
                     if let Some(h) = tree(v, &format!("{path}.{field}")) {
                         return Some(h);
+                    }
+                }
+            }
+            let resource_reports = std::iter::once(r).chain(
+                r.get("resource_contexts")
+                    .and_then(Value::as_arr)
+                    .into_iter()
+                    .flatten(),
+            );
+            for (i, record) in resource_reports.enumerate() {
+                if let Some(resources) = record.get("resources").and_then(Value::as_obj) {
+                    for (name, value) in resources {
+                        if value.as_str().is_some_and(crate::numeric::resource_display) {
+                            if let Some(h) = scalar(
+                                value,
+                                &format!("{path}.resource_report[{i}].resources.{name}"),
+                            ) {
+                                return Some(h);
+                            }
+                        }
+                    }
+                }
+                if let Some(gates) = record.get("gates_used").and_then(Value::as_obj) {
+                    for (name, entry) in gates {
+                        if let Some(h) = field(
+                            entry,
+                            "epsilon",
+                            &format!("{path}.resource_report[{i}].gates_used.{name}"),
+                        ) {
+                            return Some(h);
+                        }
                     }
                 }
             }
@@ -60,7 +91,14 @@ fn certificate(v: &Value) -> Found {
                     }
                 }
             }
-            if let Some(frame) = r.get("frame") {
+            let frames = r.get("frame").into_iter().chain(
+                r.get("frame_contexts")
+                    .and_then(Value::as_arr)
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|entry| entry.get("frame")),
+            );
+            for frame in frames {
                 for group in ["slots", "scratch", "history", "borrow", "ancillae"] {
                     if let Some(records) = frame.get(group).and_then(Value::as_arr) {
                         for (i, r) in records.iter().enumerate() {

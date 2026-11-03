@@ -157,7 +157,7 @@ fn native_matching_and_costs_use_three_explicit_and_four_total_controls() {
         single_root_zero_error_reports(
             &mut inputs,
             json(&format!(
-                r#"{{"time":{time},"peak_qubits":5,"qubit_second":15}}"#
+                r#"{{"time":"{time}","peak_qubits[fast]":"5","qubit_second[fast]":"15"}}"#
             )),
             json(r#"{"mcx":{"count":1}}"#),
         );
