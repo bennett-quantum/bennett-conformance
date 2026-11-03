@@ -139,6 +139,8 @@ pub enum Stmt {
     Line(Vec<String>),
     /// Trusted reference lowering only; the text parser never emits this node.
     SelectorFlip(String),
+    /// Read-only scope retained when a qif is lowered for source adjoints.
+    SelectorGuard(String, bool),
     Block {
         head: Vec<String>,
         body: Vec<Stmt>,
@@ -245,6 +247,7 @@ fn flatten(stmts: &[Stmt], out: &mut Vec<Vec<String>>) {
         match s {
             Stmt::Line(t) => out.push(t.clone()),
             Stmt::SelectorFlip(selector) => out.push(vec!["x".into(), selector.clone()]),
+            Stmt::SelectorGuard(_, _) => (),
             Stmt::Block { body, rest, .. } => {
                 flatten(body, out);
                 if let Some(r) = rest {
@@ -1529,7 +1532,9 @@ fn value_of(bits: &[bool]) -> BigUint {
 fn wire_ref(tok: &str) -> (String, Option<usize>) {
     if let Some(open) = tok.find('[') {
         let name = tok[..open].to_string();
-        let idx = tok[open + 1..].trim_end_matches(']').parse().ok();
+        let idx = tok[open + 1..]
+            .strip_suffix(']')
+            .and_then(literal_wire_index);
         (name, idx)
     } else {
         (tok.to_string(), None)
@@ -1626,17 +1631,19 @@ impl ActionEnv<'_, '_> {
     }
     fn selector_write(&self, token: &str) -> Result<(), EvalError> {
         let (name, index) = wire_ref(token);
-        if self.selector_guards.contains(&name)
-            || self
-                .predicates
-                .iter()
-                .any(|(p, i)| p == &name && index.is_none_or(|index| index == *i))
+        if self.selector_guards.iter().any(|guard| {
+            let (g, i) = wire_ref(guard);
+            g == name && (i.is_none() || index.is_none() || i == index)
+        }) || self
+            .predicates
+            .iter()
+            .any(|(p, i)| p == &name && index.is_none_or(|index| index == *i))
         {
             return Err(EvalError::Reject(Reject::new(
                 "E_CERT_OBJECT",
                 "§3.3/§4.6",
                 "object",
-                "source operation writes or consumes an active predicate or while selector",
+                "source operation writes or consumes an active predicate or structured selector",
             )));
         }
         Ok(())
@@ -1867,9 +1874,25 @@ impl ActionEnv<'_, '_> {
                 "callee output exceeds the actual wire width",
             )));
         }
-        let (name, _) = wire_ref(token);
-        if self.selector_guards.contains(&name) && self.actual_value(token)? != *value {
-            return self.selector_write(token);
+        let (name, offset) = wire_ref(token);
+        let before = self.actual_value(token)?;
+        for guard in &self.selector_guards {
+            let (base, index) = wire_ref(guard);
+            if base != name {
+                continue;
+            }
+            let changed = match index {
+                None => before != *value,
+                Some(index) => {
+                    let first = offset.unwrap_or(0);
+                    index >= first
+                        && index - first < width
+                        && before.bit((index - first) as u64) != value.bit((index - first) as u64)
+                }
+            };
+            if changed {
+                return self.selector_write(token);
+            }
         }
         if token.contains('[') {
             let (name, index) = self.single_wire(token)?;
@@ -1901,6 +1924,18 @@ impl ActionEnv<'_, '_> {
                 Stmt::Line(t) => self.exec_line(t)?,
                 Stmt::SelectorFlip(selector) => {
                     self.exec_perm_gate("x", std::slice::from_ref(selector))?
+                }
+                Stmt::SelectorGuard(selector, start) => {
+                    if *start {
+                        self.single_wire(selector)?;
+                        self.selector_guards.push(selector.clone());
+                    } else {
+                        assert_eq!(
+                            self.selector_guards.pop().as_deref(),
+                            Some(selector.as_str()),
+                            "internal qif selector scope is unbalanced"
+                        );
+                    }
                 }
                 Stmt::Block { head, body, rest } => self.exec_block(head, body, rest.as_deref())?,
             }
@@ -1975,7 +2010,7 @@ impl ActionEnv<'_, '_> {
                 }
             }
             Some("qif") => {
-                let selector = head.get(1).ok_or_else(|| {
+                let selector = head.get(1).filter(|_| head.len() == 2).ok_or_else(|| {
                     EvalError::Reject(Reject::new(
                         "E_CERT_OBJECT",
                         "§4.6",
@@ -1984,6 +2019,7 @@ impl ActionEnv<'_, '_> {
                     ))
                 })?;
                 self.single_wire(selector)?;
+                self.selector_guards.push(selector.clone());
                 // Execute the published expansion. Both arms' allocations,
                 // images and releases happen regardless of the selector.
                 let push = vec!["qpred".into(), selector.clone()];
@@ -2000,7 +2036,9 @@ impl ActionEnv<'_, '_> {
                     self.exec_stmts(else_body)?;
                 }
                 self.exec_line(&pop)?;
-                self.exec_perm_gate("x", &flip)
+                self.exec_perm_gate("x", &flip)?;
+                self.selector_guards.pop();
+                Ok(())
             }
             other => unchecked(format!(
                 "structured form {other:?} is outside this checker's action subset"
@@ -2757,13 +2795,26 @@ impl ActionEnv<'_, '_> {
                         return Err(bad_actual());
                     }
                 }
-                let read_only = mut_toks
-                    .iter()
-                    .chain(&in_toks)
-                    .zip(&iface.bundles)
-                    .filter(|(actual, _)| self.selector_guards.contains(&wire_ref(actual).0))
-                    .map(|(_, formal)| formal.name.clone())
-                    .collect::<Vec<_>>();
+                let mut read_only = Vec::new();
+                for (actual, formal) in mut_toks.iter().chain(&in_toks).zip(&iface.bundles) {
+                    let (base, offset) = wire_ref(actual);
+                    for guard in &self.selector_guards {
+                        let (name, index) = wire_ref(guard);
+                        if name != base {
+                            continue;
+                        }
+                        match (offset, index) {
+                            (_, None) => read_only.push(formal.name.clone()),
+                            (Some(actual), Some(protected)) if actual == protected => {
+                                read_only.push(formal.name.clone())
+                            }
+                            (None, Some(protected)) => {
+                                read_only.push(format!("{}[{protected}]", formal.name))
+                            }
+                            _ => (),
+                        }
+                    }
+                }
                 if !iface.borrowed_widths.is_empty() {
                     return unchecked(format!(
                         "callee @{name} borrows bundles; nested borrow frames need §5.6 frame verification, not single-value replay"
@@ -2872,6 +2923,9 @@ fn adjoint_stmts(stmts: &[Stmt], sites: &AllocationSites) -> Result<Vec<Stmt>, E
         match s {
             Stmt::Line(t) => out.push(Stmt::Line(inverse_line(t, sites)?)),
             Stmt::SelectorFlip(selector) => out.push(Stmt::SelectorFlip(selector.clone())),
+            Stmt::SelectorGuard(selector, start) => {
+                out.push(Stmt::SelectorGuard(selector.clone(), !*start))
+            }
             Stmt::Block { head, body, rest } => match head.first().map(String::as_str) {
                 Some("qloop") => {
                     if head.get(2).map(String::as_str) == Some("while") {
@@ -2894,7 +2948,8 @@ fn adjoint_stmts(stmts: &[Stmt], sites: &AllocationSites) -> Result<Vec<Stmt>, E
                     };
                     let push = Stmt::Line(vec!["qpred".into(), selector.clone()]);
                     let pop = Stmt::Line(vec!["qunpred".into(), selector.clone()]);
-                    let mut expanded = vec![push.clone()];
+                    let mut expanded =
+                        vec![Stmt::SelectorGuard(selector.clone(), true), push.clone()];
                     expanded.extend_from_slice(body);
                     expanded.push(pop.clone());
                     expanded.push(Stmt::SelectorFlip(selector.clone()));
@@ -2904,6 +2959,7 @@ fn adjoint_stmts(stmts: &[Stmt], sites: &AllocationSites) -> Result<Vec<Stmt>, E
                     }
                     expanded.push(pop);
                     expanded.push(Stmt::SelectorFlip(selector.clone()));
+                    expanded.push(Stmt::SelectorGuard(selector.clone(), false));
                     out.extend(adjoint_stmts(&expanded, sites)?);
                 }
                 other => return unchecked(format!("adjoint of {other:?} is outside this subset")),
@@ -3616,7 +3672,11 @@ fn check_replay_inner(
     };
     let requested_label = match claim.get("label") {
         None => None,
-        Some(Value::Str(x)) if matches!(x.as_str(),"proof"|"proof_relative_to_image"|"evidence") => Some(x.clone()),
+        Some(Value::Str(x))
+            if matches!(x.as_str(), "proof" | "proof_relative_to_image" | "evidence") =>
+        {
+            Some(x.clone())
+        }
         Some(_) => {
             return Err(ClaimOutcome::rejected(vec![schema_err(
                 format!("{path}.label"),
@@ -4077,15 +4137,43 @@ fn check_replay_inner(
         draws: draws_count.map(|d| d.to_string()),
         distinct: distinct_count.map(|d| d.to_string()),
         covered_fraction: Some(fraction.clone()),
-        image_bindings: if domain.fixed_regions.is_empty() {None}else{
-            let regions=domain.fixed_regions.iter().map(|r|Value::Obj(std::collections::BTreeMap::from([
-                ("identity".into(),Value::Arr(vec![Value::Str("mem".into()),crate::json::n(r.position)])),
-                ("A".into(),crate::json::n(r.a)),("W".into(),crate::json::n(r.w)),("sha256".into(),Value::Str(r.sha256.clone())),
-            ]))).collect();
+        image_bindings: if domain.fixed_regions.is_empty() {
+            None
+        } else {
+            let regions = domain
+                .fixed_regions
+                .iter()
+                .map(|r| {
+                    Value::Obj(std::collections::BTreeMap::from([
+                        (
+                            "identity".into(),
+                            Value::Arr(vec![Value::Str("mem".into()), crate::json::n(r.position)]),
+                        ),
+                        ("A".into(), crate::json::n(r.a)),
+                        ("W".into(), crate::json::n(r.w)),
+                        ("sha256".into(), Value::Str(r.sha256.clone())),
+                    ]))
+                })
+                .collect();
             Some(Value::Obj(std::collections::BTreeMap::from([
-                ("fixed_regions".into(),Value::Arr(regions)),
-                ("context_key".into(),Value::Arr(vec![])),
-                ("invocation".into(),claim.get("invocation").cloned().or_else(||docs.cert.get("bindings").and_then(|b|b.get("invocation")).cloned()).unwrap_or(Value::Null)),
+                ("fixed_regions".into(), Value::Arr(regions)),
+                ("context_key".into(), Value::Arr(vec![])),
+                (
+                    "invocation".into(),
+                    Value::Obj(std::collections::BTreeMap::from([
+                        ("args".into(), Value::Arr(invocation.args.clone())),
+                        (
+                            "budget".into(),
+                            Value::Arr(
+                                invocation
+                                    .budget
+                                    .iter()
+                                    .map(|n| Value::Str(n.to_string()))
+                                    .collect(),
+                            ),
+                        ),
+                    ])),
+                ),
             ])))
         },
         ..Default::default()
@@ -4097,7 +4185,7 @@ fn check_replay_inner(
             subject.variant,
             subject.inherited_controls
         )
-    } else if computed=="proof_relative_to_image" {
+    } else if computed == "proof_relative_to_image" {
         format!("all {elements_s} tuples of every remaining unrestricted component were replayed with the independently bound fixed image(s); this is a conditional proof_relative_to_image theorem with exact +1 phase, full outputs, input-image restoration and clean workspace, covering {fraction} of unrestricted D; executable preparation and entry factorisation are separate obligations, not established by this theorem")
     } else if kind == "exhaustive" {
         format!("all {elements_s} domain elements were replayed and agree; this is evidence over a strict slice of D (covered fraction {fraction}), never proof")
@@ -4108,7 +4196,9 @@ fn check_replay_inner(
             distinct_count.unwrap_or(0)
         )
     };
-    if requested_label.as_deref().is_some_and(|label|matches!(label,"proof"|"proof_relative_to_image")&&label!=computed) {
+    if requested_label.as_deref().is_some_and(|label| {
+        matches!(label, "proof" | "proof_relative_to_image") && label != computed
+    }) {
         let mut rejected = ClaimOutcome::rejected(vec![Reject::new(
             "E_CERT_COVERAGE_LABEL",
             "§12.2",
@@ -4120,7 +4210,7 @@ fn check_replay_inner(
         rejected.distinct = out.distinct;
         rejected.covered_fraction = out.covered_fraction;
         rejected.establishes = out.establishes;
-        rejected.image_bindings=out.image_bindings;
+        rejected.image_bindings = out.image_bindings;
         return Err(rejected);
     }
     Ok(out)
@@ -4452,7 +4542,7 @@ fn check_inverse_pair(
             }
         }
     }
-    let mut out = ClaimOutcome {
+    let out = ClaimOutcome {
         outcome: "proof".into(),
         establishes: format!(
             "for every one of {} elements (full in/mem domain of g, quantified classical args as listed, tokens at the entry tuples) both compositions are fault-free and restore x at budget [{}]",
@@ -4463,11 +4553,17 @@ fn check_inverse_pair(
         covered_fraction: Some(domain.covered_fraction()),
         ..Default::default()
     };
-    let _ = requested_label;
-    out.outcome = if domain.covers_full {
-        "proof".into()
-    } else {
-        "proof".into()
-    };
+    if requested_label.as_deref() == Some("proof_relative_to_image") {
+        let mut rejected = ClaimOutcome::rejected(vec![rej(
+            "E_CERT_COVERAGE_LABEL",
+            "§12.2/K85",
+            format!("{path}.label"),
+            "inverse-pair full-domain proof is not a proof_relative_to_image outcome",
+        )]);
+        rejected.elements = out.elements;
+        rejected.covered_fraction = out.covered_fraction;
+        rejected.establishes = out.establishes;
+        return Err(rejected);
+    }
     Ok(out)
 }

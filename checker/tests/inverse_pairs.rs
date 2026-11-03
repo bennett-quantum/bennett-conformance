@@ -81,3 +81,86 @@ fn malformed_inverse_pair_budget_must_not_silently_become_zero() {
     let v = check_certificate(&inp);
     assert!(codes(&v).contains(&"E_CERT_INVOCATION"), "{v:?}");
 }
+
+#[test]
+fn inverse_pair_proofs_do_not_satisfy_an_image_relative_label_request() {
+    let mut inputs = fixture();
+    let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else { panic!() };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        panic!()
+    };
+    let Value::Obj(region) = regions.values_mut().next().unwrap() else {
+        panic!()
+    };
+    let Value::Arr(claims) = region.get_mut("claims").unwrap() else {
+        panic!()
+    };
+    set(
+        &mut claims[0],
+        "label",
+        Value::Str("proof_relative_to_image".into()),
+    );
+    inputs.cert_bytes = jcs(&cert).unwrap();
+    let verdict = check_certificate(&inputs);
+    assert!(
+        codes(&verdict).contains(&"E_CERT_COVERAGE_LABEL"),
+        "{verdict:?}"
+    );
+}
+
+#[test]
+fn every_qinplace_source_site_requires_an_exact_owner_pair_entry() {
+    for missing in [false, true] {
+        let mut inputs = fixture();
+        let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+        let Value::Obj(top) = &mut cert else { panic!() };
+        let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+            panic!()
+        };
+        let Value::Obj(region) = regions.values_mut().next().unwrap() else {
+            panic!()
+        };
+        let Value::Obj(ver) = region.get_mut("verification").unwrap() else {
+            panic!()
+        };
+        let Value::Arr(pairs) = ver.get_mut("inverse_pairs").unwrap() else {
+            panic!()
+        };
+        if missing {
+            pairs.clear();
+            region.insert("claims".into(), json("[]"));
+        } else {
+            let inverse = pairs[0].get("ginv").unwrap().clone();
+            set(&mut pairs[0], "g", inverse);
+        }
+        inputs.cert_bytes = jcs(&cert).unwrap();
+        let verdict = check_certificate(&inputs);
+        assert!(
+            codes(&verdict).contains(&"E_CERT_INVERSE_PAIR"),
+            "missing={missing}: {verdict:?}"
+        );
+    }
+}
+#[test]
+fn an_exhaustive_oracle_or_table_claim_cannot_be_referenced_as_an_inverse_pair_proof() {
+    let mut inputs = fixture();
+    let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else { panic!() };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        panic!()
+    };
+    let Value::Obj(region) = regions.values_mut().next().unwrap() else {
+        panic!()
+    };
+    let Value::Arr(claims) = region.get_mut("claims").unwrap() else {
+        panic!()
+    };
+    set(&mut claims[0], "expected", Value::Str("oracle".into()));
+    inputs.cert_bytes = jcs(&cert).unwrap();
+    let verdict = check_certificate(&inputs);
+    assert!(
+        codes(&verdict).contains(&"E_CERT_VERIFICATION_INDEX"),
+        "{verdict:?}"
+    );
+}

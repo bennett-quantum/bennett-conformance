@@ -628,3 +628,87 @@ fn repeated_predicate_pushes_can_balance_across_counted_loops_and_blocks() {
         "{verdict:?}"
     );
 }
+
+#[test]
+fn qif_selector_writes_cannot_escape_through_balanced_explicit_pops_or_callees() {
+    let mut checked = 0;
+    for operation in ["x t[0]", "action_call @flip (t[0]) () () ()"] {
+        for adjoint in [false, true] {
+            for selector in ["t[0]", "t[-0]"] {
+                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\nqunpred {selector}\n{operation}\nqpred {selector}\n}} {{\n}}\nperm_action @flip (v:wire mut) () () () ()\n^entry():\nx v");
+                let mut sig = json(
+                    r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"},"flip":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+                );
+                let root = if adjoint {
+                    source.push_str("\nperm_action @inverse (t:wire[2] mut) () () () ()\n^entry():\nadj action_call @a (t) () () ()");
+                    let signature = sig.get("a").unwrap().clone();
+                    set(&mut sig, "inverse", signature);
+                    "inverse"
+                } else {
+                    "a"
+                };
+                let rows = (0..4).map(|t| row(&[t], &[t ^ 1])).collect();
+                let (inputs, _) = standalone(
+                    &source,
+                    &encode(&sig),
+                    root,
+                    vec![table_claim(&[("t", 2)], rows)],
+                );
+                let verdict = check_certificate(&inputs);
+                assert!(
+                    codes(&verdict).contains(&"E_CERT_OBJECT"),
+                    "{operation} adjoint={adjoint} selector={selector}: {verdict:?}"
+                );
+                checked += 1;
+            }
+        }
+    }
+    assert_eq!(checked, 8);
+}
+#[test]
+fn indexed_qif_guards_preserve_unrelated_bits_and_forward_the_precise_callee_bit() {
+    let mut checked = 0;
+    for call in [false, true] {
+        for adjoint in [false, true] {
+            for selector in ["t[0]", "t[-0]"] {
+                let body = if call {
+                    format!("qunpred {selector}\naction_call @other (t) () () ()\nqpred {selector}")
+                } else {
+                    "x t[1]".into()
+                };
+                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\n{body}\n}} {{\n}}\nperm_action @other (v:wire[2] mut) () () () ()\n^entry():\nx v[1]");
+                let mut sig = json(
+                    r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"},"other":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,
+                );
+                let root = if adjoint {
+                    source.push_str("\nperm_action @inverse (t:wire[2] mut) () () () ()\n^entry():\nadj action_call @a (t) () () ()");
+                    let signature = sig.get("a").unwrap().clone();
+                    set(&mut sig, "inverse", signature);
+                    "inverse"
+                } else {
+                    "a"
+                };
+                let rows = (0..4)
+                    .map(|t| row(&[t], &[t ^ if call { 2 } else { (t & 1) << 1 }]))
+                    .collect();
+                let (inputs, _) = standalone(
+                    &source,
+                    &encode(&sig),
+                    root,
+                    vec![table_claim(&[("t", 2)], rows)],
+                );
+                let verdict = check_certificate(&inputs);
+                assert!(
+                    codes(&verdict).is_empty(),
+                    "call={call} adjoint={adjoint} selector={selector}: {verdict:?}"
+                );
+                assert_eq!(
+                    verdict.regions[0].claims[0].1.outcome, "proof",
+                    "{verdict:?}"
+                );
+                checked += 1;
+            }
+        }
+    }
+    assert_eq!(checked, 8);
+}

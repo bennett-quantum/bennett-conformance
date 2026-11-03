@@ -158,7 +158,7 @@ impl ResolvedDomain {
     }
 
     pub fn zero_tuple(&self) -> Tuple {
-        let mut tuple=Tuple {
+        let mut tuple = Tuple {
             bundles: vec![BigUint::zero(); self.bundle_widths.len()],
             borrowed: vec![BigUint::zero(); self.borrowed_widths.len()],
             regions: self
@@ -170,7 +170,9 @@ impl ResolvedDomain {
                 .collect(),
             args: vec![BigUint::zero(); self.arg_widths.len()],
         };
-        for fixed in &self.fixed_regions {tuple.regions[fixed.position]=fixed.cells.clone();}
+        for fixed in &self.fixed_regions {
+            tuple.regions[fixed.position] = fixed.cells.clone();
+        }
         tuple
     }
 
@@ -360,7 +362,10 @@ pub fn resolve_domain(
         .as_obj()
         .ok_or_else(|| domain_reject("domain is not an object".into()))?;
     for k in obj.keys() {
-        if !matches!(k.as_str(), "bundles" | "borrowed" | "regions" | "args" | "fixed_regions") {
+        if !matches!(
+            k.as_str(),
+            "bundles" | "borrowed" | "regions" | "args" | "fixed_regions"
+        ) {
             return Err(reject(
                 "E_CERT_SCHEMA",
                 "§12.2",
@@ -380,7 +385,7 @@ pub fn resolve_domain(
             ))),
         }
     };
-    let fixed_regions=fixed_images::resolve(domain,iface)?;
+    let fixed_regions = fixed_images::resolve(domain, iface)?;
     let c = inherited_controls as usize;
     let mut components: Vec<Component> = Vec::new();
     let mut seen: HashSet<ComponentId> = HashSet::new();
@@ -526,8 +531,10 @@ pub fn resolve_domain(
                 ))
             })?;
         let region = &iface.regions[rpos];
-        if fixed_regions.iter().any(|r|r.position==rpos) {
-            return Err(domain_reject("a fixed region must not also occur in domain.regions".into()));
+        if fixed_regions.iter().any(|r| r.position == rpos) {
+            return Err(domain_reject(
+                "a fixed region must not also occur in domain.regions".into(),
+            ));
         }
         match e.get("cells") {
             Some(Value::Str(s)) if s == "all" => {
@@ -710,8 +717,13 @@ pub fn resolve_domain(
         == c
         && full_bundles.iter().all(|id| covered.contains(id))
         && (0..iface.borrowed_widths.len()).all(|k| covered.contains(&ComponentId::Borrowed(k)));
-    let covers_full=other_components_full && region_full.iter().all(|f|*f);
-    let covers_relative_to_image=!fixed_regions.is_empty() && other_components_full && region_full.iter().enumerate().all(|(i,full)|*full || fixed_regions.iter().any(|r|r.position==i));
+    let covers_full = other_components_full && region_full.iter().all(|f| *f);
+    let covers_relative_to_image = !fixed_regions.is_empty()
+        && other_components_full
+        && region_full
+            .iter()
+            .enumerate()
+            .all(|(i, full)| *full || fixed_regions.iter().any(|r| r.position == i));
 
     let bundle_widths: Vec<u64> = std::iter::repeat(1u64)
         .take(c)

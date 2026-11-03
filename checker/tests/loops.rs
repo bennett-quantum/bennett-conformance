@@ -6,7 +6,17 @@ use bennett_cert_checker::json::{jcs, n, Value};
 use common::*;
 
 fn fixture(body: &str, bounds: &str, count: u64, time: u64) -> (Inputs, String) {
-    let source=format!("perm_action @looped (t:wire mut) () () () ()\nregs bounds {{ {bounds} }}\n^entry():\n{body}");
+    let source_bounds = bounds
+        .split(',')
+        .map(str::trim)
+        .collect::<Vec<_>>()
+        .join(", ");
+    let bounds_declaration = if bounds.is_empty() {
+        String::new()
+    } else {
+        format!(" bounds {{{source_bounds}}}")
+    };
+    let source=format!("perm_action @looped (t:wire mut) () () () ()\nregs {{  }}{bounds_declaration}\n^entry():\n{body}");
     let sig = format!(
         r#"{{"looped":{{"abi":"0.9","args":[],"bounds":[{bounds}],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}}}"#
     );

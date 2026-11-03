@@ -106,7 +106,9 @@ impl ClaimOutcome {
         if let Some(v) = self.contexts {
             m.insert("contexts".into(), n(v));
         }
-        if let Some(v)=&self.image_bindings {m.insert("image_bindings".into(),v.clone());}
+        if let Some(v) = &self.image_bindings {
+            m.insert("image_bindings".into(), v.clone());
+        }
         if let Some(v) = &self.unchecked_reason {
             m.insert("unchecked_reason".into(), s(v));
         }
@@ -1432,6 +1434,13 @@ fn check_region(
         }
     }
     report.claims = outcomes;
+    if report
+        .claims
+        .iter()
+        .any(|(_, o)| o.image_bindings.is_some())
+    {
+        report.unchecked_items.push("fixed-image claim theorems remain conditional: executable image preparation, entry factorisation and invocation binding have not been established (§12.2/K85)".into());
+    }
     if let Some(coverage) = &docs.object.coverage {
         let _ = coverage;
         report.unchecked_items.push(
@@ -1606,12 +1615,17 @@ fn check_region(
                     for k in ["g", "ginv"] {
                         match pair.get(k).and_then(Value::as_str) {
                             Some(h) if is_hash_hex(h) => {
-                                if docs.object.symbol_by_closure(h).is_none() {
+                                if docs
+                                    .object
+                                    .symbol_by_closure(h)
+                                    .is_some_and(|s| s.kind != "oracle")
+                                    || docs.object.symbol_by_closure(h).is_none()
+                                {
                                     report.errors.push(rej(
                                         "E_CERT_BINDING",
                                         "§12.3",
                                         format!("{pbase}.{k}"),
-                                        "names no symbol of the supplied object",
+                                        "names no oracle symbol of the supplied object",
                                     ));
                                 }
                             }
@@ -1625,7 +1639,9 @@ fn check_region(
                         Some(i) => {
                             let ok = claims.get(i).map(|c| {
                                 let k = c.get("kind").and_then(Value::as_str).unwrap_or("");
-                                (k == "exhaustive")
+                                (k == "exhaustive"
+                                    && c.get("expected").and_then(Value::as_str)
+                                        == Some("inverse_pair"))
                                     || (k == "structural"
                                         && c.get("rule").and_then(Value::as_str)
                                             == Some("inverse_pair_library"))
@@ -1648,6 +1664,7 @@ fn check_region(
             ));
         }
     }
+    crate::inplace::inventory(region, symbol.as_ref(), docs, &base, &mut report);
     crate::structural::discharge_borrow_frames(region, docs, &mut report);
     report
 }

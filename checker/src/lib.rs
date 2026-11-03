@@ -17,6 +17,7 @@ pub mod eval;
 pub mod expressions;
 pub mod fault;
 mod frames;
+mod inplace;
 pub mod json;
 mod lifted_memory;
 pub mod matrix;

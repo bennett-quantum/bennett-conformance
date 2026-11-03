@@ -151,6 +151,7 @@ fn static_size(stmts: &[Stmt]) -> usize {
         .iter()
         .map(|stmt| match stmt {
             Stmt::Line(_) | Stmt::SelectorFlip(_) => 1,
+            Stmt::SelectorGuard(_, _) => 0,
             Stmt::Block { body, rest, .. } => {
                 1 + static_size(body) + rest.as_ref().map(|r| static_size(r)).unwrap_or(0)
             }
@@ -215,7 +216,7 @@ fn expand_rows(
     }
     for stmt in stmts {
         match stmt {
-            Stmt::SelectorFlip(_)=>return pending("internal reference adjoint node cannot serve as a source expansion point"),
+            Stmt::SelectorFlip(_)|Stmt::SelectorGuard(_,_)=>return pending("internal reference adjoint node cannot serve as a source expansion point"),
             Stmt::Line(tokens)=>emit_row(tokens.clone(),block,ordinal,iteration,0,rows,max)?,
             Stmt::Block{head,body,rest}=>match head.first().map(String::as_str) {
                 Some("qloop") if head.len()==2 && rest.is_none()=>{
@@ -243,6 +244,7 @@ fn expand_rows(
         }
         ordinal += match stmt {
             Stmt::Line(_) | Stmt::SelectorFlip(_) => 1,
+            Stmt::SelectorGuard(_, _) => 0,
             Stmt::Block { body, rest, .. } => {
                 1 + static_size(body) + rest.as_ref().map(|r| static_size(r)).unwrap_or(0)
             }

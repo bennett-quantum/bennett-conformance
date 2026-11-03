@@ -157,7 +157,8 @@ realised operation for a scheduled claim.
 Basis replay gives each `qloop while` a distinct private flag lifetime, preserving
 outer predicates across nested loops and subsequent instructions. Source writes
 or consumption of an active while selector reject, including mutable call
-actuals and disabled gate paths. Structural qif flips restore their selector;
+actuals and disabled gate paths. Qif selectors retain a precise read-only bit guard across explicit predicate
+pops, linked calls and adjoints. Structural qif flips restore their selector;
 the guard ends at loop exit. Full static selector-provenance analysis remains
 unfinished. Replay executes both qif arms through §4.6's literal predicated expansion: allocations, images
 and releases happen unconditionally while gates obey the active controls.
@@ -388,3 +389,24 @@ The checker-owned `controlled-action-k87` fixture repairs the published
 Its source, interface, closure, stripped-object, target and schedule hashes are
 unchanged. A separate regression checks that the upstream numeric pre-K87
 report rejects; the required upstream fixture migration is recorded for its owner.
+
+K85 fixed-image domains resolve only in-role interface regions, validate their
+exact shape, lowercase bytes, zero padding and raw-byte SHA-256, and fill those
+cells on every replay. Fixed cells add no enumeration or sampler component.
+Exhaustive success is `proof_relative_to_image` only when every other component
+has its full range; otherwise it is evidence. Sampled success remains evidence.
+Coverage uses unrestricted D. The report retains ordered mem-slot image
+bindings, invocation and context. Executable preparation and entry factorisation
+remain separate unchecked obligations, so a conditional theorem cannot discharge
+an unrestricted inverse-pair or borrowed-frame proof.
+
+K92 source inventory requires every supplied region's qinplace site to have
+an entry for its exact resolved oracle pair in that owner record. Missing pairs
+reject; referenced exhaustive claims must specify `inverse_pair`. This inventory
+check does not discharge invocation budget, argument or token identity coverage.
+
+Quantum interface schemas are closed and checked against source declarations
+before host limits: widths, names, roles, regions, classical argument types,
+ABI/kind/tier and declared bounds must agree. Malformed or missing arrays cannot
+become empty lists. The signature sweep covers all 33 field/type positions and
+22 required field removals.

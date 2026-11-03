@@ -5,6 +5,7 @@
 
 use crate::json::{jcs, parse, Value};
 use crate::sha256::sha256_hex;
+mod signatures;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 const SECTION_ORDER: [&str; 9] = [
@@ -654,7 +655,14 @@ pub fn wire_width_of(ty: &str) -> Option<u64> {
 pub(crate) fn region_aw_of(ty: &str) -> Option<(u64, u64)> {
     let inner = ty.strip_prefix("region[")?.strip_suffix(']')?;
     let (a, w) = inner.split_once(',')?;
-    Some((a.trim().parse().ok()?, w.trim().parse().ok()?))
+    let parse = |text: &str| {
+        if text.trim() == "-0" {
+            Some(0)
+        } else {
+            text.trim().parse().ok()
+        }
+    };
+    Some((parse(a)?, parse(w)?))
 }
 
 fn sig_widths(sig: &Value, key: &str) -> Option<Vec<u64>> {
@@ -684,6 +692,15 @@ impl Object {
                 format!("@{name} symbol kind does not match its function header"),
             ));
         }
+        signatures::validate(
+            symbol,
+            function,
+            self.header
+                .versions
+                .get("isa")
+                .map(String::as_str)
+                .unwrap_or(""),
+        )?;
         let mut limit = None;
         let oversized = |value: &Value| {
             value
