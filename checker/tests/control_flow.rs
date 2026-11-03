@@ -468,3 +468,25 @@ fn qif_lifetime_adjoints_reverse_the_complete_expansion_and_all_blocks() {
         );
     }
 }
+
+#[test]
+fn malformed_lifetimes_cannot_hide_dirty_allocations_or_turn_missing_values_into_zero() {
+    for body in [
+        "d = qalloc any 1\nx d\nd = qalloc any 1\nqfree d",
+        "qfree ghost",
+        "d = qcopy ghost\nquncopy ghost d",
+        "d = qalloc any 0\nqfree d",
+        "d = qalloc any 1\nx d\nd = qcopy t\nquncopy t d",
+    ] {
+        let source=format!("perm_action @a (t:wire mut) () () () ()\n^entry():\n{body}");
+        let (inputs,_)=standalone(&source,r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,"a",vec![table_claim(&[("t",1)],vec![row(&[0],&[0]),row(&[1],&[1])])]);
+        let verdict=check_certificate(&inputs);assert!(codes(&verdict).contains(&"E_CERT_OBJECT"),"{body}: {verdict:?}");
+    }
+}
+#[test]
+fn indexed_copy_sources_and_cleanup_preserve_every_bit_under_both_predicate_values() {
+    let source="perm_action @a (t:wire[2] mut) (c:wire in) () () ()\n^entry():\nqpred c\nd = qcopy t[0]\nquncopy t[0] d\nqunpred c";
+    let rows=(0..4).flat_map(|t|(0..2).map(move|c|row(&[t,c],&[t,c]))).collect();
+    let (inputs,_)=standalone(source,r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,"a",vec![table_claim(&[("t",2),("c",1)],rows)]);
+    let verdict=check_certificate(&inputs);assert!(codes(&verdict).is_empty(),"{verdict:?}");assert_eq!(verdict.regions[0].claims[0].1.outcome,"proof","{verdict:?}");
+}
