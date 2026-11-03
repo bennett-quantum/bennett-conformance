@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import tempfile
 import unittest
+from unittest.mock import Mock
 import gate
 
 N256_MATCHES = [50, 57, 146, 164, 210, 250]
@@ -98,6 +99,33 @@ class StateDump(unittest.TestCase):
             self.assertLess(r['max_amplitude_error'], 1e-12)
             self.assertAlmostEqual(r['success'], gate.grover_plan(64, 6)['success'], places=12)
 
+    def test_rejects_non_pivot_nan_amplitude(self):
+        d = dump(6, self.truth, 4)
+        pivot = max(range(len(self.truth)), key=lambda x: abs(gate.simulate(self.truth, 4)[x]))
+        row = next(r for r in d['amps'] if int(r['basis']['1']) != pivot)
+        row['re'] = float('nan')
+        d = json.loads(json.dumps(d))  # Reproduce the executor dump ingestion in the review.
+        with self.assertRaisesRegex(AssertionError, 'non-finite amplitude'):
+            self.check(d)
+
+    def test_rejects_non_finite_amplitudes_on_every_branch(self):
+        for i in range(2 * len(self.truth)):
+            for component in ('re', 'im'):
+                for value in (math.nan, math.inf, -math.inf):
+                    with self.subTest(row=i, component=component, value=value):
+                        d = dump(6, self.truth, 4)
+                        d['amps'][i][component] = value
+                        with self.assertRaisesRegex(AssertionError, 'non-finite amplitude'):
+                            self.check(d)
+
+    def test_rejects_finite_amplitude_that_overflows_phase(self):
+        d = dump(6, self.truth, 4)
+        pivot = max(range(len(self.truth)), key=lambda x: abs(gate.simulate(self.truth, 4)[x]))
+        row = next(r for r in d['amps'] if (int(r['basis']['1']), int(r['basis']['2'])) == (pivot, 0))
+        row['re'] = 1e308
+        with self.assertRaisesRegex(AssertionError, 'amplitude'):
+            self.check(d)
+
     def test_rejects_wrong_iteration_count(self):
         with self.assertRaisesRegex(AssertionError, 'amplitude'):
             self.check(dump(6, self.truth, 3))
@@ -130,6 +158,45 @@ class StateDump(unittest.TestCase):
             d['amps'].pop()
         with self.assertRaises(AssertionError):
             self.check(dump(6, self.truth, 4, corrupt=drop))
+
+
+class StateIngestion(unittest.TestCase):
+    def setUp(self):
+        self.d = tempfile.TemporaryDirectory(dir=os.environ['TMPDIR'])
+        self.addCleanup(self.d.cleanup)
+        self.g = object.__new__(gate.Gate)
+        self.g.args = args(self.d.name)
+        self.g.run = Path(self.d.name)
+        out = self.g.run / '18/N64'
+        out.mkdir(parents=True)
+        self.state = out / 'reference-state.json'
+        image = out / 'image.bin'
+        image.write_bytes(bytes(16))
+        self.g.images = {18: {64: image}}
+        self.g.tables = {64: gate.truth(64, 6)}
+        self.g.plans = {64: gate.grover_plan(64, 6)}
+        self.g.executor = Mock(return_value='/fake-executor')
+        self.g.command = Mock(return_value=b'{"status":"COMPLETED","fault":null,"faults":[],"host_requests":[]}')
+        self.dump = dump(6, self.g.tables[64], 4, image=bytes(16).hex())
+
+    def test_accepts_finite_state_json(self):
+        self.state.write_text(json.dumps(self.dump))
+        result, plan = self.g.grover_state(18, 'reference', 64)
+        self.assertLess(result['max_amplitude_error'], 1e-12)
+        self.assertAlmostEqual(result['success'], plan['success'], places=12)
+
+    def test_rejects_non_finite_json_numbers_anywhere(self):
+        for token in ('NaN', 'Infinity', '-Infinity', '1e400', '-1e400'):
+            for location in ('amplitude', 'extra field'):
+                with self.subTest(token=token, location=location):
+                    bad = json.loads(json.dumps(self.dump))
+                    if location == 'amplitude':
+                        bad['amps'][0]['re'] = 'NONFINITE'
+                    else:
+                        bad['extra'] = ['NONFINITE']
+                    self.state.write_text(json.dumps(bad).replace('"NONFINITE"', token))
+                    with self.assertRaisesRegex(ValueError, 'non-finite JSON number'):
+                        self.g.grover_state(18, 'reference', 64)
 
 
 class DrawPrediction(unittest.TestCase):

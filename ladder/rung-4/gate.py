@@ -121,6 +121,13 @@ def simulate(table, k):
     return s
 
 
+def finite_json_number(text):
+    value = float(text)
+    if not math.isfinite(value):
+        raise ValueError(f'non-finite JSON number {text}')
+    return value
+
+
 def check_state(dump, bits, table, a, k, image, m_expected=None):
     """A pre-measurement state: database constant and unentangled, fault and ancilla clean, target |->,
     row amplitudes equal the independent simulation up to one global phase, within AMPLITUDE_TOLERANCE."""
@@ -136,13 +143,16 @@ def check_state(dump, bits, table, a, k, image, m_expected=None):
         assert basis['4'] == '0', 'ancilla not clean on a branch'
         key = (int(basis['1']), int(basis['2']))
         assert key not in got, 'duplicate basis state'
-        got[key] = complex(row['re'], row['im'])
+        amplitude = complex(row['re'], row['im'])
+        assert math.isfinite(amplitude.real) and math.isfinite(amplitude.imag), f'non-finite amplitude at basis {basis}: {amplitude}'
+        got[key] = amplitude
     pivot = max(range(len(want)), key=lambda x: abs(want[x]))
     # A key missing from the sparse dump has amplitude zero, which the comparison below rejects.
     observed = got.get((pivot, 0), 0j)
     assert abs(observed) > 0, 'amplitude missing at the largest branch'
     phase = observed / (want[pivot] / math.sqrt(2))
     phase /= abs(phase)
+    assert math.isfinite(phase.real) and math.isfinite(phase.imag), 'non-finite amplitude phase'
     error = 0.0
     for x, v in enumerate(want):
         for t, sign in ((0, 1), (1, -1)):
@@ -633,7 +643,7 @@ class Gate(RecordedGate):
         plan = self.plans[n]
         out = self.command(f'{m}/{name}-{n}-grover-state', [exe, 'run-program', d/'out/rung4_grover/launch.bennett', 'rung4_grover', '--state-out', state, '--budget', self.budget_arg()], timeout=self.args.sweep_timeout)
         self.success_only(json.loads(out))
-        dump = json.loads(state.read_text())
+        dump = json.loads(state.read_text(), parse_float=finite_json_number, parse_constant=finite_json_number)
         image = (data+bytes((1 << a)-len(data))).hex()
         return check_state(dump, bits_for(n), self.tables[n], a, plan['k'], image), plan
 

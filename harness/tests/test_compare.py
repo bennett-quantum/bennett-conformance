@@ -94,6 +94,35 @@ class Oracle(unittest.TestCase):
     def test_subset_number_as_binary64(self):
         self.assertEqual(compare.subset_problems({"a": 1}, {"a": 1.0}), [])
 
+    def test_judge_rejects_adjacent_integers_above_binary64_precision(self):
+        expect = {"exit": 0, "stdout_json": {"payload": 9007199254740992}}
+        self.assertEqual(compare.judge(expect, 0, b'{"payload":9007199254740993}', ""),
+                         ["$.payload: expected 9007199254740992, got 9007199254740993"])
+
+    def test_subset_wide_integers_are_compared_exactly(self):
+        for value in (1 << 53, -(1 << 53), (1 << 64) - 2, (1 << 127) - 2, 1 << 2048):
+            with self.subTest(value=value):
+                expect = {"results": [{"value": value}]}
+                self.assertEqual(compare.subset_problems(expect, expect), [])
+                for different in (value - 1, value + 1):
+                    problems = compare.subset_problems(expect, {"results": [{"value": different}]})
+                    self.assertEqual(len(problems), 1)
+                    self.assertTrue(problems[0].startswith("$.results[0].value: expected "))
+
+    def test_subset_mixed_numbers_preserve_integer_precision(self):
+        for sign in (1, -1):
+            value = sign * ((1 << 53) + 1)
+            rounded = float(value)
+            for want, have in ((value, rounded), (rounded, value)):
+                with self.subTest(expected=want, actual=have):
+                    self.assertEqual(len(compare.subset_problems({"a": want}, {"a": have})), 1)
+            self.assertEqual(compare.subset_problems({"a": rounded}, {"a": int(rounded)}), [])
+
+    def test_subset_floats_compare_by_value(self):
+        self.assertEqual(compare.subset_problems({"a": 0.125}, {"a": 0.125}), [])
+        self.assertEqual(compare.subset_problems({"a": 0.0}, {"a": -0.0}), [])
+        self.assertEqual(len(compare.subset_problems({"a": 0.125}, {"a": 0.125 + 1e-15})), 1)
+
     def test_subset_booleans(self):
         self.assertEqual(compare.subset_problems({"a": True}, {"a": True}), [])
         self.assertEqual(len(compare.subset_problems({"a": True}, {"a": False})), 1)

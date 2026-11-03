@@ -10,6 +10,7 @@ slow      sleeps beyond the timeout
 reject    exit 1 with a diagnostic
 garbage   exit 0 with non-JSON stdout
 tape      as base and honours --tape-out; FAKE_TAPE overrides the tape body
+FAKE_VALUE overrides the base integer result for oracle tests.
 """
 import json
 import os
@@ -50,7 +51,7 @@ except (objfile.ObjectError, identity.IdentityError, KeyError) as e:
 if bad:
     print("E_HASH: §9.2 %s" % bad[0], file=sys.stderr)
     sys.exit(1)
-value = 1
+value = int(os.environ.get("FAKE_VALUE", "1"))
 if mode == "buggy" and any(line.endswith(" xor a b") or " = xor " in line
                            for f in o.functions for line in f.lines):
     value = 2

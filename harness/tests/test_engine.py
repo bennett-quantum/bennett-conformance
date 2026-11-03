@@ -185,6 +185,19 @@ class Accounting(Base):
 
 
 class SpecOracle(Base):
+    def test_shared_wrong_wide_integer_result_fails_the_oracle(self):
+        c = self.case(expect=engine.subset_expect(0, {"value": 9007199254740992}))
+        r = engine.Runner([fake(n, "base", FAKE_VALUE="9007199254740993") for n in ("a", "b")],
+                          workdir=self.tmp, witness_dir=os.path.join(self.tmp, "w"), shrink_seconds=0.0)
+        res = r.run_case(c)
+        self.assertEqual(res.pairs[("a", "b")].cls, "MATCH_EXACT")
+        summary = r.summary()
+        self.assertEqual(summary["corpora"]["t"]["oracle"], {"a": {"fail": 1}, "b": {"fail": 1}})
+        self.assertEqual(summary["totals"]["oracle_fail"], 2)
+        for failure in summary["oracle_failures"]:
+            self.assertIn("$.value: expected 9007199254740992, got 9007199254740993", failure["problem"])
+        self.assertEqual(r.exit_status(), 1)
+
     def test_oracle_failure_is_reported_for_each_executor(self):
         c = self.case(expect=engine.subset_expect(0, {"value": 2}))
         r = engine.Runner([fake("a", "base"), fake("b", "buggy")], workdir=self.tmp,

@@ -172,7 +172,7 @@ def collapse(path):
 # --- spec-oracle judging (published expectations, independent of pairwise comparison) ---
 
 def subset_problems(expected, actual, path="$"):
-    """JSON subset: objects field-wise (extras ignored), arrays exact length, numbers by binary64 value."""
+    """JSON subset: objects field-wise (extras ignored), arrays exact length, numbers by value without coercion."""
     if isinstance(expected, dict):
         if not isinstance(actual, dict):
             return ["%s: expected an object, got %r" % (path, actual)]
@@ -191,7 +191,8 @@ def subset_problems(expected, actual, path="$"):
             out.extend(subset_problems(x, y, "%s[%d]" % (path, i)))
         return out
     if _num(expected) and _num(actual):
-        return [] if float(expected) == float(actual) else ["%s: expected %r, got %r" % (path, expected, actual)]
+        # Python compares ints exactly, including against floats; coercion would round wide payloads.
+        return [] if expected == actual else ["%s: expected %r, got %r" % (path, expected, actual)]
     if type(expected) is not type(actual) or expected != actual:  # true is not 1: bool and int are distinct types
         return ["%s: expected %r, got %r" % (path, _clip(expected), _clip(actual))]
     return []
