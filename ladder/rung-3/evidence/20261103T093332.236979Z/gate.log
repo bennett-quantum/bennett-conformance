@@ -1,0 +1,95 @@
++ /usr/lib/llvm-18/bin/clang --version
++ /usr/lib/llvm-18/bin/opt --version
++ /usr/lib/llvm-18/bin/llvm-link --version
++ /usr/lib/llvm-23/bin/clang --version
++ /usr/lib/llvm-23/bin/opt --version
++ /usr/lib/llvm-23/bin/llvm-link --version
++ git -C /home/tobias/Projects/bennett-workspace/bennett-plugin archive 0ac61808d6cb24406489c95824220170875b93a5
++ cmake -S /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5 -B /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build
++ cmake --build /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build -j 4
++ git -C /home/tobias/Projects/bennett-workspace/bennett-runtimes archive 248e468ca505c684bbf254e52eb8148f1e530c83
++ git -C /home/tobias/Projects/bennett-workspace/bennett-arith archive 5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab
++ git -C /home/tobias/Projects/bennett-workspace/bennett-vm worktree add --detach /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08 c26a4fd5b04996ddf470837dcf81f0181401ee08
++ git -C /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08 status --porcelain --untracked-files=no
++ cargo build --offline --manifest-path /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/Cargo.toml --target-dir /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target
++ git -C /home/tobias/Projects/bennett-workspace/bennett-driver archive 54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf
++ cargo build --offline --manifest-path /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/Cargo.toml --target-dir /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/target
++ /usr/lib/llvm-18/bin/clang --target=x86_64-unknown-linux-musl --sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot -nostdinc -isystem /home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot/include -O2 -flto -emit-llvm -c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/hello.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/input.bc
++ /usr/lib/llvm-23/bin/clang --target=x86_64-unknown-linux-musl --sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot -nostdinc -isystem /home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot/include -O2 -flto -emit-llvm -c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/hello.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/input.bc
+arith publication differs from plugin pin
+arith publication differs from plugin pin
+arith publication differs from plugin pin
++ /usr/lib/llvm-23/bin/opt -load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build/libbennett-plugin-23.so -passes=bennett -bennett-dialect=0.2.10 -bennett-isa=0.8 --bennett-tier=reversible --bennett-entry=main -bennett-budget-default=10000000,1048576,65536,256,65536 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/probe-out -disable-output /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll
+arith publication differs from plugin pin
++ /usr/lib/llvm-18/bin/opt -load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build/libbennett-plugin-18.so -passes=bennett -bennett-dialect=0.2.10 -bennett-isa=0.8 --bennett-tier=reversible --bennett-entry=main -bennett-budget-default=10000000,1048576,65536,256,65536 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/probe-out -disable-output /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll
+18/mode-probe: exit 3
+bennett: blocked:BD-B-ISA7 §11.5/§17.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0)
+
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/target/debug/bennett-driver --bennett-tier=reversible --bennett-entry=main -bennett-dialect=0.2.10 -bennett-isa=0.8 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/driver-probe /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll
+18/driver-probe: exit 1
+[{"code":"BD-E-INPUT","constraint":"§19 inputs/options and §25 fail-loud implementation obligations","diagnostic":"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n","function":"<whole-program>","reason":"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n","required_change":"Provide the required input or implement the named capability; its North-Star scope remains required","stage":"input","value_or_call":"<see diagnostic>"},{"code":"BD-B-ISA7","constraint":"ISA 0.8 has only generic R trap; BLK-5 (ISA-7) typed R fault reporting is unavailable","diagnostic":"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n","function":"<whole-program>","reason":"§25.1: every §19.2 R entry has mandatory §17.6 budget checks; successful R paths are not waived","required_change":"R fault C with reversible prefix history and implicit cause-to-code table (ISA 0.9 K5); no silent ISA upgrade","stage":"input","value_or_call":"<see diagnostic>"}]
+
+bennett-driver: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory
+
+
++ git -C /home/tobias/Projects/bennett-workspace/bennett-dialect-spec show 023f5a771a814270634db3be9cfde88ded69f975:spec/Bennett-Dialect-Spec.md
+BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref check /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref reverse /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621 --replay-tape /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/reference-control-tape.json
+23/mode-probe: exit 3
+bennett: blocked:BD-B-ISA7 §11.5/§17.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0)
+
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/target/debug/bennett-driver --bennett-tier=reversible --bennett-entry=main -bennett-dialect=0.2.10 -bennett-isa=0.8 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/driver-probe /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll
+23/driver-probe: exit 1
+[{"code":"BD-E-INPUT","constraint":"§19 inputs/options and §25 fail-loud implementation obligations","diagnostic":"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n","function":"<whole-program>","reason":"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n","required_change":"Provide the required input or implement the named capability; its North-Star scope remains required","stage":"input","value_or_call":"<see diagnostic>"},{"code":"BD-B-ISA7","constraint":"ISA 0.8 has only generic R trap; BLK-5 (ISA-7) typed R fault reporting is unavailable","diagnostic":"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n","function":"<whole-program>","reason":"§25.1: every §19.2 R entry has mandatory §17.6 budget checks; successful R paths are not waived","required_change":"R fault C with reversible prefix history and implicit cause-to-code table (ISA 0.9 K5); no silent ISA upgrade","stage":"input","value_or_call":"<see diagnostic>"}]
+
+bennett-driver: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory
+
+
++ git -C /home/tobias/Projects/bennett-workspace/bennett-dialect-spec show 023f5a771a814270634db3be9cfde88ded69f975:spec/Bennett-Dialect-Spec.md
+BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref check /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref reverse /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621 --replay-tape /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/reference-control-tape.json
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm check /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm reverse /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm check /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm reverse /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621 --replay-tape /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/VM-control-tape.json
++ /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621 --replay-tape /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/VM-control-tape.json
+
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures | PASS | PASS |
+| plugin build | PASS | PASS |
+| VM build | PASS | PASS |
+| driver build | PASS | PASS |
+| musl C front end | PASS | PASS |
+| runtime bitcode link | FAIL · UNFILED | FAIL · UNFILED |
+| post-link LTO | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reversible production | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| launch artefacts | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| native comparison | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference admission | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference forward = native | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference reset | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference tape replay | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM admission | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM forward = native | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM reset | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM tape replay | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| runtime libc/console audit (diagnostic) | FAIL · UNFILED | FAIL · UNFILED |
+| R-mode probe (diagnostic) | FAIL · UNFILED | FAIL · UNFILED |
+| driver probe (diagnostic) | FAIL · UNFILED | FAIL · UNFILED |
+| ISA-0.8 R contract (prerequisite) | FAIL · b-isa-spec-221 | FAIL · b-isa-spec-221 |
+| reference device/reset control (diagnostic) | PASS | PASS |
+| reference replay API (diagnostic) | PASS | PASS |
+| VM device/reset control (diagnostic) | PASS | PASS |
+| VM replay API (diagnostic) | PASS | PASS |
+
+Evidence: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z

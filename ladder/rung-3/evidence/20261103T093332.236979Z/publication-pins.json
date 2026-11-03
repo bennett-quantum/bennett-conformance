@@ -1,0 +1,20 @@
+{
+  "plugin_commit": "0ac61808d6cb24406489c95824220170875b93a5",
+  "arith_commit": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
+  "plugin_spec_versions_sha256": "d3cd150f3d7959d0c1b7141d564dc22302050f76fe9cf03b3835c93b6c8413ca",
+  "plugin_expected_arith_commit": "0dea42d001ffe832493fa0711da4a59b8cc1dd10",
+  "majors": {
+    "18": {
+      "path": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-arith-5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab/dist/llvm18/bennett-arith.bc",
+      "actual_sha256": "a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff",
+      "arith_sha256sums": "a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff",
+      "plugin_expected_sha256": "8d99956e8741803f2115e48fa28c6c71795fb0041e992f8835851b71dd4b6fc1"
+    },
+    "23": {
+      "path": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-arith-5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab/dist/llvm23/bennett-arith.bc",
+      "actual_sha256": "8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79",
+      "arith_sha256sums": "8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79",
+      "plugin_expected_sha256": "59563a3a10949b1ea48ca8b79027310ac9f9f7e28c85a30e70a013ced04a6793"
+    }
+  }
+}

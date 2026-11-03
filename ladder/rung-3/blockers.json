@@ -1,5 +1,41 @@
 [
   {
+    "id": "bp-mq6",
+    "repo": "bennett-plugin",
+    "pattern": "^arith publication differs from plugin pin$",
+    "stage": "runtime bitcode link / publication checks",
+    "size": "large",
+    "evidence": ".tmp/rung-3/20261103T093332.236979Z/",
+    "determining_spec_and_command_and_fixed_means": "Dialect 0.2.10 @023f5a7 §19.1 requires linking same-major runtimes and arith before post-link LTO and the plugin; §19.9 records publication hashes. Determination: origin-main plugin 0ac6180 still pins arith 0dea42d (LLVM18 8d99956e8741803f2115e48fa28c6c71795fb0041e992f8835851b71dd4b6fc1; LLVM23 59563a3a10949b1ea48ca8b79027310ac9f9f7e28c85a30e70a013ced04a6793), while the archived origin-main arith 5e9b450 publishes LLVM18 a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff and LLVM23 8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79, agreeing with its SHA256SUMS. Exact error on both runtime-link rows and runtime audits: arith publication differs from plugin pin. The gate fails before invoking llvm-link, so no failed runtime-link command or missing-runtime error belongs to this row. Determining inspection: sha256sum /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-arith-5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab/dist/llvm18/bennett-arith.bc /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-arith-5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab/dist/llvm23/bennett-arith.bc; compare archived plugin SPEC_VERSIONS.toml [arith]. Fixed means: owner verifies the required publication and explicitly updates plugin commit/digests and compiled pins with L/CC closure verification; then refresh conformance implementation pins coherently and rerun. Do not select older arithmetic, bypass hashes, or narrow formats/fixtures to make the origin-main run pass. Existing open bp-mq6 owns re-pin mechanics; an evidence update is requested in .tmp/sol-rung3/cross-repo-beads.md. Required hello-world production and native comparison remain unmeasured after this first blocker. These publication checks apply to the selected device closure and do not constrain an ordinary mixed native host (bennett-4ht)."
+  },
+  {
+    "id": "bp-is0",
+    "repo": "bennett-plugin",
+    "pattern": "(?s)^(?:18|23)/(?:mode-probe|production): exit 3\\nbennett: blocked:BD-B-ISA7 ",
+    "stage": "R-mode probe / reversible production",
+    "size": "large",
+    "evidence": ".tmp/rung-3/20261103T093332.236979Z/",
+    "determining_spec_and_command_and_fixed_means": "Pinned dialect §11.5 and §17.6 require typed pre-instruction R budget fault 1; ISA0.8 cannot express the required fault C. Both isolated opt probes now accept tier/entry options and exit3 with the exact diagnostic: bennett: blocked:BD-B-ISA7 §11.5/§17.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0). This is the real contract blocker, not the old bp-ivy unknown-option failure. Exact argv are in report.json tags 18/mode-probe and 23/mode-probe; stderr in the same evidence directory. Fixed means retain honest blocked artefacts at pinned ISA0.8; implement and verify the published ISA0.9 typed-fault producer semantics and explicitly coordinate contract-pin migration with b-isa-spec-fuk. No generic trap equivalence or silent ISA upgrade. This isolated whole-device main probe does not establish musl production, execution or mixed native-host acceptance. Evidence update for existing open bp-is0 is requested in .tmp/sol-rung3/cross-repo-beads.md."
+  },
+  {
+    "id": "bennett-conformance-igc",
+    "repo": "bennett-conformance",
+    "pattern": "(?s)^(?:18|23)/driver-probe: exit 1\\n.*BD-E-INPUT: hash /home/tobias/Projects/bennett\\-workspace/bennett\\-conformance/\\.tmp/bennett-runtimes/dist/llvm(?:18|23)/bennett-runtimes\\.bc:.*No such file or directory",
+    "stage": "driver probe (archived publication paths)",
+    "size": "small",
+    "evidence": ".tmp/rung-3/20261103T093332.236979Z/",
+    "determining_spec_and_command_and_fixed_means": "Driver 54d32fa published HELP supports --bennett-llvm-major, --bennett-plugin, --bennett-runtimes and --bennett-arith; major defaults to23 and library defaults are sibling-relative to CARGO_MANIFEST_DIR. Dialect §19.1/§19.8 require a consistent selected LLVM major, not a filesystem layout. The gate invokes an archived checkout and owns supplying its frozen publications. Exact determining error: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: No such file or directory. Full exact text and commands are report.json driver-probe rows and 18/driver-probe.stderr, 23/driver-probe.stderr. Both rows defaulted to LLVM23. Fixed in gate.py under closed bennett-conformance-igc: probe and materialised comparator pass selected major plus archived plugin/runtime/arith; overrides and digest verification remain in runtime_files. Synthetic red-green checks verify both majors and retain errors; no full gate rerun or downstream acceptance is claimed. The driver diagnostic contains a nested BD-B-ISA7 report, but its determining error is missing input and must not be classified as typed-fault execution. Whole-device main and no-host-libc comparator rules are local to this rung, not the ordinary mixed host."
+  },
+  {
+    "id": "b-isa-spec-fuk",
+    "repo": "bennett-isa-spec",
+    "pattern": "^BD-B-ISA7:",
+    "stage": "ISA-0.8 R entry contract prerequisite",
+    "size": "large",
+    "evidence": ".tmp/rung-3/20261103T093332.236979Z/",
+    "determining_spec_and_command_and_fixed_means": "Pinned dialect 0.2.10 @023f5a7 §11.5 says ISA0.8 R entries are blocked:BD-B-ISA7, and §17.6 requires pre-instruction fault1. Exact gate error: BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7. Exact inspection command is report.json tag contract/dialect. Historical b-isa-spec-221 is CLOSED because published ISA0.9 K5 resolves the wording; closing it does not clear this consumer prerequisite. Existing open b-isa-spec-fuk owns explicit reference/producer/contract-pin migration, with bp-is0 the producer dependency. Fixed means verify exact typed codes, atomic terminal faults, intact reversible prefix and FAILED-run reset in producer/executors, then explicitly migrate consumers; no silent change to ISA0.8 or reduced North-Star scope. Evidence update is requested in .tmp/sol-rung3/cross-repo-beads.md. Future mixed fat objects apply typed faults to each selected device run; native entry/argv/libc remain ordinary host code (bennett-4ht)."
+  },
+  {
     "id": "brt-1ft",
     "repo": "bennett-runtimes",
     "pattern": "(?s)(?:18|23)/frontend: exit 1.*'stdio.h' file not found|runtime libc/console publication missing:",
@@ -34,14 +70,6 @@
     "size": "large",
     "evidence": ".tmp/rung-3/20261101T125019.671846Z/",
     "determining_spec_and_command_and_fixed_means": "Dialect @023f5a7 §19.1: \"The driver links all bitcode inputs (§19.8), links `bennett-runtimes` and `bennett-arith` bitcode of the link's major M, runs the post-link pipeline (`lto<O3>` by default, or any envelope pipeline of §21.1 the user selects), then runs the plugin on the whole program (NS §3.3).\" §17.7: \"the materialised device variants, code-generated by the same LLVM major and linked with `bennett-runtimes` and `bennett-arith` (never host libc or libm) under the comparison link of §19.5.\"\n\nExact independent driver command:\n/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-306b6e90df85a6b0f59e1e57b04ff7fbcae37ce5/target/debug/bennett-driver --bennett-tier=reversible --bennett-entry=main -bennett-dialect=0.2.10 -bennett-isa=0.8 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125019.671846Z/18/driver-probe /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll\n(and LLVM 23 counterpart). Exit 0, stdout bennett-driver 0.1.0, no launches.json or other pipeline output. Current main only prints the version; no claims about linking the blocked musl corpus are made.\n\nFixed means: implement §19.1/19.2 whole-program pipeline, major-matched libraries and R launch, runtime/native-comparison link and metadata; no silent success on ignored options. Provide argc/argv/envp reply integration. Agree consumer glue with ladder/rung-3 (native-comparison.json auditable link_argv or an equivalent adapter, and argv reply file); these filenames/CLI adapter flags are not spec mandates. Native link must consume the actual materialised device module and runtimes/arith, no host libc/libm. Handle ISA-0.8 BD-B-ISA7 explicitly; do not change the pinned gate to 0.9 silently. Estimated size large (960 minutes).\n\nEvidence: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125019.671846Z (report.json, exact argv and per-command stdout/stderr). North Star §8 rung 3 remains full ordinary musl printf hello-world, R console, reset and deterministic saved-tape replay; no freestanding replacement, host-libc comparison or fake marker definition is acceptable. These are prerequisites, not downstream corpus verdicts."
-  },
-  {
-    "id": "b-isa-spec-221",
-    "repo": "bennett-isa-spec",
-    "pattern": "BD-B-ISA7:",
-    "stage": "ISA-0.8 R entry contract",
-    "size": "medium",
-    "determining_spec_and_command_and_fixed_means": "Rung 3 measured consumer dependency (2026-11-01), estimate medium (480 minutes). Dialect 0.2.10 @023f5a7 §11.5 determining sentence: \"On ISA 0.8 a module has verdict blocked:BD-B-ISA7 if its device program contains an R-tier variant reached as an R entry: a reversible region candidate invoked outside generation, or the §19.2 whole-program R entry.\" §17.6: \"Before each counted materialised LLVM instruction, check that one step remains, then consume it before execution; otherwise raise code 1 before executing the instruction.\" Required instruction: R fault C, including mandatory pre-instruction fault 1, preserves prefix history and exact code. Exact contract inspection: git -C /home/tobias/Projects/bennett-workspace/bennett-dialect-spec show 023f5a771a814270634db3be9cfde88ded69f975:spec/Bennett-Dialect-Spec.md . Gate prerequisite reports BD-B-ISA7; actual musl production is earlier blocked by missing sysroot, and the isolated R-mode opt probe rejects options. Fixed means resolve/adopt the published ISA 0.9 typed-fault contract (now published alongside 0.8), implement executor/producer support and explicitly update consumer contract pins after verification; never mutate ISA 0.8 or pass generic trap off as typed fault. No narrowing of the North Star acceptance. Evidence /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125019.671846Z."
   },
   {
     "id": "b-isa-spec-04d",

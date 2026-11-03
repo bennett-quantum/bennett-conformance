@@ -4,6 +4,14 @@ North Star §8 acceptance remains:
 
 > Forward output equal to native; run in the reversible tier with a console device model; un-run to the reset state; tape replay deterministic.
 
+This rung uses the **whole-device entry profile** of dialect §19.2: reversible
+`main`, the `bennett.argv` launch reply, i32 status and a console-only device
+tape. Its native comparison checks the materialised device closure. These
+requirements leave mixed fat objects reachable (bennett-4ht): an ordinary native
+host can retain native main, argv/envp and host libc while marked device modules
+and their linked closures become ISA objects. The comparison's no-host-libc
+checks and the device tape rules do not apply to that ordinary native host.
+
 The corpus is exactly [fixtures/hello.c](fixtures/hello.c): `#include <stdio.h>`,
 `printf("hello, world\n")`, return 0. There are no marker additions, stubs,
 freestanding flags or replacement entry points. Clang may optimise printf to puts;
@@ -42,11 +50,11 @@ Defaults are immutable commits in [pins.json](pins.json), not moving HEADs:
 | Input | Commit |
 |---|---|
 | Dialect 0.2.10 | `023f5a771a814270634db3be9cfde88ded69f975` |
-| Plugin | `00a5537f92af6b8b5d13e4422f3316e1e41005da` |
-| VM | `9ac6d3e11b5b62f4e5f9a4c7294622a00db89bcd` |
-| Driver | `306b6e90df85a6b0f59e1e57b04ff7fbcae37ce5` |
-| Runtimes | `6808622d560b2e301c635c205eecde3d932b6df5` |
-| Arith | `249e6192b95c6dbbb875510c32a677ba113e9af5` |
+| Plugin | `0ac61808d6cb24406489c95824220170875b93a5` |
+| VM | `c26a4fd5b04996ddf470837dcf81f0181401ee08` |
+| Driver | `54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf` |
+| Runtimes | `248e468ca505c684bbf254e52eb8148f1e530c83` |
+| Arith | `5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab` |
 | ISA-spec inspection checkout | `997d70000eefba6e56ce0e4b1559a02757d15006` |
 | Accepted reference checkout | `ba7d13f76e73c2af4e035d3f51145d2fad76bd2f` |
 
@@ -59,6 +67,12 @@ The gate does not rebuild or alter that checkout.
 Plugin and driver builds use verified Git archives under `.tmp/rung3-<repo>-<sha>/`.
 Runtime/arith bitcode also comes from archived pinned commits, avoiding concurrent
 publication edits; runtime SHA256SUMS and the plugin's arith SHA pins are checked.
+Every driver invocation explicitly selects the LLVM major and these archived
+plugin/runtime/arith paths; an archived driver's sibling-relative defaults cannot
+locate them. `--runtimes18/23` overrides select an explicit runtime file whose hash
+is recorded. The current plugin/arith pins disagree, so publication checks fail
+before linking; see [RESULTS.md](RESULTS.md) and bp-mq6. The gate preserves that
+failure instead of substituting older arithmetic or bypassing its hash check.
 VM builds offline in a clean **detached** `.tmp/vm-<sha>` worktree, never in its
 potentially dirty sibling tree. `--plugin-rev`, `--vm-rev`, `--driver-rev` override
 those revisions explicitly; `--reference` overrides the binary. All effective
@@ -103,7 +117,7 @@ uses rung-2's launch artefact layout and these explicit **adapter conventions**;
 missing adapters are tracked as integration blockers, not invented ISA defects:
 
 * The native stage requests the frozen driver with `--bennett-materialised`,
-  `--bennett-llvm-major`, `--bennett-runtimes`, `--bennett-arith`,
+  `--bennett-llvm-major`, `--bennett-plugin`, `--bennett-runtimes`, `--bennett-arith`,
   `--bennett-sysroot`, `--bennett-comparison-record` and
   `--bennett-comparison-output`, plus the specified R mode/entry. It must emit
   `out/native-comparison.json` containing `llvm_major`, `materialised_sha256`
@@ -113,7 +127,9 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
   opaque linker/response inputs and file inputs outside the generated output,
   selected musl sysroot and pinned runtime publications are rejected. Startup
   and native effect backends must come from those publications. This integration
-  is **not implemented by today's version-printing driver** (bennett-driver-cyg).
+  remains unmeasured for hello-world in the current run because the earlier
+  publication check fails; the old version-printing-driver observation is
+  historical (bennett-driver-cyg).
 * The driver must supply `out/main/argv-replies.json` in the executors' existing
   `--replies` array format (`service`, `payload`, `reply`), with exactly one
   `bennett.argv` reply containing the selected argv/envp. The gate sends the same
@@ -121,8 +137,11 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
 * The proposed saved-tape CLI is `--replay-tape <JSON array>`. A mismatched tape
   must fail with a replay mismatch/divergence diagnostic or a structured FAILED
   result with `replay_mismatch`. Equivalent real adapters can replace this glue;
-  the spelling is not mandated by ISA 0.8. Today's binaries reject the option
-  (b-isa-spec-04d, bennett-vm-u8m), so no tape-consuming replay is claimed.
+  the spelling is not mandated by ISA 0.8. Both binaries accept and pass the saved-tape
+  control probe in the current run. Required hello-world replay and corrupted-tape
+  rejection remain blocked by earlier pipeline stages; a control probe alone
+  cannot establish those rows. The former unknown-option observations
+  (b-isa-spec-04d, bennett-vm-u8m) are historical.
 
 ## Independent probes and evidence
 

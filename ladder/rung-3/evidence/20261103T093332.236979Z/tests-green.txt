@@ -1,0 +1,18 @@
++ /usr/bin/python3 -c import sys; print("evidence"); sys.exit(3)
++ /usr/bin/python3 -c import time; time.sleep(5)
+.arith publication differs from plugin pin
+18/mode-probe: exit 3
+bennett: blocked:BD-B-ISA7 §11.5/§17.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0)
+
+23/driver-probe: exit 1
+[{"code":"BD-B-ISA7"}]
+bennett-driver: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: No such file or directory
+
+BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7
+a new unfiled failure
+...missing musl
+........
+----------------------------------------------------------------------
+Ran 12 tests in 0.060s
+
+OK

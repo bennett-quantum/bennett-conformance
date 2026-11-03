@@ -1,0 +1,79 @@
+arith publication differs from plugin pin
+F18/mode-probe: exit 3
+bennett: blocked:BD-B-ISA7 §11.5/§17.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0)
+
+F23/driver-probe: exit 1
+[{"code":"BD-B-ISA7"}]
+bennett-driver: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: No such file or directory
+
+FBD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7
+Fa new unfiled failure
+
+======================================================================
+FAIL: test_current_blockers_classify_the_actual_first_error (__main__.GateChecks.test_current_blockers_classify_the_actual_first_error) (error='arith publication differs from plugin pin')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 54, in test_current_blockers_classify_the_actual_first_error
+    self.assertEqual(g.rows[18]['source']['beads'], beads)
+AssertionError: Lists differ: ['UNFILED'] != ['bp-mq6']
+
+First differing element 0:
+'UNFILED'
+'bp-mq6'
+
+- ['UNFILED']
++ ['bp-mq6']
+
+======================================================================
+FAIL: test_current_blockers_classify_the_actual_first_error (__main__.GateChecks.test_current_blockers_classify_the_actual_first_error) (error='18/mode-probe: exit 3\nbennett: blocked:BD-B-ISA7 §11.5/§17.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0)\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 54, in test_current_blockers_classify_the_actual_first_error
+    self.assertEqual(g.rows[18]['source']['beads'], beads)
+AssertionError: Lists differ: ['UNFILED'] != ['bp-is0']
+
+First differing element 0:
+'UNFILED'
+'bp-is0'
+
+- ['UNFILED']
++ ['bp-is0']
+
+======================================================================
+FAIL: test_current_blockers_classify_the_actual_first_error (__main__.GateChecks.test_current_blockers_classify_the_actual_first_error) (error='23/driver-probe: exit 1\n[{"code":"BD-B-ISA7"}]\nbennett-driver: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: No such file or directory\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 54, in test_current_blockers_classify_the_actual_first_error
+    self.assertEqual(g.rows[18]['source']['beads'], beads)
+AssertionError: Lists differ: ['UNFILED'] != ['bennett-conformance-igc']
+
+First differing element 0:
+'UNFILED'
+'bennett-conformance-igc'
+
+- ['UNFILED']
++ ['bennett-conformance-igc']
+
+======================================================================
+FAIL: test_current_blockers_classify_the_actual_first_error (__main__.GateChecks.test_current_blockers_classify_the_actual_first_error) (error='BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 54, in test_current_blockers_classify_the_actual_first_error
+    self.assertEqual(g.rows[18]['source']['beads'], beads)
+AssertionError: Lists differ: ['b-isa-spec-221'] != ['b-isa-spec-fuk']
+
+First differing element 0:
+'b-isa-spec-221'
+'b-isa-spec-fuk'
+
+- ['b-isa-spec-221']
+?              ^^^
+
++ ['b-isa-spec-fuk']
+?              ^^^
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (failures=4)

@@ -1,0 +1,104 @@
++ /usr/bin/python3 -c import sys; print("evidence"); sys.exit(3)
++ /usr/bin/python3 -c import time; time.sleep(5)
+.FFFF.missing musl
+....FFFF..FF
+======================================================================
+FAIL: test_driver_invocations_use_frozen_same_major_publications (__main__.GateChecks.test_driver_invocations_use_frozen_same_major_publications) (major=18, action='driver_probe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 86, in test_driver_invocations_use_frozen_same_major_publications
+    self.assertIn(arg, argv)
+AssertionError: '--bennett-llvm-major=18' not found in ['/frozen-driver', '--bennett-tier=reversible', '--bennett-entry=main', '-bennett-dialect=0.2.10', '-bennett-isa=0.8', '-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.056949Z/18/driver-probe', '/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll']
+
+======================================================================
+FAIL: test_driver_invocations_use_frozen_same_major_publications (__main__.GateChecks.test_driver_invocations_use_frozen_same_major_publications) (major=18, action='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 86, in test_driver_invocations_use_frozen_same_major_publications
+    self.assertIn(arg, argv)
+AssertionError: '--bennett-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/plugin/build/libbennett-plugin-18.so' not found in ['/frozen-driver', '--bennett-tier=reversible', '--bennett-entry=main', '--bennett-materialised=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.062436Z/18/out/device.bc', '--bennett-llvm-major=18', '--bennett-runtimes=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/bennett-runtimes/dist/llvm18/bennett-runtimes.bc', '--bennett-arith=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/bennett-arith/dist/llvm18/bennett-arith.bc', '--bennett-sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot', '--bennett-comparison-record=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.062436Z/18/out/native-comparison.json', '--bennett-comparison-output=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.062436Z/18/native']
+
+======================================================================
+FAIL: test_driver_invocations_use_frozen_same_major_publications (__main__.GateChecks.test_driver_invocations_use_frozen_same_major_publications) (major=23, action='driver_probe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 86, in test_driver_invocations_use_frozen_same_major_publications
+    self.assertIn(arg, argv)
+AssertionError: '--bennett-llvm-major=23' not found in ['/frozen-driver', '--bennett-tier=reversible', '--bennett-entry=main', '-bennett-dialect=0.2.10', '-bennett-isa=0.8', '-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.069364Z/23/driver-probe', '/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll']
+
+======================================================================
+FAIL: test_driver_invocations_use_frozen_same_major_publications (__main__.GateChecks.test_driver_invocations_use_frozen_same_major_publications) (major=23, action='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 86, in test_driver_invocations_use_frozen_same_major_publications
+    self.assertIn(arg, argv)
+AssertionError: '--bennett-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/plugin/build/libbennett-plugin-23.so' not found in ['/frozen-driver', '--bennett-tier=reversible', '--bennett-entry=main', '--bennett-materialised=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.074524Z/23/out/device.bc', '--bennett-llvm-major=23', '--bennett-runtimes=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/bennett-runtimes/dist/llvm23/bennett-runtimes.bc', '--bennett-arith=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/bennett-arith/dist/llvm23/bennett-arith.bc', '--bennett-sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot', '--bennett-comparison-record=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.074524Z/23/out/native-comparison.json', '--bennett-comparison-output=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmpdtqa0xij/20261103T095455.074524Z/23/native']
+
+======================================================================
+FAIL: test_publication_mismatch_remains_red_before_driver (__main__.GateChecks.test_publication_mismatch_remains_red_before_driver) (major=18, publication='bennett-runtimes')
+----------------------------------------------------------------------
+AssertionError: ran driver with mismatched publication
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 120, in test_publication_mismatch_remains_red_before_driver
+    with patch.object(gate, 'git', return_value=digest), \
+AssertionError: "publication differs from" does not match "ran driver with mismatched publication"
+
+======================================================================
+FAIL: test_publication_mismatch_remains_red_before_driver (__main__.GateChecks.test_publication_mismatch_remains_red_before_driver) (major=18, publication='bennett-arith')
+----------------------------------------------------------------------
+AssertionError: ran driver with mismatched publication
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 120, in test_publication_mismatch_remains_red_before_driver
+    with patch.object(gate, 'git', return_value=digest), \
+AssertionError: "publication differs from" does not match "ran driver with mismatched publication"
+
+======================================================================
+FAIL: test_publication_mismatch_remains_red_before_driver (__main__.GateChecks.test_publication_mismatch_remains_red_before_driver) (major=23, publication='bennett-runtimes')
+----------------------------------------------------------------------
+AssertionError: ran driver with mismatched publication
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 120, in test_publication_mismatch_remains_red_before_driver
+    with patch.object(gate, 'git', return_value=digest), \
+AssertionError: "publication differs from" does not match "ran driver with mismatched publication"
+
+======================================================================
+FAIL: test_publication_mismatch_remains_red_before_driver (__main__.GateChecks.test_publication_mismatch_remains_red_before_driver) (major=23, publication='bennett-arith')
+----------------------------------------------------------------------
+AssertionError: ran driver with mismatched publication
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 120, in test_publication_mismatch_remains_red_before_driver
+    with patch.object(gate, 'git', return_value=digest), \
+AssertionError: "publication differs from" does not match "ran driver with mismatched publication"
+
+======================================================================
+FAIL: test_runtime_override_is_hashed_and_forwarded (__main__.GateChecks.test_runtime_override_is_hashed_and_forwarded) (major=18)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 106, in test_runtime_override_is_hashed_and_forwarded
+    self.assertIn('--bennett-runtimes='+str(override), calls[0])
+AssertionError: '--bennett-runtimes=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmp_4d3wya3/override-18.bc' not found in ['/frozen-driver', '--bennett-tier=reversible', '--bennett-entry=main', '-bennett-dialect=0.2.10', '-bennett-isa=0.8', '-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmp_4d3wya3/20261103T095455.151421Z/18/driver-probe', '/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll']
+
+======================================================================
+FAIL: test_runtime_override_is_hashed_and_forwarded (__main__.GateChecks.test_runtime_override_is_hashed_and_forwarded) (major=23)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py", line 106, in test_runtime_override_is_hashed_and_forwarded
+    self.assertIn('--bennett-runtimes='+str(override), calls[0])
+AssertionError: '--bennett-runtimes=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmp_4d3wya3/override-23.bc' not found in ['/frozen-driver', '--bennett-tier=reversible', '--bennett-entry=main', '-bennett-dialect=0.2.10', '-bennett-isa=0.8', '-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp/tmp_4d3wya3/20261103T095455.155724Z/23/driver-probe', '/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll']
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.159s
+
+FAILED (failures=10)

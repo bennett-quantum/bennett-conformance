@@ -1,0 +1,951 @@
+{
+  "manifest": {
+    "time_utc": "2026-11-03T09:33:32.238236+00:00",
+    "commands": [
+      {
+        "tag": "build/llvm18-clang-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/llvm18-opt-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/llvm18-llvm-link-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/llvm23-clang-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.017,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/llvm23-opt-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/llvm23-llvm-link-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.006,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/bennett-plugin-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+          "archive",
+          "0ac61808d6cb24406489c95824220170875b93a5"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.023,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/plugin-configure",
+        "argv": [
+          "cmake",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5",
+          "-B",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.24,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/plugin-build",
+        "argv": [
+          "cmake",
+          "--build",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build",
+          "-j",
+          "4"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 169.463,
+        "timeout_seconds": 1800
+      },
+      {
+        "tag": "build/bennett-runtimes-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "archive",
+          "248e468ca505c684bbf254e52eb8148f1e530c83"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.064,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/bennett-arith-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-arith",
+          "archive",
+          "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.066,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/vm-worktree",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-vm",
+          "worktree",
+          "add",
+          "--detach",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08",
+          "c26a4fd5b04996ddf470837dcf81f0181401ee08"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.089,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/vm-head",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/vm-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 20.365,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "build/bennett-driver-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-driver",
+          "archive",
+          "54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.016,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "build/driver-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.33,
+        "timeout_seconds": 600
+      },
+      {
+        "tag": "23/frontend",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot/include",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/hello.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.032,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/frontend",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot/include",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/hello.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.034,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/mode-probe",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build/libbennett-plugin-18.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "--bennett-tier=reversible",
+          "--bennett-entry=main",
+          "-bennett-budget-default=10000000,1048576,65536,256,65536",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/probe-out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll"
+        ],
+        "exit": 3,
+        "elapsed_seconds": 0.591,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/driver-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/target/debug/bennett-driver",
+          "--bennett-tier=reversible",
+          "--bennett-entry=main",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/driver-probe",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "contract/dialect",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-dialect-spec",
+          "show",
+          "023f5a771a814270634db3be9cfde88ded69f975:spec/Bennett-Dialect-Spec.md"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.014,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/reference-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.006,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/reference-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/reference-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/reference-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/reference-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/mode-probe",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-0ac61808d6cb24406489c95824220170875b93a5/build/libbennett-plugin-23.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "--bennett-tier=reversible",
+          "--bennett-entry=main",
+          "-bennett-budget-default=10000000,1048576,65536,256,65536",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/probe-out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll"
+        ],
+        "exit": 3,
+        "elapsed_seconds": 0.654,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/driver-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf/target/debug/bennett-driver",
+          "--bennett-tier=reversible",
+          "--bennett-entry=main",
+          "-bennett-dialect=0.2.10",
+          "-bennett-isa=0.8",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/driver-probe",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 0.006,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "contract/dialect",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-dialect-spec",
+          "show",
+          "023f5a771a814270634db3be9cfde88ded69f975:spec/Bennett-Dialect-Spec.md"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/reference-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/reference-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/reference-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/reference-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/reference-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/VM-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/VM-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/VM-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.015,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/VM-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/VM-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/VM-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.017,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "18/VM-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/18/VM-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.018,
+        "timeout_seconds": 300
+      },
+      {
+        "tag": "23/VM-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-c26a4fd5b04996ddf470837dcf81f0181401ee08/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/23/VM-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.018,
+        "timeout_seconds": 300
+      }
+    ],
+    "pins": {
+      "bennett-plugin": "0ac61808d6cb24406489c95824220170875b93a5",
+      "bennett-vm": "c26a4fd5b04996ddf470837dcf81f0181401ee08",
+      "bennett-runtimes": "248e468ca505c684bbf254e52eb8148f1e530c83",
+      "bennett-driver": "54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf",
+      "bennett-arith": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
+      "bennett-isa-spec": "997d70000eefba6e56ce0e4b1559a02757d15006",
+      "bennett-isa-spec-review": "ba7d13f76e73c2af4e035d3f51145d2fad76bd2f",
+      "bennett-dialect-spec": "023f5a771a814270634db3be9cfde88ded69f975"
+    },
+    "dialect": "0.2.10",
+    "isa": "0.8",
+    "budget": "10000000,1048576,65536,256",
+    "environment": {
+      "DISPLAY": null,
+      "WAYLAND_DISPLAY": null,
+      "DBUS_SESSION_BUS_ADDRESS": null,
+      "BROWSER": null,
+      "TMPDIR": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp"
+    },
+    "sysroots": {
+      "18": "/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot",
+      "23": "/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot"
+    },
+    "gate_sha256": "78ad291c8e638b60e54ba66c89b15958660f379b5970c81009620d71c32965c6",
+    "shared_support_sha256": "6d048b4ad212469e4ff964e4729615f0ceb81345157520108fc74827d7012981",
+    "blockers_sha256": "c45c17fa67bb93ba48b134f73a698d2f5b038a775c9811eba8a306278f43c3dd",
+    "fixtures": {
+      "hello.c": "845f417ae66e126b060ce675793ad9525d9ec02d378585d73358b114740e5112",
+      "effect-console-r.ll": "c58a54dd90ec02edac4fe7b171be303faab496b3563bce63c54a101dd0d1bd04",
+      "executor-control.bisa": "b8d9aab471f0d17191452f849e4052aa6afd0ea878316ba9db9f36126510a467"
+    },
+    "plugin_sha256": {
+      "18": "7cae63a37325275f807d397807e65e54b981093177663891f4caf3eb62b3ef6c",
+      "23": "c0230866e6661afd585ecd530c560419ac7b904f8a687d260cce3fe540fa4375"
+    },
+    "vm_sha256": "f491114cb5b33d31a78cd54e939b06d200c23cd226649377cfb06cb8c453915c",
+    "driver_sha256": "225eed7d94b150bd94e630bf03c25e150846b9b5b0dfd61837b4252cedf64d4d",
+    "musl_stdio_sha256": {
+      "23": "36dda63d91161ecdd42755393bc7ff827dbfe82e512b630d2f2386c1acb8dbfa",
+      "18": "36dda63d91161ecdd42755393bc7ff827dbfe82e512b630d2f2386c1acb8dbfa"
+    },
+    "executor_sha256": {
+      "reference": "166a25c6c22481aff71d437a236cb77ce92871726594e40a725cdd88e08c2792",
+      "VM": "f491114cb5b33d31a78cd54e939b06d200c23cd226649377cfb06cb8c453915c"
+    },
+    "recording": {
+      "classification_only": true,
+      "time_utc": "2026-11-03T09:58:39.626962+00:00",
+      "source_report": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261103T093332.236979Z/report.json",
+      "source_report_sha256": "e68521273cc95868886182f536d5a524238a65a52eb708ae6a4209503553ddd1",
+      "source_log_sha256": "5b0ac7fbc22a19addf548d55ce6ef1c971472e1e3542da1f0ef5337c5dad1f08",
+      "gate_sha256": "a8deef90b81950bb6ef9d2930c54093a05562e3fc4ac371d979c870b875388bb",
+      "blockers_sha256": "d8f0b88faa6bf62f9aa8eaa6342d5125bdd841fd9e44fbf0343166c31f2a2f6c",
+      "note": "Existing bead classification only; no command rerun. Original statuses, errors, pins, argv and exits retained. Original UNFILED table/report are copied unchanged beside classified/. b-isa-spec-221 is closed; current consumer migration is b-isa-spec-fuk."
+    }
+  },
+  "stages": {
+    "18": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime bitcode link": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "post-link LTO": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires runtime bitcode link"
+      },
+      "reversible production": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires post-link LTO, plugin build"
+      },
+      "launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reversible production"
+      },
+      "native comparison": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, driver build"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts"
+      },
+      "reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, reference admission"
+      },
+      "reference reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference forward = native"
+      },
+      "reference tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference reset"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, VM build"
+      },
+      "VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, VM admission"
+      },
+      "VM reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM forward = native"
+      },
+      "VM tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM reset"
+      },
+      "runtime libc/console audit (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "R-mode probe (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-is0"
+        ],
+        "error": "18/mode-probe: exit 3\nbennett: blocked:BD-B-ISA7 \u00a711.5/\u00a717.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0)\n"
+      },
+      "driver probe (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-conformance-igc"
+        ],
+        "error": "18/driver-probe: exit 1\n[{\"code\":\"BD-E-INPUT\",\"constraint\":\"\u00a719 inputs/options and \u00a725 fail-loud implementation obligations\",\"diagnostic\":\"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\\n\",\"function\":\"<whole-program>\",\"reason\":\"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\\n\",\"required_change\":\"Provide the required input or implement the named capability; its North-Star scope remains required\",\"stage\":\"input\",\"value_or_call\":\"<see diagnostic>\"},{\"code\":\"BD-B-ISA7\",\"constraint\":\"ISA 0.8 has only generic R trap; BLK-5 (ISA-7) typed R fault reporting is unavailable\",\"diagnostic\":\"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\\n\",\"function\":\"<whole-program>\",\"reason\":\"\u00a725.1: every \u00a719.2 R entry has mandatory \u00a717.6 budget checks; successful R paths are not waived\",\"required_change\":\"R fault C with reversible prefix history and implicit cause-to-code table (ISA 0.9 K5); no silent ISA upgrade\",\"stage\":\"input\",\"value_or_call\":\"<see diagnostic>\"}]\n\nbennett-driver: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n\n"
+      },
+      "ISA-0.8 R contract (prerequisite)": {
+        "status": "FAIL",
+        "beads": [
+          "b-isa-spec-fuk"
+        ],
+        "error": "BD-B-ISA7: dialect \u00a711.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7"
+      },
+      "reference device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "reference replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      }
+    },
+    "23": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime bitcode link": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "post-link LTO": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires runtime bitcode link"
+      },
+      "reversible production": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires post-link LTO, plugin build"
+      },
+      "launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reversible production"
+      },
+      "native comparison": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, driver build"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts"
+      },
+      "reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, reference admission"
+      },
+      "reference reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference forward = native"
+      },
+      "reference tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference reset"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, VM build"
+      },
+      "VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, VM admission"
+      },
+      "VM reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM forward = native"
+      },
+      "VM tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM reset"
+      },
+      "runtime libc/console audit (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "R-mode probe (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-is0"
+        ],
+        "error": "23/mode-probe: exit 3\nbennett: blocked:BD-B-ISA7 \u00a711.5/\u00a717.6 R entry; objects emitted; typed pre-instruction fault requires ISA-7 (bp-is0)\n"
+      },
+      "driver probe (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bennett-conformance-igc"
+        ],
+        "error": "23/driver-probe: exit 1\n[{\"code\":\"BD-E-INPUT\",\"constraint\":\"\u00a719 inputs/options and \u00a725 fail-loud implementation obligations\",\"diagnostic\":\"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\\n\",\"function\":\"<whole-program>\",\"reason\":\"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\\n\",\"required_change\":\"Provide the required input or implement the named capability; its North-Star scope remains required\",\"stage\":\"input\",\"value_or_call\":\"<see diagnostic>\"},{\"code\":\"BD-B-ISA7\",\"constraint\":\"ISA 0.8 has only generic R trap; BLK-5 (ISA-7) typed R fault reporting is unavailable\",\"diagnostic\":\"BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\\n\",\"function\":\"<whole-program>\",\"reason\":\"\u00a725.1: every \u00a719.2 R entry has mandatory \u00a717.6 budget checks; successful R paths are not waived\",\"required_change\":\"R fault C with reversible prefix history and implicit cause-to-code table (ISA 0.9 K5); no silent ISA upgrade\",\"stage\":\"input\",\"value_or_call\":\"<see diagnostic>\"}]\n\nbennett-driver: BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory\n\n"
+      },
+      "ISA-0.8 R contract (prerequisite)": {
+        "status": "FAIL",
+        "beads": [
+          "b-isa-spec-fuk"
+        ],
+        "error": "BD-B-ISA7: dialect \u00a711.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7"
+      },
+      "reference device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "reference replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      }
+    }
+  }
+}

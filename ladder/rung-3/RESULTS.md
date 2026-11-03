@@ -1,22 +1,27 @@
-# Rung 3 measured gate — 2026-11-01T12:54:05.462604+00:00
+# Rung 3 recorded run — 2026-11-03T09:33:32.238236+00:00
 
-**Exit 1. The gate implementation is complete; rung acceptance is blocked.**
-Neither major compiled the ordinary hello.c against a musl sysroot. No native
-comparison, hello-world object, executor forward equality, hello-world reset or
-saved-tape replay has passed. No host-libc baseline or freestanding substitute
-was used. All downstream required rows inherit the measured first blocker.
+**The recorded gate is red on both LLVM majors.** Ordinary musl `hello.c`
+compiles, but the first required failure is **`arith publication differs from
+plugin pin`**, before `llvm-link` runs. No hello-world native comparison,
+production object, executor equality, reset or required replay was reached.
+The missing-runtime error described as the first failure in the job brief is
+actually a separate, later driver diagnostic. The raw report and full log agree.
 
-Raw evidence: `.tmp/rung-3/20261101T125405.461872Z/`.
-[Recorded report](evidence/20261101T125405.461872Z/report.json),
-[table](evidence/20261101T125405.461872Z/table.md),
-[gate log](evidence/20261101T125405.461872Z/gate.log), and
-[SHA-256 inventory of every raw evidence file](evidence/20261101T125405.461872Z/raw-evidence-sha256.json).
-The report contains exact argv arrays, exits, elapsed times, host timeouts,
-stage errors, hashes, pins, tool versions and the headless environment. All
-corpus commands used the 300-second host limit. Cached source archives were
-verified byte-for-byte before builds. No source in a sibling repository was edited.
+The run uses the origin-main implementation pins in [pins.json](pins.json):
+plugin `0ac6180`, VM `c26a4fd`, driver `54d32fa`, runtimes `248e468`, arith
+`5e9b450`. Dialect remains 0.2.10 at `023f5a7`; ISA remains 0.8. No pin was changed
+by this analysis. Original sysroot paths and header hashes are in the manifest;
+both recorded front-end commands passed using the selected musl headers.
 
-## Both LLVM majors
+Raw evidence: `.tmp/rung-3/20261103T093332.236979Z/`. Durable byte-identical
+[report](evidence/20261103T093332.236979Z/report.json),
+[table](evidence/20261103T093332.236979Z/table.md) and
+[orchestrator log](evidence/20261103T093332.236979Z/gate.log) retain their original
+UNFILED entries. The [SHA-256 inventory](evidence/20261103T093332.236979Z/raw-evidence-sha256.json)
+covers all 112 raw evidence files. Full log source:
+`bennett/.tmp/orchestrator/s4/heavy/rung3.log.full` in the workspace.
+
+## Original measured table
 
 | Stage | LLVM 18 | LLVM 23 |
 |---|---|---|
@@ -24,153 +29,156 @@ verified byte-for-byte before builds. No source in a sibling repository was edit
 | plugin build | PASS | PASS |
 | VM build | PASS | PASS |
 | driver build | PASS | PASS |
-| musl C front end | FAIL · brt-1ft | FAIL · brt-1ft |
-| runtime bitcode link | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| post-link LTO | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| reversible production | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| launch artefacts | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| native comparison | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| reference admission | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| reference forward = native | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| reference reset | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| reference tape replay | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| VM admission | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| VM forward = native | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| VM reset | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| VM tape replay | BLOCKED · brt-1ft | BLOCKED · brt-1ft |
-| runtime libc/console audit (diagnostic) | FAIL · brt-1ft, brt-cgb | FAIL · brt-1ft, brt-cgb |
-| R-mode probe (diagnostic) | FAIL · bp-ivy | FAIL · bp-ivy |
-| driver probe (diagnostic) | FAIL · bennett-driver-cyg | FAIL · bennett-driver-cyg |
+| musl C front end | PASS | PASS |
+| runtime bitcode link | FAIL · UNFILED | FAIL · UNFILED |
+| post-link LTO | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reversible production | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| launch artefacts | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| native comparison | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference admission | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference forward = native | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference reset | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| reference tape replay | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM admission | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM forward = native | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM reset | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| VM tape replay | BLOCKED · UNFILED | BLOCKED · UNFILED |
+| runtime libc/console audit (diagnostic) | FAIL · UNFILED | FAIL · UNFILED |
+| R-mode probe (diagnostic) | FAIL · UNFILED | FAIL · UNFILED |
+| driver probe (diagnostic) | FAIL · UNFILED | FAIL · UNFILED |
 | ISA-0.8 R contract (prerequisite) | FAIL · b-isa-spec-221 | FAIL · b-isa-spec-221 |
 | reference device/reset control (diagnostic) | PASS | PASS |
-| reference replay API (diagnostic) | FAIL · b-isa-spec-04d | FAIL · b-isa-spec-04d |
+| reference replay API (diagnostic) | PASS | PASS |
 | VM device/reset control (diagnostic) | PASS | PASS |
-| VM replay API (diagnostic) | FAIL · bennett-vm-u8m | FAIL · bennett-vm-u8m |
+| VM replay API (diagnostic) | PASS | PASS |
 
-The rows labelled diagnostic exercise separate prerequisites, never replace
-required hello-world rows. The ISA contract prerequisite is independently red:
-the pinned dialect §11.5 blocks every whole-program R entry on ISA 0.8 because
-its mandatory pre-instruction budget faults need ISA-7. ISA 0.9 is published
-alongside; it was not silently substituted. The isolated opt mode probe rejects
-options before it can report that contract blocker, so no effect-lowering
-verdict on the real musl program is inferred.
+Each major has 9 PASS, 5 FAIL and 12 BLOCKED rows. Diagnostics are separate
+controls; they cannot satisfy required hello-world rows. In particular:
 
-## Ordered blockers
+- The runtime libc/console audit fails the same arithmetic hash check before
+  `llvm-nm`; it supplies no current missing-symbol verdict.
+- Both R-mode probes accept the options and exit 3 with the real
+  `blocked:BD-B-ISA7` diagnostic. The old unknown-option frontier has advanced.
+- Both reference and VM device/reset controls and saved-tape API probes PASS.
+  The API probe only requires that the supplied-tape command succeeds. Required
+  hello-world replay checks, including rejection of a corrupted tape, remain
+  BLOCKED. This is not full replay acceptance.
 
-| Order | Bead / owning repository | Measured frontier / fixed means | Size |
-|---|---|---|---|
-| 1 | **brt-1ft**, bennett-runtimes | Both ordinary musl compiles: stdio.h not found. Publish real musl headers, libc/stdio/write/flush/exit and optimizer-produced puts closure, startup and native comparison support for both majors. | large, 1440 min |
-| 2 | **brt-cgb**, bennett-runtimes | Pinned export audit lacks __bennett_dev_console_write; only memory/allocation exports exist. Implement the musl-to-effect console bridge and lifted console state (§11.2/11.3), preserving R tape/reset semantics. | medium, 480 min |
-| 3 | **bp-ivy**, bennett-plugin | Both opt libraries reject --bennett-tier and --bennett-entry. Supply the full whole-program R integration, effects, argv launch and artefacts; respect BD-B-ISA7. Later effect lowering is not yet measured. | large, 960 min |
-| 4 | **bennett-driver-cyg**, bennett-driver | Frozen driver exits 0, prints its version and creates no outputs. Implement §19.1/19.2 plus an auditable materialised §17.7 link and argv/native adapters. | large, 960 min |
-| 5 | **b-isa-spec-221**, bennett-isa-spec (existing bead augmented, labels consumer/isa) | Required R fault C / mandatory fault 1 cannot be expressed on pinned ISA 0.8. Adopt/implement the published 0.9 semantics with explicit pin migration and producer/executor verification; no generic-trap equivalence claim. | medium, 480 min |
-| 6 | **b-isa-spec-04d**, bennett-isa-spec (reference consumer) | Accepted release CLI rejects --replay-tape. Expose genuine tape-consuming replay and reject a tampered tape; equivalent adapters are welcome. | medium, 240 min |
-| 7 | **bennett-vm-u8m**, bennett-vm | Pinned detached VM rejects --replay-tape. Expose the same replay capability and corruption check. | medium, 240 min |
+## First blockers in pipeline order
 
-[blockers.json](blockers.json) is in this order and includes the determining spec
-sentences, exact commands, evidence paths and completion criteria copied into the
-owning beads. These are feature/integration prerequisites, not newly invented
-semantic defects. The proposed replay flag and comparison-manifest filenames are
-consumer glue, not normative ISA option names. brt-1ft/brt-cgb retain the wider
-runtime scope already tracked by brt-q1k/brt-zct. Conformance bead:
-**bennett-conformance-7bx**, kept blocked/open for the complete rung.
+| Order | Bead / owner | Determination and completion criterion |
+|---|---|---|
+| 1 | **bp-mq6**, bennett-plugin, open | Plugin arith pins disagree with archived origin-main arith on both majors. Verify and explicitly re-pin the required publication, compiled plugin pins and materialised L/CC closure; then refresh conformance pins coherently. Keep the hash checks. |
+| 2 | **bp-is0**, bennett-plugin, open | The isolated R-mode probe reaches the pinned ISA0.8 typed-fault prerequisite. Implement and verify the published typed-fault producer contract and coordinate explicit migration. No silent ISA upgrade or generic-trap substitution. |
+| 3 | **bennett-conformance-igc**, conformance, fixed/closed | Archived driver probe omitted major and publication paths; both probes defaulted to LLVM23 and a nonexistent sibling runtime. The gate now supplies all frozen paths and the selected major. Verification covers glue; a full rerun is still owed. |
+| 4 | **b-isa-spec-fuk**, bennett-isa-spec, open | Coordinate producer/reference/executor and contract-pin migration for typed R faults. Historical b-isa-spec-221 is closed because ISA0.9 resolves its wording; it is not a remaining ISA0.9 spec defect. The pinned ISA0.8 consumer prerequisite remains red. |
 
-## What works today
+The [blocker registry](blockers.json) lists these current frontiers first,
+including exact diagnostics, determining clauses and completion criteria.
+Historical missing-header/export, unknown-option, version-only-driver and
+replay-option patterns remain for regression recognition, after current entries;
+this run does not re-establish those failures. Evidence updates for the three
+existing upstream beads are requested in `.tmp/sol-rung3/cross-repo-beads.md`;
+no sibling database was changed. Sibling statuses are from their passive exports:
+`bd show` cannot open their embedded-Dolt LOCK on this read-only filesystem, so
+the orchestrator must confirm live status when applying the updates.
+**bennett-conformance-7bx remains blocked.**
 
-Both plugin libraries, the driver and the clean detached VM build from pinned
-sources. Both executors admit the published ISA-0.8 `classical.bisa @effects`
-control, run its five entropy/console/clock/block effects, and reverse fully to
-entry state (memory and device equality, empty console and effect tape).
-Console bytes are 0b1621; the control's retained forward tape is unchanged in the
-reverse report. This establishes that control's device/reset route, not musl
-hello-world. The reference interpreter is the accepted **release** binary;
-its SHA-256 and the VM binary hash are in the report.
+After confirming that the beads exist, recorded errors were classified with
+`Gate.stage` and the table/report emitted with `Gate.finish`, using dependencies
+from the original BLOCKED errors. This executed no corpus command. The separately
+labelled [classified report](evidence/20261103T093332.236979Z/classified/report.json)
+and [classified table](evidence/20261103T093332.236979Z/classified/table.md) change
+only bead associations and add classification metadata; every status, error,
+pin, argv and exit is retained, and `finish` still returns 1.
+[Recording output](evidence/20261103T093332.236979Z/recording.log) is separate from
+the original gate log. The unchanged raw UNFILED report remains the run evidence.
 
-The eight rung-3 glue tests pass, including rejection of missing/unsafe native
-links, corrupted reset flags, ignored/tampered replay tapes, nonzero command exits
-and timeouts. Rung-2's five checks pass against real executor outputs; a structural
-AST comparison confirms **every rung-2 function remains identical**, with only
-four helpers moved verbatim into common support. The checker crate's two tests,
-113 clause tests, 23 suite tests and all 16 neutral suite cases pass. Tests and
-controls never make the red corpus green.
+## Arithmetic publication determination
 
-## Reproducibility and observed gotchas
+The archived plugin SPEC_VERSIONS.toml pins arith commit `0dea42d`; the tested
+origin-main arithmetic commit is `5e9b450`. Both actual bitcode hashes agree with
+the latter publication’s SHA256SUMS and differ from the plugin’s expected hashes:
 
-Source/build pins are listed in [README.md](README.md) and [pins.json](pins.json).
-Compiler binaries are the recorded LLVM 18.1.3 and LLVM 23.1.5 toolchains. The
-runtime and arith archives are pinned to their published bitcode; the live arith
-publication was being updated concurrently and differed from the plugin's SHA
-pin during the first invocation. The gate was corrected to extract pinned
-publications; that initial arith diagnostic is superseded, not filed as an
-upstream defect. The corrected discovery run was
-`.tmp/rung-3/20261101T125019.671846Z/` (UNFILED before issues were filed); this
-recorded rerun reproduces it with the bead mapping and final native-link checks.
+| Major | Plugin expected SHA-256 | Selected arith SHA-256 |
+|---|---|---|
+| 18 | `8d99956e8741803f2115e48fa28c6c71795fb0041e992f8835851b71dd4b6fc1` | `a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff` |
+| 23 | `59563a3a10949b1ea48ca8b79027310ac9f9f7e28c85a30e70a013ced04a6793` | `8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79` |
 
-The suite test runner initially failed because BENNETT_ISA_BINARY was unset;
-rerunning it with the accepted release binary passed all 23 tests. Raw evidence
-is retained locally; compact durable evidence is committed here. The test-first
-red and final green glue logs are included.
+[Publication inspection](evidence/20261103T093332.236979Z/publication-pins.json)
+records paths, full commits and hashes. This is a reproducible consumer/producer
+pin disagreement, not evidence of corrupt arith or runtime bitcode. Selecting
+old arith or dropping verification would hide the origin-main integration
+failure; neither was done. There is no failed `runtime-link` command in the
+report because `runtime_files` rejects the mismatch first.
 
-The driver lacked .beads. `bd init --skip-hooks --skip-agents --non-interactive`
-configured an origin Dolt remote and auto-committed a root .gitignore addition.
-The remote was removed, sync.remote cleared, the root file restored, and bootstrap
-commits consolidated so the final driver commit contains **only .beads files**.
-No Dolt remote sync or Git push was performed. Exports use the repository working
-directory (`env -C`/subprocess cwd): `bd -C` selects the database but does not
-relocate relative `export -o` paths. All final exports were regenerated there.
-Concurrent VM work had already checkpointed its new bead; a separate beads-only
-commit records this task's frozen evidence. That later VM source was not tested.
+## Gate-owned driver fix
 
-## Exact determining commands
+Read-only inspection of `bennett-driver` at `54d32fa:src/main.rs` confirms its
+published options `--bennett-llvm-major`, `--bennett-plugin`, `--bennett-runtimes`
+and `--bennett-arith`. Its default major is 23 and publication paths are resolved
+relative to the build checkout’s parent. An archived driver under conformance’s
+`.tmp/rung3-bennett-driver-<sha>` consequently searches `.tmp/bennett-runtimes`.
+Dialect §19.1/§19.8 requires same-major inputs; it prescribes no sibling directory
+layout. Explicit publication selection is the gate’s responsibility.
 
-```sh
-/usr/lib/llvm-23/bin/clang --target=x86_64-unknown-linux-musl --sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot -nostdinc -isystem /home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm23/musl-sysroot/include -O2 -flto -emit-llvm -c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/hello.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125405.461872Z/23/input.bc
+The determining driver error, on both recorded probes, begins:
+
+```text
+BD-E-INPUT: hash /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: sha256sum: /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-runtimes/dist/llvm23/bennett-runtimes.bc: No such file or directory
 ```
 
-```sh
-/usr/lib/llvm-18/bin/clang --target=x86_64-unknown-linux-musl --sysroot=/home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot -nostdinc -isystem /home/tobias/Projects/bennett-workspace/bennett-runtimes/dist/llvm18/musl-sysroot/include -O2 -flto -emit-llvm -c /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/hello.c -o /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125405.461872Z/18/input.bc
-```
+`gate.py` now shares explicit major/plugin/runtime/arith arguments between the
+probe and materialised comparator. The probe uses `runtime_files`, retaining
+archived defaults, explicit `--runtimes18/23` overrides and publication hashing,
+and depends on plugin build. The comparator already selected major/runtime/arith
+but also needed the explicit archived plugin. There is no driver-default defect
+filed for this layout. On unchanged incompatible pins, the corrected probe will
+fail the arithmetic check before calling the driver; that failure stays red.
+
+## Verification and rerun
+
+Red-first driver tests failed with 10 assertions on the old gate; after the fix
+all 11 checks passed. A later red-first blocker-mapping check failed four cases;
+after mapping existing beads the complete focused suite passes **12 tests**:
 
 ```sh
-/usr/lib/llvm-18/bin/llvm-nm --defined-only /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-runtimes-6808622d560b2e301c635c205eecde3d932b6df5/dist/llvm18/bennett-runtimes.bc
+env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
+  TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp \
+  CARGO_TARGET_DIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/target \
+  timeout 60s python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py
 ```
+
+Evidence: [driver tests red](evidence/20261103T093332.236979Z/tests-red.txt),
+[mapping test red](evidence/20261103T093332.236979Z/mapping-red.txt),
+[final tests green](evidence/20261103T093332.236979Z/tests-green.txt).
+Checks cover both majors, explicit publication defaults/overrides, hash mismatch
+rejection, unchanged driver failures, precise bead matching, UNFILED propagation,
+and the existing fixture/native-link/reset/replay checks. Synthetic results are
+not corpus acceptance.
+
+No full rung or repository gate was rerun: R3 retains the heavy slot, and this
+sandbox cannot create the sibling VM worktree. Exact orchestrator rerun:
 
 ```sh
-/usr/lib/llvm-23/bin/opt -load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-00a5537f92af6b8b5d13e4422f3316e1e41005da/build/libbennett-plugin-23.so -passes=bennett -bennett-dialect=0.2.10 -bennett-isa=0.8 --bennett-tier=reversible --bennett-entry=main -bennett-budget-default=10000000,1048576,65536,256,65536 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125405.461872Z/23/probe-out -disable-output /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll
+env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
+  TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/tmp \
+  CARGO_TARGET_DIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/sol-rung3/target \
+  CARGO_BUILD_JOBS=4 \
+  timeout 7200s /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/gate.sh --jobs 4
 ```
 
-```sh
-/usr/lib/llvm-18/bin/opt -load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-plugin-00a5537f92af6b8b5d13e4422f3316e1e41005da/build/libbennett-plugin-18.so -passes=bennett -bennett-dialect=0.2.10 -bennett-isa=0.8 --bennett-tier=reversible --bennett-entry=main -bennett-budget-default=10000000,1048576,65536,256,65536 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125405.461872Z/18/probe-out -disable-output /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll
-```
+The existing wrapper resets TMPDIR to conformance’s `.tmp`; the original report
+records that effective environment. The rerun uses unchanged pins and should
+still expose the arithmetic blocker until owners supply a verified compatible
+publication. No rerun result or later-stage success is claimed here.
 
-```sh
-/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung3-bennett-driver-306b6e90df85a6b0f59e1e57b04ff7fbcae37ce5/target/debug/bennett-driver --bennett-tier=reversible --bennett-entry=main -bennett-dialect=0.2.10 -bennett-isa=0.8 -bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125405.461872Z/18/driver-probe /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/effect-console-r.ll
-```
+This is the whole-device entry profile: reversible main/argv/status and console
+tape expectations remain exact. The comparator restrictions cover the
+materialised device closure. Mixed fat objects keep an ordinary native host
+binary and marked device closures; native main, host-only libc and host I/O
+need no ISA region, certificate record or device tape. No new launch ABI is
+invented, and no whole-binary lowering requirement is introduced (bennett-4ht).
 
-```sh
-/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621 --replay-tape /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125405.461872Z/18/reference-control-tape.json
-```
-
-```sh
-/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-9ac6d3e11b5b62f4e5f9a4c7294622a00db89bcd/target/debug/bennett-vm run-cc /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/fixtures/executor-control.bisa effects --entropy 0b1621 --replay-tape /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/rung-3/20261101T125405.461872Z/18/VM-control-tape.json
-```
-
-The LLVM 23/runtime and executor counterparts, contract `git show`, archive,
-configure/build, control forward/reverse commands and their complete output are
-all recorded in report.json. Run `ladder/rung-3/gate.sh` to reproduce these frozen
-defaults; no revision flag is necessary. Pass --sysroot18/23 only for a real
-Bennett musl publication, and explicitly override revisions when testing fixes.
-
-## Sibling bead commits (no source changes by this task)
-
-| Repository | HEAD when recorded |
-|---|---|
-| bennett-runtimes | `c49dc6ad3f0c7233b37ed433174bc21656dd65e9` |
-| bennett-plugin | `600143a9aaf81dfd173aa7a0f981c8c1b7967f20` |
-| bennett-driver | `8c6d0a8cc376ba997febcef9434bee08a79d57e8` |
-| bennett-isa-spec | `6c3c1a44bf1c63dc84b7df1980b0f9e5d8aec94b` |
-| bennett-vm | `1957cb1e71a9e70128fbd7eb40447c83efcb187e` |
-
-This repository's implementation commit is reported at handoff rather than
-self-referenced in the committed file. Remaining unrelated worktree changes are
-left for their owners.
+Previous measured results remain in
+[evidence/20261101T125405.461872Z](evidence/20261101T125405.461872Z/table.md).

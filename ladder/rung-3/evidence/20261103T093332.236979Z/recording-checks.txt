@@ -1,0 +1,1 @@
+PASS: original evidence bytes + 112 hashes; unchanged commands/pins/statuses/errors; classified bead propagation; README pins and document links; fixture hashes.

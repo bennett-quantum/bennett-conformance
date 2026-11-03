@@ -176,9 +176,17 @@ class Gate(RecordedGate):
 
     def driver_probe(self,m):
         out=self.run/str(m)/'driver-probe'
+        runtime,arith=self.runtime_files(m)
         self.command(f'{m}/driver-probe',[self.driver_exe,'--bennett-tier=reversible','--bennett-entry=main',
+            *self.driver_publications(m,runtime,arith),
             '-bennett-dialect=0.2.10','-bennett-isa=0.8','-bennett-out='+str(out),HERE/'fixtures/effect-console-r.ll'])
         assert (out/'launches.json').is_file(), 'driver returned success without pipeline outputs'
+
+    def driver_publications(self,m,runtime,arith):
+        # Archived checkouts have no sibling publications; never use driver defaults.
+        return ['--bennett-llvm-major='+str(m),
+            '--bennett-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),
+            '--bennett-runtimes='+str(runtime),'--bennett-arith='+str(arith)]
 
     def native(self,m):
         # This consumer manifest is gate glue, not an addition to the dialect contract.
@@ -186,8 +194,7 @@ class Gate(RecordedGate):
         d=self.run/str(m); out=d/'out'
         runtime,arith=self.runtime_files(m)
         self.command(f'{m}/driver-comparison',[self.driver_exe,'--bennett-tier=reversible','--bennett-entry=main',
-            '--bennett-materialised='+str(out/'device.bc'),'--bennett-llvm-major='+str(m),
-            '--bennett-runtimes='+str(runtime),'--bennett-arith='+str(arith),
+            '--bennett-materialised='+str(out/'device.bc'),*self.driver_publications(m,runtime,arith),
             '--bennett-sysroot='+str(self.sysroots[m]),
             '--bennett-comparison-record='+str(out/'native-comparison.json'),
             '--bennett-comparison-output='+str(d/'native')])
@@ -370,7 +377,7 @@ class Gate(RecordedGate):
                 self.stage(m,name+' tape replay',lambda:self.replay(m,name),(name+' reset',))
             self.stage(m,'runtime libc/console audit (diagnostic)',lambda:self.runtime_audit(m),('plugin build',))
             self.stage(m,'R-mode probe (diagnostic)',lambda:self.pipeline(m,True),('fixtures','plugin build'))
-            self.stage(m,'driver probe (diagnostic)',lambda:self.driver_probe(m),('driver build','fixtures'))
+            self.stage(m,'driver probe (diagnostic)',lambda:self.driver_probe(m),('driver build','fixtures','plugin build'))
             self.stage(m,'ISA-0.8 R contract (prerequisite)',self.isa_contract)
             for name in ('reference','VM'):
                 self.stage(m,name+' device/reset control (diagnostic)',lambda:self.control(m,name),('fixtures',)+(('VM build',) if name=='VM' else ()))
