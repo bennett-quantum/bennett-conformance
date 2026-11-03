@@ -1,7 +1,9 @@
-//! Forward F_B call/return semantics of §3.7. With one empty-key lproc,
-//! canonical rows are the oracle rows followed by that procedure's rows.
+//! Forward F_B call/return semantics of §3.7, with canonical §3.6 SCC
+//! placement and fixed-binding instances for the transitive lproc closure.
 //! Unread historical cells may be omitted extensionally; sp still grows.
 use super::*;
+mod bindings;
+use bindings::{operand_list, Bindings};
 const ACTIVE_BYTES: u128 = 256 * 1024 * 1024;
 fn bad(message: &str) -> EvalError {
     EvalError::Reject(Reject::new("E_CERT_OBJECT", "§3.6/§3.7", "object", message))
@@ -53,6 +55,8 @@ struct Scope {
     widths: HashMap<String, u64>,
     locations: HashSet<String>,
     tokens: HashMap<String, [BigUint; 4]>,
+    regions: HashMap<String, String>,
+    in_lproc: bool,
 }
 impl Scope {
     fn swap(&mut self, env: &mut Lifted<'_, '_>) {
@@ -60,6 +64,8 @@ impl Scope {
         std::mem::swap(&mut self.widths, &mut env.widths);
         std::mem::swap(&mut self.locations, &mut env.locations);
         std::mem::swap(&mut self.tokens, &mut env.tokens);
+        std::mem::swap(&mut self.regions, &mut env.region_names);
+        std::mem::swap(&mut self.in_lproc, &mut env.in_lproc);
     }
 }
 fn width(ty: &str) -> Result<u64, EvalError> {
@@ -92,24 +98,27 @@ fn declare(
 fn procedure_scope(
     function: &Function,
     symbol: &Symbol,
+    root: &Function,
+    binding: &Bindings,
+    args: &[Classical],
+    ptr: u64,
 ) -> Result<(Scope, Vec<String>), EvalError> {
     if function.kind != "lproc" || symbol.kind != "lproc" {
         return Err(bad("lift.call must name a linked lproc"));
     }
     let sig = &symbol.signature;
-    for (key, group) in [("tokens", 2), ("args", 3), ("mem", 4)] {
-        let values = sig
-            .get(key)
-            .and_then(Value::as_arr)
-            .ok_or_else(|| bad("lproc tokens/args/mem arrays are mandatory"))?;
-        if values.len() != function.groups[group].len() {
-            return Err(bad("lproc binding groups disagree with the signature"));
-        }
-        if !values.is_empty() {
-            return unchecked(
-                "lproc fixed-binding instances need canonical key instantiation before replay",
-            );
-        }
+    let mut errors = Vec::new();
+    let fields = [
+        "abi", "args", "kind", "mem", "params", "result", "tier", "tokens",
+    ];
+    if !crate::cert::check_keys(sig, &fields, &fields, "lproc.signature", &mut errors)
+        || sig.get("abi").and_then(Value::as_str) != Some("0.9")
+        || sig.get("kind").and_then(Value::as_str) != Some("lproc")
+        || sig.get("tier").and_then(Value::as_str) != Some("q")
+    {
+        return Err(bad(
+            "lproc signature is not a closed ISA 0.9 Q-tier lproc signature",
+        ));
     }
     let params = sig
         .get("params")
@@ -121,13 +130,15 @@ fn procedure_scope(
     let mut scope = Scope::default();
     let mut names = Vec::new();
     for (param, value) in function.groups[0].iter().zip(params) {
-        if crate::cert::u64_of(value) != Some(width(&param.ty)?) {
+        if param.suffix.is_some() || crate::cert::u64_of(value) != Some(width(&param.ty)?) {
             return Err(bad("lproc parameter widths disagree"));
         }
         declare(&mut scope, &mut names, &param.name, &param.ty)?;
     }
     let result = &function.groups[1][0];
-    if sig.get("result").and_then(crate::cert::u64_of) != Some(width(&result.ty)?) {
+    if result.suffix.is_some()
+        || sig.get("result").and_then(crate::cert::u64_of) != Some(width(&result.ty)?)
+    {
         return Err(bad("lproc result width disagrees"));
     }
     declare(&mut scope, &mut names, &result.name, &result.ty)?;
@@ -152,6 +163,7 @@ fn procedure_scope(
             }
         }
     }
+    bindings::fixed_scope(&mut scope, function, symbol, root, binding, args, ptr)?;
     if scope.widths.values().map(|n| u128::from(*n)).sum::<u128>() >= 1_000_000 {
         return unchecked("host limit: procedure location storage exceeds 999999 bits");
     }
@@ -162,6 +174,7 @@ struct Frame {
     destination: String,
     return_pc: usize,
     caller: usize,
+    bytes: u128,
 }
 fn halted(code: u64) -> OracleOutcome {
     OracleOutcome {
@@ -184,12 +197,41 @@ pub(super) fn run(
         .object
         .function(&env.oracle_name)
         .ok_or_else(|| bad("root oracle is not linked"))?;
-    let mut name = None;
-    let mut pending = vec![root];
-    let mut seen = HashSet::new();
-    while let Some(function) = pending.pop() {
-        if !seen.insert(function.name.clone()) {
-            continue;
+    let root_binding = Bindings::root(root);
+    let mut pending = vec![(root, root_binding.clone())];
+    let mut discovered = HashSet::from([(root.name.clone(), vec![])]);
+    let mut plan_work = 0u128;
+    let mut retained = 0u128;
+    let mut row_count = 0usize;
+    let mut instances = Vec::new();
+    while let Some((function, binding)) = pending.pop() {
+        row_count = row_count.saturating_add(
+            function
+                .blocks
+                .iter()
+                .map(|b| b.instructions.len())
+                .sum::<usize>(),
+        );
+        if row_count > 100_000 {
+            return unchecked("host limit: procedure index space exceeds 100000 rows");
+        }
+        retained += function
+            .blocks
+            .iter()
+            .flat_map(|b| &b.instructions)
+            .map(|r| r.len() as u128 * 2 + 128)
+            .sum::<u128>()
+            + binding
+                .args
+                .keys()
+                .chain(binding.regions.keys())
+                .map(|s| s.len() as u128 + 160)
+                .sum::<u128>();
+        if retained > ACTIVE_BYTES {
+            return unchecked("host limit: retained procedure plan exceeds 256 MiB");
+        }
+        if function.name != root.name {
+            instances.push((function, binding.clone()));
         }
         for row in function
             .blocks
@@ -197,6 +239,10 @@ pub(super) fn run(
             .flat_map(|b| &b.instructions)
             .map(|r| tokenise(r))
         {
+            plan_work += 1;
+            if plan_work > 1_048_576 {
+                return unchecked("host limit: static procedure binding work exceeds 1048576");
+            }
             let (op, operands, _) = parts(&row);
             if op != "lift.call" {
                 continue;
@@ -205,57 +251,141 @@ pub(super) fn run(
                 .first()
                 .and_then(|s| s.strip_prefix('@'))
                 .ok_or_else(|| bad("lift.call requires @callee"))?;
-            if name.as_deref().map(|n| n != target) == Some(true) {
-                return unchecked(
-                    "multiple-lproc canonical SCC/instance placement has not been implemented",
-                );
-            }
-            name = Some(target.to_string());
-            let function = env
+            let callee = env
                 .object
                 .function(target)
                 .ok_or_else(|| EvalError::Unchecked("called lproc is not linked".into()))?;
-            if function.kind != "lproc" {
+            if callee.kind != "lproc" {
                 return Err(bad("lift.call targets a non-lproc"));
             }
-            pending.push(function);
+            if env.object.closure_order(target).is_none() {
+                return unchecked("lproc closure order depends on an unresolved import");
+            }
+            plan_work += callee.groups[2..5].iter().map(Vec::len).sum::<usize>() as u128;
+            if plan_work > 1_048_576 {
+                return unchecked("host limit: static procedure binding work exceeds 1048576");
+            }
+            let resolved = binding.resolve(root, callee, operands)?;
+            if discovered.insert((callee.name.clone(), resolved.key.clone())) {
+                if discovered.len() > 4097 {
+                    return unchecked("host limit: procedure plan exceeds 4096 binding instances");
+                }
+                pending.push((callee, resolved));
+            }
         }
     }
-    let name = name.ok_or_else(|| bad("procedure replay was requested without a call"))?;
-    let function = env.object.function(&name).unwrap();
-    let symbol = env
-        .object
-        .symbol(&name)
-        .ok_or_else(|| bad("lproc symbol is missing"))?;
-    let (proc_scope, names) = procedure_scope(function, symbol)?;
+    instances.sort_by(|(f, a), (g, b)| {
+        env.object
+            .closure_order(&f.name)
+            .unwrap()
+            .cmp(env.object.closure_order(&g.name).unwrap())
+            .then_with(|| a.key.cmp(&b.key))
+    });
     let (mut all, root_labels) = rows(root, 0)?;
     if all != root_rows {
         return Err(bad(
             "oracle row flattening disagrees with its canonical index space",
         ));
     }
-    let first = all.len();
-    let (proc_rows, proc_labels) = rows(function, first)?;
-    all.extend(proc_rows);
+    struct Definition<'a> {
+        function: &'a Function,
+        binding: Bindings,
+        names: Vec<String>,
+        first: usize,
+        end: usize,
+        labels: HashMap<String, usize>,
+        result_width: u64,
+        cells: usize,
+        frame_bytes: u128,
+    }
+    let mut definitions = vec![Definition {
+        function: root,
+        binding: root_binding,
+        names: vec![],
+        first: 0,
+        end: all.len(),
+        labels: root_labels,
+        result_width: 0,
+        cells: 0,
+        frame_bytes: 0,
+    }];
+    let mut banks = vec![Scope::default()];
+    let mut targets = HashMap::new();
+    let mut plan_bytes = 0u128;
+    for (function, binding) in instances {
+        let symbol = env
+            .object
+            .symbol(&function.name)
+            .ok_or_else(|| bad("lproc symbol is missing"))?;
+        let (scope, names) = procedure_scope(
+            function,
+            symbol,
+            root,
+            &binding,
+            args,
+            env.object.header.ptr_width,
+        )?;
+        plan_bytes += 512
+            + scope
+                .widths
+                .iter()
+                .map(|(name, w)| u128::from((w + 7) / 8) + 192 + name.len() as u128)
+                .sum::<u128>()
+            + scope
+                .tokens
+                .iter()
+                .map(|(name, t)| {
+                    name.len() as u128
+                        + 256
+                        + t.iter()
+                            .map(|n| u128::from(n.bits().div_ceil(8)))
+                            .sum::<u128>()
+                })
+                .sum::<u128>()
+            + scope.regions.len() as u128 * 192;
+        if plan_bytes > ACTIVE_BYTES {
+            return unchecked("host limit: procedure instance storage exceeds 256 MiB");
+        }
+        let first = all.len();
+        let (proc_rows, labels) = rows(function, first)?;
+        if first.saturating_add(proc_rows.len()) > 100_000 {
+            return unchecked("host limit: procedure index space exceeds 100000 rows");
+        }
+        all.extend(proc_rows);
+        let result_width = width(&function.groups[1][0].ty)?;
+        let cells = names.len().checked_add(3).ok_or_else(|| {
+            EvalError::Unchecked("host limit: procedure frame size overflow".into())
+        })?;
+        let frame_bytes = 128
+            + names
+                .iter()
+                .map(|n| u128::from((scope.widths[n] + 7) / 8) + 64)
+                .sum::<u128>();
+        targets.insert(
+            (function.name.clone(), binding.key.clone()),
+            definitions.len(),
+        );
+        definitions.push(Definition {
+            function,
+            binding,
+            names,
+            first,
+            end: all.len(),
+            labels,
+            result_width,
+            cells,
+            frame_bytes,
+        });
+        banks.push(scope);
+    }
     if all.len() > 100_000 {
         return unchecked("host limit: procedure index space exceeds 100000 rows");
     }
     if BigUint::from(all.len()).bits() > env.object.header.ptr_width {
         return Err(bad("index space does not fit the pointer width"));
     }
-    let params = &function.groups[0];
-    let result_width = width(&function.groups[1][0].ty)?;
-    let cells = names
-        .len()
-        .checked_add(3)
-        .ok_or_else(|| EvalError::Unchecked("host limit: procedure frame size overflow".into()))?;
-    let frame_bytes: u128 = 128
-        + names
-            .iter()
-            .map(|n| u128::from((proc_scope.widths[n] + 7) / 8) + 64)
-            .sum::<u128>();
-    let mut banks = [Scope::default(), proc_scope];
     let mut frames = Vec::<Frame>::new();
+    let mut active_bytes = 0u128;
     let mut sp = 0u64;
     let mut current = 0usize;
     let mut pc = 0usize;
@@ -264,11 +394,8 @@ pub(super) fn run(
         if steps >= budget[0] {
             return Ok(halted(FAULT_BUDGET_STEPS));
         }
-        let (start, end, labels) = if current == 0 {
-            (0, first, &root_labels)
-        } else {
-            (first, all.len(), &proc_labels)
-        };
+        let definition = &definitions[current];
+        let (start, end, labels) = (definition.first, definition.end, &definition.labels);
         if pc < start || pc >= end {
             return Err(bad(
                 "procedure control flow leaves its function's row range",
@@ -282,13 +409,26 @@ pub(super) fn run(
             let destination = destination
                 .filter(|n| env.locations.contains(*n))
                 .ok_or_else(|| bad("lift.call destination must be a location"))?;
-            if !matches!(operands.len(), 2 | 5) || operands[0] != format!("@{name}") {
-                return Err(bad("lift.call has the wrong callee or operand lists"));
+            if !matches!(operands.len(), 2 | 5) {
+                return Err(bad("lift.call has the wrong number of operand lists"));
             }
-            if operands.len() == 5 && operands[2..].iter().any(|s| s != "()") {
-                return Err(bad("empty-key procedure call has nonempty fixed bindings"));
-            }
-            let sources = list_items(&operands[1]);
+            let name = operands[0]
+                .strip_prefix('@')
+                .ok_or_else(|| bad("lift.call requires @callee"))?;
+            let function = env
+                .object
+                .function(name)
+                .ok_or_else(|| bad("call target is not linked"))?;
+            let binding = definition.binding.resolve(root, function, operands)?;
+            let callee = *targets
+                .get(&(name.to_string(), binding.key))
+                .ok_or_else(|| bad("call target is absent from the fixed-binding closure"))?;
+            let definition = &definitions[callee];
+            let params = &definition.function.groups[0];
+            let result_width = definition.result_width;
+            let names = &definition.names;
+            let cells = definition.cells;
+            let sources = operand_list(&operands[1])?;
             if sources.len() != params.len() || env.width_of(destination)? != result_width {
                 return Err(bad("lift.call signature mismatch"));
             }
@@ -303,7 +443,7 @@ pub(super) fn run(
             if BigUint::from(next_sp) > budget[2] || BigUint::from(frames.len() + 1) > budget[3] {
                 return Ok(halted(FAULT_BUDGET_DEPTH));
             }
-            if frame_bytes * (frames.len() as u128 + 1) > ACTIVE_BYTES {
+            if active_bytes + definition.frame_bytes > ACTIVE_BYTES {
                 return unchecked("host limit: active procedure frames exceed 256 MiB");
             }
             let captured = sources
@@ -311,13 +451,13 @@ pub(super) fn run(
                 .map(|s| env.read(s))
                 .collect::<Result<Vec<_>, _>>()?;
             let caller = current;
-            if current != 1 {
+            if current != callee {
                 banks[current].swap(env);
-                banks[1].swap(env);
-                current = 1;
+                banks[callee].swap(env);
+                current = callee;
             }
             let mut saved = Vec::with_capacity(names.len());
-            for name in &names {
+            for name in names {
                 saved.push(std::mem::replace(
                     env.vals.get_mut(name).unwrap(),
                     BigUint::zero(),
@@ -331,23 +471,26 @@ pub(super) fn run(
                 destination: destination.into(),
                 return_pc: pc + 1,
                 caller,
+                bytes: definition.frame_bytes,
             });
+            active_bytes += definition.frame_bytes;
             sp = next_sp;
-            pc = first;
+            pc = definition.first;
             continue;
         }
         if op == "lift.ret" {
-            if current != 1 || destination.is_some() || operands.len() != 1 {
+            if current == 0 || destination.is_some() || operands.len() != 1 {
                 return Err(bad("lift.ret is only valid in a called lproc"));
             }
-            if env.width_of(&operands[0])? != result_width {
+            if env.width_of(&operands[0])? != definition.result_width {
                 return Err(bad("lift.ret value has wrong width"));
             }
             let value = env.read(&operands[0])?;
             let frame = frames
                 .pop()
                 .ok_or_else(|| bad("lift.ret has no activation record"))?;
-            for (name, old) in names.iter().zip(frame.saved) {
+            active_bytes -= frame.bytes;
+            for (name, old) in definition.names.iter().zip(frame.saved) {
                 env.vals.insert(name.clone(), old);
             }
             if current != frame.caller {

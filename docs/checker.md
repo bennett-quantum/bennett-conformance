@@ -164,15 +164,25 @@ stores leave no partial delta. This model supports H ≤ 63, with host caps of
 one million sparse bytes/table entries. It establishes reference F_B results;
 it does not supply the realised quantum oracle expansion.
 
-Reference replay has capability limits. One empty-key lproc supports recursive calls with canonical global row
-indices, function-local indirect jumps, location capture/save/restore and
-result delivery. Stack use remains monotonic after returns; stack/depth
-checks precede effects and rows share the oracle's ISA and host budgets.
-Only active records are materialised; unread historical cells are compressed
-extensionally while their stack extent remains charged. Procedure plans
-have a 100,000-row host cap and active saved frames a 256 MiB cap. Multiple
-procedures, nonempty fixed-binding keys, unsupported rows and unresolved
-invocation contexts remain explicitly unchecked. The native
+Lifted procedure replay supports multiple procedures and fixed token, classical
+and region parameters, including recursive forwarding. Canonical row placement
+uses closure SCC keys and member indices, followed by lexicographic entry-origin
+binding keys. Equal argument values never merge instances; calls in unexecuted
+branches still contribute instances. Labels and indirect-jump ranges belong to
+the selected instance. Argument forwarding preserves raw iN, pointer, f64 and
+token bits; region parameters refer to the original mapped cells. Immutable
+parameters add no stack cells and cannot alias writable locations.
+
+Calls capture arguments before saving and clearing callee locations; returns
+restore them before delivering results. Stack use remains monotonic after
+returns; stack/depth checks precede effects, and rows share the oracle's ISA and
+host budgets. Only active records are materialised; unread historical cells
+are compressed extensionally while their stack extent remains charged.
+Procedure plans have host caps of 4,096 binding instances, 100,000 rows and
+256 MiB of retained instance state; active saved frames have a separate
+256 MiB cap. Unsupported rows and unresolved invocation contexts remain
+explicitly unchecked. These checks establish reference F_B results; realised
+quantum oracle expansion is still incomplete. The native
 matrix path currently handles single-class action calls, sequential action
 blocks, counted `qloop` bodies, coherent `qif` arms and
 X/CX/CCX/MCX/SWAP/H/S/S†/T/T†/CZ/RX/RY/RZ

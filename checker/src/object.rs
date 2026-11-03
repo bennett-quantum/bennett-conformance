@@ -112,6 +112,9 @@ pub struct Object {
     pub coverage: Option<Value>,
     pub coverage_raw: Option<String>,
     pub object_hash: String,
+    /// §3.6: SCC order key, then member index. Kept from the closure hash pass
+    /// because a cyclic member's hash does not reveal its SCC's ordering key.
+    closure_order: HashMap<String, (String, usize)>,
 }
 
 fn sec_err(section: &str, msg: impl Into<String>) -> String {
@@ -285,6 +288,7 @@ impl Object {
             coverage,
             coverage_raw: raw_line("coverage"),
             object_hash,
+            closure_order: HashMap::new(),
         };
         obj.compute_hashes()?;
         Ok(obj)
@@ -647,7 +651,7 @@ pub fn wire_width_of(ty: &str) -> Option<u64> {
     ty.strip_prefix("wire[")?.strip_suffix(']')?.parse().ok()
 }
 
-fn region_aw_of(ty: &str) -> Option<(u64, u64)> {
+pub(crate) fn region_aw_of(ty: &str) -> Option<(u64, u64)> {
     let inner = ty.strip_prefix("region[")?.strip_suffix(']')?;
     let (a, w) = inner.split_once(',')?;
     Some((a.trim().parse().ok()?, w.trim().parse().ok()?))
@@ -1169,8 +1173,9 @@ impl Object {
                 ));
             }
         }
-        let ifaces = self.hash_pass(HashMode::Interface)?;
-        let closures = self.hash_pass(HashMode::Closure)?;
+        let (ifaces, _) = self.hash_pass(HashMode::Interface)?;
+        let (closures, order) = self.hash_pass(HashMode::Closure)?;
+        self.closure_order = order;
         for sym in &mut self.symbols {
             sym.interface_hash = ifaces.get(&sym.name).cloned().unwrap_or_default();
             sym.closure_hash = closures.get(&sym.name).cloned();
@@ -1178,9 +1183,16 @@ impl Object {
         Ok(())
     }
 
-    /// One section 9.2 pass. Returns name -> hash (closure pass omits symbols
-    /// whose closure depends on unresolved imports).
-    fn hash_pass(&self, mode: HashMode) -> Result<HashMap<String, String>, String> {
+    pub(crate) fn closure_order(&self, name: &str) -> Option<&(String, usize)> {
+        self.closure_order.get(name)
+    }
+
+    /// One section 9.2 pass, retaining §3.6 placement keys as well as hashes.
+    /// The closure pass omits symbols depending on unresolved imports.
+    fn hash_pass(
+        &self,
+        mode: HashMode,
+    ) -> Result<(HashMap<String, String>, HashMap<String, (String, usize)>), String> {
         let names: HashSet<String> = self.symbols.iter().map(|s| s.name.clone()).collect();
         let import_hash = |name: &str| -> Option<String> {
             let sig = self.imports.get(name)?;
@@ -1229,6 +1241,7 @@ impl Object {
         }
         // Process SCCs in dependency order (Kahn over the condensation).
         let mut result: HashMap<String, String> = HashMap::new();
+        let mut order = HashMap::new();
         let mut remaining: Vec<usize> = (0..sccs.len()).collect();
         let mut done_scc: HashSet<usize> = HashSet::new();
         while !remaining.is_empty() {
@@ -1307,14 +1320,16 @@ impl Object {
                     )?);
                 }
                 if !cyclic {
-                    result.insert(sorted[0].clone(), sha256_hex(envelopes[0].as_bytes()));
+                    let hash = sha256_hex(envelopes[0].as_bytes());
+                    order.insert(sorted[0].clone(), (hash.clone(), 0));
+                    result.insert(sorted[0].clone(), hash);
                 } else {
                     let scc_hash = sha256_hex(envelopes.concat().as_bytes());
                     for (idx, m) in sorted.iter().enumerate() {
-                        result.insert(
-                            m.clone(),
-                            sha256_hex(format!("{scc_hash}:{idx}").as_bytes()),
-                        );
+                        let hash = sha256_hex(format!("{scc_hash}:{idx}").as_bytes());
+                        let key = if sorted.len() == 1 { &hash } else { &scc_hash };
+                        order.insert(m.clone(), (key.clone(), idx));
+                        result.insert(m.clone(), hash);
                     }
                 }
             }
@@ -1327,7 +1342,7 @@ impl Object {
             remaining = still;
         }
         let _ = done_scc;
-        Ok(result)
+        Ok((result, order))
     }
 
     fn part4_text(&self, sym: &Symbol) -> String {

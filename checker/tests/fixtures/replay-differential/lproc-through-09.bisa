@@ -1,0 +1,35 @@
+bennett-object isa=0.9 object=0.9 launch=0.9 sched=0.9 cert=0.9 coverage=0.9 target=0.9 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"4ee502a2d517d53d229f2ae21346505af06a228a2f0d2967938d48683e16d9e7","kind":"oracle","name":"through","signature":{"abi":"0.9","args":["token","i2"],"fault":4,"in":[2],"kind":"oracle","mem":[{"A":0,"W":8,"role":"in"}],"tgt":2,"tier":"q"}},"1":{"interface_hash":"9bd5e97be1f600494476527fb2d7d088bffab607bdadac8e01f9b23d15f9dfe1","kind":"lproc","name":"worker","signature":{"abi":"0.9","args":["i2"],"kind":"lproc","mem":[{"A":0,"W":8,"role":"in"}],"params":[2],"result":2,"tier":"q","tokens":["token"]}},"2":{"interface_hash":"c6e53733d87782414d05720d444734d9335244155518db4f60916e3d4b06dd1d","kind":"oracle","name":"plus_db","signature":{"abi":"0.9","args":["i2"],"fault":4,"in":[2],"kind":"oracle","mem":[{"A":0,"W":8,"role":"in"}],"tgt":2,"tier":"q"}},"3":{"interface_hash":"bfa13d9a564e3f8562098c4ea39330d947efa64521310afad6a329dc594bd671","kind":"perm_action","name":"flip_arg","signature":{"abi":"0.9","args":["token","i2"],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}}
+
+section functions
+oracle @through (x:wire[2] in) (t:wire[2]) (f:wire[4]) (db:region[0,8] in) (tk:token, a:i2)
+regs { r:reg[2] }
+^entry():
+r = lift.call @worker (x) (tk) (a) (db)
+lift.retval r
+lproc @worker (x:reg[2]) (r:reg[2]) (tk:token token) (a:i2 classical) (db:region[0,8] in)
+regs { fr:reg[4], zero:reg[4], bad:reg[1] }
+^entry():
+lift.oracle_call @plus_db tk (x) r fr (db) (a)
+zero = lift.const.i4 0
+bad = lift.icmp.ne fr zero
+lift.faultif bad 9
+lift.perm_call @flip_arg (r) () () (tk, a)
+lift.ret r
+oracle @plus_db (x:wire[2] in) (t:wire[2]) (f:wire[4]) (db:region[0,8] in) (a:i2)
+regs { base:reg[32], byte:reg[8], low:reg[2], r:reg[2] }
+^entry():
+base = lift.addr @db
+byte = lift.load.i8 base
+low = lift.trunc.i2 byte
+r = lift.add x a
+r = lift.add r low
+lift.retval r
+perm_action @flip_arg (x:wire[2]) () () (tk:token, a:i2) ()
+^entry():
+x x[0]
+
+section layout
+{"A_tab":2,"H":6,"S_cells":4,"globals":{},"heap_base":32,"heap_limit_max":32,"interface_regions":{"plus_db":{"db":{"base":17}},"through":{"db":{"base":16}}},"null_size":16,"ptr_width":32}

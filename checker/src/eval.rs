@@ -27,6 +27,26 @@ pub fn unchecked<T>(msg: impl Into<String>) -> Result<T, EvalError> {
     Err(EvalError::Unchecked(msg.into()))
 }
 
+fn classical_width(ty: &str, ptr: u64) -> Result<u64, EvalError> {
+    match ty {
+        "ptr" => Ok(ptr),
+        "f64" => Ok(64),
+        _ => ty
+            .strip_prefix('i')
+            .filter(|s| crate::rat::is_canonical_uint_str(s))
+            .and_then(|s| s.parse::<u64>().ok())
+            .filter(|w| (1..=128).contains(w))
+            .ok_or_else(|| {
+                EvalError::Reject(Reject::new(
+                    "E_CERT_OBJECT",
+                    "§3.7",
+                    "object",
+                    "classical parameter must be i1..i128, ptr or f64",
+                ))
+            }),
+    }
+}
+
 fn mask(width: u64) -> BigUint {
     (BigUint::one() << width) - BigUint::one()
 }
@@ -309,11 +329,13 @@ struct Lifted<'a, 'w> {
     memory: Option<crate::lifted_memory::Memory>,
     locations: HashSet<String>,
     fault_width: u64,
+    region_names: HashMap<String, String>,
+    in_lproc: bool,
 }
 
 /// F_B of an oracle on (ins, mem cells in interface-region order, args)
 /// under `budget`. Memory rows use the independent sparse byte model;
-/// call/return replay currently supports one empty-key lproc, recursively.
+/// Call/return replay instantiates fixed bindings and canonical SCC placement.
 pub fn eval_oracle(
     object: &Object,
     oracle: &Symbol,
@@ -369,6 +391,42 @@ fn eval_oracle_work(
     let iface = object
         .interface(&oracle.name)
         .map_err(EvalError::Unchecked)?;
+    let bad_interface = || {
+        EvalError::Reject(Reject::new(
+            "E_CERT_OBJECT",
+            "§3.7",
+            "object",
+            "oracle arguments, types or names disagree with its declared interface",
+        ))
+    };
+    if ins.len() != func.groups[0].len()
+        || mem.len() != iface.regions.len()
+        || args.len() != iface.args.len()
+        || func.groups[4].len() != iface.args.len()
+    {
+        return Err(bad_interface());
+    }
+    let mut names = HashSet::new();
+    for param in func.groups.iter().flatten() {
+        if !names.insert(param.name.clone()) {
+            return Err(bad_interface());
+        }
+    }
+    for ((param, ty), value) in func.groups[4].iter().zip(&iface.args).zip(args) {
+        if param.ty != *ty {
+            return Err(bad_interface());
+        }
+        match value {
+            Classical::Token(_) if ty == "token" => {}
+            Classical::Bits(v) if ty != "token" => {
+                let width = classical_width(ty, object.header.ptr_width)?;
+                if v.bits() > width {
+                    return Err(bad_interface());
+                }
+            }
+            _ => return Err(bad_interface()),
+        }
+    }
     for width in iface
         .bundles
         .iter()
@@ -411,6 +469,11 @@ fn eval_oracle_work(
             .find(|b| b.group == "fault")
             .expect("oracle fault interface")
             .width,
+        region_names: func.groups[3]
+            .iter()
+            .map(|p| (p.name.clone(), p.name.clone()))
+            .collect(),
+        in_lproc: false,
     };
     // Declared locations from the regs line.
     for line in func.bytes.split('\n') {
@@ -440,6 +503,9 @@ fn eval_oracle_work(
                             }
                             let w=digits.parse::<u64>().map_err(|_|EvalError::Unchecked("host limit: location width exceeds the u64 reference host representation".into()))?;
                             reference_width(w)?;
+                            if !names.insert(name.trim().to_string()) {
+                                return Err(bad_interface());
+                            }
                             env.widths.insert(name.trim().to_string(), w);
                             env.vals.insert(name.trim().to_string(), BigUint::zero());
                             env.locations.insert(name.trim().to_string());
@@ -454,11 +520,6 @@ fn eval_oracle_work(
         let width = crate::object::wire_width_of(&spec.0.ty).unwrap_or(0);
         env.widths.insert(spec.0.name.clone(), width);
         env.vals.insert(spec.0.name.clone(), spec.1.clone());
-    }
-    for spec in func.groups[1].iter().chain(func.groups[2].iter()) {
-        let width = crate::object::wire_width_of(&spec.ty).unwrap_or(0);
-        env.widths.insert(spec.name.clone(), width);
-        env.vals.entry(spec.name.clone()).or_insert(BigUint::zero());
     }
     for (spec, value) in func.groups[4].iter().zip(args.iter()) {
         match value {
@@ -578,6 +639,19 @@ impl Lifted<'_, '_> {
             )?);
         }
         Ok(self.memory.as_mut().unwrap())
+    }
+    fn region_name(&self, name: &str) -> Result<&str, EvalError> {
+        self.region_names
+            .get(name)
+            .map(String::as_str)
+            .ok_or_else(|| {
+                EvalError::Reject(Reject::new(
+                    "E_CERT_OBJECT",
+                    "§3.7",
+                    "object",
+                    "memory operand is not a mapped interface region or a fixed region parameter",
+                ))
+            })
     }
     fn pointer(&self, name: &str) -> Result<BigUint, EvalError> {
         if self.width_of(name)? != self.object.header.ptr_width {
@@ -817,6 +891,18 @@ impl Lifted<'_, '_> {
                         "lift.addr requires an @name operand",
                     ))
                 })?;
+                if self.in_lproc
+                    && self
+                        .object
+                        .layout
+                        .as_ref()
+                        .and_then(|l| l.get("globals"))
+                        .and_then(|g| g.get(name))
+                        .is_none()
+                {
+                    return Err(EvalError::Reject(Reject::new("E_CERT_OBJECT", "§4.2", "object",
+                        "lift.addr in an lproc may name globals only; region bases must be passed as locations")));
+                }
                 let base = self.memory(mem_by_name)?.address(name).ok_or_else(|| {
                     EvalError::Reject(Reject::new(
                         "E_CERT_OBJECT",
@@ -1162,8 +1248,19 @@ impl Lifted<'_, '_> {
                     .collect::<Result<_, _>>()?;
                 let mem_vals: Vec<Vec<BigUint>> = mem_toks
                     .iter()
-                    .map(|n| mem_by_name.get(n).cloned().unwrap_or_default())
-                    .collect();
+                    .map(|n| {
+                        self.region_name(n).and_then(|root| {
+                            mem_by_name.get(root).cloned().ok_or_else(|| {
+                                EvalError::Reject(Reject::new(
+                                    "E_CERT_OBJECT",
+                                    "§3.7",
+                                    "object",
+                                    "mapped region contents are absent",
+                                ))
+                            })
+                        })
+                    })
+                    .collect::<Result<_, _>>()?;
                 let mut callee_args = Vec::new();
                 for t in &arg_toks {
                     if let Some(tuple) = self.tokens.get(t) {
@@ -1210,8 +1307,19 @@ impl Lifted<'_, '_> {
                 }
                 let regs: Vec<Vec<BigUint>> = mem_toks
                     .iter()
-                    .map(|n| mem_by_name.get(n).cloned().unwrap_or_default())
-                    .collect();
+                    .map(|n| {
+                        self.region_name(n).and_then(|root| {
+                            mem_by_name.get(root).cloned().ok_or_else(|| {
+                                EvalError::Reject(Reject::new(
+                                    "E_CERT_OBJECT",
+                                    "§3.7",
+                                    "object",
+                                    "mapped region contents are absent",
+                                ))
+                            })
+                        })
+                    })
+                    .collect::<Result<_, _>>()?;
                 let mut callee_args = Vec::new();
                 for t in &arg_toks {
                     if let Some(tuple) = self.tokens.get(t) {
@@ -1242,7 +1350,8 @@ impl Lifted<'_, '_> {
                     self.write(t, v.clone(), w);
                 }
                 for (n, cells) in mem_toks.iter().zip(after.regions.into_iter()) {
-                    mem_by_name.insert(n.clone(), cells);
+                    let root = self.region_name(n)?.to_string();
+                    mem_by_name.insert(root, cells);
                 }
                 Ok(RowFlow::Next)
             }
