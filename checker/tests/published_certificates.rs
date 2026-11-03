@@ -72,3 +72,121 @@ fn published_k84_certificates_replay_both_not_inputs_and_pin_each_negative_oblig
     }
     assert_eq!(count, 3);
 }
+
+#[derive(Clone, Debug)]
+enum Part {
+    Key(String),
+    Index(usize),
+}
+fn positions(value: &Value, path: &mut Vec<Part>, out: &mut Vec<Vec<Part>>) {
+    match value {
+        Value::Obj(m) => {
+            for (k, v) in m {
+                path.push(Part::Key(k.clone()));
+                out.push(path.clone());
+                positions(v, path, out);
+                path.pop();
+            }
+        }
+        Value::Arr(a) => {
+            for (i, v) in a.iter().enumerate() {
+                path.push(Part::Index(i));
+                out.push(path.clone());
+                positions(v, path, out);
+                path.pop();
+            }
+        }
+        _ => (),
+    }
+}
+fn at<'a>(v: &'a mut Value, path: &[Part]) -> &'a mut Value {
+    if path.is_empty() {
+        return v;
+    }
+    match (&path[0], v) {
+        (Part::Key(k), Value::Obj(m)) => at(m.get_mut(k).unwrap(), &path[1..]),
+        (Part::Index(i), Value::Arr(a)) => at(&mut a[*i], &path[1..]),
+        _ => panic!(),
+    }
+}
+fn expected(path: &[Part]) -> &'static str {
+    let keys: Vec<_> = path
+        .iter()
+        .filter_map(|p| {
+            if let Part::Key(k) = p {
+                Some(k.as_str())
+            } else {
+                None
+            }
+        })
+        .collect();
+    if keys.contains(&"domain") {
+        return "E_CERT_DOMAIN";
+    }
+    if keys.first() == Some(&"regions")
+        && keys.len() >= 3
+        && matches!(keys[2], "kind" | "signature" | "bounds")
+    {
+        return "E_CERT_BINDING";
+    }
+    if keys.contains(&"frame") {
+        return "E_CERT_FRAME";
+    }
+    if keys.contains(&"expected") {
+        return if keys.last() == Some(&"expected") {
+            "E_CERT_BINDING"
+        } else {
+            "E_CERT_TABLE"
+        };
+    }
+    if keys.contains(&"invocation") && keys.last() != Some(&"invocation") {
+        return "E_CERT_INVOCATION";
+    }
+    "E_CERT_SCHEMA"
+}
+#[test]
+fn both_published_k91_certificates_exhaust_every_field_and_array_position() {
+    let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../bennett-isa-spec/conformance/fixtures/accepted-k91-09");
+    let mut total = 0;
+    let mut failures = vec![];
+    for name in ["pair-same", "pair-distinct"] {
+        let object_text = std::fs::read_to_string(root.join(format!("{name}.bisa"))).unwrap();
+        let object = Object::parse(&object_text).unwrap();
+        let cert = json(object.certificate_raw.as_deref().unwrap());
+        let mut paths = vec![];
+        positions(&cert, &mut vec![], &mut paths);
+        assert_eq!(paths.len(), 1121, "published K91 field inventory changed");
+        for path in paths {
+            let mut changed = cert.clone();
+            let value = at(&mut changed, &path);
+            *value = if *value == Value::Null {
+                Value::Bool(true)
+            } else {
+                Value::Null
+            };
+            let inputs = Inputs {
+                cert_bytes: jcs(&changed).unwrap(),
+                object_text: object_text.clone(),
+                target_bytes: None,
+                schedule_bytes: None,
+                libraries: vec![],
+                oracle_bin: None,
+                limits: Limits::default(),
+            };
+            let verdict = check_certificate(&inputs);
+            let wanted = expected(&path);
+            if verdict.overall != "rejected" || !codes(&verdict).contains(&wanted) {
+                failures.push(format!(
+                    "{name} {path:?}: expected {wanted}, got {} {:?}",
+                    verdict.overall,
+                    codes(&verdict)
+                ));
+            }
+            total += 1;
+        }
+    }
+    eprintln!("K91 certificate sweep: {total} fields/positions, {} rejected with expected code, {} failures",total-failures.len(),failures.len());
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+    assert_eq!(total, 2242);
+}

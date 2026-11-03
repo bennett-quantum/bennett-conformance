@@ -329,8 +329,21 @@ fn child_invocation(tokens: &[String], parent: &Context, object: &Object) -> Res
         .map(|(p, v)| (p.name.as_str(), v))
         .collect();
     let args = list_items(tokens.get(5).map(String::as_str).unwrap_or("()"));
+    let token_origins: HashMap<_, _> = f.groups[3]
+        .iter()
+        .filter(|p| p.ty == "token")
+        .zip(&parent.invocation.token_aliases)
+        .map(|(p, id)| (p.name.as_str(), *id))
+        .collect();
+    let mut alias_classes = HashMap::new();
+    let mut aliases = Vec::new();
     let mut resolved = Vec::new();
     for name in args {
+        if let Some(id) = token_origins.get(name.as_str()) {
+            let next = alias_classes.len() as u64;
+            let label = *alias_classes.entry(*id).or_insert(next);
+            aliases.push(n(label));
+        }
         resolved.push(
             arg_values
                 .get(name.as_str())
@@ -349,6 +362,7 @@ fn child_invocation(tokens: &[String], parent: &Context, object: &Object) -> Res
     let iface = object.interface(callee).map_err(ClaimOutcome::unchecked)?;
     let value = Value::Obj(BTreeMap::from([
         ("args".into(), Value::Arr(resolved)),
+        ("token_aliases".into(), Value::Arr(aliases)),
         (
             "budget".into(),
             Value::Arr(
@@ -1625,6 +1639,7 @@ mod mcx_order {
                 args: vec![],
                 budget: std::array::from_fn(|_| 0u32.into()),
                 params_hash: crate::sha256::sha256_hex(b"[]"),
+                token_aliases: vec![],
             },
             key: vec![],
             adjoint: false,

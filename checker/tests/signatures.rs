@@ -1,5 +1,9 @@
 mod common;
-use bennett_cert_checker::{json::Value, object::Object};
+use bennett_cert_checker::{
+    cert::check_certificate,
+    json::{jcs, Value},
+    object::Object,
+};
 use common::*;
 fn sources() -> Vec<(String, String)> {
     let declarations=[
@@ -38,6 +42,32 @@ fn rejects(source: &str, name: &str) {
             "ill-formed source interface was accepted: {source}"
         ),
     }
+    // Rebind every document identity so a stale hash cannot mask the source
+    // interface diagnostic in the public certificate entry point.
+    let mut inputs = controlled();
+    inputs.object_text = if Object::parse(source).is_ok() {
+        rebind_object_symbols(source)
+    } else {
+        source.into()
+    };
+    if let Ok(object) = Object::parse(&inputs.object_text) {
+        let symbol = object.symbol(name).unwrap();
+        let hash = symbol.closure_hash.as_ref().unwrap();
+        let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+        set(
+            &mut cert,
+            "bindings",
+            json(&format!(
+                r#"{{"closure_hash":"{hash}","interface_hash":"{}","object_hash":"{}","reference_program_hash":"{}"}}"#,
+                symbol.interface_hash, object.object_hash, symbol.interface_hash
+            )),
+        );
+        inputs.cert_bytes = jcs(&cert).unwrap();
+    }
+    inputs.target_bytes = None;
+    inputs.schedule_bytes = None;
+    let verdict = check_certificate(&inputs);
+    assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
 }
 #[derive(Clone)]
 enum Part {

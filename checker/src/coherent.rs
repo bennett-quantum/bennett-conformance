@@ -127,6 +127,9 @@ pub(crate) fn eval(
     };
     let width = width as usize;
     let dim = 1usize << width;
+    if args.iter().any(|v| matches!(v, Classical::Token(_))) {
+        return Err(EvalError::Unchecked("coherent replay's value-only entry API needs an identity-preserving token binding before forwarding token arguments (K91)".into()));
+    }
     if args.len() != iface.args.len() {
         return Err(reject("reference argument count differs from signature"));
     }
@@ -150,6 +153,7 @@ pub(crate) fn eval(
             args: encoded,
             budget: std::array::from_fn(|_| BigUint::zero()),
             params_hash,
+            token_aliases: vec![],
         },
         key: vec![],
         adjoint,

@@ -2,7 +2,8 @@
 //! translation lemma proves independence from arbitrary borrowed values;
 //! no chosen initial borrow value or basis replay can stand in for it.
 use crate::cert::{
-    check_keys, claim_subject, parse_invocation, rej, schema_err, u64_of, ClaimOutcome, LoadedDocs,
+    check_keys, claim_subject, parse_invocation_for_kind, rej, schema_err, u64_of, ClaimOutcome,
+    LoadedDocs,
 };
 use crate::eval::{parse_blocks, tokenise, Stmt};
 use crate::json::Value;
@@ -259,15 +260,23 @@ fn inner(
         if universal {
             check_keys(
                 inv,
-                &["args", "budget"],
+                &["args", "budget", "token_aliases"],
                 &["args", "budget"],
                 &format!("{path}.invocation"),
                 &mut errs,
             );
-        } else if let Err(e) = parse_invocation(
+            if inv
+                .get("token_aliases")
+                .is_some_and(|v| v.as_str() != Some("all"))
+                || iface.args.iter().any(|t| t == "token") && inv.get("token_aliases").is_none()
+            {
+                errs.push(rej("E_CERT_INVOCATION","§12.3/K91",format!("{path}.invocation.token_aliases"),"parameter-uniform token-bearing proofs must explicitly quantify every consistent partition with token_aliases:all"));
+            }
+        } else if let Err(e) = parse_invocation_for_kind(
             inv,
             &iface.args,
             &docs.object,
+            &symbol.kind,
             &format!("{path}.invocation"),
         ) {
             errs.extend(e);

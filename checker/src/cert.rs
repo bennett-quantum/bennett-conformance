@@ -62,6 +62,7 @@ pub struct ClaimOutcome {
     pub contexts: Option<u64>,
     /// K85 image theorem scope, never a preparation assertion.
     pub image_bindings: Option<Value>,
+    pub token_aliases: Option<Vec<u64>>,
     pub errors: Vec<Reject>,
     pub unchecked_reason: Option<String>,
     pub(crate) borrow_frame: Option<crate::structural::BorrowFrameEvidence>,
@@ -108,6 +109,12 @@ impl ClaimOutcome {
         }
         if let Some(v) = &self.image_bindings {
             m.insert("image_bindings".into(), v.clone());
+        }
+        if let Some(v) = &self.token_aliases {
+            m.insert(
+                "token_aliases".into(),
+                Value::Arr(v.iter().map(n).collect()),
+            );
         }
         if let Some(v) = &self.unchecked_reason {
             m.insert("unchecked_reason".into(), s(v));
@@ -315,6 +322,7 @@ pub struct Invocation {
     pub args: Vec<Value>,
     pub budget: [BigUint; 4],
     pub params_hash: String,
+    pub token_aliases: Vec<u64>,
 }
 
 pub fn validate_budget(budget: &[BigUint; 4], object: &Object, path: &str, errs: &mut Vec<Reject>) {
@@ -411,8 +419,24 @@ pub fn parse_invocation(
     object: &Object,
     path: &str,
 ) -> Result<Invocation, Vec<Reject>> {
+    parse_invocation_for_kind(v, arg_types, object, "action", path)
+}
+
+pub fn parse_invocation_for_kind(
+    v: &Value,
+    arg_types: &[String],
+    object: &Object,
+    kind: &str,
+    path: &str,
+) -> Result<Invocation, Vec<Reject>> {
     let mut errs = Vec::new();
-    if !check_keys(v, &["args", "budget"], &["args", "budget"], path, &mut errs) {
+    if !check_keys(
+        v,
+        &["args", "budget", "token_aliases"],
+        &["args", "budget"],
+        path,
+        &mut errs,
+    ) {
         return Err(errs);
     }
     // Universal structural binding: {args:"all", budget:"all"} is handled by
@@ -475,11 +499,28 @@ pub fn parse_invocation(
     if !errs.is_empty() {
         return Err(errs);
     }
+    let mut token_tuples = Vec::new();
+    if kind == "oracle" {
+        token_tuples.push(budget.clone());
+    }
+    let has_token_args = arg_types.iter().any(|t| t == "token");
+    for (value, ty) in args.iter().zip(arg_types) {
+        if ty == "token" {
+            token_tuples.push(parse_entry_budget(value, object, path)?);
+        }
+    }
+    let token_aliases = crate::tokens::partition(
+        v.get("token_aliases"),
+        &token_tuples,
+        has_token_args,
+        &format!("{path}.token_aliases"),
+    )?;
     let params_hash = sha256_hex(&jcs(&Value::Arr(args.clone())).unwrap_or_default());
     Ok(Invocation {
         args,
         budget,
         params_hash,
+        token_aliases,
     })
 }
 
@@ -1052,7 +1093,13 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     let mut root_invocation: Option<Invocation> = None;
     match bindings.get("invocation") {
         Some(inv) => match &root_iface {
-            Ok(iface) => match parse_invocation(inv, &iface.args, &object, "bindings.invocation") {
+            Ok(iface) => match parse_invocation_for_kind(
+                inv,
+                &iface.args,
+                &object,
+                &root.kind,
+                "bindings.invocation",
+            ) {
                 Ok(parsed) => root_invocation = Some(parsed),
                 Err(e) => verdict.errors.extend(e),
             },
@@ -1095,6 +1142,26 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                     "schedule.bindings.budget",
                     "does not equal the root invocation budget",
                 ));
+            }
+            if let Ok(iface) = &root_iface {
+                let mut value = Value::Obj(BTreeMap::from([
+                    ("args".into(), Value::Arr(inv.args.clone())),
+                    (
+                        "budget".into(),
+                        Value::Arr(inv.budget.iter().map(|v| s(&v.to_string())).collect()),
+                    ),
+                ]));
+                if let Some(aliases) = sb.get("token_aliases") {
+                    let Value::Obj(fields) = &mut value else {
+                        unreachable!()
+                    };
+                    fields.insert("token_aliases".into(), aliases.clone());
+                }
+                match parse_invocation_for_kind(&value,&iface.args,&object,&root.kind,"schedule.bindings") {
+                    Ok(bound) if bound.token_aliases!=inv.token_aliases=>verdict.errors.push(rej("E_CERT_BINDING","§12.3/K91","schedule.bindings.token_aliases","schedule token identity partition differs from the root invocation, even if parameter hashes and tuples agree")),
+                    Err(mut errors)=>{for error in &mut errors {error.code="E_CERT_SCHEDULE_BINDING";}verdict.errors.extend(errors);},
+                    _=>(),
+                }
             }
         }
     }
@@ -1630,7 +1697,14 @@ fn check_region(
                 let mut e = Vec::new();
                 if check_keys(
                     pair,
-                    &["g", "ginv", "claim", "budget", "arg_tokens"],
+                    &[
+                        "g",
+                        "ginv",
+                        "claim",
+                        "budget",
+                        "arg_tokens",
+                        "token_aliases",
+                    ],
                     &["g", "ginv", "claim", "budget"],
                     &pbase,
                     &mut e,

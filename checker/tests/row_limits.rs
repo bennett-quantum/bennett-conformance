@@ -199,7 +199,7 @@ fn action_to_oracle_calls_use_the_configured_reference_row_limit() {
     let source="perm_action @outer (t:wire mut) (x:wire in) () (tk:token) ()\n^entry():\nf = qalloc fast 4\noracle_call @spin tk (x) t f () ()\noracle_call @spin tk (x) t f () ()\nqfree f\noracle @spin (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nqjump ^entry";
     let sig = r#"{"outer":{"abi":"0.9","args":["token"],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"},"spin":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#;
     let claim = json(
-        r#"{"kind":"exhaustive","label":"proof","domain":{"bundles":[],"borrowed":[],"regions":[]},"invocation":{"args":[["100","0","0","0"]],"budget":["0","0","0","0"]},"expected":{"table":[{"before":{"bundles":["0","0"],"borrowed":[],"regions":[]},"after":{"bundles":["0","0"],"borrowed":[],"regions":[]}}]}}"#,
+        r#"{"kind":"exhaustive","label":"proof","domain":{"bundles":[],"borrowed":[],"regions":[]},"invocation":{"args":[["100","0","0","0"]],"budget":["0","0","0","0"],"token_aliases":[0]},"expected":{"table":[{"before":{"bundles":["0","0"],"borrowed":[],"regions":[]},"after":{"bundles":["0","0"],"borrowed":[],"regions":[]}}]}}"#,
     );
     let (mut inp, _) = standalone(source, sig, "outer", vec![claim]);
     inp.limits.max_reference_steps = 4;

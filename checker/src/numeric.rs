@@ -234,6 +234,7 @@ pub fn check_schedule_bindings(
             "inherited_controls",
             "budget",
             "params_hash",
+            "token_aliases",
             "epsilon",
             "expansion",
             "scheduler",

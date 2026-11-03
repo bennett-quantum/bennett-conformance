@@ -94,6 +94,7 @@ random IDs or execution-time fields. Byte-identical inputs yield identical JSON.
 | Claim outcome | Established scope |
 |---|---|
 | `proof` | Exhaustive agreement on every component of D, or both inverse-pair compositions over the entry's full input/memory domain and declared classical-argument ranges |
+| `proof_relative_to_image` | Exhaustive agreement on valid fixed image bindings and every value of every remaining component; preparation and entry factorisation remain separate |
 | `evidence` | Agreement only on the stated slice or sampled draws, with exact replay count and distinct covered fraction |
 | `accept` | The named numerical/channel bound or syntactic structural rule at the resolved invocation scope |
 | `reject` | A named obligation failed; a diagnostic gives its witness or malformed field |
@@ -329,13 +330,11 @@ strings. A `1/3`-second regression checks exact rational accounting separately
 from display rounding and rejects wrong/unreduced fractions or rounded-down
 values.
 
-Repeated contexts can have different widths, timings and argument-dependent
-costs for one closure. The current §12.3 region resource maps are unkeyed and
-do not specify how those contexts aggregate. Such reports remain unchecked
-pending the staged spec proposal for explicit context resource records; no
-sum, maximum or arbitrary invocation is silently selected. Numerical checks
-still enumerate every context. Overlapping event lifetime accounting also
-remains unchecked.
+Repeated contexts may have different controls, timing and argument-dependent
+costs for one closure. K87 reports them individually under complete context
+keys; no aggregation of child peak/time maps replaces the root's own event
+accounting. Overlapping nested-call lifetimes and complete multi-class
+accounting remain unchecked where their expansion is unfinished.
 
 ## Diagnostics and verification
 
@@ -416,3 +415,15 @@ Fragments must cover the complete slot in order, without gaps or overlap, use
 positive integer widths and declared classes, and merge adjacent equal classes.
 The slot keeps its original source identity. Validation of inherited class
 vectors, placement and live intervals remains an explicit unchecked obligation.
+
+K91 token equality partitions are distinct from token tuples and parameter
+hashes. Concrete invocations with token arguments require explicit canonical
+labels; equal labels require equal tuples. Oracle order prepends its primary
+token; actions have only token-argument positions. Root schedules must match the
+certificate partition. Native action contexts forward source identities and
+canonicalize their own local labels. Uniform structural token proofs quantify
+all consistent partitions; inverse-pair entries bind their partition too.
+Token-free omission derives the unique empty/oracle-singleton partition for
+published older positives; a specification clarification is recorded. Scheduled
+carrier/lifecycle integration remains unfinished, and the value-only coherent
+entry API defers token-bearing replay until it carries identities.

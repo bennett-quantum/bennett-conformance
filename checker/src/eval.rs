@@ -3381,7 +3381,9 @@ fn eval_subject_tuple_bounded(
 
 // ---------- replay claim shell ----------
 
-use crate::cert::{claim_subject, host_limit_outcome, parse_invocation, rej, schema_err, u64_of};
+use crate::cert::{
+    claim_subject, host_limit_outcome, parse_invocation_for_kind, rej, schema_err, u64_of,
+};
 use crate::domain::{resolve_domain, ComponentId, ResolvedDomain};
 use crate::fault::ResolveError;
 use crate::json::Value;
@@ -3822,7 +3824,7 @@ fn check_replay_inner(
         )]));
     }
     let invocation: Invocation = match claim.get("invocation") {
-        Some(inv) => parse_invocation(inv, &iface.args, &docs.object, &format!("{path}.invocation"))
+        Some(inv) => parse_invocation_for_kind(inv, &iface.args, &docs.object,&symbol.kind, &format!("{path}.invocation"))
             .map_err(ClaimOutcome::rejected)?,
         None if scheduled && region_hash == docs.root_closure => match root_invocation {
             Some(inv) => inv.clone(),
@@ -3844,7 +3846,10 @@ fn check_replay_inner(
     };
     if scheduled && region_hash == docs.root_closure {
         if let Some(root) = root_invocation {
-            if invocation.args != root.args || invocation.budget != root.budget {
+            if invocation.args != root.args
+                || invocation.budget != root.budget
+                || invocation.token_aliases != root.token_aliases
+            {
                 return Err(ClaimOutcome::rejected(vec![rej(
                     "E_CERT_BINDING",
                     "§12.3",
@@ -4137,6 +4142,7 @@ fn check_replay_inner(
         draws: draws_count.map(|d| d.to_string()),
         distinct: distinct_count.map(|d| d.to_string()),
         covered_fraction: Some(fraction.clone()),
+        token_aliases: Some(invocation.token_aliases.clone()),
         image_bindings: if domain.fixed_regions.is_empty() {
             None
         } else {
@@ -4169,6 +4175,16 @@ fn check_replay_inner(
                                     .budget
                                     .iter()
                                     .map(|n| Value::Str(n.to_string()))
+                                    .collect(),
+                            ),
+                        ),
+                        (
+                            "token_aliases".into(),
+                            Value::Arr(
+                                invocation
+                                    .token_aliases
+                                    .iter()
+                                    .map(crate::json::n)
                                     .collect(),
                             ),
                         ),
@@ -4211,6 +4227,7 @@ fn check_replay_inner(
         rejected.covered_fraction = out.covered_fraction;
         rejected.establishes = out.establishes;
         rejected.image_bindings = out.image_bindings;
+        rejected.token_aliases = out.token_aliases;
         return Err(rejected);
     }
     Ok(out)
@@ -4419,6 +4436,16 @@ fn check_inverse_pair(
             non_token_positions.push(i);
         }
     }
+    let identity_tuples = std::iter::once(budget.clone())
+        .chain(token_tuples.iter().map(|(_, tuple)| tuple.clone()))
+        .collect::<Vec<_>>();
+    let token_aliases = crate::tokens::partition(
+        entry.get("token_aliases"),
+        &identity_tuples,
+        !token_tuples.is_empty(),
+        &format!("{path}.inverse_pair.token_aliases"),
+    )
+    .map_err(ClaimOutcome::rejected)?;
     if domain.arg_widths.len() != non_token_positions.len() {
         return Err(ClaimOutcome::rejected(vec![rej(
             "E_CERT_DOMAIN",
@@ -4544,6 +4571,7 @@ fn check_inverse_pair(
     }
     let out = ClaimOutcome {
         outcome: "proof".into(),
+        token_aliases:Some(token_aliases),
         establishes: format!(
             "for every one of {} elements (full in/mem domain of g, quantified classical args as listed, tokens at the entry tuples) both compositions are fault-free and restore x at budget [{}]",
             domain.n,
