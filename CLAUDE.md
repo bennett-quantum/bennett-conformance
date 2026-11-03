@@ -36,6 +36,7 @@ The specs live in `../bennett-isa-spec/spec/Bennett-ISA-Spec.md` and
    quiet fallbacks. Unsupported means a crash with context.
 2. ONE IMPLEMENTER PER CHANGE. Independent review is batched over several landed
    changes, not required per change.
+   Review policy: bennett/docs/decisions/2026-11-02-code-quality-policy.md (in force 2026-11-03).
 3. RED-GREEN TDD. Write the test, watch it fail, make it pass, then refactor.
 4. EXHAUSTIVE VERIFICATION against the spec conformance suites for the versions
    in `SPEC_VERSIONS.toml`. "Runs without errors" is not a pass.
