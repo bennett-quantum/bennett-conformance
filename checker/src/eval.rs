@@ -1562,14 +1562,81 @@ struct ActionEnv<'a, 'w> {
 }
 
 impl ActionEnv<'_, '_> {
+    fn fresh_wire(&self, name: &str) -> Result<(), EvalError> {
+        let mut bytes = name.bytes();
+        let valid = bytes
+            .next()
+            .is_some_and(|c| c.is_ascii_alphabetic() || c == b'_')
+            && bytes.all(|c| c.is_ascii_alphanumeric() || matches!(c, b'_' | b'.'));
+        if !valid
+            || self.wires.contains_key(name)
+            || self.args.contains_key(name)
+            || self.regions.contains_key(name)
+        {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3/§4.3",
+                "object",
+                "allocation result must be a fresh local wire name",
+            )));
+        }
+        Ok(())
+    }
+    fn positive_count(&self, text: &str) -> Result<usize, EvalError> {
+        if crate::rat::is_canonical_uint_str(text) && text != "0" {
+            return text.parse().map_err(|_| {
+                EvalError::Unchecked("host limit: quantum allocation count exceeds usize".into())
+            });
+        }
+        if text
+            .as_bytes()
+            .first()
+            .is_some_and(|c| c.is_ascii_alphabetic() || *c == b'_')
+        {
+            return unchecked(
+                "nonliteral quantum allocation count requires classical size resolution",
+            );
+        }
+        Err(EvalError::Reject(Reject::new(
+            "E_CERT_OBJECT",
+            "§4.3/K79",
+            "object",
+            "quantum allocation count must be a positive canonical integer",
+        )))
+    }
+    fn whole_bundle_name(&self, token: &str) -> Result<String, EvalError> {
+        let width = self.actual_width(token)?;
+        if width == 0 {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§4.3/K79",
+                "object",
+                "ordinary wire values cannot have zero width",
+            )));
+        }
+        if token.contains('[') {
+            let (name, _) = self.single_wire(token)?;
+            if self.wires[&name].len() != 1 {
+                return unchecked("partial allocation release needs per-wire lifetime tracking");
+            }
+            Ok(name)
+        } else {
+            Ok(token.into())
+        }
+    }
     fn selector_write(&self, token: &str) -> Result<(), EvalError> {
-        let (name, _) = wire_ref(token);
-        if self.selector_guards.contains(&name) {
+        let (name, index) = wire_ref(token);
+        if self.selector_guards.contains(&name)
+            || self
+                .predicates
+                .iter()
+                .any(|(p, i)| p == &name && index.is_none_or(|index| index == *i))
+        {
             return Err(EvalError::Reject(Reject::new(
                 "E_CERT_OBJECT",
                 "§3.3/§4.6",
                 "object",
-                "qloop-while body writes or consumes its selector",
+                "source operation writes or consumes an active predicate or while selector",
             )));
         }
         Ok(())
@@ -1580,7 +1647,7 @@ impl ActionEnv<'_, '_> {
         lhs: Option<&str>,
         operands: &[String],
     ) -> Result<(), EvalError> {
-        if self.selector_guards.is_empty() {
+        if self.selector_guards.is_empty() && self.predicates.is_empty() {
             return Ok(());
         }
         let check = |index: usize| -> Result<(), EvalError> {
@@ -1629,6 +1696,64 @@ impl ActionEnv<'_, '_> {
                 "host limit: reference live wire/region storage exceeds cap 999999 bits (§12.2)",
             );
         }
+        Ok(())
+    }
+    fn create_region(&mut self, operands: &[String]) -> Result<(), EvalError> {
+        let bad = || {
+            EvalError::Reject(Reject::new(
+            "E_CERT_OBJECT", "§3.3/§4.6", "object",
+            "local region requires a fresh name, canonical A>=0 and W>=1, and an exact optional data image",
+        ))
+        };
+        if !(operands.len() == 3 || operands.len() == 4) {
+            return Err(bad());
+        }
+        let name = &operands[0];
+        self.fresh_wire(name)?;
+        if !crate::rat::is_canonical_uint_str(&operands[1])
+            || !crate::rat::is_canonical_uint_str(&operands[2])
+            || operands[2] == "0"
+        {
+            return Err(bad());
+        }
+        let a: u32 = operands[1].parse().map_err(|_| {
+            EvalError::Unchecked("host limit: local region address width exceeds u32".into())
+        })?;
+        let w: u64 = operands[2].parse().map_err(|_| {
+            EvalError::Unchecked("host limit: local region cell width exceeds u64".into())
+        })?;
+        reference_width(w)?;
+        if a > 20 {
+            return unchecked(format!(
+                "host limit: local region[2^{a}] exceeds replay cap"
+            ));
+        }
+        let cells = 1usize << a;
+        self.storage_room(0, cells, w)?;
+        let mut values = vec![BigUint::zero(); cells];
+        if let Some(image) = operands.get(3) {
+            let data_name = image.strip_prefix('@').ok_or_else(bad)?;
+            let hex = self.object.data.get(data_name).ok_or_else(bad)?;
+            let bits = cells as u128 * u128::from(w);
+            if bits % 8 != 0 || hex.len() as u128 * 4 != bits {
+                return Err(bad());
+            }
+            // Object parsing has already checked lowercase, even-length hex.
+            let bytes: Vec<u8> = (0..hex.len() / 2)
+                .map(|i| u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap())
+                .collect();
+            for (i, value) in values.iter_mut().enumerate() {
+                for bit in 0..w as usize {
+                    let offset = i * w as usize + bit;
+                    if bytes[offset / 8] & (1 << (offset % 8)) != 0 {
+                        *value |= BigUint::one() << bit;
+                    }
+                }
+            }
+        }
+        self.local_region_image.insert(name.clone(), values.clone());
+        self.region_width.insert(name.clone(), w);
+        self.regions.insert(name.clone(), values);
         Ok(())
     }
     fn single_wire(&self, token: &str) -> Result<(String, usize), EvalError> {
@@ -1708,6 +1833,22 @@ impl ActionEnv<'_, '_> {
                 "action actual is not a live wire bundle",
             ))
         })
+    }
+    fn disjoint_actuals(&self, first: &str, second: &str) -> Result<(), EvalError> {
+        // Resolve first, so malformed indexed syntax cannot bypass overlap checks.
+        self.actual_width(first)?;
+        self.actual_width(second)?;
+        let (a, i) = wire_ref(first);
+        let (b, j) = wire_ref(second);
+        if a == b && (i.is_none() || j.is_none() || i == j) {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                "instruction wire operands overlap",
+            )));
+        }
+        Ok(())
     }
     fn actual_value(&self, token: &str) -> Result<BigUint, EvalError> {
         if token.contains('[') {
@@ -1904,172 +2045,239 @@ impl ActionEnv<'_, '_> {
                 }
             }
             "qalloc" => {
-                let name =
-                    lhs.ok_or_else(|| EvalError::Unchecked("qalloc without result".into()))?;
-                let n: usize = operands
-                    .get(1)
-                    .and_then(|x| x.parse().ok())
-                    .ok_or_else(|| EvalError::Unchecked("qalloc count is not a literal".into()))?;
+                if operands.len() != 2 || lhs.is_none() {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.3",
+                        "object",
+                        "qalloc requires a result, class and count",
+                    )));
+                }
+                let name = lhs.unwrap();
+                self.fresh_wire(&name)?;
+                let n = self.positive_count(&operands[1])?;
                 self.storage_room(n, 0, 0)?;
                 self.wires.insert(name.clone(), vec![false; n]);
                 self.live_alloc.insert(name);
                 Ok(())
             }
             "qfree" => {
-                let name = &operands[0];
-                let bits = self.wires.remove(name).unwrap_or_default();
-                self.live_alloc.remove(name);
+                if operands.len() != 1 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.3",
+                        "object",
+                        "qfree requires one allocation",
+                    )));
+                }
+                let name = self.whole_bundle_name(&operands[0])?;
+                if !self.live_alloc.remove(&name) {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.3",
+                        "object",
+                        "qfree does not name a locally owned live allocation",
+                    )));
+                }
+                let bits = self.wires.remove(&name).unwrap();
                 if bits.iter().any(|b| *b) {
                     return Err(EvalError::Reject(Reject::new(
                         "E_CERT_REPLAY",
                         "§12.1",
-                        "",
-                        format!("qfree of non-clean bundle {name:?} on this basis element; workspace must finish zero"),
+                        "object",
+                        format!("qfree of non-clean bundle {name:?}; workspace must finish zero"),
                     )));
                 }
                 Ok(())
             }
             "qborrow" => {
-                let name =
-                    lhs.ok_or_else(|| EvalError::Unchecked("qborrow without result".into()))?;
+                if operands.len() != 2 || lhs.is_none() {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.3",
+                        "object",
+                        "qborrow requires a result, class and count",
+                    )));
+                }
+                let name = lhs.unwrap();
+                self.fresh_wire(&name)?;
+                let n = self.positive_count(&operands[1])?;
                 let bits = self.borrowed_queue.pop_front().ok_or_else(|| {
                     EvalError::Unchecked(
-                        "body borrows more bundles than the checked borrow requirement supplies"
-                            .into(),
+                        "body borrows more bundles than the checked requirement supplies".into(),
                     )
                 })?;
+                if bits.len() != n {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.3",
+                        "object",
+                        "borrowed lifetime width disagrees with its declaration",
+                    )));
+                }
+                self.storage_room(n, 0, 0)?;
                 self.borrowed_live.push((name.clone(), bits.clone()));
                 self.wires.insert(name, bits);
                 Ok(())
             }
             "qreturn" => {
-                let name = &operands[0];
-                let bits = self.wires.remove(name).unwrap_or_default();
-                match self.borrowed_live.iter().position(|(n, _)| n == name) {
-                    Some(pos) => {
-                        let (_, orig) = self.borrowed_live.remove(pos);
-                        if orig != bits {
-                            return Err(EvalError::Reject(Reject::new(
-                                "E_CERT_REPLAY",
-                                "§5.6",
-                                "",
-                                format!("borrowed bundle {name:?} changed on this basis element"),
-                            )));
-                        }
-                        Ok(())
-                    }
-                    None => unchecked(format!("qreturn of unborrowed bundle {name:?}")),
+                if operands.len() != 1 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.3",
+                        "object",
+                        "qreturn requires one borrowed lifetime",
+                    )));
                 }
+                let name = self.whole_bundle_name(&operands[0])?;
+                let pos = self
+                    .borrowed_live
+                    .iter()
+                    .position(|(n, _)| n == &name)
+                    .ok_or_else(|| {
+                        EvalError::Reject(Reject::new(
+                            "E_CERT_OBJECT",
+                            "§4.3",
+                            "object",
+                            "qreturn does not name a live borrowed lifetime",
+                        ))
+                    })?;
+                let bits = self.wires.remove(&name).unwrap();
+                let (_, orig) = self.borrowed_live.remove(pos);
+                if bits != orig {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_REPLAY",
+                        "§5.6",
+                        "object",
+                        format!("borrowed bundle {name:?} changed"),
+                    )));
+                }
+                Ok(())
             }
             "qcopy" => {
-                let dst = lhs.ok_or_else(|| EvalError::Unchecked("qcopy without result".into()))?;
-                let src = self.wires.get(&operands[0]).cloned().unwrap_or_default();
-                self.storage_room(src.len(), 0, 0)?;
-                let on = self.controls_on()?;
+                if operands.len() != 1 || lhs.is_none() {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.5",
+                        "object",
+                        "qcopy requires a fresh result and one live source",
+                    )));
+                }
+                let dst = lhs.unwrap();
+                self.fresh_wire(&dst)?;
+                let width = self.actual_width(&operands[0])?;
+                if width == 0 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.5/K79",
+                        "object",
+                        "qcopy source must be nonempty",
+                    )));
+                }
+                let value = if self.controls_on()? {
+                    self.actual_value(&operands[0])?
+                } else {
+                    BigUint::zero()
+                };
+                self.storage_room(width, 0, 0)?;
                 self.wires
-                    .insert(dst.clone(), if on { src } else { vec![false; src.len()] });
+                    .insert(dst.clone(), bits_of(&value, width as u64));
                 self.live_alloc.insert(dst);
                 Ok(())
             }
             "quncopy" => {
-                let (src_name, dst_name) = (&operands[0], &operands[1]);
-                let src = self.wires.get(src_name).cloned().unwrap_or_default();
-                let on = self.controls_on()?;
-                if on {
-                    let dst = self
-                        .wires
-                        .get_mut(dst_name)
-                        .ok_or_else(|| EvalError::Unchecked("quncopy target not live".into()))?;
-                    for (i, s) in src.iter().enumerate() {
-                        if *s {
-                            dst[i] = !dst[i];
-                        }
-                    }
+                if operands.len() != 2 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.5",
+                        "object",
+                        "quncopy requires a source and owned allocation",
+                    )));
                 }
-                let bits = self.wires.remove(dst_name).unwrap_or_default();
-                self.live_alloc.remove(dst_name);
+                let dst = self.whole_bundle_name(&operands[1])?;
+                let width = self.actual_width(&operands[0])?;
+                if !self.live_alloc.contains(&dst)
+                    || width != self.wires[&dst].len()
+                    || wire_ref(&operands[0]).0 == dst
+                {
+                    return Err(EvalError::Reject(Reject::new("E_CERT_OBJECT","§3.3/§4.5","object","quncopy operands must be live, disjoint and equal-width, with an owned destination")));
+                }
+                let source = self.actual_value(&operands[0])?;
+                if self.controls_on()? {
+                    let value = self.bundle_value(&dst)? ^ source;
+                    self.deliver_actual(&dst, &value)?;
+                }
+                let bits = self.wires.remove(&dst).unwrap();
+                self.live_alloc.remove(&dst);
                 if bits.iter().any(|b| *b) {
                     return Err(EvalError::Reject(Reject::new(
                         "E_CERT_REPLAY",
                         "§12.1",
-                        "",
-                        format!(
-                            "quncopy leaves bundle {dst_name:?} non-clean on this basis element"
-                        ),
+                        "object",
+                        format!("quncopy leaves bundle {dst:?} non-clean"),
                     )));
                 }
                 Ok(())
             }
             "qxor" | "qexch" => {
-                let a = self.wires.get(&operands[0]).cloned().unwrap_or_default();
-                let on = self.controls_on()?;
-                let b = self
-                    .wires
-                    .get_mut(&operands[1])
-                    .ok_or_else(|| EvalError::Unchecked(format!("{op} target not live")))?;
-                if a.len() != b.len() {
-                    return unchecked(format!("{op} bundle width mismatch"));
+                if lhs.is_some() || operands.len() != 2 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.5",
+                        "object",
+                        "bulk XOR/exchange requires exactly two operands and no result",
+                    )));
                 }
-                if on {
+                let width = self.actual_width(&operands[0])?;
+                if width == 0 || width != self.actual_width(&operands[1])? {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.3/§4.5",
+                        "object",
+                        "bulk XOR/exchange operands must have equal positive widths",
+                    )));
+                }
+                self.disjoint_actuals(&operands[0], &operands[1])?;
+                if self.controls_on()? {
+                    let a = self.actual_value(&operands[0])?;
+                    let b = self.actual_value(&operands[1])?;
                     if op == "qxor" {
-                        for (i, s) in a.iter().enumerate() {
-                            if *s {
-                                b[i] = !b[i];
-                            }
-                        }
+                        self.deliver_actual(&operands[1], &(a ^ b))?;
                     } else {
-                        let tmp = b.clone();
-                        *b = a;
-                        self.wires.insert(operands[0].clone(), tmp);
+                        self.deliver_actual(&operands[0], &b)?;
+                        self.deliver_actual(&operands[1], &a)?;
                     }
                 }
                 Ok(())
             }
             "qregion" => {
-                // qregion name A W [@image]
-                let name = operands[0].clone();
-                let a: u32 = operands[1]
-                    .parse()
-                    .map_err(|_| EvalError::Unchecked("qregion A not literal".into()))?;
-                let w: u64 = operands[2]
-                    .parse()
-                    .map_err(|_| EvalError::Unchecked("qregion W not literal".into()))?;
-                reference_width(w)?;
-                if a > 20 {
-                    return unchecked(format!("local region[2^{a}] exceeds replay cap"));
+                // All declarations, including zero-trip and qif declarations,
+                // were instantiated once at invocation entry (K83).
+                if lhs.is_some()
+                    || !(operands.len() == 3 || operands.len() == 4)
+                    || !self.local_region_image.contains_key(&operands[0])
+                {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.6/K83",
+                        "object",
+                        "invalid local region declaration",
+                    )));
                 }
-                let cells = 1usize << a;
-                self.storage_room(0, cells, w)?;
-                let mut values = vec![BigUint::zero(); cells];
-                if let Some(img) = operands.get(3) {
-                    let data_name = img.trim_start_matches('@');
-                    let hex = self.object.data.get(data_name).cloned().unwrap_or_default();
-                    let bytes: Vec<u8> = (0..hex.len() / 2)
-                        .map(|i| u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap_or(0))
-                        .collect();
-                    for (i, v) in values.iter_mut().enumerate() {
-                        let mut cell = BigUint::zero();
-                        for bit in 0..w {
-                            let byte = bytes
-                                .get((i as u64 * w + bit) as usize / 8)
-                                .copied()
-                                .unwrap_or(0);
-                            if (byte >> (((i as u64 * w + bit) % 8) as u32)) & 1 == 1 {
-                                cell |= BigUint::one() << bit;
-                            }
-                        }
-                        *v = cell;
-                    }
-                }
-                self.local_region_image.insert(name.clone(), values.clone());
-                self.region_width.insert(name.clone(), w);
-                self.regions.insert(name, values);
                 Ok(())
             }
             "qload" => {
-                let dst = lhs.ok_or_else(|| EvalError::Unchecked("qload without result".into()))?;
-                let idx = self.address_index(&operands[0], &operands[1])?;
-                let w = self.region_width[&operands[0]];
+                if operands.len() != 2 || lhs.is_none() {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.6",
+                        "object",
+                        "qload requires a result, region and address",
+                    )));
+                }
+                let dst = lhs.unwrap();
+                self.fresh_wire(&dst)?;
+                let (idx, w) = self.memory_operands(&operands[0], &operands[1], None)?;
                 self.storage_room(w as usize, 0, 0)?;
                 let v = if self.controls_on()? {
                     self.regions[&operands[0]][idx].clone()
@@ -2080,57 +2288,56 @@ impl ActionEnv<'_, '_> {
                 self.live_alloc.insert(dst);
                 Ok(())
             }
-            "qunload" => {
-                // inverse of qload: XOR cell into d under predicate, then free d
-                let idx = self.address_index(&operands[0], &operands[1])?;
-                let cells = self.regions[&operands[0]][idx].clone();
-                let on = self.controls_on()?;
-                let dname = &operands[2];
-                if on {
-                    let d = self
-                        .wires
-                        .get_mut(dname)
-                        .ok_or_else(|| EvalError::Unchecked("qunload target not live".into()))?;
-                    let cl = bits_of(&cells, d.len() as u64);
-                    for (i, s) in cl.iter().enumerate() {
-                        if *s {
-                            d[i] = !d[i];
+            "qunload" | "qstore" | "qexchm" => {
+                if lhs.is_some() || operands.len() != 3 {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§4.6",
+                        "object",
+                        "memory operation requires exactly region, address and value",
+                    )));
+                }
+                let (idx, w) =
+                    self.memory_operands(&operands[0], &operands[1], Some(&operands[2]))?;
+                let dst = if op == "qunload" {
+                    let name = self.whole_bundle_name(&operands[2])?;
+                    if !self.live_alloc.contains(&name) {
+                        return Err(EvalError::Reject(Reject::new(
+                            "E_CERT_OBJECT",
+                            "§4.6",
+                            "object",
+                            "qunload must release a locally owned allocation",
+                        )));
+                    }
+                    Some(name)
+                } else {
+                    None
+                };
+                if self.controls_on()? {
+                    let cell = self.regions[&operands[0]][idx].clone();
+                    let value = self.actual_value(&operands[2])?;
+                    match op {
+                        "qunload" => self.deliver_actual(&operands[2], &(cell ^ value))?,
+                        "qstore" => self.regions.get_mut(&operands[0]).unwrap()[idx] = cell ^ value,
+                        _ => {
+                            self.deliver_actual(&operands[2], &cell)?;
+                            self.regions.get_mut(&operands[0]).unwrap()[idx] = value;
                         }
                     }
                 }
-                let bits = self.wires.remove(dname).unwrap_or_default();
-                self.live_alloc.remove(dname);
-                if bits.iter().any(|b| *b) {
-                    return Err(EvalError::Reject(Reject::new(
-                        "E_CERT_REPLAY",
-                        "§12.1",
-                        "",
-                        "qunload leaves its bundle non-clean on this basis element",
-                    )));
+                if let Some(name) = dst {
+                    let bits = self.wires.remove(&name).unwrap();
+                    self.live_alloc.remove(&name);
+                    if bits.iter().any(|b| *b) {
+                        return Err(EvalError::Reject(Reject::new(
+                            "E_CERT_REPLAY",
+                            "§12.1",
+                            "object",
+                            "qunload leaves its bundle non-clean on this basis element",
+                        )));
+                    }
                 }
-                Ok(())
-            }
-            "qstore" => {
-                let v = self.bundle_value(&operands[2])?;
-                let on = self.controls_on()?;
-                let idx = self.address_index(&operands[0], &operands[1])?;
-                if on {
-                    let w = self.region_width[&operands[0]];
-                    let cells = self.regions.get_mut(&operands[0]).unwrap();
-                    cells[idx] = masked(&(&cells[idx] ^ &v), w);
-                }
-                Ok(())
-            }
-            "qexchm" => {
-                let v = self.bundle_value(&operands[2])?;
-                let on = self.controls_on()?;
-                let idx = self.address_index(&operands[0], &operands[1])?;
-                if on {
-                    let w = self.region_width[&operands[0]];
-                    let old = self.regions[&operands[0]][idx].clone();
-                    self.regions.get_mut(&operands[0]).unwrap()[idx] = masked(&v, w);
-                    self.wires.insert(operands[2].clone(), bits_of(&old, w));
-                }
+                let _ = w; // Width equality is checked even when controls are false.
                 Ok(())
             }
             "qpred" => {
@@ -2153,30 +2360,47 @@ impl ActionEnv<'_, '_> {
         }
     }
 
-    fn address_index(&self, region: &str, addr_tok: &str) -> Result<usize, EvalError> {
-        let cells = self
-            .regions
-            .get(region)
-            .ok_or_else(|| EvalError::Unchecked(format!("region {region:?} is not live")))?;
-        if addr_tok == "()" {
-            return Ok(0);
-        }
-        let (bundle, idx) = wire_ref(addr_tok);
-        let value = match idx {
-            Some(i) => {
-                if self.bit(&bundle, i)? {
-                    BigUint::one()
-                } else {
-                    BigUint::zero()
-                }
-            }
-            None => self.bundle_value(&bundle)?,
+    fn memory_operands(
+        &self,
+        region: &str,
+        address: &str,
+        value: Option<&str>,
+    ) -> Result<(usize, u64), EvalError> {
+        let bad = || {
+            EvalError::Reject(Reject::new(
+            "E_CERT_OBJECT", "§3.3/§4.6/K79", "object",
+            "memory region must be live, address exactly A wires (only () at A=0), and a disjoint value exactly W wires",
+        ))
         };
-        let idx = value.to_string().parse::<usize>().unwrap_or(usize::MAX);
-        if idx >= cells.len() {
-            return unchecked("region address out of range in replay");
+        let cells = self.regions.get(region).ok_or_else(bad)?;
+        let w = *self.region_width.get(region).ok_or_else(bad)?;
+        if !cells.len().is_power_of_two() || w == 0 {
+            return Err(bad());
         }
-        Ok(idx)
+        let a = cells.len().trailing_zeros() as usize;
+        let index = if a == 0 {
+            if address != "()" {
+                return Err(bad());
+            }
+            0
+        } else {
+            if address == "()" || self.actual_width(address)? != a {
+                return Err(bad());
+            }
+            self.actual_value(address)?.to_usize().ok_or_else(bad)?
+        };
+        if index >= cells.len() {
+            return Err(bad());
+        }
+        if let Some(value) = value {
+            if self.actual_width(value)? as u64 != w {
+                return Err(bad());
+            }
+            if a != 0 {
+                self.disjoint_actuals(address, value)?;
+            }
+        }
+        Ok((index, w))
     }
 
     fn exec_perm_gate(&mut self, op: &str, operands: &[String]) -> Result<(), EvalError> {
@@ -2860,6 +3084,13 @@ fn eval_action_tuple_guarded(
     }
     for (spec, value) in func.groups[3].iter().zip(args.iter()) {
         env.args.insert(spec.name.clone(), value.clone());
+    }
+    for line in func.blocks.iter().flat_map(|b| &b.instructions) {
+        let tokens = tokenise(line);
+        if tokens.first().map(String::as_str) == Some("qregion") {
+            reference_step(env.work)?;
+            env.create_region(&tokens[1..])?;
+        }
     }
     // Also map args by the signature order for lifted call lookup parity.
     let mut blocks = parse_blocks(func);

@@ -478,15 +478,104 @@ fn malformed_lifetimes_cannot_hide_dirty_allocations_or_turn_missing_values_into
         "d = qalloc any 0\nqfree d",
         "d = qalloc any 1\nx d\nd = qcopy t\nquncopy t d",
     ] {
-        let source=format!("perm_action @a (t:wire mut) () () () ()\n^entry():\n{body}");
-        let (inputs,_)=standalone(&source,r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,"a",vec![table_claim(&[("t",1)],vec![row(&[0],&[0]),row(&[1],&[1])])]);
-        let verdict=check_certificate(&inputs);assert!(codes(&verdict).contains(&"E_CERT_OBJECT"),"{body}: {verdict:?}");
+        let source = format!("perm_action @a (t:wire mut) () () () ()\n^entry():\n{body}");
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+            "a",
+            vec![table_claim(
+                &[("t", 1)],
+                vec![row(&[0], &[0]), row(&[1], &[1])],
+            )],
+        );
+        let verdict = check_certificate(&inputs);
+        assert!(
+            codes(&verdict).contains(&"E_CERT_OBJECT"),
+            "{body}: {verdict:?}"
+        );
     }
 }
 #[test]
 fn indexed_copy_sources_and_cleanup_preserve_every_bit_under_both_predicate_values() {
     let source="perm_action @a (t:wire[2] mut) (c:wire in) () () ()\n^entry():\nqpred c\nd = qcopy t[0]\nquncopy t[0] d\nqunpred c";
-    let rows=(0..4).flat_map(|t|(0..2).map(move|c|row(&[t,c],&[t,c]))).collect();
-    let (inputs,_)=standalone(source,r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,"a",vec![table_claim(&[("t",2),("c",1)],rows)]);
-    let verdict=check_certificate(&inputs);assert!(codes(&verdict).is_empty(),"{verdict:?}");assert_eq!(verdict.regions[0].claims[0].1.outcome,"proof","{verdict:?}");
+    let rows = (0..4)
+        .flat_map(|t| (0..2).map(move |c| row(&[t, c], &[t, c])))
+        .collect();
+    let (inputs, _) = standalone(
+        source,
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,
+        "a",
+        vec![table_claim(&[("t", 2), ("c", 1)], rows)],
+    );
+    let verdict = check_certificate(&inputs);
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    assert_eq!(
+        verdict.regions[0].claims[0].1.outcome, "proof",
+        "{verdict:?}"
+    );
+}
+
+#[test]
+fn bulk_gate_aliases_widths_and_arity_reject_even_under_disabled_predicates() {
+    for body in [
+        "qxor t t",
+        "qexch t t",
+        "qxor t t[0]",
+        "qpred c\nqxor t c\nqunpred c",
+        "qpred c\nqexch t c\nqunpred c",
+        "qxor t t ignored",
+        "qxor ghost t",
+    ] {
+        let source =
+            format!("perm_action @a (t:wire[2] mut) (c:wire in) () () ()\n^entry():\n{body}");
+        let rows = (0..4)
+            .flat_map(|t| (0..2).map(move |c| row(&[t, c], &[0, c])))
+            .collect();
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,
+            "a",
+            vec![table_claim(&[("t", 2), ("c", 1)], rows)],
+        );
+        let verdict = check_certificate(&inputs);
+        assert!(
+            codes(&verdict).contains(&"E_CERT_OBJECT"),
+            "{body}: {verdict:?}"
+        );
+    }
+}
+
+#[test]
+fn indexed_bulk_gates_preserve_other_bits_and_allow_read_only_predicate_sources() {
+    for op in ["qxor t[0] t[1]", "qexch t[0] t[1]", "qxor c t[0]"] {
+        let source=format!("perm_action @a (t:wire[2] mut) (c:wire in) () () ()\n^entry():\nqpred c\n{op}\nqunpred c");
+        let rows = (0..4)
+            .flat_map(|t| {
+                (0..2).map(move |c| {
+                    let next = if c == 0 {
+                        t
+                    } else {
+                        match op {
+                            "qxor t[0] t[1]" => t ^ ((t & 1) << 1),
+                            "qexch t[0] t[1]" => ((t & 1) << 1) | ((t >> 1) & 1),
+                            _ => t ^ c,
+                        }
+                    };
+                    row(&[t, c], &[next, c])
+                })
+            })
+            .collect();
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,
+            "a",
+            vec![table_claim(&[("t", 2), ("c", 1)], rows)],
+        );
+        let verdict = check_certificate(&inputs);
+        assert!(codes(&verdict).is_empty(), "{op}: {verdict:?}");
+        assert_eq!(
+            verdict.regions[0].claims[0].1.outcome, "proof",
+            "{op}: {verdict:?}"
+        );
+    }
 }

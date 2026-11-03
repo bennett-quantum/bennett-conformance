@@ -161,8 +161,12 @@ actuals and disabled gate paths. Structural qif flips restore their selector;
 the guard ends at loop exit. Full static selector-provenance analysis remains
 unfinished. Replay executes both qif arms through §4.6's literal predicated expansion: allocations, images
 and releases happen unconditionally while gates obey the active controls.
-Recovering allocation sites for general lifetime-bearing adjoints remains
-unfinished and yields unchecked.
+Adjoints recover unique explicit allocation sites and reverse the complete qif
+expansion across all blocks. Reused names, implicit allocations and borrowed
+release recovery still yield unchecked. Local allocation results must be fresh;
+release checks ownership and cleanliness. Indexed wire actuals preserve the
+other bundle bits, and action calls check exact widths, region shapes and wire
+disjointness before effects, including disabled calls.
 
 For supported action bodies, reference replay retains exact amplitudes in
 Q(√2,i) through H, S/S†, T/T†, CZ and permutation gates, predicates, counted
