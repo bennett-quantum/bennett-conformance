@@ -62,18 +62,13 @@ fn arithmetic_shift_witness_replays_all_256_rows() {
     assert_eq!(claim.covered_fraction.as_deref(), Some("1/256"));
 }
 #[test]
-fn ambiguous_mcx_bundle_never_silently_selects_bit_zero() {
+fn mcx_bundle_controls_expand_every_bit_under_k93() {
     let verdict = check_certificate(&witness("mcx-bundle-control"));
     assert!(codes(&verdict).is_empty(), "{verdict:?}");
     let claim = &verdict.regions[0].claims[0].1;
-    assert_eq!(claim.outcome, "unchecked", "{claim:?}");
-    assert!(claim
-        .unchecked_reason
-        .as_deref()
-        .unwrap()
-        .contains("b-isa-spec-sqr"));
-    assert!(claim.elements.is_none());
-    assert!(claim.covered_fraction.is_none());
+    assert_eq!(claim.outcome, "proof", "{claim:?}");
+    assert_eq!(claim.elements.as_deref(), Some("16"));
+    assert_eq!(claim.covered_fraction.as_deref(), Some("1/1"));
 }
 #[test]
 fn explicit_mcx_bundle_bits_replay_the_complete_sixteen_row_table() {

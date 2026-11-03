@@ -15,6 +15,8 @@ use num_traits::{One, Signed, Zero};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
+pub(crate) mod native_model;
+
 type Result<T> = std::result::Result<T, ClaimOutcome>;
 fn pending<T>(reason: impl Into<String>) -> Result<T> {
     Err(ClaimOutcome::unchecked(reason))
@@ -829,6 +831,66 @@ enum Choice<'a> {
     Native(&'a Value),
     Scheme(&'a Value),
 }
+fn native_numbers(
+    docs: &LoadedDocs,
+    gate: &Gate,
+    entry: &Value,
+) -> Result<(HashMap<&'static str, Rat>, Rat, Option<Rat>)> {
+    let target = docs.target.as_ref().expect("native target is present");
+    let decision = if gate.template_leaf {
+        None
+    } else {
+        decision_kind(docs, gate, "gate")?
+    };
+    let mut vars = HashMap::from([
+        ("k", Rat::from_integer(gate.own_controls.into())),
+        ("c", Rat::from_integer(gate.controls.len().into())),
+    ]);
+    let epsilon = entry
+        .get("epsilon")
+        .expect("target schema validated epsilon");
+    let share = gate
+        .requested_share
+        .clone()
+        .or_else(|| {
+            decision
+                .and_then(|g| g.get("epsilon_share"))
+                .and_then(|e| rat_of_json(e).ok())
+        })
+        .or_else(|| {
+            docs.schedule
+                .as_ref()
+                .and_then(|s| s.get("bindings"))
+                .and_then(|b| b.get("epsilon"))
+                .and_then(|e| rat_of_json(e).ok())
+                .filter(|e| e.is_zero())
+        });
+    if let Some(share) = &share {
+        vars.insert("eps", share.clone());
+    } else if crate::expressions::uses_epsilon(epsilon) {
+        return pending("default epsilon shares require counting all approximate operations before native matching");
+    }
+    let achieved =
+        crate::expressions::evaluate(epsilon, &vars, target.get("tables").unwrap_or(&Value::Null))
+            .map_err(|error| match error {
+                crate::expressions::Error::Invalid(message) => ClaimOutcome::rejected(vec![rej(
+                    "E_CERT_TARGET",
+                    "§8.1",
+                    "target.gates.epsilon",
+                    message,
+                )]),
+                crate::expressions::Error::HostLimit(limit) => host_limit_outcome(limit),
+            })?;
+    if achieved.is_negative() {
+        return Err(ClaimOutcome::rejected(vec![rej(
+            "E_CERT_TARGET",
+            "§8.1",
+            "target.gates.epsilon",
+            "evaluated native epsilon must be nonnegative",
+        )]));
+    }
+    Ok((vars, achieved, share))
+}
 fn select<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Choice<'a>> {
     let target = docs
         .target
@@ -881,56 +943,8 @@ fn select<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Choice<'a>> {
                 "native class-pattern matching needs a resolved operand-class expansion",
             );
         }
-        let mut vars = HashMap::from([
-            ("k", Rat::from_integer(gate.own_controls.into())),
-            ("c", Rat::from_integer(gate.controls.len().into())),
-        ]);
-        let epsilon = entry
-            .get("epsilon")
-            .expect("target schema validated epsilon");
-        let share = gate
-            .requested_share
-            .clone()
-            .or_else(|| {
-                decision
-                    .and_then(|g| g.get("epsilon_share"))
-                    .and_then(|e| rat_of_json(e).ok())
-            })
-            .or_else(|| {
-                docs.schedule
-                    .as_ref()
-                    .and_then(|s| s.get("bindings"))
-                    .and_then(|b| b.get("epsilon"))
-                    .and_then(|e| rat_of_json(e).ok())
-                    .filter(|e| e.is_zero())
-            });
-        if let Some(share) = &share {
-            vars.insert("eps", share.clone());
-        } else if crate::expressions::uses_epsilon(epsilon) {
-            return pending("default epsilon shares require counting all approximate operations before native matching");
-        }
-        let achieved = crate::expressions::evaluate(
-            epsilon,
-            &vars,
-            target.get("tables").unwrap_or(&Value::Null),
-        )
-        .map_err(|error| match error {
-            crate::expressions::Error::Invalid(message) => ClaimOutcome::rejected(vec![rej(
-                "E_CERT_TARGET",
-                "§8.1",
-                "target.gates.epsilon",
-                message,
-            )]),
-            crate::expressions::Error::HostLimit(limit) => host_limit_outcome(limit),
-        })?;
-        if achieved.is_negative() {
-            return Err(ClaimOutcome::rejected(vec![rej(
-                "E_CERT_TARGET",
-                "§8.1",
-                "target.gates.epsilon",
-                "evaluated native epsilon must be nonnegative",
-            )]));
-        }
+        let (_, achieved, share) = native_numbers(docs, gate, entry)?;
+        let epsilon = entry.get("epsilon").unwrap();
         if achieved.is_zero() {
             if crate::expressions::uses_epsilon(epsilon)
                 || entry.get("cost").map(crate::expressions::uses_epsilon) == Some(true)
@@ -947,8 +961,16 @@ fn select<'a>(docs: &'a LoadedDocs, gate: &Gate) -> Result<Choice<'a>> {
         if share.as_ref().map(|eps| &achieved > eps) == Some(true) {
             continue;
         }
+        if share.is_none() {
+            return pending(
+                "positive native epsilon needs a resolved requested share before matching",
+            );
+        }
+        if entry.get("realisation_model").is_some() {
+            return Ok(Choice::Native(entry));
+        }
         return pending(
-            "nonzero native epsilon needs a specified realised operator before numerical replay",
+            "positive native epsilon needs a specified realised operator before numerical replay",
         );
     }
     if !gate.template_leaf && decision.is_none() {
@@ -1365,7 +1387,7 @@ pub fn subject_matrices(
             // entries have the §4.4 matrix; schemes must supply expanded leaves.
             let v = gate_matrix(gate, wires, p)?;
             reference = v.mul(&reference, p);
-            let u = gate_matrix(&leaf, wires, p)?;
+            let u = native_model::matrix(docs, &leaf, wires, p)?;
             realised = u.mul(&realised, p);
         }
         let iface = docs
@@ -1446,7 +1468,14 @@ pub fn exact_native_subject(subject: &Subject, docs: &LoadedDocs, inputs: &Input
             0,
         )?;
         for gate in &gates {
-            realised_leaf(docs, gate)?;
+            let leaf = realised_leaf(docs, gate)?;
+            if native(docs, &leaf)?.get("realisation_model").is_some() {
+                let wires = check_width(&context, docs, inputs, true)?;
+                let actual = native_model::matrix(docs, &leaf, wires, 128)?;
+                if actual != gate_matrix(&leaf, wires, 128)? {
+                    return pending("realised table replay for native models differing from their ideal opcode is not implemented");
+                }
+            }
         }
     }
     if !found {

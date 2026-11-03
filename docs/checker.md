@@ -179,7 +179,8 @@ returns; stack/depth checks precede effects, and rows share the oracle's ISA and
 host budgets. Only active records are materialised; unread historical cells
 are compressed extensionally while their stack extent remains charged.
 Procedure plans have host caps of 4,096 binding instances, 100,000 rows and
-256 MiB of retained instance state; active saved frames have a separate
+256 MiB of retained instance state/plan data and 1,048,576 static binding-work
+units; active saved frames have a separate
 256 MiB cap. Unsupported rows and unresolved invocation contexts remain
 explicitly unchecked. These checks establish reference F_B results; realised
 quantum oracle expansion is still incomplete. The native
@@ -206,8 +207,21 @@ including global phase, rather than exact equality for arbitrary angles.
 The checker does not infer exactness from the mere presence of an epsilon-zero
 target entry. It checks the selected native entry with the actual total control
 count. A scheme built from exact leaves is not assumed to realise its advertised
-operation. Nonzero native epsilon alone does not specify the actual operator;
-the missing realisation-model binding is recorded as a spec question.
+operation. K86 native-model metadata is hash-bound and independently checked.
+The first implemented representation is a complete uncontrolled one-wire
+rational unitary matrix. Exact rational Gram products establish unitarity;
+exact Hermitian Schur elimination checks the advertised operator-norm accuracy,
+including zero pivots and global phase. Numerical claims then use the required
+outward interval procedure, so a tight certificate bound may remain inconclusive
+or reject even when the separate exact model-accuracy check succeeds.
+
+Models contradicting zero-epsilon opcodes reject. Positive epsilon without a
+model and unknown model versions remain unchecked. Realised truth-table replay
+uses the ideal opcode only after each supplied model is proved equal to it.
+Controlled/multi-wire embeddings, transcendental model expressions and
+Kraus/instrument/enclosure equivalence still need implementation; none receives
+an ideal replacement. Native expression checking has a 64-level host nesting
+cap, 4,096-digit rational constants and 65,536-bit expression intermediates.
 
 Translation-lemma checks include counted loop bodies whose instructions retain
 their wire bindings and borrowed lifetimes. Maximality is checked within the

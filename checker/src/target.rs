@@ -166,11 +166,26 @@ impl Check<'_> {
     fn gate(&mut self, v: &Value, p: &str) {
         if !self.object(
             v,
-            &["op", "classes", "controls", "params", "epsilon", "cost"],
+            &[
+                "op",
+                "classes",
+                "controls",
+                "params",
+                "epsilon",
+                "cost",
+                "realisation_model",
+            ],
             &["op", "classes", "controls", "epsilon", "cost"],
             p,
         ) {
             return;
+        }
+        if let Some(model) = v.get("realisation_model") {
+            crate::realisation::native_model::validate(
+                model,
+                &format!("{p}.realisation_model"),
+                self.errors,
+            );
         }
         self.string(v.get("op"), p);
         if let Some(a) = self.array(v.get("classes"), p) {
