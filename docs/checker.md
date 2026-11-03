@@ -410,3 +410,9 @@ before host limits: widths, names, roles, regions, classical argument types,
 ABI/kind/tier and declared bounds must agree. Malformed or missing arrays cannot
 become empty lists. The signature sweep covers all 33 field/type positions and
 22 required field removals.
+
+K88 frame slots accept the homogeneous `class` form or a `fragments` array.
+Fragments must cover the complete slot in order, without gaps or overlap, use
+positive integer widths and declared classes, and merge adjacent equal classes.
+The slot keeps its original source identity. Validation of inherited class
+vectors, placement and live intervals remains an explicit unchecked obligation.

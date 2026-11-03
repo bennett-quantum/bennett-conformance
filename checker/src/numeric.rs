@@ -742,6 +742,105 @@ pub fn validate_path_element(el: &Value, object: &Object, path: &str, errs: &mut
 
 // ---------- frame descriptor (section 9.4) ----------
 
+fn fragment_width(slot: &Value) -> Option<num_bigint::BigUint> {
+    let fragments = slot.get("fragments")?.as_arr()?;
+    let mut total = num_bigint::BigUint::zero();
+    for fragment in fragments {
+        total += crate::domain::biguint_of_json(fragment.get("width")?, "fragment width").ok()?;
+    }
+    Some(total)
+}
+fn check_fragments(
+    slot: &Value,
+    classes: Option<&HashSet<String>>,
+    path: &str,
+    errors: &mut Vec<Reject>,
+) {
+    if slot.get("class").is_some() == slot.get("fragments").is_some() {
+        errors.push(rej(
+            "E_CERT_FRAME",
+            "§9.4/K88",
+            path,
+            "source slot requires exactly one of class and fragments",
+        ));
+    }
+    let Some(value) = slot.get("fragments") else {
+        return;
+    };
+    let Some(fragments) = value.as_arr() else {
+        errors.push(rej(
+            "E_CERT_FRAME",
+            "§9.4/K88",
+            path,
+            "fragments must be an array",
+        ));
+        return;
+    };
+    if fragments.len() < 2 {
+        errors.push(rej(
+            "E_CERT_FRAME",
+            "§9.4/K88",
+            path,
+            "a fragmented slot needs at least two fragments; a homogeneous slot uses class",
+        ));
+    }
+    let mut end = num_bigint::BigUint::zero();
+    let mut previous = None;
+    for (i, fragment) in fragments.iter().enumerate() {
+        let p = format!("{path}.fragments[{i}]");
+        if !keys_strict(
+            fragment,
+            &["offset", "width", "class"],
+            &["offset", "width", "class"],
+            &p,
+            "E_CERT_FRAME",
+            "§9.4/K88",
+            errors,
+        ) {
+            continue;
+        }
+        let offset =
+            crate::domain::biguint_of_json(fragment.get("offset").unwrap(), "fragment offset");
+        let width =
+            crate::domain::biguint_of_json(fragment.get("width").unwrap(), "fragment width");
+        match (offset,width) {
+            (Ok(offset),Ok(width)) if !width.is_zero() && offset==end=>end+=width,
+            _=>errors.push(rej("E_CERT_FRAME","§9.4/K88",&p,"fragments must start at zero and cover consecutive, positive, nonoverlapping integer intervals")),
+        }
+        let class = fragment.get("class").and_then(Value::as_str);
+        if !class.is_some_and(|c| !c.is_empty() && classes.is_none_or(|set| set.contains(c))) {
+            errors.push(rej(
+                "E_CERT_FRAME",
+                "§9.4/K88",
+                &p,
+                "fragment class must name a resolved target class",
+            ));
+        }
+        if previous.is_some() && previous == class {
+            errors.push(rej(
+                "E_CERT_FRAME",
+                "§9.4/K88",
+                &p,
+                "adjacent fragments with the same class must be merged",
+            ));
+        }
+        previous = class;
+    }
+    if let Some(width) = slot
+        .get("width")
+        .and_then(|v| crate::domain::biguint_of_json(v, "slot width").ok())
+    {
+        if end != width {
+            errors.push(rej(
+                "E_CERT_FRAME",
+                "§9.4/K88",
+                path,
+                "fragment intervals must end at the complete slot width",
+            ));
+        }
+    }
+}
+
 fn width_expr(v: &Value) -> bool {
     match v {
         Value::Num(_) | Value::Str(_) => rat_of_json(v).is_ok(),
@@ -816,16 +915,20 @@ pub fn check_frame(
             keys_strict(
                 rec,
                 fields,
-                fields,
+                if key == "slots" {
+                    &["id", "role", "width"]
+                } else {
+                    fields
+                },
                 &format!("{path}.{key}[{i}]"),
                 "E_CERT_FRAME",
                 "§9.4",
                 errs,
             );
-            for field in fields
-                .iter()
-                .filter(|f| matches!(**f, "id" | "class" | "scheme"))
-            {
+            for field in fields.iter().filter(|f| {
+                matches!(**f, "id" | "class" | "scheme")
+                    && (key != "slots" || **f != "class" || rec.get("class").is_some())
+            }) {
                 if rec
                     .get(field)
                     .and_then(Value::as_str)
@@ -876,12 +979,15 @@ pub fn check_frame(
                     ));
                 }
             }
+            if key == "slots" {
+                check_fragments(rec, classes.as_ref(), &format!("{path}.{key}[{i}]"), errs);
+            }
         }
         arr
     };
     let slots = check_records(
         "slots",
-        &["id", "role", "class", "width"],
+        &["id", "role", "class", "width", "fragments"],
         &mut errs,
         &mut identities,
     );
@@ -994,6 +1100,11 @@ pub fn check_frame(
                             ));
                         }
                     }
+                    if let Some(total) = fragment_width(rec) {
+                        if *_ww != u64::MAX && total != num_bigint::BigUint::from(*_ww) {
+                            errs.push(rej("E_CERT_FRAME","§9.4/K88",format!("{path}.slots"),"fragment class vector width differs from the source slot's full signature width"));
+                        }
+                    }
                 }
             }
         }
@@ -1052,6 +1163,9 @@ pub fn check_frame(
         ));
     }
     report.errors.extend(errs);
+    if slots.iter().any(|slot| slot.get("fragments").is_some()) {
+        report.unchecked_items.push("fragmented frame slot class vectors have not been tied to every reached invocation's inherited classes, placements and live intervals (§9.4/K88)".into());
+    }
     if ["scratch", "history", "borrow", "ancillae"]
         .iter()
         .any(|key| {

@@ -442,7 +442,11 @@ fn uniform_frames_and_each_selected_descriptor_resolve_c_at_every_reached_invoca
                 let Value::Arr(slots) = f.get_mut("slots").unwrap() else {
                     panic!()
                 };
-                set(&mut slots[0], "width", json(r#"{"op":"+","args":["c",1]}"#));
+                set(
+                    &mut slots[0],
+                    "width",
+                    json(r#"{"op":"+","args":[{"var":"c"},1]}"#),
+                );
             }
             if uniform {
                 let Value::Obj(m) = r else { panic!() };

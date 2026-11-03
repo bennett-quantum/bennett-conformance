@@ -1509,14 +1509,37 @@ fn check_region(
             None => {}
         }
         for (field, want) in [
-            ("unitary", &["numerical"][..]),
+            ("unitary", &["numerical", "exhaustive", "structural"][..]),
             ("channel", &["channel"][..]),
             ("borrow_frames", &["exhaustive", "structural"][..]),
         ] {
             if let Some(Value::Arr(list)) = ver.get(field) {
                 for v in list {
                     match idx(v) {
-                        Some(i) => check_index(&mut report, field, i, want),
+                        Some(i) => {
+                            check_index(&mut report, field, i, want);
+                            if field == "unitary" {
+                                if let Some(claim) = claims.get(i) {
+                                    let kind = claim.get("kind").and_then(Value::as_str);
+                                    let unrelated = kind == Some("exhaustive")
+                                        && claim.get("expected").and_then(Value::as_str)
+                                            == Some("inverse_pair")
+                                        || kind == Some("structural")
+                                            && claim.get("rule").and_then(Value::as_str)
+                                                != Some("adjoint_table");
+                                    if unrelated {
+                                        report.errors.push(rej("E_CERT_VERIFICATION_INDEX","§12.3",format!("{base}.verification.unitary"),"claim does not establish the containing region's complete unitary relation"));
+                                    } else if kind == Some("exhaustive")
+                                        && report
+                                            .claims
+                                            .get(i)
+                                            .is_some_and(|(_, out)| out.outcome != "proof")
+                                    {
+                                        report.unchecked_items.push(format!("verification.unitary[{i}] does not establish an unrestricted full-domain +1-phase relation; its reported slice/image scope is retained (§12.2/§12.3)"));
+                                    }
+                                }
+                            }
+                        }
                         None => report.errors.push(schema_err(
                             format!("{base}.verification.{field}"),
                             "expected claim indices",
