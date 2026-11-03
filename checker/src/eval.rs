@@ -9,7 +9,7 @@ use crate::domain::Tuple;
 use crate::fault::Reject;
 use crate::object::{Function, Object, Symbol};
 use num_bigint::BigUint;
-use num_traits::{One, Zero};
+use num_traits::{One, ToPrimitive, Zero};
 use std::collections::{HashMap, HashSet, VecDeque};
 mod procedures;
 
@@ -1549,6 +1549,7 @@ struct ActionEnv<'a, 'w> {
     args: HashMap<String, Classical>,
     predicates: Vec<(String, usize)>,
     loop_serial: u64,
+    selector_guards: Vec<String>,
     borrowed_queue: VecDeque<Vec<bool>>,
     borrowed_live: Vec<(String, Vec<bool>)>,
     live_alloc: HashSet<String>,
@@ -1558,6 +1559,64 @@ struct ActionEnv<'a, 'w> {
 }
 
 impl ActionEnv<'_, '_> {
+    fn selector_write(&self, token: &str) -> Result<(), EvalError> {
+        let (name, _) = wire_ref(token);
+        if self.selector_guards.contains(&name) {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3/§4.6",
+                "object",
+                "qloop-while body writes or consumes its selector",
+            )));
+        }
+        Ok(())
+    }
+    fn check_selector_writes(
+        &self,
+        op: &str,
+        lhs: Option<&str>,
+        operands: &[String],
+    ) -> Result<(), EvalError> {
+        if self.selector_guards.is_empty() {
+            return Ok(());
+        }
+        let check = |index: usize| -> Result<(), EvalError> {
+            match operands.get(index) {
+                Some(s) => self.selector_write(s),
+                None => Ok(()),
+            }
+        };
+        match op {
+            "qalloc" | "qborrow" | "qcopy" | "qload" => {
+                if let Some(lhs) = lhs {
+                    self.selector_write(lhs)
+                } else {
+                    Ok(())
+                }
+            }
+            "x" | "h" | "s" | "sdg" | "t" | "tdg" | "qfree" | "qreturn" => check(0),
+            "cx" | "mcx" | "qxor" | "quncopy" | "rx" | "ry" | "rz" => check(1),
+            "ccx" | "qunload" | "qexchm" => check(2),
+            "swap" | "qexch" | "cz" => {
+                check(0)?;
+                check(1)
+            }
+            "qinplace" => check(3),
+            "oracle_call" | "oracle_uncall" => {
+                check(3)?;
+                check(4)
+            }
+            "action_call" => {
+                if let Some(actual) = operands.get(1) {
+                    for name in list_items(actual) {
+                        self.selector_write(&name)?;
+                    }
+                }
+                Ok(())
+            }
+            _ => Ok(()),
+        }
+    }
     fn storage_room(&self, wires: usize, cells: usize, width: u64) -> Result<(), EvalError> {
         reference_width(width)?;
         let live_wires: u128 = self.wires.values().map(|v| v.len() as u128).sum();
@@ -1700,6 +1759,7 @@ impl ActionEnv<'_, '_> {
                         )
                     })?;
                     self.wires.insert(flag_bundle.clone(), vec![flag]);
+                    self.selector_guards.push(cond_name);
                     for i in 0..n {
                         reference_step(self.work)?;
                         self.wires.insert(flag_bundle.clone(), vec![flag]);
@@ -1712,6 +1772,7 @@ impl ActionEnv<'_, '_> {
                         }
                     }
                     self.wires.remove(&flag_bundle);
+                    self.selector_guards.pop();
                     Ok(())
                 } else {
                     let n: usize = head.get(1).and_then(|x| x.parse().ok()).ok_or_else(|| {
@@ -1741,17 +1802,19 @@ impl ActionEnv<'_, '_> {
                 // images and releases happen regardless of the selector.
                 let push = vec!["qpred".into(), selector.clone()];
                 let pop = vec!["qunpred".into(), selector.clone()];
-                let flip = vec!["x".into(), selector.clone()];
+                let flip = vec![selector.clone()];
                 self.exec_line(&push)?;
                 self.exec_stmts(body)?;
                 self.exec_line(&pop)?;
-                self.exec_line(&flip)?;
+                // This structural pair restores the selector. It is not a
+                // source-body write to an enclosing while selector.
+                self.exec_perm_gate("x", &flip)?;
                 self.exec_line(&push)?;
                 if let Some(else_body) = rest {
                     self.exec_stmts(else_body)?;
                 }
                 self.exec_line(&pop)?;
-                self.exec_line(&flip)
+                self.exec_perm_gate("x", &flip)
             }
             other => unchecked(format!(
                 "structured form {other:?} is outside this checker's action subset"
@@ -1780,6 +1843,7 @@ impl ActionEnv<'_, '_> {
             } else {
                 (None, toks[0].as_str(), &toks[1..])
             };
+        self.check_selector_writes(op, lhs.as_deref(), operands)?;
         match op {
             "x" | "cx" | "ccx" | "mcx" | "swap" => self.exec_perm_gate(op, operands),
             "h" | "s" | "sdg" | "t" | "tdg" | "cz" | "rz" | "rx" | "ry" => {
@@ -2257,6 +2321,9 @@ impl ActionEnv<'_, '_> {
     }
 
     fn exec_call(&mut self, toks: &[String], adjoint: bool) -> Result<(), EvalError> {
+        if let Some(op) = toks.first() {
+            self.check_selector_writes(op, None, &toks[1..])?;
+        }
         let op = toks.first().map(String::as_str).unwrap_or("");
         match op {
             "oracle_call" => {
@@ -2581,6 +2648,7 @@ fn eval_action_tuple_work(
         args: HashMap::new(),
         predicates: Vec::new(),
         loop_serial: 0,
+        selector_guards: Vec::new(),
         borrowed_queue: before
             .borrowed
             .iter()
@@ -3157,8 +3225,26 @@ fn check_replay_inner(
     // Table correspondence.
     let table_rows: Option<Vec<(Tuple, Tuple)>> = match &expected {
         Expected::Table(rows) => {
+            if BigUint::from(rows.len()) != domain.n {
+                return Err(ClaimOutcome::rejected(vec![rej(
+                    "E_CERT_TABLE",
+                    "§12.1",
+                    format!("{path}.expected.table"),
+                    format!(
+                        "table has {} rows; the declared domain has {} elements",
+                        rows.len(),
+                        domain.n
+                    ),
+                )]));
+            }
+            // Both before/after tuples are retained. Validate the entire
+            // declared table even when only a drawn subset will execute.
+            if let Err(limit) = domain.check_retained_elements(&(BigUint::from(rows.len()) * 2u32))
+            {
+                return Ok(host_limit_outcome(limit));
+            }
             let mut parsed = Vec::new();
-            for (i, row) in rows.iter().enumerate() {
+            for (i, (row, element)) in rows.iter().zip(domain.elements()).enumerate() {
                 let mut errors = vec![];
                 if !crate::cert::check_keys(
                     row,
@@ -3178,6 +3264,18 @@ fn check_replay_inner(
                     &format!("{path}.expected.table[{i}].before"),
                 )
                 .map_err(|e| ClaimOutcome::rejected(vec![e]))?;
+                if before != element {
+                    return Err(ClaimOutcome::rejected(vec![rej(
+                        "E_CERT_TABLE",
+                        "§12.1",
+                        format!("{path}.expected.table[{i}].before"),
+                        format!(
+                            "row before {} is not declared-domain element {i} {}",
+                            fmt_tuple(&before),
+                            fmt_tuple(&element)
+                        ),
+                    )]));
+                }
                 let after = parse_tuple(
                     row.get("after").unwrap_or(&Value::Null),
                     &domain,
@@ -3190,22 +3288,6 @@ fn check_replay_inner(
         }
         _ => None,
     };
-    // Shape, encodings, widths and exhaustive cardinality are obligations
-    // independent of the target's realised operation.
-    if let Some(rows) = &table_rows {
-        if kind == "exhaustive" && BigUint::from(rows.len()) != domain.n {
-            return Err(ClaimOutcome::rejected(vec![rej(
-                "E_CERT_TABLE",
-                "§12.1",
-                format!("{path}.expected.table"),
-                format!(
-                    "table has {} rows; the domain has {} elements",
-                    rows.len(),
-                    domain.n
-                ),
-            )]));
-        }
-    }
     // Invocation.
     let scheduled = subject.schedule_hash.is_some();
     if scheduled && subject.schedule_hash.as_deref() != cert_schedule_hash {
@@ -3419,68 +3501,6 @@ fn check_replay_inner(
         (draws, Some(count), Some(distinct.len()))
     };
 
-    if let Some(rows) = &table_rows {
-        if kind == "exhaustive" {
-            if rows.len() != elements.len() {
-                return Err(ClaimOutcome::rejected(vec![Reject::new(
-                    "E_CERT_TABLE",
-                    "§12.1",
-                    format!("{path}.expected.table"),
-                    format!("table has {} rows; the domain has {} elements (one row per element, in enumeration order)", rows.len(), elements.len()),
-                )]));
-            }
-            for (i, (before, _)) in rows.iter().enumerate() {
-                if *before != elements[i] {
-                    return Err(ClaimOutcome::rejected(vec![Reject::new(
-                        "E_CERT_TABLE",
-                        "§12.1",
-                        format!("{path}.expected.table[{i}].before"),
-                        format!(
-                            "row before {} is not domain element {i} {}",
-                            fmt_tuple(before),
-                            fmt_tuple(&elements[i])
-                        ),
-                    )]));
-                }
-            }
-        } else {
-            // Sampled: rows are the distinct drawn elements in enumeration order.
-            let mut distinct: Vec<&Tuple> = Vec::new();
-            let mut seen_idx = std::collections::HashSet::new();
-            for e in &elements {
-                let idx = domain.index_of(e);
-                if seen_idx.insert(idx) {
-                    distinct.push(e);
-                }
-            }
-            let mut by_index: Vec<(BigUint, &Tuple)> =
-                distinct.iter().map(|e| (domain.index_of(e), *e)).collect();
-            by_index.sort_by(|a, b| a.0.cmp(&b.0));
-            if rows.len() != by_index.len() {
-                return Err(ClaimOutcome::rejected(vec![Reject::new(
-                    "E_CERT_TABLE",
-                    "§12.1",
-                    format!("{path}.expected.table"),
-                    format!(
-                        "table has {} rows; sampling drew {} distinct elements",
-                        rows.len(),
-                        by_index.len()
-                    ),
-                )]));
-            }
-            for (i, ((before, _), (_, element))) in rows.iter().zip(by_index.iter()).enumerate() {
-                if before != *element {
-                    return Err(ClaimOutcome::rejected(vec![Reject::new(
-                        "E_CERT_TABLE",
-                        "§12.1",
-                        format!("{path}.expected.table[{i}].before"),
-                        "rows must be the distinct drawn elements in domain enumeration order",
-                    )]));
-                }
-            }
-        }
-    }
-
     // Scheduled replay compares the realised operation; require an exact
     // realisation so reference replay is the same operation.
     if scheduled {
@@ -3517,19 +3537,20 @@ fn check_replay_inner(
         let right: Tuple = match &expected {
             Expected::Table(_) => {
                 let rows = table_rows.as_ref().unwrap();
-                if kind == "exhaustive" {
-                    rows[i].1.clone()
+                let index = if kind == "exhaustive" {
+                    Some(i)
                 } else {
-                    match rows.iter().find(|(b, _)| b == before) {
-                        Some((_, a)) => a.clone(),
-                        None => {
-                            return Err(ClaimOutcome::rejected(vec![Reject::new(
-                                "E_CERT_TABLE",
-                                "§12.1",
-                                path.to_string(),
-                                "drawn element has no table row",
-                            )]))
-                        }
+                    domain.index_of(before).to_usize()
+                };
+                match index.and_then(|i| rows.get(i)) {
+                    Some((_, after)) => after.clone(),
+                    None => {
+                        return Err(ClaimOutcome::rejected(vec![rej(
+                            "E_CERT_TABLE",
+                            "§12.1",
+                            path,
+                            "drawn element has no declared-domain table row",
+                        )]))
                     }
                 }
             }

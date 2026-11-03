@@ -128,3 +128,175 @@ fn qif_executes_both_arms_unconditional_lifetimes_and_predicates_only_gates() {
         );
     }
 }
+
+fn sampled_identity(rows: Vec<Value>) -> Inputs {
+    let mut claim = table_claim(&[("t", 1)], rows);
+    set(&mut claim, "kind", Value::Str("sampled".into()));
+    set(&mut claim, "label", Value::Str("evidence".into()));
+    set(
+        &mut claim,
+        "sampler",
+        json(r#"{"algorithm":"xoshiro256**","seed":["1","0","0","0"],"count":1}"#),
+    );
+    standalone("perm_action @a (t:wire mut) () () () ()\n^entry():",
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,"a",vec![claim]).0
+}
+#[test]
+fn sampled_tables_cover_the_declared_domain_while_execution_covers_only_draws() {
+    let mut inputs = sampled_identity(vec![row(&[0], &[0]), row(&[1], &[1])]);
+    inputs.limits.max_elements = 1; // Bounds draws, not declared-table completeness.
+    let verdict = check_certificate(&inputs);
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    let claim = &verdict.regions[0].claims[0].1;
+    assert_eq!(claim.outcome, "evidence", "{verdict:?}");
+    assert_eq!(claim.draws.as_deref(), Some("1"));
+    assert_eq!(claim.distinct.as_deref(), Some("1"));
+    assert_eq!(claim.covered_fraction.as_deref(), Some("1/2"));
+    // A legal but false output at the undrawn point is not checked by this
+    // sample; the verdict must continue to describe only the one drawn point.
+    let verdict = check_certificate(&sampled_identity(vec![row(&[0], &[0]), row(&[1], &[0])]));
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    assert_eq!(verdict.regions[0].claims[0].1.outcome, "evidence");
+}
+#[test]
+fn sampled_tables_reject_missing_duplicate_reordered_and_malformed_undrawn_rows() {
+    for rows in [
+        vec![row(&[0], &[0])],
+        vec![row(&[0], &[0]), row(&[0], &[0])],
+        vec![row(&[1], &[1]), row(&[0], &[0])],
+        vec![row(&[0], &[0]), row(&[1], &[2])],
+    ] {
+        let verdict = check_certificate(&sampled_identity(rows));
+        assert!(codes(&verdict).contains(&"E_CERT_TABLE"), "{verdict:?}");
+    }
+}
+
+#[test]
+fn every_sampler_field_and_seed_position_rejects_bad_types_and_removals() {
+    let base = sampled_identity(vec![row(&[0], &[0]), row(&[1], &[1])]);
+    let mut rejected = 0;
+    for remove in [false, true] {
+        for field in 0..8 {
+            let mut cert = json(std::str::from_utf8(&base.cert_bytes).unwrap());
+            let Value::Obj(top) = &mut cert else { panic!() };
+            let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+                panic!()
+            };
+            let Value::Obj(record) = regions.values_mut().next().unwrap() else {
+                panic!()
+            };
+            let Value::Arr(claims) = record.get_mut("claims").unwrap() else {
+                panic!()
+            };
+            let Value::Obj(claim) = &mut claims[0] else {
+                panic!()
+            };
+            if field == 0 {
+                if remove {
+                    claim.remove("sampler");
+                } else {
+                    claim.insert("sampler".into(), Value::Null);
+                }
+            } else {
+                let Value::Obj(sampler) = claim.get_mut("sampler").unwrap() else {
+                    panic!()
+                };
+                if field <= 3 {
+                    let key = ["algorithm", "seed", "count"][field - 1];
+                    if remove {
+                        sampler.remove(key);
+                    } else {
+                        sampler.insert(key.into(), Value::Null);
+                    }
+                } else {
+                    let Value::Arr(seed) = sampler.get_mut("seed").unwrap() else {
+                        panic!()
+                    };
+                    if remove {
+                        seed.remove(field - 4);
+                    } else {
+                        seed[field - 4] = Value::Null;
+                    }
+                }
+            }
+            let mut inputs = base.clone();
+            inputs.cert_bytes = bennett_cert_checker::json::jcs(&cert).unwrap();
+            let verdict = check_certificate(&inputs);
+            let code = if remove && field == 0 {
+                "E_CERT_SCHEMA"
+            } else {
+                "E_CERT_SAMPLER"
+            };
+            assert!(
+                codes(&verdict).contains(&code),
+                "remove={remove}, field={field}: {verdict:?}"
+            );
+            rejected += 1;
+        }
+    }
+    assert_eq!(rejected, 16);
+}
+
+#[test]
+fn while_selectors_cannot_be_modified_even_if_the_claim_matches_a_noninjective_map() {
+    for (body, kind) in [
+        ("x c", 0),
+        ("swap c t", 1),
+        ("qxor t c", 2),
+        ("action_call @flip (c) () () ()", 0),
+    ] {
+        let mut source=format!("perm_action @a (t:wire mut, c:wire mut) () () () ()\nregs {{  }} bounds {{1}}\n^entry():\nqloop 1 while c {{\n{body}\n}}");
+        let mut signatures = json(
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[1],"in":[],"kind":"perm_action","mem":[],"mut":[1,1],"tier":"q"}}"#,
+        );
+        if body.starts_with("action_call") {
+            source.push_str("\nperm_action @flip (x:wire mut) () () () ()\n^entry():\nx x");
+            set(
+                &mut signatures,
+                "flip",
+                json(
+                    r#"{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}"#,
+                ),
+            );
+        }
+        let mut rows = vec![];
+        for t in 0..2 {
+            for c in 0..2 {
+                let after = match kind {
+                    0 => vec![t, 0],
+                    1 => vec![t | c, t & c],
+                    _ => vec![t, c & (1 - t)],
+                };
+                rows.push(row(&[t, c], &after));
+            }
+        }
+        let (inputs, _) = standalone(
+            &source,
+            &encode(&signatures),
+            "a",
+            vec![table_claim(&[("t", 1), ("c", 1)], rows)],
+        );
+        let verdict = check_certificate(&inputs);
+        assert!(
+            codes(&verdict).contains(&"E_CERT_OBJECT"),
+            "{body}: {verdict:?}"
+        );
+    }
+}
+
+#[test]
+fn selector_guards_allow_structural_qif_flips_and_end_with_the_loop() {
+    let source="perm_action @a (t:wire mut, c:wire mut) () () () ()\nregs {  } bounds {1}\n^entry():\nqloop 1 while c {\nqif c {\nx t\n} {\nx t\n}\n}\nx c";
+    let rows = (0..2)
+        .flat_map(|t| (0..2).map(move |c| row(&[t, c], &[t ^ c, c ^ 1])))
+        .collect();
+    let (inputs, _) = standalone(
+        source,
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[1],"in":[],"kind":"perm_action","mem":[],"mut":[1,1],"tier":"q"}}"#,
+        "a",
+        vec![table_claim(&[("t", 1), ("c", 1)], rows)],
+    );
+    let verdict = check_certificate(&inputs);
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    assert_eq!(verdict.regions[0].claims[0].1.outcome, "proof");
+}

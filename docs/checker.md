@@ -99,6 +99,12 @@ random IDs or execution-time fields. Byte-identical inputs yield identical JSON.
 | `reject` | A named obligation failed; a diagnostic gives its witness or malformed field |
 | `unchecked` | No conclusion; a reason identifies the missing mechanism or host limit |
 
+A table has one row for every declared-domain element in enumeration order,
+including sampled claims. The checker validates all row shapes and input
+correspondence, then replays only the drawn elements for a sample. A legal but
+false output at an undrawn point remains untested; the sample verdict reports
+evidence only for its distinct drawn subset.
+
 For exhaustive and sampled relations, complete tuples include inherited controls,
 all interface bundles (including arbitrary initial oracle target and fault
 contents), all borrowed positions and every interface region cell. Omissions
@@ -138,13 +144,25 @@ be declared locations, operand/result widths must match, and missing labels
 reject instead of defaulting to row zero.
 Signed `lift.const.iN` literals use the
 §3.3 modulo bit encoding after strict spelling/range checks; every oversized
-shift, including `ashr`, produces zero. MCX entries naming multi-wire bundles
-remain unchecked pending `b-isa-spec-sqr`; explicitly indexed controls are
-replayed without truncation. An absent subject or expected-program closure in
+shift, including `ashr`, produces zero. Under K93, MCX list entries expand
+multi-wire bundles in increasing bit index and written entry order. Repeated or
+overlapping entries reject before execution, including under disabled predicates.
+The target must be one live wire; flattened explicit controls determine k, and
+effective predicate controls determine the additional part of c. An absent subject or expected-program closure in
 an object with no imports rejects, as does an oracle relation on an action.
 Table schemas, full-tuple encodings, widths, cardinality and input enumeration
 are checked before target-dependent replay; output values still require the
 realised operation for a scheduled claim.
+
+Basis replay gives each `qloop while` a distinct private flag lifetime, preserving
+outer predicates across nested loops and subsequent instructions. Source writes
+or consumption of an active while selector reject, including mutable call
+actuals and disabled gate paths. Structural qif flips restore their selector;
+the guard ends at loop exit. Full static selector-provenance analysis remains
+unfinished. Replay executes both qif arms through §4.6's literal predicated expansion: allocations, images
+and releases happen unconditionally while gates obey the active controls.
+Recovering allocation sites for general lifetime-bearing adjoints remains
+unfinished and yields unchecked.
 
 For supported action bodies, reference replay retains exact amplitudes in
 Q(√2,i) through H, S/S†, T/T†, CZ and permutation gates, predicates, counted
