@@ -1606,14 +1606,9 @@ impl ActionEnv<'_, '_> {
                 check(3)?;
                 check(4)
             }
-            "action_call" => {
-                if let Some(actual) = operands.get(1) {
-                    for name in list_items(actual) {
-                        self.selector_write(&name)?;
-                    }
-                }
-                Ok(())
-            }
+            // Propagate the guard into linked action bodies; a mutable formal
+            // can still be used only as a reader by that particular body.
+            "action_call" => Ok(()),
             _ => Ok(()),
         }
     }
@@ -1696,6 +1691,50 @@ impl ActionEnv<'_, '_> {
         self.wires.get(name).map(|w| value_of(w)).ok_or_else(|| {
             EvalError::Unchecked(format!("bundle {name:?} is not live in this replay"))
         })
+    }
+    fn actual_width(&self, token: &str) -> Result<usize, EvalError> {
+        if token.contains('[') {
+            self.single_wire(token)?;
+            return Ok(1);
+        }
+        self.wires.get(token).map(Vec::len).ok_or_else(|| {
+            EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                "action actual is not a live wire bundle",
+            ))
+        })
+    }
+    fn actual_value(&self, token: &str) -> Result<BigUint, EvalError> {
+        if token.contains('[') {
+            let (name, index) = self.single_wire(token)?;
+            return Ok(BigUint::from(self.bit(&name, index)?));
+        }
+        self.bundle_value(token)
+    }
+    fn deliver_actual(&mut self, token: &str, value: &BigUint) -> Result<(), EvalError> {
+        let width = self.actual_width(token)?;
+        if value.bits() > width as u64 {
+            return Err(EvalError::Reject(Reject::new(
+                "E_CERT_OBJECT",
+                "§3.3",
+                "object",
+                "callee output exceeds the actual wire width",
+            )));
+        }
+        let (name, _) = wire_ref(token);
+        if self.selector_guards.contains(&name) && self.actual_value(token)? != *value {
+            return self.selector_write(token);
+        }
+        if token.contains('[') {
+            let (name, index) = self.single_wire(token)?;
+            self.wires.get_mut(&name).unwrap()[index] = !value.is_zero();
+        } else {
+            self.wires
+                .insert(token.into(), bits_of(value, width as u64));
+        }
+        Ok(())
     }
     fn flip_if(&mut self, bundle: &str, idx: usize, cond: bool) -> Result<(), EvalError> {
         if cond {
@@ -2398,6 +2437,65 @@ impl ActionEnv<'_, '_> {
                     EvalError::Unchecked(format!("action @{name} is not defined"))
                 })?;
                 let iface = self.object.interface(&name).map_err(EvalError::Unchecked)?;
+                if !matches!(callee.kind.as_str(), "action" | "perm_action")
+                    || mut_toks.len() != iface.bundles.iter().filter(|b| b.group == "mut").count()
+                    || in_toks.len() != iface.bundles.iter().filter(|b| b.group == "in").count()
+                    || mem_toks.len() != iface.regions.len()
+                    || arg_toks.len() != iface.args.len()
+                {
+                    return Err(EvalError::Reject(Reject::new(
+                        "E_CERT_OBJECT",
+                        "§3.3/§5.3",
+                        "object",
+                        "action_call operands do not match the complete callee interface",
+                    )));
+                }
+                let bad_actual = || {
+                    EvalError::Reject(Reject::new("E_CERT_OBJECT","§3.3/§5.3","object","action actual widths/shapes disagree, or actuals overlap each other or effective controls"))
+                };
+                let mut occupied = self
+                    .predicates
+                    .iter()
+                    .map(|(name, index)| (name.as_str(), *index))
+                    .collect::<HashSet<_>>();
+                for (actual, formal) in mut_toks.iter().chain(&in_toks).zip(&iface.bundles) {
+                    let width = self.actual_width(actual)?;
+                    if width as u64 != formal.width {
+                        return Err(bad_actual());
+                    }
+                    let base = actual.split('[').next().unwrap();
+                    let first = if actual.contains('[') {
+                        self.single_wire(actual)?.1
+                    } else {
+                        0
+                    };
+                    for index in first..first + width {
+                        if !occupied.insert((base, index)) {
+                            return Err(bad_actual());
+                        }
+                    }
+                }
+                drop(occupied);
+                let mut region_names = HashSet::new();
+                for (actual, formal) in mem_toks.iter().zip(&iface.regions) {
+                    let Some(cells) = self.regions.get(actual) else {
+                        return unchecked("action memory actual needs mapped-region/local-entry lifetime resolution");
+                    };
+                    if !region_names.insert(actual)
+                        || self.region_width.get(actual) != Some(&formal.w)
+                        || !cells.len().is_power_of_two()
+                        || cells.len().trailing_zeros() as u64 != formal.a
+                    {
+                        return Err(bad_actual());
+                    }
+                }
+                let read_only = mut_toks
+                    .iter()
+                    .chain(&in_toks)
+                    .zip(&iface.bundles)
+                    .filter(|(actual, _)| self.selector_guards.contains(&wire_ref(actual).0))
+                    .map(|(_, formal)| formal.name.clone())
+                    .collect::<Vec<_>>();
                 if !iface.borrowed_widths.is_empty() {
                     return unchecked(format!(
                         "callee @{name} borrows bundles; nested borrow frames need §5.6 frame verification, not single-value replay"
@@ -2406,7 +2504,11 @@ impl ActionEnv<'_, '_> {
                 // Inherited controls of the callee invocation are the current
                 // predicate bits, prepended as control bundles.
                 let mut bundles: Vec<BigUint> = Vec::new();
+                let mut seen_controls = HashSet::new();
                 for (b, i) in self.predicates.clone() {
+                    if !seen_controls.insert((b.clone(), i)) {
+                        continue;
+                    }
                     bundles.push(if self.bit(&b, i)? {
                         BigUint::one()
                     } else {
@@ -2415,7 +2517,7 @@ impl ActionEnv<'_, '_> {
                 }
                 let nctl = bundles.len();
                 for t in mut_toks.iter().chain(in_toks.iter()) {
-                    bundles.push(self.bundle_value(t)?);
+                    bundles.push(self.actual_value(t)?);
                 }
                 let regs: Vec<Vec<BigUint>> = mem_toks
                     .iter()
@@ -2438,7 +2540,7 @@ impl ActionEnv<'_, '_> {
                     regions: regs.clone(),
                     args: vec![],
                 };
-                let after = eval_action_tuple_work(
+                let after = eval_action_tuple_guarded(
                     self.object,
                     &callee,
                     &iface,
@@ -2448,12 +2550,11 @@ impl ActionEnv<'_, '_> {
                     adjoint,
                     self.depth + 1,
                     self.work,
+                    &read_only,
                 )?;
                 let mut pos = nctl;
                 for t in &mut_toks {
-                    let w = self.wires[t].len() as u64;
-                    self.wires
-                        .insert(t.clone(), bits_of(&after.bundles[pos], w));
+                    self.deliver_actual(t, &after.bundles[pos])?;
                     pos += 1;
                 }
                 // in actuals unchanged by construction of the interface tuple.
@@ -2602,6 +2703,31 @@ fn eval_action_tuple_work(
     depth: usize,
     work: &mut u64,
 ) -> Result<Tuple, EvalError> {
+    eval_action_tuple_guarded(
+        object,
+        symbol,
+        iface,
+        before,
+        args,
+        inherited_controls,
+        adjoint,
+        depth,
+        work,
+        &[],
+    )
+}
+fn eval_action_tuple_guarded(
+    object: &Object,
+    symbol: &Symbol,
+    iface: &crate::object::Interface,
+    before: &Tuple,
+    args: &[Classical],
+    inherited_controls: usize,
+    adjoint: bool,
+    depth: usize,
+    work: &mut u64,
+    read_only: &[String],
+) -> Result<Tuple, EvalError> {
     if depth > 64 {
         return unchecked("action call depth exceeds this checker's replay cap (64)");
     }
@@ -2625,6 +2751,11 @@ fn eval_action_tuple_work(
         );
     }
     if symbol.kind != "perm_action" && crate::coherent::needed(object, symbol) {
+        if !read_only.is_empty() {
+            return unchecked(
+                "selector-write analysis of a coherent callee requires source-lifetime expansion",
+            );
+        }
         return crate::coherent::eval(
             object,
             symbol,
@@ -2648,7 +2779,7 @@ fn eval_action_tuple_work(
         args: HashMap::new(),
         predicates: Vec::new(),
         loop_serial: 0,
-        selector_guards: Vec::new(),
+        selector_guards: read_only.to_vec(),
         borrowed_queue: before
             .borrowed
             .iter()

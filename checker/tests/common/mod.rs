@@ -40,6 +40,28 @@ pub fn codes(v: &Verdict) -> Vec<&str> {
 pub fn encode(v: &Value) -> String {
     String::from_utf8(jcs(v).unwrap()).unwrap()
 }
+/// Rebind symbol hashes after a source/layout mutation. Certificate/root document
+/// bindings, when present, must be rebound separately by the calling test.
+pub fn rebind_object_symbols(text: &str) -> String {
+    let object = Object::parse(text).unwrap();
+    let (prefix, rest) = text.split_once("section symbols\n").unwrap();
+    let (symbols, suffix) = rest.split_once("\n\nsection functions\n").unwrap();
+    let mut symbols = json(symbols);
+    let Value::Obj(fields) = &mut symbols else {
+        panic!()
+    };
+    for entry in fields.values_mut() {
+        let name = entry.get("name").unwrap().as_str().unwrap();
+        let hash = object.symbol(name).unwrap().interface_hash.clone();
+        set(entry, "interface_hash", Value::Str(hash));
+    }
+    let rebound = format!(
+        "{prefix}section symbols\n{}\n\nsection functions\n{suffix}",
+        encode(&symbols)
+    );
+    assert!(Object::parse(&rebound).unwrap().stated_hashes_ok());
+    rebound
+}
 
 /// Complete independently specified reports for a single zero-error root event.
 pub fn single_root_zero_error_reports(inputs: &mut Inputs, resources: Value, gates: Value) {

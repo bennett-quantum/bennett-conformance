@@ -300,3 +300,118 @@ fn selector_guards_allow_structural_qif_flips_and_end_with_the_loop() {
     assert!(codes(&verdict).is_empty(), "{verdict:?}");
     assert_eq!(verdict.regions[0].claims[0].1.outcome, "proof");
 }
+
+#[test]
+fn selector_guard_follows_callee_reads_without_treating_a_mutable_formal_as_a_write() {
+    for indexed in [false, true] {
+        for read_only_gate in [false, true] {
+            let gate = if read_only_gate { "\ncx c t" } else { "" };
+            let width = if indexed { 2 } else { 1 };
+            let actual = if indexed { "t[0], c[0]" } else { "t, c" };
+            let source=format!("perm_action @a (t:wire[{width}] mut, c:wire mut) () () () ()\nregs {{  }} bounds {{1}}\n^entry():\nqloop 1 while c {{\naction_call @reader ({actual}) () () ()\n}}\nx c\nperm_action @reader (t:wire mut, c:wire mut) () () () ()\n^entry():{gate}");
+            let mut rows = vec![];
+            for t in 0..1 << width {
+                for c in 0..2 {
+                    rows.push(row(
+                        &[t, c],
+                        &[t ^ if read_only_gate { c } else { 0 }, c ^ 1],
+                    ));
+                }
+            }
+            let signatures = format!(
+                r#"{{"a":{{"abi":"0.9","args":[],"bounds":[1],"in":[],"kind":"perm_action","mem":[],"mut":[{width},1],"tier":"q"}},"reader":{{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1,1],"tier":"q"}}}}"#
+            );
+            let (inputs, _) = standalone(
+                &source,
+                &signatures,
+                "a",
+                vec![table_claim(&[("t", width), ("c", 1)], rows)],
+            );
+            let verdict = check_certificate(&inputs);
+            assert!(codes(&verdict).is_empty(), "{verdict:?}");
+            assert_eq!(verdict.regions[0].claims[0].1.outcome, "proof");
+        }
+    }
+}
+#[test]
+fn action_call_width_mismatch_cannot_certify_truncation_even_when_disabled() {
+    let source="perm_action @a (v:wire[2] mut) (c:wire in) () () ()\nregs {  } bounds {1}\n^entry():\nqloop 1 while c {\naction_call @flip (v) () () ()\n}\nperm_action @flip (x:wire mut) () () () ()\n^entry():\nx x";
+    let rows = (0..4)
+        .flat_map(|v| (0..2).map(move |c| row(&[v, c], &[(v & 1) ^ c, c])))
+        .collect();
+    let (inputs, _) = standalone(
+        source,
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[1],"in":[1],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"},"flip":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+        "a",
+        vec![table_claim(&[("v", 2), ("c", 1)], rows)],
+    );
+    let verdict = check_certificate(&inputs);
+    assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
+}
+#[test]
+fn action_call_aliases_cannot_certify_a_noninjective_relation() {
+    for actual in ["c, c", "c, c[0]"] {
+        let source=format!("perm_action @a (c:wire mut) () () () ()\n^entry():\naction_call @two ({actual}) () () ()\nperm_action @two (x:wire mut, y:wire mut) () () () ()\n^entry():\ncx x y");
+        let rows = vec![row(&[0], &[0]), row(&[1], &[0])];
+        let (inputs, _) = standalone(
+            &source,
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"},"two":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1,1],"tier":"q"}}"#,
+            "a",
+            vec![table_claim(&[("c", 1)], rows)],
+        );
+        let verdict = check_certificate(&inputs);
+        assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
+    }
+}
+
+#[test]
+fn action_memory_actuals_preserve_origins_and_require_exact_shapes_and_disjointness() {
+    use bennett_cert_checker::{
+        domain::Tuple,
+        eval::{eval_action_tuple, EvalError},
+        object::Object,
+    };
+    for (a, w, duplicate) in [(0, 1, false), (1, 1, false), (0, 2, false), (0, 1, true)] {
+        let actual = if duplicate { "r, r" } else { "r" };
+        let formal = if duplicate {
+            format!("p:region[{a},{w}] mut, q:region[{a},{w}] mut")
+        } else {
+            format!("p:region[{a},{w}] mut")
+        };
+        let source=format!("perm_action @a (t:wire mut) () (r:region[0,1] mut) () ()\n^entry():\naction_call @reader (t) () ({actual}) ()\nperm_action @reader (t:wire mut) () ({formal}) () ()\n^entry():");
+        let mem = json(&format!(r#"{{"A":{a},"W":{w},"role":"mut"}}"#));
+        let mut reader = json(
+            r#"{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}"#,
+        );
+        set(
+            &mut reader,
+            "mem",
+            Value::Arr(vec![mem; if duplicate { 2 } else { 1 }]),
+        );
+        let mut signatures = json(
+            r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[{"A":0,"W":1,"role":"mut"}],"mut":[1],"tier":"q"}}"#,
+        );
+        set(&mut signatures, "reader", reader);
+        let (inputs, _) = standalone(&source, &encode(&signatures), "a", vec![]);
+        let text=rebind_object_symbols(&format!("{}\nsection layout\n{{\"A_tab\":0,\"H\":4,\"S_cells\":0,\"globals\":{{}},\"heap_base\":1,\"heap_limit_max\":0,\"interface_regions\":{{}},\"null_size\":1,\"ptr_width\":32}}\n",inputs.object_text));
+        let object = Object::parse(&text).unwrap();
+        let symbol = object.symbol("a").unwrap();
+        let iface = object.interface("a").unwrap();
+        for t in 0..2u32 {
+            for cell in 0..2u32 {
+                let before = Tuple {
+                    bundles: vec![t.into()],
+                    borrowed: vec![],
+                    regions: vec![vec![cell.into()]],
+                    args: vec![],
+                };
+                let result = eval_action_tuple(&object, symbol, &iface, &before, &[], 0, false, 0);
+                if (a, w, duplicate) == (0, 1, false) {
+                    assert_eq!(result.unwrap(), before);
+                } else {
+                    assert!(matches!(result,Err(EvalError::Reject(e))if e.code=="E_CERT_OBJECT"));
+                }
+            }
+        }
+    }
+}
