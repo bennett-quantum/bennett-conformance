@@ -415,3 +415,56 @@ fn action_memory_actuals_preserve_origins_and_require_exact_shapes_and_disjointn
         }
     }
 }
+
+#[test]
+fn qif_lifetime_adjoints_reverse_the_complete_expansion_and_all_blocks() {
+    for case in 0..3 {
+        let body=match case {
+            0=>"^entry():\nqif c {\nd = qalloc any 1\n} {\nqfree d\n}",
+            1=>"^entry():\nqif c {\nd = qalloc any 1\nx t\n} {\nqfree d\n}",
+            _=>"^entry():\nd = qalloc any 2\ncx t u\n^middle():\nqif c {\nx t\n} {\n}\n^done():\nqfree d",
+        };
+        let params = if case == 2 {
+            "t:wire mut, u:wire mut"
+        } else {
+            "t:wire mut"
+        };
+        let actual = if case == 2 { "t, u" } else { "t" };
+        let mut source=format!("perm_action @inverse ({params}) (c:wire in) () () ()\n^entry():\nadj action_call @a ({actual}) (c) () ()\nperm_action @a ({params}) (c:wire in) () () ()\n{body}");
+        source.push('\n');
+        let widths = if case == 2 { "[1,1]" } else { "[1]" };
+        let signature = format!(
+            r#"{{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":{widths},"tier":"q"}}"#
+        );
+        let signatures = format!(r#"{{"a":{signature},"inverse":{signature}}}"#);
+        let mut rows = vec![];
+        for t in 0..2 {
+            for u in 0..if case == 2 { 2 } else { 1 } {
+                for c in 0..2 {
+                    if case == 2 {
+                        rows.push(row(&[t, u, c], &[t ^ c, u ^ t ^ c, c]));
+                    } else {
+                        rows.push(row(&[t, c], &[t ^ if case == 1 { c } else { 0 }, c]));
+                    }
+                }
+            }
+        }
+        let fields = if case == 2 {
+            vec![("t", 1), ("u", 1), ("c", 1)]
+        } else {
+            vec![("t", 1), ("c", 1)]
+        };
+        let (inputs, _) = standalone(
+            &source,
+            &signatures,
+            "inverse",
+            vec![table_claim(&fields, rows)],
+        );
+        let verdict = check_certificate(&inputs);
+        assert!(codes(&verdict).is_empty(), "{verdict:?}");
+        assert_eq!(
+            verdict.regions[0].claims[0].1.outcome, "proof",
+            "case={case}: {verdict:?}"
+        );
+    }
+}

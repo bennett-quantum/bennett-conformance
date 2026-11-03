@@ -137,6 +137,8 @@ pub(crate) fn canonical_list(text: &str) -> Option<Vec<String>> {
 #[derive(Debug, Clone)]
 pub enum Stmt {
     Line(Vec<String>),
+    /// Trusted reference lowering only; the text parser never emits this node.
+    SelectorFlip(String),
     Block {
         head: Vec<String>,
         body: Vec<Stmt>,
@@ -242,6 +244,7 @@ fn flatten(stmts: &[Stmt], out: &mut Vec<Vec<String>>) {
     for s in stmts {
         match s {
             Stmt::Line(t) => out.push(t.clone()),
+            Stmt::SelectorFlip(selector) => out.push(vec!["x".into(), selector.clone()]),
             Stmt::Block { body, rest, .. } => {
                 flatten(body, out);
                 if let Some(r) = rest {
@@ -1755,6 +1758,9 @@ impl ActionEnv<'_, '_> {
             reference_step(self.work)?;
             match s {
                 Stmt::Line(t) => self.exec_line(t)?,
+                Stmt::SelectorFlip(selector) => {
+                    self.exec_perm_gate("x", std::slice::from_ref(selector))?
+                }
                 Stmt::Block { head, body, rest } => self.exec_block(head, body, rest.as_deref())?,
             }
         }
@@ -2569,11 +2575,41 @@ impl ActionEnv<'_, '_> {
 }
 
 /// Adjoint of an action statement sequence (section 5.3 table), subset.
-fn adjoint_stmts(stmts: &[Stmt]) -> Result<Vec<Stmt>, EvalError> {
+type AllocationSites = HashMap<String, Option<Vec<String>>>;
+fn allocation_sites(function: &Function) -> AllocationSites {
+    let mut sites = HashMap::new();
+    for line in function.blocks.iter().flat_map(|b| &b.instructions) {
+        let tokens = tokenise(line);
+        let mut tokens = tokens.as_slice();
+        while tokens.first().map(String::as_str) == Some("ctl") && tokens.len() >= 2 {
+            tokens = &tokens[2..];
+        }
+        if tokens.len() == 5 && tokens[1] == "=" && tokens[2] == "qalloc" {
+            sites
+                .entry(tokens[0].clone())
+                .and_modify(|v| *v = None)
+                .or_insert_with(|| Some(tokens.to_vec()));
+        }
+    }
+    sites
+}
+fn inverse_line(toks: &[String], sites: &AllocationSites) -> Result<Vec<String>, EvalError> {
+    if toks.first().map(String::as_str) == Some("ctl") && toks.len() >= 2 {
+        let mut out = toks[..2].to_vec();
+        out.extend(inverse_line(&toks[2..], sites)?);
+        return Ok(out);
+    }
+    if toks.first().map(String::as_str) == Some("qfree") && toks.len() == 2 {
+        return sites.get(&toks[1]).and_then(Clone::clone).ok_or_else(||EvalError::Unchecked("inverse release needs an unambiguous explicit allocation site in the complete function".into()));
+    }
+    adjoint_line(toks)
+}
+fn adjoint_stmts(stmts: &[Stmt], sites: &AllocationSites) -> Result<Vec<Stmt>, EvalError> {
     let mut out = Vec::new();
     for s in stmts.iter().rev() {
         match s {
-            Stmt::Line(t) => out.push(Stmt::Line(adjoint_line(t)?)),
+            Stmt::Line(t) => out.push(Stmt::Line(inverse_line(t, sites)?)),
+            Stmt::SelectorFlip(selector) => out.push(Stmt::SelectorFlip(selector.clone())),
             Stmt::Block { head, body, rest } => match head.first().map(String::as_str) {
                 Some("qloop") => {
                     if head.get(2).map(String::as_str) == Some("while") {
@@ -2581,19 +2617,32 @@ fn adjoint_stmts(stmts: &[Stmt]) -> Result<Vec<Stmt>, EvalError> {
                     }
                     out.push(Stmt::Block {
                         head: head.clone(),
-                        body: adjoint_stmts(body)?,
+                        body: adjoint_stmts(body, sites)?,
                         rest: None,
                     });
                 }
                 Some("qif") => {
-                    out.push(Stmt::Block {
-                        head: head.clone(),
-                        body: adjoint_stmts(body)?,
-                        rest: match rest {
-                            Some(r) => Some(adjoint_stmts(r)?),
-                            None => None,
-                        },
-                    });
+                    let Some(selector) = head.get(1).filter(|_| head.len() == 2) else {
+                        return Err(EvalError::Reject(Reject::new(
+                            "E_CERT_OBJECT",
+                            "§4.6",
+                            "object",
+                            "qif requires exactly one selector",
+                        )));
+                    };
+                    let push = Stmt::Line(vec!["qpred".into(), selector.clone()]);
+                    let pop = Stmt::Line(vec!["qunpred".into(), selector.clone()]);
+                    let mut expanded = vec![push.clone()];
+                    expanded.extend_from_slice(body);
+                    expanded.push(pop.clone());
+                    expanded.push(Stmt::SelectorFlip(selector.clone()));
+                    expanded.push(push);
+                    if let Some(rest) = rest {
+                        expanded.extend_from_slice(rest);
+                    }
+                    expanded.push(pop);
+                    expanded.push(Stmt::SelectorFlip(selector.clone()));
+                    out.extend(adjoint_stmts(&expanded, sites)?);
                 }
                 other => return unchecked(format!("adjoint of {other:?} is outside this subset")),
             },
@@ -2814,12 +2863,17 @@ fn eval_action_tuple_guarded(
     }
     // Also map args by the signature order for lifted call lookup parity.
     let mut blocks = parse_blocks(func);
+    let sites = if adjoint {
+        allocation_sites(func)
+    } else {
+        HashMap::new()
+    };
     if adjoint {
         blocks.reverse();
     }
     for (_, stmts) in blocks {
         let stmts = if adjoint {
-            adjoint_stmts(&stmts)?
+            adjoint_stmts(&stmts, &sites)?
         } else {
             stmts
         };
