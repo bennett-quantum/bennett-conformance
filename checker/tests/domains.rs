@@ -6,10 +6,12 @@ use bennett_cert_checker::json::parse;
 use bennett_cert_checker::object::Object;
 use bennett_cert_checker::sampler::{draw_elements, Sampler};
 
+#[path = "common/pins.rs"]
+mod pins;
+
 fn t3() -> Object {
     let text = std::fs::read_to_string(
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../bennett-isa-spec/conformance/cases/objects/t3_domains.bisa"),
+        pins::isa_spec_dir().join("conformance/cases/objects/t3_domains.bisa"),
     )
     .unwrap();
     Object::parse(&text).unwrap()

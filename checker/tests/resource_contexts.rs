@@ -58,8 +58,8 @@ fn k87_singleton_contexts_and_canonical_vector_displays_verify() {
 #[test]
 fn pre_k87_numeric_and_unqualified_resource_reports_reject() {
     let mut original = controlled();
-    let upstream = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../bennett-isa-spec/conformance/fixtures/controlled-action-09/certificate.json");
+    let upstream =
+        pins::isa_spec_dir().join("conformance/fixtures/controlled-action-09/certificate.json");
     original.cert_bytes = std::fs::read(upstream).unwrap();
     let verdict = check_certificate(&original);
     assert!(codes(&verdict).contains(&"E_CERT_SCHEMA"), "{verdict:?}");
@@ -467,11 +467,101 @@ fn uniform_frames_and_each_selected_descriptor_resolve_c_at_every_reached_invoca
 #[test]
 fn a_recompute_cleanup_cannot_be_certified_using_the_two_gate_reverse_trace() {
     use bennett_cert_checker::object::Object;
-    let mut inputs=repeated(false);let old_object=Object::parse(&inputs.object_text).unwrap();let old=old_object.symbol("root").unwrap().closure_hash.as_ref().unwrap().clone();
-    inputs.object_text=rebind_object_symbols(&inputs.object_text.replace("qpred c\naction_call @flip (t) () () ()\nqunpred c","adj action_call @flip (t) () () ()"));
-    let object=Object::parse(&inputs.object_text).unwrap();let h=object.symbol("root").unwrap().closure_hash.as_ref().unwrap().clone();let child=object.symbol("flip").unwrap().closure_hash.as_ref().unwrap().clone();let cert=std::str::from_utf8(&inputs.cert_bytes).unwrap().replace(&old,&h);let mut cert=json(&cert);let Value::Obj(top)=&mut cert else{panic!()};set(top.get_mut("bindings").unwrap(),"object_hash",Value::Str(object.object_hash.clone()));
-    let Value::Obj(regions)=top.get_mut("regions").unwrap()else{panic!()};let record=regions.get_mut(&child).unwrap();let mut claim=record.get("claims").unwrap().as_arr().unwrap()[0].clone();let mut subject=claim.get("subject").unwrap().clone();set(&mut subject,"inherited_controls",json("0"));set(&mut claim,"subject",subject);set(record,"claims",Value::Arr(vec![claim]));let mut verification=record.get("verification").unwrap().clone();set(&mut verification,"unitary",json("[0]"));set(record,"verification",verification);set(record,"error",json(r#"{"forward:0":{"local":{"operator_norm":0},"inclusive":{"operator_norm":0}}}"#));
-    for field in ["frame_contexts","resource_contexts"] {let mut entries=record.get(field).unwrap().as_arr().unwrap().to_vec();let mut key=entries[1].get("context_key").unwrap().as_arr().unwrap().to_vec();set(&mut key[0],"point",Value::Str("entry:1".into()));set(&mut entries[1],"context_key",Value::Arr(key));if field=="resource_contexts"{let resources=entries[0].get("resources").unwrap().clone();set(&mut entries[1],"resources",resources);}set(record,field,Value::Arr(entries));}
-    set(top.get_mut("composition").unwrap(),"multiplicities",json(&format!(r#"{{"{h}:forward:0":1,"{child}:forward:0":2}}"#)));inputs.cert_bytes=jcs(&cert).unwrap();let mut schedule=json(std::str::from_utf8(inputs.schedule_bytes.as_ref().unwrap()).unwrap());let target=json(std::str::from_utf8(inputs.target_bytes.as_ref().unwrap()).unwrap());bind_schedule(&mut inputs,schedule.clone(),target.clone());let baseline=check_certificate(&inputs);assert_eq!(baseline.overall,"verified","{baseline:?}");
-    set(&mut schedule,"entries",json(&format!(r#"[{{"path":[{{"symbol":"{h}","point":"entry:1","iteration":[],"instance":[]}}],"step":"*","phase":"*","generated":0,"kind":"cleanup","cleanup":{{"realisation":"recompute"}}}}]"#)));bind_schedule(&mut inputs,schedule,target);let verdict=check_certificate(&inputs);assert_eq!(verdict.overall,"unchecked","{verdict:?}");assert!(codes(&verdict).is_empty(),"{verdict:?}");assert!(encode(&verdict.to_value()).contains("recompute"),"{verdict:?}");
+    let mut inputs = repeated(false);
+    let old_object = Object::parse(&inputs.object_text).unwrap();
+    let old = old_object
+        .symbol("root")
+        .unwrap()
+        .closure_hash
+        .as_ref()
+        .unwrap()
+        .clone();
+    inputs.object_text = rebind_object_symbols(&inputs.object_text.replace(
+        "qpred c\naction_call @flip (t) () () ()\nqunpred c",
+        "adj action_call @flip (t) () () ()",
+    ));
+    let object = Object::parse(&inputs.object_text).unwrap();
+    let h = object
+        .symbol("root")
+        .unwrap()
+        .closure_hash
+        .as_ref()
+        .unwrap()
+        .clone();
+    let child = object
+        .symbol("flip")
+        .unwrap()
+        .closure_hash
+        .as_ref()
+        .unwrap()
+        .clone();
+    let cert = std::str::from_utf8(&inputs.cert_bytes)
+        .unwrap()
+        .replace(&old, &h);
+    let mut cert = json(&cert);
+    let Value::Obj(top) = &mut cert else { panic!() };
+    set(
+        top.get_mut("bindings").unwrap(),
+        "object_hash",
+        Value::Str(object.object_hash.clone()),
+    );
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        panic!()
+    };
+    let record = regions.get_mut(&child).unwrap();
+    let mut claim = record.get("claims").unwrap().as_arr().unwrap()[0].clone();
+    let mut subject = claim.get("subject").unwrap().clone();
+    set(&mut subject, "inherited_controls", json("0"));
+    set(&mut claim, "subject", subject);
+    set(record, "claims", Value::Arr(vec![claim]));
+    let mut verification = record.get("verification").unwrap().clone();
+    set(&mut verification, "unitary", json("[0]"));
+    set(record, "verification", verification);
+    set(
+        record,
+        "error",
+        json(r#"{"forward:0":{"local":{"operator_norm":0},"inclusive":{"operator_norm":0}}}"#),
+    );
+    for field in ["frame_contexts", "resource_contexts"] {
+        let mut entries = record.get(field).unwrap().as_arr().unwrap().to_vec();
+        let mut key = entries[1]
+            .get("context_key")
+            .unwrap()
+            .as_arr()
+            .unwrap()
+            .to_vec();
+        set(&mut key[0], "point", Value::Str("entry:1".into()));
+        set(&mut entries[1], "context_key", Value::Arr(key));
+        if field == "resource_contexts" {
+            let resources = entries[0].get("resources").unwrap().clone();
+            set(&mut entries[1], "resources", resources);
+        }
+        set(record, field, Value::Arr(entries));
+    }
+    set(
+        top.get_mut("composition").unwrap(),
+        "multiplicities",
+        json(&format!(r#"{{"{h}:forward:0":1,"{child}:forward:0":2}}"#)),
+    );
+    inputs.cert_bytes = jcs(&cert).unwrap();
+    let mut schedule = json(std::str::from_utf8(inputs.schedule_bytes.as_ref().unwrap()).unwrap());
+    let target = json(std::str::from_utf8(inputs.target_bytes.as_ref().unwrap()).unwrap());
+    bind_schedule(&mut inputs, schedule.clone(), target.clone());
+    let baseline = check_certificate(&inputs);
+    assert_eq!(baseline.overall, "verified", "{baseline:?}");
+    set(
+        &mut schedule,
+        "entries",
+        json(&format!(
+            r#"[{{"path":[{{"symbol":"{h}","point":"entry:1","iteration":[],"instance":[]}}],"step":"*","phase":"*","generated":0,"kind":"cleanup","cleanup":{{"realisation":"recompute"}}}}]"#
+        )),
+    );
+    bind_schedule(&mut inputs, schedule, target);
+    let verdict = check_certificate(&inputs);
+    assert_eq!(verdict.overall, "unchecked", "{verdict:?}");
+    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    assert!(
+        encode(&verdict.to_value()).contains("recompute"),
+        "{verdict:?}"
+    );
 }

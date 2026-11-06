@@ -3,6 +3,7 @@ use bennett_cert_checker::cert::{Inputs, Limits, Verdict};
 use bennett_cert_checker::json::{jcs, parse, Value};
 use bennett_cert_checker::object::Object;
 use std::path::PathBuf;
+pub mod pins;
 
 pub fn json(s: &str) -> Value {
     parse(s).unwrap()

@@ -5,8 +5,10 @@ use bennett_cert_checker::cert::{check_certificate, Inputs, Limits};
 use bennett_cert_checker::json::{jcs, parse, Value};
 use std::path::PathBuf;
 
+#[path = "common/pins.rs"]
+mod pins;
 fn isa_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../bennett-isa-spec")
+    pins::isa_spec_dir()
 }
 
 struct Fixture {

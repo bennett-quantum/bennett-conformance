@@ -51,8 +51,7 @@ fn token_partitions_reject_bad_labels_arity_missing_values_and_inconsistent_equa
 #[test]
 fn published_k91_reference_certificates_bind_identity_partitions_and_replay_all_sixty_four_tuples()
 {
-    let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../bennett-isa-spec/conformance/fixtures/accepted-k91-09");
+    let root = pins::isa_spec_dir().join("conformance/fixtures/accepted-k91-09");
     let manifest = json(&std::fs::read_to_string(root.join("k91.json")).unwrap());
     let mut count = 0;
     for name in ["pair-same", "pair-distinct", "wrong-partition-certificate"] {
@@ -178,8 +177,7 @@ fn native_action_contexts_forward_identity_by_source_bindings_and_recanonicalize
 }
 #[test]
 fn every_published_partition_field_position_and_required_removal_has_its_expected_code() {
-    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../bennett-isa-spec/conformance/fixtures/accepted-k91-09/pair-same.bisa");
+    let path = pins::isa_spec_dir().join("conformance/fixtures/accepted-k91-09/pair-same.bisa");
     let object_text = std::fs::read_to_string(path).unwrap();
     let object = Object::parse(&object_text).unwrap();
     let cert = json(object.certificate_raw.as_deref().unwrap());

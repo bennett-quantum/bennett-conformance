@@ -97,7 +97,19 @@ fn repeated_overlapping_nonscalar_and_invalid_indexed_operands_reject_even_when_
     let mut cases = 0;
     for coherent in [false, true] {
         for gate in gates {
-            let object = object(gate, coherent);
+            // Inject malformed operands after parsing a canonical object so
+            // this also tests the evaluator's own validation. The text-entry
+            // rejection of noncanonical integers is covered in lexical.rs.
+            let mut object = object("mcx (s) t", coherent);
+            let function = &mut object.functions[0];
+            function.bytes = function
+                .bytes
+                .replace("ctl r mcx (s) t", &format!("ctl r {gate}"));
+            for line in &mut function.blocks[0].instructions {
+                if line == "ctl r mcx (s) t" {
+                    *line = format!("ctl r {gate}");
+                }
+            }
             let symbol = object.symbol("a").unwrap();
             let iface = object.interface("a").unwrap();
             for r in 0..2u32 {

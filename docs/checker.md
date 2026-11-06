@@ -427,3 +427,17 @@ Token-free omission derives the unique empty/oracle-singleton partition for
 published older positives; a specification clarification is recorded. Scheduled
 carrier/lifecycle integration remains unfinished, and the value-only coherent
 entry API defers token-bearing replay until it carries identities.
+
+Object parsing checks §16.1 lexical form before hashing function bodies:
+canonical numeric spellings, spacing, LF line endings and comment-free text.
+The empty `regs {  }` and empty-HEX data exceptions retain their specified
+spelling. Metadata JSON and quoted strings keep their own lexical rules.
+
+Schedules containing a recompute cleanup decision remain `unchecked` because
+the checker has not derived that cleanup expansion or its resources. A source
+adjoint's reverse trace cannot certify a different scheduled implementation.
+
+Checker tests resolve ISA inputs through the `bennett-isa-spec` SHA in
+`gate.toml` and verify the cached checkout's detached HEAD before reading it.
+Missing pinned fixtures fail visibly. See [quality.md](quality.md) for the
+current pin blocker, measured runtime and coverage limits.

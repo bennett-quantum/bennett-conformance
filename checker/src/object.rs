@@ -5,6 +5,7 @@
 
 use crate::json::{jcs, parse, Value};
 use crate::sha256::sha256_hex;
+mod lexical;
 mod signatures;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -128,6 +129,7 @@ impl Object {
             return Err(sec_err("§16.1", "object text does not end with LF"));
         }
         let lines: Vec<&str> = text.split('\n').collect(); // last element is ""
+        lexical::validate(&lines)?;
         let header = parse_header(lines.first().copied().unwrap_or(""))?;
 
         // Split into sections, enforcing order, uniqueness, blank-line rule.
@@ -141,7 +143,7 @@ impl Object {
                     .map(|l| l.starts_with("section "))
                     .unwrap_or(false)
             {
-                let name = lines[i + 1]["section ".len()..].trim_end();
+                let name = &lines[i + 1]["section ".len()..];
                 let order = SECTION_ORDER
                     .iter()
                     .position(|s| *s == name)

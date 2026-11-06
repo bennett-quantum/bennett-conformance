@@ -93,7 +93,7 @@ fn canonical_integer_strings_keep_signature_widths_regions_and_bounds_exact() {
     );
     assert_eq!((iface.regions[0].a, iface.regions[0].w), (0, 8));
     let (action,_) = standalone(
-        "action @a (t:wire mut) (c:wire in) () () ()\nregs { } bounds { 2 }\n^entry():\nqloop 2 {\ncx c t\n}",
+        "action @a (t:wire mut) (c:wire in) () () ()\nregs {  } bounds {2}\n^entry():\nqloop 2 {\ncx c t\n}",
         r#"{"a":{"abi":"0.9","args":[],"bounds":["2"],"in":["1"],"kind":"action","mem":[],"mut":["1"],"tier":"q"}}"#,
         "a",vec![],
     );

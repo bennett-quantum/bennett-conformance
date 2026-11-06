@@ -119,14 +119,24 @@ fn explicit_mcx_bundle_bits_replay_the_complete_sixteen_row_table() {
 }
 
 fn literal_outcome(literal: &str) -> Result<bennett_cert_checker::eval::OracleOutcome, EvalError> {
-    let source = format!("oracle @o () (t:wire[4]) (f:wire[4]) () ()\nregs {{ c:reg[4] }}\n^entry():\nc = lift.const.i4 {literal}\nlift.retval c");
+    let source = "oracle @o () (t:wire[4]) (f:wire[4]) () ()\nregs { c:reg[4] }\n^entry():\nc = lift.const.i4 0\nlift.retval c";
     let (inp, _) = standalone(
-        &source,
+        source,
         r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":4,"tier":"q"}}"#,
         "o",
         vec![],
     );
-    let object = Object::parse(&inp.object_text).unwrap();
+    let text = inp
+        .object_text
+        .replace("lift.const.i4 0", &format!("lift.const.i4 {literal}"));
+    let object = Object::parse(&text).map_err(|e| {
+        EvalError::Reject(bennett_cert_checker::fault::Reject::new(
+            "E_CERT_OBJECT",
+            "§16.1",
+            "object",
+            e,
+        ))
+    })?;
     eval_oracle(
         &object,
         object.symbol("o").unwrap(),

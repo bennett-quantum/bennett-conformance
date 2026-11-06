@@ -673,6 +673,25 @@ pub(crate) fn trace(docs: &LoadedDocs, inputs: &Inputs) -> Result<(Vec<Context>,
     if docs.expansion_unknown {
         return pending("bound expansion library is not implemented");
     }
+    // The source trace expands adjoints as reverse cleanup. A recompute
+    // decision changes that expansion and its timing/resources; using the
+    // reverse trace would discharge obligations about a different circuit.
+    if schedule
+        .get("entries")
+        .and_then(Value::as_arr)
+        .unwrap_or(&[])
+        .iter()
+        .any(|entry| {
+            entry.get("kind").and_then(Value::as_str) == Some("cleanup")
+                && entry
+                    .get("cleanup")
+                    .and_then(|c| c.get("realisation"))
+                    .and_then(Value::as_str)
+                    == Some("recompute")
+        })
+    {
+        return pending("recompute cleanup expansion and its scheduled resources have not been independently derived (§11/§12.3)");
+    }
     let root = docs
         .object
         .symbol_by_closure(&docs.root_closure)

@@ -5,11 +5,10 @@
 use bennett_cert_checker::object::Object;
 use std::path::PathBuf;
 
+#[path = "common/pins.rs"]
+mod pins;
 fn isa_spec_dir() -> PathBuf {
-    if let Ok(d) = std::env::var("BENNETT_ISA_SPEC_DIR") {
-        return PathBuf::from(d);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../bennett-isa-spec")
+    pins::isa_spec_dir()
 }
 
 fn load(rel: &str) -> Object {

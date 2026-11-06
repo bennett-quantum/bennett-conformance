@@ -8,8 +8,7 @@ use bennett_cert_checker::{
 use common::*;
 #[test]
 fn published_k84_certificates_replay_both_not_inputs_and_pin_each_negative_obligation() {
-    let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../bennett-isa-spec/conformance/fixtures/accepted-k84-09");
+    let root = pins::isa_spec_dir().join("conformance/fixtures/accepted-k84-09");
     let manifest = json(&std::fs::read_to_string(root.join("k84.json")).unwrap());
     let mut count = 0;
     for case in manifest.get("cases").unwrap().as_arr().unwrap() {
@@ -146,8 +145,7 @@ fn expected(path: &[Part]) -> &'static str {
 }
 #[test]
 fn both_published_k91_certificates_exhaust_every_field_and_array_position() {
-    let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../bennett-isa-spec/conformance/fixtures/accepted-k91-09");
+    let root = pins::isa_spec_dir().join("conformance/fixtures/accepted-k91-09");
     let mut total = 0;
     let mut failures = vec![];
     for name in ["pair-same", "pair-distinct"] {
