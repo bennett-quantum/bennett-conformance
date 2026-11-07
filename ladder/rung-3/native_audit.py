@@ -17,6 +17,7 @@ def require(condition, message):
 
 def generated_path(value, out):
     path = Path(value)
+    require(',' not in value, 'opaque comma-separated linker path: '+value)
     require(path.is_absolute() and path.resolve().is_relative_to(out.resolve()),
             'unapproved comparison input/output: '+value)
     return path
@@ -25,8 +26,13 @@ def generated_path(value, out):
 def audit_script(path, out):
     path = generated_path(path, out)
     text = path.read_text()
-    # Quoted ASSERT diagnostics and comments cannot introduce input directives.
-    code = re.sub(r'/\*.*?\*/|"[^"\n]*"', '', text, flags=re.S)
+    code = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
+    # A quoted filename is also an input selector in ld. Only ASSERT's final
+    # diagnostic operand may be quoted; never erase arbitrary quoted tokens.
+    for quoted in re.finditer(r'"[^"\n]*"', code):
+        require(re.search(r'\bASSERT\((?:[^()"]|\([^()"]*\))*,\s*$', code[:quoted.start()]),
+                'linker script contains a quoted input')
+    code = re.sub(r'"[^"\n]*"', '', code)
     require(not re.search(r'\b(INPUT|GROUP|AS_NEEDED|INCLUDE|STARTUP|SEARCH_DIR|OUTPUT)\b', code, re.I),
             'linker script may not import files: '+str(path))
     require('/' not in code.replace('/DISCARD/', ''), 'linker script contains a file path')
@@ -76,12 +82,10 @@ def layout_constant(path, out):
 def native_support(gate, major, path, record):
     publication = gate.publications['bennett-runtimes'].resolve()
     path = path.resolve()
-    require(path.name == 'native-support.bc', 'unapproved comparison input: '+str(path))
-    if not path.is_relative_to(publication):
-        require(path == (gate.sysroots[major]/'lib/native-support.bc').resolve(),
-                'native support is outside the runtime publication/sysroot')
-        pinned = publication/f'dist/llvm{major}/musl-sysroot/lib/native-support.bc'
-        require(sha(path) == sha(pinned), 'native support differs from the pinned runtime publication')
+    pinned = publication/f'dist/llvm{major}/musl-sysroot/lib/native-support.bc'
+    require(path in (pinned.resolve(), (gate.sysroots[major]/'lib/native-support.bc').resolve()),
+            'native support is not the same-major pinned publication/sysroot')
+    require(sha(path) == sha(pinned), 'native support differs from the pinned runtime publication')
     require(record['native_support_sha256'] == sha(path), 'native support hash mismatch')
 
 
@@ -113,19 +117,20 @@ def bitcode_step(gate, major, argv, provenance, record, out):
                 roots.update(provenance[str(path)])
             inputs.append(path)
     require(inputs, 'bitcode step has no inputs')
-    if tool == 'llvm-link':
-        require(all(option == '--only-needed' for option in options), 'opaque bitcode link option')
-    elif tool == 'llvm-as':
-        require(len(inputs) == 1 and not options, 'opaque layout assembly')
-    elif tool == 'llvm-extract':
-        require(len(inputs) == 1 and bool(options) and
-                set(options) <= {'--func=memcpy', '--func=memmove', '--func=memset'},
-                'opaque runtime memory extraction')
-    elif tool == 'opt':
-        require(len(inputs) == 1 and options == ['-passes=strip-dead-prototypes,verify'],
-                'unapproved native bitcode pass')
-    else:
-        raise GateError('native comparison audit: unknown bitcode transform '+tool)
+    match tool:
+        case 'llvm-link':
+            require(all(option == '--only-needed' for option in options), 'opaque bitcode link option')
+        case 'llvm-as':
+            require(len(inputs) == 1 and not options, 'opaque layout assembly')
+        case 'llvm-extract':
+            require(len(inputs) == 1 and bool(options) and
+                    set(options) <= {'--func=memcpy', '--func=memmove', '--func=memset'},
+                    'opaque runtime memory extraction')
+        case 'opt':
+            require(len(inputs) == 1 and options == ['-passes=strip-dead-prototypes,verify'],
+                    'unapproved native bitcode pass')
+        case _:
+            raise GateError('native comparison audit: unknown bitcode transform '+tool)
     provenance[str(dest)] = roots
 
 

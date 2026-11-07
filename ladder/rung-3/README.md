@@ -1,4 +1,4 @@
-# Rung 3: musl hello-world
+# Rung 3: formatted integer musl printf
 
 North Star §8 acceptance remains:
 
@@ -12,13 +12,23 @@ host can retain native main, argv/envp and host libc while marked device modules
 and their linked closures become ISA objects. The comparison's no-host-libc
 checks and the device tape rules do not apply to that ordinary native host.
 
-The corpus is exactly [fixtures/hello.c](fixtures/hello.c): `#include <stdio.h>`,
-`printf("hello, world\n")`, return 0. There are no marker additions, stubs,
-freestanding flags or replacement entry points. Clang may optimise printf to puts;
-that libc closure is still required. Clause tags, expected bytes and diagnostic
-fixture provenance are in [fixtures/expect.json](fixtures/expect.json); fixture
-hashes are checked before use. The ISA and dialect clause IDs resolve against
-this repository's published-contract graphs (CLAUDE.md rule 12).
+The corpus contains ordinary C with `main(void)` and no marker additions, stubs,
+freestanding flags or replacement entry points:
+
+| Workload | Required output |
+|---|---|
+| [hello.c](fixtures/hello.c) | Original `hello, world\n`, status 0; clang may fold this call to puts. |
+| [printf_fmt.c](fixtures/printf_fmt.c) | `%s %d %u %x %c`, several arguments per call, width/precision, signed/unsigned extremes, and an unterminated final buffered line, status 0. |
+
+The formatted oracle is a literal ASCII byte table with a hand derivation for
+each line in [printf_fmt.expect.json](fixtures/printf_fmt.expect.json). The final
+line has no LF and no explicit flush; returning from main must flush it. Floating
+formats are a later clause. Every required pipeline, native, executor, reset,
+saved-tape replay and corrupt-tape row runs on **both workloads** and both majors;
+hello alone cannot pass. Clause tags, the original hello oracle and diagnostic
+provenance remain in [expect.json](fixtures/expect.json). Source/oracle hashes are
+checked before use. Clause IDs resolve against this repository's graphs for the
+selected contract versions (CLAUDE.md rule 12).
 
 Run from any directory:
 
@@ -58,7 +68,16 @@ Defaults are immutable commits in [pins.json](pins.json), not moving HEADs:
 | ISA-spec inspection checkout | `997d70000eefba6e56ce0e4b1559a02757d15006` |
 | Accepted reference checkout | `ba7d13f76e73c2af4e035d3f51145d2fad76bd2f` |
 
-The contract is **ISA 0.8**, not the separately published 0.9. The reference
+The selected contract remains **dialect 0.2.10 / ISA 0.8**. `pins.json` now
+declares `dialect`, `isa` and `dialect_spec_path` alongside the unchanged commit
+pins. These versions drive plugin/driver options, clause graphs and the report.
+The R prerequisite compares them with the selected plugin's pinned
+`SPEC_VERSIONS.toml` and the pinned dialect publication's full version/ISA target.
+An unknown ISA or mismatched declaration fails loudly. The selected ISA0.8
+publication still requires `BD-B-ISA7`; an explicitly pinned, matching ISA0.9
+R-contract publication can pass this prerequisite. This prepares adoption; it
+does not select a newer implementation, approve a draft, or prove R execution.
+The reference
 executable defaults to
 `../bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref`.
 Its actual binary hash is recorded; checkout identity alone is not a binary hash.
@@ -81,7 +100,7 @@ revisions, binary/library hashes, tool versions and commands are recorded.
 ## Required pipeline
 
 1. Check fixtures and build the frozen plugin (both majors), VM and driver.
-2. Compile ordinary hello.c with `clang -O2 -flto -emit-llvm`, target
+2. Compile each ordinary corpus source with `clang -O2 -flto -emit-llvm`, target
    `x86_64-unknown-linux-musl`, explicit `--sysroot`, `-nostdinc`, and only the musl
    include directory. Default consumer layout is
    `bennett-runtimes/dist/llvm<M>/musl-sysroot/{include,lib}`; this filename/layout
@@ -96,7 +115,7 @@ revisions, binary/library hashes, tool versions and commands are recorded.
 4. Build the **materialised** native comparison (§17.7) using the frozen driver
    integration described below, same LLVM major, runtimes and arith. Require a
    static link with no host libc/libm, no dynamic dependencies or undefined
-   symbols, stdout exactly `hello, world\n` and status 0. The unmaterialised C
+   symbols, stdout exactly the workload's literal oracle and status 0. The unmaterialised C
    source compiled against host libc is never a baseline for this gate.
 5. Both executors must admit/hash the actual produced object, run main through
    its launch, report exit status 0, and match native console and tape bytes.
@@ -119,17 +138,28 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
 * The native stage requests the frozen driver with `--bennett-materialised`,
   `--bennett-llvm-major`, `--bennett-plugin`, `--bennett-runtimes`, `--bennett-arith`,
   `--bennett-sysroot`, `--bennett-comparison-record` and
-  `--bennett-comparison-output`, plus the specified R mode/entry. It must emit
-  `out/native-comparison.json` containing `llvm_major`, `materialised_sha256`
-  and `link_argv`. The gate executes that auditable same-major clang argv.
-  It requires the actual device.bc, pinned runtimes/arith, explicit sysroot,
-  `-nostdlib -nostdinc -static`, and an exact output path. Library-search flags,
-  opaque linker/response inputs and file inputs outside the generated output,
-  selected musl sysroot and pinned runtime publications are rejected. Startup
-  and native effect backends must come from those publications. This integration
-  remains unmeasured for hello-world in the current run because the earlier
-  publication check fails; the old version-printing-driver observation is
-  historical (bennett-driver-cyg).
+  `--bennett-comparison-output`, explicit `-bennett-out=out/native-work`, and the
+  selected versions/R mode/entry. `out/native-comparison.json` must contain
+  `llvm_major`, `materialised_sha256`, `runtimes_sha256`, `arith_sha256` and
+  `link_argv`. A direct link must use those three exact files. A multi-stage
+  link supplies `bitcode_link_argv`, its `linked_sha256`, and ordered successful
+  `commands` (`argv`, `success`) in `out/native-work/manifest.json`.
+  [native_audit.py](native_audit.py) audits and **replays** the bitcode chain
+  from those hash-checked leaves, rather than trusting a merged filename. It
+  accepts same-major llvm-link merges, runtime memcpy/memmove/memset extraction,
+  assembly of the published layout constant, and strip-dead-prototypes/verify.
+  Native support must be hashed and come from the pinned runtime publication;
+  sysroot native support must match that publication byte for byte. Other
+  leaves/transforms fail loudly. Final clang can consume the reproduced merged
+  bitcode with the driver's linker script, `_start`, map and no-undefined/fatal
+  warnings options. Scripts cannot introduce file/library inputs; comma/response
+  and library-search injection is forbidden. `-O2 -nostdlib -nostdinc -static`
+  and the exact output path are required, followed by actual ELF dynamic-library,
+  interpreter and undefined-symbol audits. No host libc/libm is accepted at any
+  merge or link stage. The driver still receives the explicit musl sysroot for
+  preparation; a final bitcode-only clang command need not repeat header options.
+  This integration remains unmeasured for the musl corpus because the frozen
+  prerequisite pins are red; passing synthetic adapter tests is not acceptance.
 * The driver must supply `out/main/argv-replies.json` in the executors' existing
   `--replies` array format (`service`, `payload`, `reply`), with exactly one
   `bennett.argv` reply containing the selected argv/envp. The gate sends the same
@@ -146,8 +176,8 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
 ## Independent probes and evidence
 
 Every run also audits pinned runtime exports, probes R-mode on the pinned
-§11.6 console example, probes the driver for real outputs, checks the §11.5
-ISA-0.8 typed-fault prerequisite, and runs a byte-identical published ISA
+§11.6 console example, probes the driver for real outputs, checks the selected
+R-contract prerequisite, and runs a byte-identical published ISA
 `classical.bisa @effects` device/reset control on both executors. The control
 uses console, entropy, clock and block effects. It is **not the hello-world
 corpus** and cannot satisfy a required row. The runtime export audit checks
@@ -162,14 +192,27 @@ errors. `.tmp/rung-3/latest` holds the newest path. `--output` changes the evide
 parent. [RESULTS.md](RESULTS.md) records the real run and distinguishes measured
 frontiers from dependencies. Compact report/table/log copies and full evidence
 hashes are committed in `evidence/`; raw build archives remain under `.tmp`.
+Hello's original row names and artefact paths remain; formatted rows are prefixed
+`printf_fmt:` with artefacts under `<major>/printf_fmt/`. Each executor has
+separate saved-tape and corrupt-tape rows.
 
 Driver glue checks (never corpus acceptance):
 
 ```sh
 env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
   TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp \
-  python3 /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py
+  timeout 60s python3 -B -m unittest discover \
+    -s /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/tests -v
+env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
+  TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp \
+  timeout 60s python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/check_gate.py
 ```
+
+The new suite also replays a tiny generated LLVM/static-link receipt on both
+majors when those tools are installed. It checks an independently derived return
+value and rejects a spoofed pre-existing intermediate. It builds no plugin, VM
+or driver and uses no sibling runtime code. Missing LLVM tools skip this one
+adapter integration test; the Python policy checks still run.
 
 Only command recording, git/hash helpers and failure/dependency propagation were
 factored verbatim from rung 2 into `ladder/common/gate_support.py`. Rung 2 retains
