@@ -28,8 +28,9 @@ Builds require at least 6 GB available RAM and one-minute load below 12.
 | Before pin repair | 270 passed, 4 missing-fixture failures | 37.45 s |
 | Updated pin, original binaries | 274 passed, 0 failed, 0 ignored | 79.86 s |
 | Consolidated binary, line-table test profile | 276 passed, 0 failed, 0 ignored | 46.30 s |
+| Final source, warm cache | 286 passed, 0 failed, 0 ignored | 28.23 s |
 
-The last run includes the profile rebuild. Every integration case is included in
+The consolidation run includes its profile rebuild; the final timing uses a warm cache. Every integration case is included in
 `tests/conformance.rs`; no slow tests or exclusions were needed. The two added
 cases cover selected borrow-frame admission as explicit unchecked, malformed
 frame fields and invocation bindings. Complete borrow-frame semantics remain an
@@ -41,17 +42,19 @@ A recompute schedule retains explicit unchecked obligations.
 
 ## Coverage
 
-**Lines: 83.67% (14,248 / 17,029); functions: 82.04%; regions: 85.48%.**
-Measured on the unified pin after adding rejection-record tests: 278 passed,
+**Lines: 83.99% (14,412 / 17,159); functions: 82.26%; regions: 85.63%.**
+Measured on the final source at the unified pin: 286 passed,
 zero failures, without ignoring run failures.
 
 ```sh
-systemd-run --user --scope --quiet timeout 300 cargo llvm-cov --offline --manifest-path checker/Cargo.toml -j3 --json --summary-only --output-path .tmp/quality-checker/coverage.json -- --test-threads=4
+systemd-run --user --scope --quiet timeout 300 cargo llvm-cov --offline --manifest-path checker/Cargo.toml -j3 --json --summary-only --output-path .tmp/quality-checker/coverage-final.json -- --test-threads=4
 ```
 
 This measures Rust checker execution, separately from clause coverage. No
 threshold is imposed. `fault.rs` is now 100% lines: path prefixing, JSON fields,
 Display and both ResolveError conversions are asserted exactly.
+
+CLI line coverage is now 86.05%; the extracted replay phases are 92.76%.
 
 The five weakest source files have explicit retained work in
 bennett-conformance-ac5:
@@ -61,14 +64,15 @@ bennett-conformance-ac5:
 | `eval/borrow_frames.rs` | 56.41% | Scheduled-context branches and independently derived frame-entry mechanics remain under the full adoption issue; no invented positive proof. |
 | `domain.rs` | 69.02% | Large host-limit/component-shape branches need bounded witnesses that avoid materializing huge domains. |
 | `structural.rs` | 75.08% | Adjoint/library and frame-provenance branches need contract-derived positive compositions. |
-| `main.rs` | 75.19% | Usage/IO/UTF-8/help and rejected exits are the next fail-fast item. |
-| `eval.rs` | 76.14% | Remaining procedure/memory unsupported branches need bounded independent witnesses. |
+| `eval.rs` | 75.05% | Remaining procedure/memory unsupported branches need bounded independent witnesses. |
+| `object.rs` | 83.01% | Remaining source-admission/provenance branches need determining malformed-input witnesses while retaining canonical positives. |
 
 ## Review and remaining work
 
 Fresh review and council review of verdict changes remain the orchestrator's
-responsibility; green tests are not a CLEAR verdict. Remaining quality items:
-artifact hygiene and the baseline ratchet.
+responsibility; green tests are not a CLEAR verdict. Remaining coverage,
+structural, default-audit, clause-map and outside-owned litter work is filed
+under the issues named below.
 
 ## Test oracles and clause mapping
 
@@ -269,3 +273,23 @@ operation and is never invoked by the gate.
 }
 ```
 <!-- /quality-baseline -->
+
+## Final component verification
+
+At d089feb (final source; subsequent changes are measurement documentation),
+the scoped default command above passed 286 tests in 28.23 seconds. Formatting,
+the ratchet and its self-tests passed. All 15 tagged test names occur as successful
+executions in the final test output.
+
+With `BENNETT_ISA_BINARY` set to the release binary under
+`.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec/reference-interpreter`:
+
+```sh
+timeout 120 python3 -B -I -m unittest discover -s clauses/tests
+timeout 120 python3 -B -I -m unittest discover -s suite/tests
+timeout 120 python3 -B -I suite/run.py --binary "$BENNETT_ISA_BINARY" --cases suite/cases
+```
+
+Results: 113 clause-graph tests, 23 suite tests, and 16/16 neutral cases pass.
+The full push gate and council review are reserved for the orchestrator. No
+critical review or CLEAR result is claimed here.
