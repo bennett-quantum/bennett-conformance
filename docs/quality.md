@@ -41,13 +41,32 @@ A recompute schedule retains explicit unchecked obligations.
 
 ## Coverage
 
-The previous pin's measurement was 83.44% lines (14,131 / 16,935), with four
-missing-fixture failures. It is historical evidence only; the new pin requires
-a fresh successful measurement. No coverage threshold is imposed.
+**Lines: 83.67% (14,248 / 17,029); functions: 82.04%; regions: 85.48%.**
+Measured on the unified pin after adding rejection-record tests: 278 passed,
+zero failures, without ignoring run failures.
+
+```sh
+systemd-run --user --scope --quiet timeout 300 cargo llvm-cov --offline --manifest-path checker/Cargo.toml -j3 --json --summary-only --output-path .tmp/quality-checker/coverage.json -- --test-threads=4
+```
+
+This measures Rust checker execution, separately from clause coverage. No
+threshold is imposed. `fault.rs` is now 100% lines: path prefixing, JSON fields,
+Display and both ResolveError conversions are asserted exactly.
+
+The five weakest source files have explicit retained work in
+bennett-conformance-ac5:
+
+| File | Lines | Reason / next witness |
+| --- | ---: | --- |
+| `eval/borrow_frames.rs` | 56.41% | Scheduled-context branches and independently derived frame-entry mechanics remain under the full adoption issue; no invented positive proof. |
+| `domain.rs` | 69.02% | Large host-limit/component-shape branches need bounded witnesses that avoid materializing huge domains. |
+| `structural.rs` | 75.08% | Adjoint/library and frame-provenance branches need contract-derived positive compositions. |
+| `main.rs` | 75.19% | Usage/IO/UTF-8/help and rejected exits are the next fail-fast item. |
+| `eval.rs` | 76.14% | Remaining procedure/memory unsupported branches need bounded independent witnesses. |
 
 ## Review and remaining work
 
 Fresh review and council review of verdict changes remain the orchestrator's
 responsibility; green tests are not a CLEAR verdict. Remaining quality items:
-coverage/error-record tests, value mutation/clause tags, named function phases,
+value mutation/clause tags, named function phases,
 fail-fast and CLI checks, artifact hygiene and the baseline ratchet.

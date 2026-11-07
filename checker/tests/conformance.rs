@@ -10,6 +10,7 @@ mod core_witnesses;
 mod decimal_limits;
 mod domains;
 mod expressions;
+mod fault_records;
 mod fixed_images;
 mod fragments;
 mod frame_contexts;
