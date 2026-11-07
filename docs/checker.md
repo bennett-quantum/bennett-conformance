@@ -441,3 +441,11 @@ Checker tests resolve ISA inputs through the `bennett-isa-spec` SHA in
 `gate.toml` and verify the cached checkout's detached HEAD before reading it.
 Missing pinned fixtures fail visibly. See [quality.md](quality.md) for the
 current pin blocker, measured runtime and coverage limits.
+
+Selected §12.1 borrow-frame relations admit the published §12.2 workspace and
+entry-products vocabulary. They remain **unchecked**: this checker does not
+derive maximal source occurrences, normative entry domains or tensor-factor
+replay, and assigns no element count, coverage or proof. Required frame fields,
+subject/schedule binding and standalone invocation binding are checked before
+this deferral. Domain, occurrence and sampler validity remain named unresolved
+obligations. Ordinary interface relations retain their closed domain schema.

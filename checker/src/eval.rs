@@ -3379,6 +3379,8 @@ fn eval_subject_tuple_bounded(
     Ok(after)
 }
 
+mod borrow_frames;
+
 // ---------- replay claim shell ----------
 
 use crate::cert::{
@@ -3585,6 +3587,10 @@ fn check_replay_inner(
                 "invocation",
             ]
         };
+        let mut allowed = allowed.to_vec();
+        if claim.get("expected").and_then(Value::as_str) == Some("borrow_frame") {
+            allowed.push("borrow_frame");
+        }
         let required: &[&str] = if kind == "sampled" {
             &["kind", "subject", "domain", "expected", "sampler"]
         } else {
@@ -3640,12 +3646,14 @@ fn check_replay_inner(
     enum Expected {
         Oracle,
         InversePair,
+        BorrowFrame,
         Table(Vec<Value>),
         Program(String),
     }
     let expected = match claim.get("expected") {
         Some(Value::Str(x)) if x == "oracle" => Expected::Oracle,
         Some(Value::Str(x)) if x == "inverse_pair" => Expected::InversePair,
+        Some(Value::Str(x)) if x == "borrow_frame" => Expected::BorrowFrame,
         Some(Value::Obj(m)) if m.len() == 1 && m.contains_key("table") => {
             match m.get("table").and_then(Value::as_arr) {
                 Some(rows) => Expected::Table(rows.to_vec()),
@@ -3668,7 +3676,7 @@ fn check_replay_inner(
                 "E_CERT_BINDING",
                 "§12.1",
                 format!("{path}.expected"),
-                "expected must be \"oracle\", {table}, {program}, or (exhaustive) \"inverse_pair\"; there is no default relation",
+                "expected must be \"borrow_frame\", \"oracle\", {table}, {program}, or (exhaustive) \"inverse_pair\"; there is no default relation",
             )]))
         }
     };
@@ -3721,6 +3729,18 @@ fn check_replay_inner(
             format!("{path}.subject.closure_hash"),
             "a region record's claims are about that region; subject names a different closure",
         )]));
+    }
+    if expected == Expected::BorrowFrame {
+        return borrow_frames::check_claim(
+            claim,
+            path,
+            &subject,
+            &symbol,
+            &iface,
+            docs,
+            root_invocation,
+            cert_schedule_hash,
+        );
     }
     if expected == Expected::Oracle && subject.schedule_hash.is_none() {
         return Err(ClaimOutcome::rejected(vec![rej(
