@@ -68,7 +68,6 @@ bennett-conformance-ac5:
 
 Fresh review and council review of verdict changes remain the orchestrator's
 responsibility; green tests are not a CLEAR verdict. Remaining quality items:
-named function phases,
 fail-fast and CLI checks, artifact hygiene and the baseline ratchet.
 
 ## Test oracles and clause mapping
@@ -90,3 +89,31 @@ This partial checker-only map reports 671 clauses: 6 strong, 23 weak section-onl
 predates the current pinned contract (source hashes differ); the retained tags
 refer to unchanged paragraph text. Updating the graph, K89 tags, Python tests and
 neutral-case aggregation is retained as bennett-conformance-fv9.
+
+## Semantic function phases
+
+`check_replay_inner` was 700 physical lines after borrow-frame admission.
+It now coordinates schema, expected relation, table correspondence, compatible
+program binding, element selection and outcome assignment in 291 lines.
+Direct unit tests cover schema and relation phases; existing mutation,
+control-flow, fixed-image, domain, row-limit and replay integrations cover the
+remaining phases. All 269 integration cases and both new unit tests pass.
+Controlled-action CLI verdict bytes, for both verified and unchecked inputs,
+are identical before and after the split.
+
+The remaining oversized functions have one explicit checker owner in
+bennett-conformance-8v5; this structural item is partially implemented and the
+remaining work is filed, without a zero-giants claim.
+
+| File | Function | Physical lines |
+| --- | --- | ---: |
+| `cert.rs` | check_certificate / check_region | 507 / 484 |
+| `domain.rs` | resolve_domain | 408 |
+| `eval/procedures.rs` | run | 342 |
+| `eval.rs` | exec_row / exec_line / check_inverse_pair | 656 / 389 / 362 |
+| `numeric.rs` | check_frame | 330 |
+| `structural.rs` | translation | 328 |
+
+The inventory masks strings/comments and handles array-type semicolons in
+function signatures. Line spans include whitespace; they are structural
+measurements, not semantic complexity claims.
