@@ -759,15 +759,9 @@ pub struct LoadedDocs {
     pub expansion_unknown: bool,
 }
 
-/// Check one certificate against its object (and target/schedule when bound).
-pub fn check_certificate(inputs: &Inputs) -> Verdict {
-    let mut verdict = Verdict::default();
-    let Some(cert) = load_jcs_doc(&inputs.cert_bytes, "certificate", &mut verdict) else {
-        return finish(verdict);
-    };
-    let object = match Object::parse(&inputs.object_text) {
-        Ok(o) => o,
-        Err(e) => {
+fn load_object(inputs: &Inputs, verdict: &mut Verdict) -> Option<Object> {
+    let object = Object::parse(&inputs.object_text)
+        .map_err(|e| {
             let (section, msg) = match e.split_once(": ") {
                 Some((sec, rest)) if sec.starts_with('§') => (sec.to_string(), rest.to_string()),
                 _ => ("§9.1".to_string(), e),
@@ -778,14 +772,13 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                 path: "object".into(),
                 message: msg,
             });
-            return finish(verdict);
-        }
-    };
+        })
+        .ok()?;
     if !object.source_admission_obligations.is_empty() {
         verdict
             .unchecked_items
             .extend(object.source_admission_obligations.iter().cloned());
-        return finish(verdict);
+        return None;
     }
     verdict
         .hashes
@@ -797,9 +790,21 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
             "object.symbols",
             "object's stated interface_hash values do not match recomputation; the object is mislabelled",
         ));
-        return finish(verdict);
+        return None;
     }
 
+    Some(object)
+}
+
+/// Check one certificate against its object (and target/schedule when bound).
+pub fn check_certificate(inputs: &Inputs) -> Verdict {
+    let mut verdict = Verdict::default();
+    let Some(cert) = load_jcs_doc(&inputs.cert_bytes, "certificate", &mut verdict) else {
+        return finish(verdict);
+    };
+    let Some(object) = load_object(inputs, &mut verdict) else {
+        return finish(verdict);
+    };
     crate::coverage::validate(&object, &mut verdict.errors);
     if !verdict.errors.is_empty() {
         return finish(verdict);

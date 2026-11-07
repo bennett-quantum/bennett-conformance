@@ -22,7 +22,7 @@ impl Type {
             _ => {
                 if let Some(n) = text.strip_prefix('i') {
                     let n = positive(n)?;
-                    require(n <= 128u32.into(), "§3.3", "iN requires N<=128")?;
+                    require(n <= MAX_INLINE_WIDTH.into(), "§3.3", "iN requires N<=128")?;
                     Self::Integer(n)
                 } else if let Some(n) = text.strip_prefix("wire[").and_then(|s| s.strip_suffix(']'))
                 {
@@ -59,7 +59,7 @@ impl Type {
         match self {
             Self::Integer(n) | Self::Wire(n) | Self::Location(n) => Ok(n.clone()),
             Self::Pointer => Ok(ptr.into()),
-            Self::Float => Ok(64u32.into()),
+            Self::Float => Ok(FLOAT_WIDTH.into()),
             _ => Err(sec_err("§3.3", "expected a bit-vector operand")),
         }
     }
@@ -229,7 +229,7 @@ impl<'a> Scalar<'a> {
     fn constant(&self, row: &Row, n: &BigUint) -> Result<Type, String> {
         if !row.lifted {
             require(
-                n <= &128u32.into(),
+                n <= &MAX_INLINE_WIDTH.into(),
                 "§3.3",
                 "const.iN requires N<=128 outside lifted rows",
             )?;
@@ -373,7 +373,7 @@ impl<'a> Scalar<'a> {
             }
             Code::LoadScalar(n) | Code::StoreScalar(n) => {
                 require(
-                    n >= &8u32.into() && n <= &128u32.into() && (n % 8u32).is_zero(),
+                    n >= &8u32.into() && n <= &MAX_INLINE_WIDTH.into() && (n % 8u32).is_zero(),
                     "§4.8",
                     "memory row width must be 8..128 in bytes",
                 )?;
@@ -449,17 +449,13 @@ impl<'a> Scalar<'a> {
                     "FAULT_ENTROPY_EXHAUSTED" => 10u32.into(),
                     _ => uint(cause)?,
                 };
-                let width = match self.function.kind.as_str() {
-                    "oracle" => Type::parse(&self.function.groups[2][0].ty)?
-                        .bits(self.object.header.ptr_width)?,
-                    "lproc" => 64u32.into(),
-                    _ => 64u32.into(),
-                };
-                require(
-                    BigUint::from(cause.bits()) <= width,
-                    "§3.3",
-                    "fault literal exceeds its cause width",
-                )?;
+                if let Some(width) = procedures::fault_width(self.object, self.function)? {
+                    require(
+                        BigUint::from(cause.bits()) <= width,
+                        "§3.3",
+                        "fault literal exceeds its cause width",
+                    )?;
+                }
                 None
             }
             Code::Jump => {
@@ -628,7 +624,7 @@ impl<'a> Scalar<'a> {
                 require(c.kind == "oracle", "§3.3", "budget.mint requires oracle")?;
                 for a in &row.args[1..] {
                     require(
-                        self.value(a)? == &Type::Integer(64u32.into()),
+                        self.value(a)? == &Type::Integer(REGISTER_INTEGER_WIDTH.into()),
                         "§3.3",
                         "budget values require i64",
                     )?;
@@ -674,7 +670,8 @@ impl<'a> Scalar<'a> {
                     }
                     Err(_) => {
                         require(
-                            self.value(&row.args[1])? == &Type::Integer(64u32.into()),
+                            self.value(&row.args[1])?
+                                == &Type::Integer(REGISTER_INTEGER_WIDTH.into()),
                             "§3.3",
                             "runtime qreg width requires i64",
                         )?;
@@ -688,7 +685,7 @@ impl<'a> Scalar<'a> {
                 for a in &row.args[1..] {
                     if uint(a).is_err() {
                         require(
-                            self.value(a)? == &Type::Integer(64u32.into()),
+                            self.value(a)? == &Type::Integer(REGISTER_INTEGER_WIDTH.into()),
                             "§3.3",
                             "runtime slice operands require i64",
                         )?;
@@ -714,11 +711,11 @@ impl<'a> Scalar<'a> {
             }
             Code::RegisterWidth | Code::RegisterId => {
                 q(&row.args[0])?;
-                Some(Type::Integer(64u32.into()))
+                Some(Type::Integer(REGISTER_INTEGER_WIDTH.into()))
             }
             Code::RegisterFromId => {
                 require(
-                    self.value(&row.args[0])? == &Type::Integer(64u32.into()),
+                    self.value(&row.args[0])? == &Type::Integer(REGISTER_INTEGER_WIDTH.into()),
                     "§3.3",
                     "qreg id requires i64",
                 )?;
@@ -742,7 +739,7 @@ impl<'a> Scalar<'a> {
                     _ => return Err(sec_err("§3.3", "runtime qreg requires measure.iN")),
                 };
                 require(
-                    !n.is_zero() && n <= 128u32.into(),
+                    !n.is_zero() && n <= MAX_INLINE_WIDTH.into(),
                     "§3.3",
                     "measurement width must be1..128",
                 )?;

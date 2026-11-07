@@ -27,13 +27,12 @@ struct Bundle {
     width: BigUint,
     origin: Origin,
 }
-use super::predicates::{Effect, Word as Predicates};
+type Predicates = Vec<Slice>;
 struct Frame {
     row: Row,
     start: usize,
     wires: BTreeMap<String, Bundle>,
     predicates: Predicates,
-    effect: Effect,
 }
 pub(super) struct Action<'a> {
     pub object: &'a Object,
@@ -195,7 +194,7 @@ impl<'a> Action<'a> {
             "§5.1",
             "operation writes an in-role bundle",
         )?;
-        for guard in self.guards.iter().chain(self.predicates.wires()) {
+        for guard in self.guards.iter().chain(&self.predicates) {
             require(
                 !wire.overlaps(guard),
                 "§3.3",
@@ -285,9 +284,9 @@ impl<'a> Action<'a> {
                 match frame.row.code {
                     Code::If => {
                         let selector = self.single(&frame.row.args[0])?;
-                        self.predicates.pop(&selector)?;
+                        self.pop_predicate(&selector)?;
                         require(
-                            same_predicates(&self.predicates, &frame.predicates),
+                            self.predicates == frame.predicates,
                             "§3.5",
                             "unbalanced predicates in qif arm",
                         )?;
@@ -314,15 +313,11 @@ impl<'a> Action<'a> {
                             self.predicates = predicates;
                         }
                         require(
-                            count.is_zero() || self.predicates.agrees(&frame.predicates),
+                            count.is_zero() || self.predicates == frame.predicates,
                             "§3.5/§4.6",
                             "loop body altered predicate stack",
                         )?;
-                        let effect = frame.effect.counted(&count)?;
-                        self.predicates = effect.apply(&frame.predicates)?;
-                        if let Some(parent) = frames.last_mut() {
-                            parent.effect.then(&effect)?;
-                        }
+                        self.predicates = frame.predicates;
                         if count.is_zero() {
                             self.wires = frame.wires;
                         }
@@ -341,7 +336,6 @@ impl<'a> Action<'a> {
                     start: index,
                     wires: self.wires.clone(),
                     predicates: self.predicates.clone(),
-                    effect: Effect::default(),
                 };
                 match row.code {
                     Code::If => {
@@ -371,13 +365,6 @@ impl<'a> Action<'a> {
                 frames.push(frame);
             } else {
                 self.row(&row)?;
-                if matches!(row.code, Code::Pred | Code::Unpred) {
-                    if let Some(frame) = frames.last_mut() {
-                        frame
-                            .effect
-                            .then(&Effect::instruction(&row, self.single(&row.args[0])?))?;
-                    }
-                }
             }
         }
         require(frames.is_empty(), "§16.2", "unterminated structured body")
@@ -395,6 +382,15 @@ impl<'a> Action<'a> {
         let result = self.operation(row);
         self.predicates = saved_if_call(row, saved, self.predicates.clone());
         result
+    }
+    fn pop_predicate(&mut self, wire: &Slice) -> Result<(), String> {
+        require(
+            self.predicates.last() == Some(wire),
+            "§3.5",
+            "predicate pop does not match push",
+        )?;
+        self.predicates.pop();
+        Ok(())
     }
     fn operation(&mut self, row: &Row) -> Result<(), String> {
         match &row.code {
@@ -438,7 +434,7 @@ impl<'a> Action<'a> {
             }
             Code::Unpred => {
                 let w = self.single(&row.args[0])?;
-                self.predicates.pop(&w)
+                self.pop_predicate(&w)
             }
             Code::Region => Ok(()),
             Code::Load | Code::Unload | Code::Store | Code::ExchangeMemory => self.memory(row),
@@ -554,9 +550,6 @@ fn same_live(a: &BTreeMap<String, Bundle>, b: &BTreeMap<String, Bundle>) -> bool
     a.len() == b.len()
         && a.iter()
             .all(|(n, v)| b.get(n).is_some_and(|w| w.width == v.width))
-}
-fn same_predicates(a: &Predicates, b: &Predicates) -> bool {
-    a.agrees(b)
 }
 pub(super) fn valid_name(text: &str) -> bool {
     let mut b = text.bytes();

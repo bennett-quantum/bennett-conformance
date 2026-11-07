@@ -500,9 +500,12 @@ Malformed source receives E_CERT_OBJECT with its specification section. Indexed
 control prefixes retain their complete operand, and opcode/operand typing is
 separate from basis-state replay.
 
-A loop that carries a changed predicate stack across its body boundary currently
-defers the entire certificate as unchecked, with a named §3.5 source-admission
-obligation and no claim proof. The published region-entry/exit balance rule and
-the pinned interpreter's per-loop admission rule need reconciliation before
-this form can be certified. The generated differential retains this disagreement;
-it is not an accepted exception in the admission test.
+Executed loop bodies must preserve the predicate stack at body boundaries
+(§3.5/§4.6); a violation receives E_CERT_OBJECT. The equivalent control can be
+written with balanced qpred/qunpred inside each body.
+
+Three complete-source checks remain explicit unchecked obligations: repeated
+same-type definitions whose pinned SSA admission disagrees with §3.4, indirect
+label widths that require full binding-instance index spaces (§3.6), and linked
+imported bodies (§3.3/§9.2). Any such obligation defers the whole certificate
+before a region or claim proof is issued.

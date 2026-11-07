@@ -65,7 +65,7 @@ impl Oracle {
         }
         let hashes = json(std::str::from_utf8(&hashed.stdout).unwrap());
         let (prefix, rest) = text.split_once("section symbols\n").unwrap();
-        let (symbols, suffix) = rest.split_once("\n\nsection functions\n").unwrap();
+        let (symbols, suffix) = rest.split_once('\n').unwrap();
         let mut symbols = json(symbols);
         let Value::Obj(entries) = &mut symbols else {
             panic!()
@@ -82,10 +82,7 @@ impl Oracle {
                 .clone();
             set(entry, "interface_hash", hash);
         }
-        format!(
-            "{prefix}section symbols\n{}\n\nsection functions\n{suffix}",
-            encode(&symbols)
-        )
+        format!("{prefix}section symbols\n{}\n{suffix}", encode(&symbols))
     }
 }
 impl Drop for Oracle {
@@ -329,6 +326,22 @@ fn generated_lexical_admission_matches_the_pinned_interpreter() {
             &base,
             range,
             &replacement,
+            &mut failures,
+            &mut count,
+            &mut accepted,
+        );
+    }
+    for (from, to) in [
+        ("mcx (c) t[0]", "mcx (c[0]) t[0]"),
+        ("action_call @flip (t)", "action_call @flip (t[0])"),
+        ("mcx (c) t[0]", "ctl c[0] x t[0]"),
+    ] {
+        let start = base.object_text.find(from).unwrap();
+        compare_candidate(
+            &oracle,
+            &base,
+            start..start + from.len(),
+            to,
             &mut failures,
             &mut count,
             &mut accepted,

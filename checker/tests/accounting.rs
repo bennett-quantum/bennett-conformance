@@ -419,7 +419,7 @@ fn gate_cost_distinguishes_own_controls_from_inherited_controls() {
     let claim =
         json(r#"{"bound":0,"kind":"numerical","metric":"operator_norm","precision_bits":128}"#);
     let (mut inp, h) = standalone(
-        "perm_action @a (t:wire mut) (c:wire in, p:wire in) () () ()\n^entry():\nctl p mcx (c) t",
+        "perm_action @a (t:wire mut) (c:wire in, p:wire in) () () ()\n^entry():\nqpred p\nmcx (c) t\nqunpred p",
         r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1,1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
         "a",
         vec![claim],

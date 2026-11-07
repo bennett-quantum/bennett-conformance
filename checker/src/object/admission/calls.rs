@@ -39,6 +39,9 @@ pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String
         .imports
         .get(name)
         .ok_or_else(|| sec_err("§9.1", format!("unknown callee @{name}")))?;
+    metadata(s)
+}
+pub(super) fn metadata(s: &Value) -> Result<Signature, String> {
     let kind = field(s, "kind")?
         .as_str()
         .ok_or_else(|| sec_err("§9.1", "signature kind must be a string"))?
@@ -50,6 +53,9 @@ pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String
             .collect::<Result<Vec<_>, _>>()
     };
     let types = |key: &str| {
+        if s.get(key).is_none() && s.get("abi").and_then(Value::as_str) == Some("0.8") {
+            return Ok(vec![]);
+        }
         array(s, key)?
             .iter()
             .map(|v| {
@@ -60,6 +66,9 @@ pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String
             .collect::<Result<Vec<_>, _>>()
     };
     let mem = || {
+        if s.get("mem").is_none() && s.get("abi").and_then(Value::as_str) == Some("0.8") {
+            return Ok(vec![]);
+        }
         array(s, "mem")?
             .iter()
             .map(|m| {
@@ -95,9 +104,6 @@ pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String
         _ => return Err(sec_err("§9.1", "unknown callee kind")),
     };
     Ok(Signature { kind, groups })
-}
-fn width(ty: &Type, ptr: u64) -> Result<BigUint, String> {
-    ty.bits(ptr)
 }
 fn matching(
     actuals: &[String],
@@ -191,7 +197,7 @@ fn wire_group(scope: &Action, actuals: &str, types: &[Type]) -> Result<Vec<Slice
         .map(|(a, t)| {
             let w = scope.wire(a)?;
             require(
-                w.width == width(t, scope.object.header.ptr_width)?,
+                w.width == (t).bits(scope.object.header.ptr_width)?,
                 "§3.3",
                 "wire argument width differs",
             )?;
@@ -231,7 +237,7 @@ pub(super) fn action(scope: &mut Action, row: &Row) -> Result<(), String> {
             let w = scope.wire(&row.args[i])?;
             require(
                 sig.groups[g].len() == 1
-                    && w.width == width(&sig.groups[g][0], scope.object.header.ptr_width)?,
+                    && w.width == (&sig.groups[g][0]).bits(scope.object.header.ptr_width)?,
                 "§3.3",
                 "oracle target/fault width differs",
             )?;
@@ -298,8 +304,8 @@ fn inplace(scope: &Action, row: &Row) -> Result<(), String> {
             "qinplace requires two oracle interfaces",
         )?;
         require(
-            width(&s.groups[0][0], scope.object.header.ptr_width)? == x.width
-                && width(&s.groups[1][0], scope.object.header.ptr_width)? == x.width,
+            (&s.groups[0][0]).bits(scope.object.header.ptr_width)? == x.width
+                && (&s.groups[1][0]).bits(scope.object.header.ptr_width)? == x.width,
             "§3.3",
             "qinplace input/target width differs",
         )?;
@@ -359,7 +365,7 @@ pub(super) fn scalar(scope: &mut Scalar, row: &Row) -> Result<(), String> {
             )?;
             for (a, t) in args.iter().zip(&sig.groups[0]) {
                 require(
-                    scope.bits(a)? == width(t, scope.object.header.ptr_width)?,
+                    scope.bits(a)? == (t).bits(scope.object.header.ptr_width)?,
                     "§3.3",
                     "lproc location width differs",
                 )?;
@@ -421,7 +427,7 @@ fn scalar_region(scope: &mut Scalar, row: &Row, sig: &Signature) -> Result<(), S
         "overlapping region wire operands",
     )?;
     for (a, t) in wires.iter().zip(expected) {
-        let width = width(&t, scope.object.header.ptr_width)?;
+        let width = (&t).bits(scope.object.header.ptr_width)?;
         if row.lifted {
             require(
                 scope.bits(a)? == width,
@@ -439,6 +445,9 @@ fn scalar_region(scope: &mut Scalar, row: &Row, sig: &Signature) -> Result<(), S
         }
     }
     let group = if oracle { 3 } else { 2 };
+    if !row.lifted {
+        register_preflight(scope, row, sig, &wires, &list(&row.args[mem])?)?;
+    }
     if row.lifted {
         matching(&list(&row.args[mem])?, &sig.groups[group], |a| {
             scope.value(a).cloned()
@@ -474,6 +483,54 @@ fn scalar_region(scope: &mut Scalar, row: &Row, sig: &Signature) -> Result<(), S
     matching(&list(&row.args[args])?, &sig.groups[group + 1], |a| {
         scope.value(a).cloned()
     })
+}
+fn register_preflight(
+    scope: &Scalar,
+    row: &Row,
+    sig: &Signature,
+    wires: &[String],
+    regions: &[String],
+) -> Result<(), String> {
+    let all = wires.iter().chain(regions).collect::<Vec<_>>();
+    require(
+        all.iter().collect::<BTreeSet<_>>().len() == all.len(),
+        "§3.3",
+        "register wire and memory slots overlap",
+    )?;
+    let oracle = matches!(row.code, Code::OracleCall | Code::OracleUncall);
+    let mutable_wires = if oracle {
+        &wires[sig.groups[0].len()..]
+    } else {
+        &wires[..sig.groups[0].len()]
+    };
+    for control in &row.controls {
+        require(
+            scope
+                .value(control)?
+                .accepts_transfer_to(&Type::Register(Some(1u32.into()))),
+            "§3.3",
+            "ctl requires a qreg[1] control",
+        )?;
+        require(
+            !mutable_wires.contains(control),
+            "§3.3",
+            "control overlaps a mutable region operand",
+        )?;
+        let mem_group = if oracle { 3 } else { 2 };
+        for (index, region) in regions.iter().enumerate() {
+            let readonly = scope
+                .object
+                .function(row.args[0].trim_start_matches('@'))
+                .and_then(|f| f.groups[mem_group].get(index))
+                .is_some_and(|p| p.suffix.as_deref() == Some("in"));
+            require(
+                region != control || readonly,
+                "§3.3",
+                "control overlaps a mutable memory operand",
+            )?;
+        }
+    }
+    Ok(())
 }
 fn write_set(
     object: &Object,

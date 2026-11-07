@@ -255,13 +255,13 @@ impl Row {
         )?;
         require(
             self.controls.is_empty()
-                || action
-                || matches!(self.code, Code::ActionCall | Code::OracleCall),
+                || (!self.lifted && matches!(self.code, Code::ActionCall | Code::OracleCall)),
             "§4.8",
             "invalid controlled instruction",
         )?;
         require(
-            !self.adjoint || matches!(self.code, Code::ActionCall | Code::OracleCall),
+            !self.adjoint
+                || (!self.lifted && matches!(self.code, Code::ActionCall | Code::OracleCall)),
             "§4.8",
             "adj requires a region call",
         )
@@ -550,11 +550,10 @@ fn operand(text: &str) -> Result<(), String> {
     if text.starts_with('(') {
         for item in list(text)? {
             require(
-                !item.starts_with('('),
+                wires::valid_name(&item),
                 "§16.2",
-                "nested operand lists are not permitted",
+                "operand lists require NAME entries",
             )?;
-            operand(&item)?;
         }
         return Ok(());
     }

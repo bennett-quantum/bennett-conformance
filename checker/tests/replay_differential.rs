@@ -591,15 +591,15 @@ fn coherent_fixture(body: &str, extra: &str, flip: bool) -> (Inputs, String) {
 #[test]
 fn exact_phase_cancellation_controls_and_adjoint_calls_preserve_all_four_inputs() {
     for (body, inner) in [
-        ("ctl c h t\nctl c t t\nctl c tdg t\nctl c h t", "x t"),
-        ("ctl c action_call @inner (t) () () ()\nctl c h t", "h t"),
+        ("qpred c\nh t\nqunpred c\nqpred c\nt t\nqunpred c\nqpred c\ntdg t\nqunpred c\nqpred c\nh t\nqunpred c", "x t"),
+        ("ctl c action_call @inner (t) () () ()\nqpred c\nh t\nqunpred c", "h t"),
         (
             "ctl c action_call @inner (t) () () ()\nctl c adj action_call @inner (t) () () ()",
             "h t\nt t\ns t",
         ),
         ("h t\nt t\nt t\nt t\nt t\nt t\nt t\nt t\nt t\nh t", "x t"),
         ("cz c t\ncz c t\nh t\nh t", "x t"),
-        ("qpred c\nctl c h t\nctl c h t\nqunpred c", "x t"),
+        ("qpred c\nqpred c\nh t\nqunpred c\nqpred c\nh t\nqunpred c\nqunpred c", "x t"),
         ("qif c {\nh t\nh t\n} {\nt t\ntdg t\n}", "x t"),
     ] {
         let (inputs, root) = coherent_fixture(body, inner, false);

@@ -57,6 +57,18 @@ pub struct Function {
     pub bounds: Vec<num_bigint::BigUint>,
 }
 
+impl Function {
+    pub(crate) fn matches_bounds(&self, bounds: &[u64]) -> bool {
+        if self.bounds.len() != bounds.len() {
+            return false;
+        }
+        self.bounds
+            .iter()
+            .zip(bounds)
+            .all(|(source, value)| source == &num_bigint::BigUint::from(*value))
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Symbol {
     pub name: String,
@@ -190,42 +202,7 @@ impl Object {
 
         let symbols_json = parse_metadata(sec("symbols"), "symbols")?
             .ok_or_else(|| sec_err("§9.1", "missing symbols section"))?;
-        let mut raw_symbols = Vec::new();
-        let sym_obj = symbols_json
-            .as_obj()
-            .ok_or_else(|| sec_err("§9.1", "symbols section is not an object"))?;
-        for (idx, entry) in sym_obj {
-            let name = entry
-                .get("name")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .to_string();
-            let kind = entry
-                .get("kind")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .to_string();
-            let signature = entry.get("signature").cloned().unwrap_or(Value::Null);
-            let stated = entry
-                .get("interface_hash")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .to_string();
-            let index: i128 = idx
-                .parse()
-                .map_err(|_| sec_err("§9.1", format!("bad symbol index {idx:?}")))?;
-            raw_symbols.push((
-                index,
-                RawSymbol {
-                    name,
-                    kind,
-                    signature,
-                    stated,
-                },
-            ));
-        }
-        raw_symbols.sort_by_key(|(i, _)| *i);
-
+        let symbols = parse_symbols(&symbols_json)?;
         let mut imports = BTreeMap::new();
         if let Some(v) = parse_metadata(sec("imports"), "imports")? {
             let obj = v
@@ -269,17 +246,7 @@ impl Object {
 
         let mut obj = Object {
             header,
-            symbols: raw_symbols
-                .into_iter()
-                .map(|(_, r)| Symbol {
-                    name: r.name,
-                    kind: r.kind,
-                    signature: r.signature,
-                    stated_interface_hash: r.stated,
-                    interface_hash: String::new(),
-                    closure_hash: None,
-                })
-                .collect(),
+            symbols,
             functions,
             data,
             layout,
@@ -325,11 +292,45 @@ impl Object {
     }
 }
 
-struct RawSymbol {
-    name: String,
-    kind: String,
-    signature: Value,
-    stated: String,
+fn parse_symbols(value: &Value) -> Result<Vec<Symbol>, String> {
+    let mut raw_symbols = Vec::new();
+    let sym_obj = value
+        .as_obj()
+        .ok_or_else(|| sec_err("§9.1", "symbols section is not an object"))?;
+    for (idx, entry) in sym_obj {
+        let name = entry
+            .get("name")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string();
+        let kind = entry
+            .get("kind")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string();
+        let signature = entry.get("signature").cloned().unwrap_or(Value::Null);
+        let stated = entry
+            .get("interface_hash")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string();
+        let index: i128 = idx
+            .parse()
+            .map_err(|_| sec_err("§9.1", format!("bad symbol index {idx:?}")))?;
+        raw_symbols.push((
+            index,
+            Symbol {
+                name,
+                kind,
+                signature,
+                stated_interface_hash: stated,
+                interface_hash: String::new(),
+                closure_hash: None,
+            },
+        ));
+    }
+    raw_symbols.sort_by_key(|(i, _)| *i);
+    Ok(raw_symbols.into_iter().map(|(_, symbol)| symbol).collect())
 }
 
 fn parse_header(line: &str) -> Result<Header, String> {

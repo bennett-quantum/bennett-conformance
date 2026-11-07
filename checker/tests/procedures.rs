@@ -553,7 +553,20 @@ fn every_lproc_signature_field_and_position_rejects_bad_types_and_removals() {
                     common::encode(symbols)
                 )
             };
-            let object = Object::parse(&make(&symbols)).unwrap();
+            let object = match Object::parse(&make(&symbols)) {
+                Ok(object) => object,
+                Err(error) => {
+                    assert!(error.starts_with('§'), "path={path:?}: {error}");
+                    let mut input = common::controlled();
+                    input.object_text = make(&symbols);
+                    assert!(
+                        common::codes(&bennett_cert_checker::cert::check_certificate(&input))
+                            .contains(&"E_CERT_OBJECT")
+                    );
+                    rejected += 1;
+                    continue;
+                }
+            };
             for (i, symbol) in object.symbols.iter().enumerate() {
                 let Value::Obj(fields) = &mut symbols else {
                     panic!()

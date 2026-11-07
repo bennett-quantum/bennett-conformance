@@ -445,14 +445,7 @@ fn translation(
     let mut ordinal = 0;
     let mut next = 1;
     sequence_layout(stmts, 0, &mut ordinal, &mut next, &mut sequences, 0)?;
-    if sequences
-        .bounds
-        .iter()
-        .copied()
-        .map(num_bigint::BigUint::from)
-        .collect::<Vec<_>>()
-        != f.bounds
-    {
+    if !f.matches_bounds(&sequences.bounds) {
         return Err(ClaimOutcome::rejected(vec![rej(
             "E_CERT_OBJECT",
             "§5.3",

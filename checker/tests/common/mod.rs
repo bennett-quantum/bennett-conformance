@@ -51,7 +51,7 @@ pub fn rebind_object_symbols(text: &str) -> String {
         }
     };
     let (prefix, rest) = text.split_once("section symbols\n").unwrap();
-    let (symbols, suffix) = rest.split_once("\n\nsection functions\n").unwrap();
+    let (symbols, suffix) = rest.split_once('\n').unwrap();
     let mut symbols = json(symbols);
     let Value::Obj(fields) = &mut symbols else {
         panic!()
@@ -61,10 +61,7 @@ pub fn rebind_object_symbols(text: &str) -> String {
         let hash = object.symbol(name).unwrap().interface_hash.clone();
         set(entry, "interface_hash", Value::Str(hash));
     }
-    let rebound = format!(
-        "{prefix}section symbols\n{}\n\nsection functions\n{suffix}",
-        encode(&symbols)
-    );
+    let rebound = format!("{prefix}section symbols\n{}\n{suffix}", encode(&symbols));
     assert!(Object::parse(&rebound).unwrap().stated_hashes_ok());
     rebound
 }

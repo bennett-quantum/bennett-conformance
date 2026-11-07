@@ -7,7 +7,9 @@ use std::collections::{BTreeMap, BTreeSet};
 mod calls;
 mod classical;
 mod operations;
+#[cfg(test)]
 mod predicates;
+mod procedures;
 mod scalars;
 mod syntax;
 mod views;
@@ -15,11 +17,17 @@ mod wires;
 use operations::{Code, Row};
 use scalars::{Scalar, Type};
 use wires::Action;
+// ISA §§3.3/4.8: iN and pointer widths share this source type bound.
+const MAX_INLINE_WIDTH: u32 = 128;
+// ISA §3.3: register handles and dynamic size/index values use i64.
+const REGISTER_INTEGER_WIDTH: u32 = 64;
+// ISA §3.1: f64 pseudo-locations carry the binary64 bits.
+const FLOAT_WIDTH: u32 = 64;
 
 pub(super) fn validate(object: &Object) -> Result<Vec<String>, String> {
     let mut obligations = vec![];
     require(
-        (1..=128).contains(&object.header.ptr_width),
+        (1..=u64::from(MAX_INLINE_WIDTH)).contains(&object.header.ptr_width),
         "§3.3",
         "ptr_width must be 1..128",
     )?;
@@ -46,26 +54,19 @@ pub(super) fn validate(object: &Object) -> Result<Vec<String>, String> {
             "symbol and source function kinds differ",
         )?;
         super::signatures::validate(symbol, function, &object.header.versions["isa"])?;
-        if matches!(function.kind.as_str(), "cc" | "r") {
-            for (group, key) in [(0, "params"), (1, "results")] {
-                let declared = symbol
-                    .signature
-                    .get(key)
-                    .and_then(crate::json::Value::as_arr)
-                    .ok_or_else(|| sec_err("§9.1", "missing classical signature group"))?;
-                require(
-                    declared.len() == function.groups[group].len(),
-                    "§9.1",
-                    "classical signature group count differs",
-                )?;
-                for (p, t) in function.groups[group].iter().zip(declared) {
-                    require(
-                        t.as_str() == Some(&p.ty),
-                        "§9.1",
-                        "classical signature type differs from source",
-                    )?;
-                }
-            }
+        if matches!(function.kind.as_str(), "cc" | "r" | "lproc") {
+            procedures::signature_fields(symbol, &object.header.versions["isa"])?;
+            let declared = calls::metadata(&symbol.signature)?;
+            let header = function
+                .groups
+                .iter()
+                .map(|g| g.iter().map(|p| Type::parse(&p.ty)).collect())
+                .collect::<Result<Vec<Vec<Type>>, _>>()?;
+            require(
+                declared.kind == function.kind && declared.groups == header,
+                "§9.1",
+                "signature types differ from source header",
+            )?;
         }
         syntax::validate(function)?;
         let rows = function
@@ -76,6 +77,22 @@ pub(super) fn validate(object: &Object) -> Result<Vec<String>, String> {
             .filter(|line| !matches!(*line, "}" | "} {"))
             .map(|line| Row::parse(line.strip_suffix(" {").unwrap_or(line), &function.kind))
             .collect::<Result<Vec<_>, _>>()?;
+        if function.kind == "oracle" {
+            procedures::fault_width(object, function)?;
+        }
+        if function.kind == "lproc" || rows.iter().any(|r| r.code == Code::ProcedureCall) {
+            require(
+                object.layout.is_some(),
+                "§7.2",
+                "memory or lprocs require layout",
+            )?;
+        }
+        if rows
+            .iter()
+            .any(|r| matches!(r.code, Code::Label | Code::JumpRegister))
+        {
+            obligations.push(format!("@{}: §3.6 source index-space widths require complete procedure binding instances; static admission remains unchecked",function.name));
+        }
         match function.kind.as_str() {
             "action" | "perm_action" => Action::validate(object, function)?,
             _ => {
@@ -87,6 +104,9 @@ pub(super) fn validate(object: &Object) -> Result<Vec<String>, String> {
                 }
             }
         }
+    }
+    if !object.imports.is_empty() {
+        obligations.push("§3.3/§9.2: complete source admission of imported closures requires linked-body validation; imported source remains unchecked".into());
     }
     Ok(obligations)
 }

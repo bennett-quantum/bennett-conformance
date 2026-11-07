@@ -90,7 +90,9 @@ fn infer(scope: &Scalar, row: &Row) -> Result<Option<Vec<Type>>, String> {
             _ => None,
         },
         Code::RegisterFromId => Some(Type::Register(None)),
-        Code::RegisterWidth | Code::RegisterId => Some(Type::Integer(64u32.into())),
+        Code::RegisterWidth | Code::RegisterId => {
+            Some(Type::Integer(REGISTER_INTEGER_WIDTH.into()))
+        }
         Code::Measure(Some(n)) => Some(Type::Integer(n.clone())),
         Code::Measure(None) => match lookup(0) {
             Some(Type::Register(Some(n))) => Some(Type::Integer(n)),

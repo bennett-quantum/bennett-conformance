@@ -8,11 +8,15 @@ use bennett_cert_checker::{
 use common::*;
 fn object(gate: &str, coherent: bool) -> Object {
     let h = if coherent { "h t\nh t\n" } else { "" };
-    let gate_source = gate.replace("[-0]", "[0]");
-    let (inputs,_)=standalone(&format!("action @a (t:wire[1] mut) (s:wire in, c:wire[2] in, r:wire in) () () ()\n^entry():\n{h}ctl r {gate_source}"),
+    let gate_source = gate
+        .replace("[-0]", "[0]")
+        .replace("(c[0], c[1], s)", "(c, s)");
+    let (inputs,_)=standalone(&format!("action @a (t:wire[1] mut) (s:wire in, c:wire[2] in, r:wire in) () () ()\n^entry():\n{h}qpred r\n{gate_source}\nqunpred r"),
         r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1,2,1],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#,"a",vec![]);
     let mut parsed = Object::parse(&inputs.object_text).unwrap();
-    if gate.contains("[-0]") {
+    if gate != gate_source {
+        // Retain internal indexed-operand replay coverage after canonical source
+        // admission. §16.2 operand lists in the object text contain NAMEs.
         let function = &mut parsed.functions[0];
         function.bytes = function.bytes.replace(&gate_source, gate);
         for block in &mut function.blocks {
@@ -113,12 +117,10 @@ fn repeated_overlapping_nonscalar_and_invalid_indexed_operands_reject_even_when_
             // rejection of noncanonical integers is covered in lexical.rs.
             let mut object = object("mcx (s) t", coherent);
             let function = &mut object.functions[0];
-            function.bytes = function
-                .bytes
-                .replace("ctl r mcx (s) t", &format!("ctl r {gate}"));
+            function.bytes = function.bytes.replace("mcx (s) t", &format!("{gate}"));
             for line in &mut function.blocks[0].instructions {
-                if line == "ctl r mcx (s) t" {
-                    *line = format!("ctl r {gate}");
+                if line == "mcx (s) t" {
+                    *line = format!("{gate}");
                 }
             }
             let symbol = object.symbol("a").unwrap();

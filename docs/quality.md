@@ -217,6 +217,16 @@ operation and is never invoked by the gate.
 "checker/src/matrix.rs": [26, 26, 0, 0, 0, 0, 0, 36, 65, 1, 0],
 "checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 535, 1, 0],
 "checker/src/object.rs": [41, 30, 7, 4, 0, 11, 4, 172, 482, 6, 0],
+"checker/src/object/admission.rs": [6, 5, 1, 0, 0, 1, 0, 86, 23, 1, 0],
+"checker/src/object/admission/calls.rs": [15, 9, 5, 1, 0, 6, 1, 101, 103, 2, 0],
+"checker/src/object/admission/classical.rs": [4, 4, 0, 0, 0, 0, 0, 47, 31, 0, 0],
+"checker/src/object/admission/operations.rs": [11, 6, 5, 0, 0, 5, 0, 78, 73, 3, 0],
+"checker/src/object/admission/predicates.rs": [3, 3, 0, 0, 0, 0, 0, 28, 14, 0, 0],
+"checker/src/object/admission/procedures.rs": [4, 4, 0, 0, 0, 0, 0, 49, 29, 0, 0],
+"checker/src/object/admission/scalars.rs": [20, 16, 3, 1, 0, 4, 1, 213, 132, 1, 0],
+"checker/src/object/admission/syntax.rs": [2, 0, 1, 1, 0, 2, 1, 119, 71, 0, 0],
+"checker/src/object/admission/views.rs": [4, 4, 0, 0, 0, 0, 0, 48, 38, 0, 0],
+"checker/src/object/admission/wires.rs": [20, 17, 3, 0, 0, 3, 0, 98, 101, 1, 0],
 "checker/src/object/lexical.rs": [2, 1, 1, 0, 0, 1, 0, 88, 80, 0, 0],
 "checker/src/object/signatures.rs": [5, 4, 0, 1, 0, 1, 1, 152, 60, 0, 0],
 "checker/src/rat.rs": [37, 36, 1, 0, 0, 1, 0, 69, 65, 6, 0],
@@ -334,11 +344,14 @@ interpreter's §16.1 rejections; canonical positive tests remain, and internal
 MCX defense tests inject malformed tokens after parsing.
 
 
-The unmerged whole-object admission change is blocked on the predicate-boundary
-contract decision tracked by bennett-conformance-yzn. Its saved source witnesses
-pass, but the expanded generated differential exposes a region-balanced loop
-form rejected by the pinned interpreter. Proof is deferred for this form and
-the admission comparison stays red. The prior coverage and structural baseline
-above predate these new admission modules; no new coverage or green ratchet is
-claimed. The new modules remain unregistered in the baseline, and existing file
-ceilings have not been raised.
+The new whole-object admission modules have their first structural baseline.
+All pre-existing baseline entries and litter allowances remain byte-for-byte
+equal as parsed values; no existing ceiling was raised. The object symbol
+reader and certificate source loader are separate phases, and the two bounds
+consumers share the arbitrary-precision comparison.
+
+The loop-boundary ruling is implemented as named source rejection. Audit
+deferrals are tracked by bennett-conformance-a4n (repeated definitions and pin
+admission), -020 (complete indirect-label index spaces), and -0xm (imported
+closure admission). These forms yield unchecked with no claim proof.
+Final default-run, fresh-archive and coverage measurements are still pending.

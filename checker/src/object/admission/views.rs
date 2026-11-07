@@ -32,7 +32,9 @@ pub(super) fn validate(function: &Function, scope: &Scalar) -> Result<(), String
                 continue;
             }
             require(
-                !node.next.is_empty() || next_state == State::Consumed,
+                !node.next.is_empty()
+                    || node.row.code == Code::Fault
+                    || next_state == State::Consumed,
                 "§3.3",
                 "slice view reaches function exit unconsumed",
             )?;
