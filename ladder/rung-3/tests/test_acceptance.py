@@ -83,6 +83,25 @@ class AcceptanceTests(unittest.TestCase):
                 with self.assertRaisesRegex(gate.GateError, 'contract'):
                     gate.validate_contract(bad, producer, spec)
 
+    def test_contract_version_declaration_can_wrap_lines(self):
+        # Pinned dialect 023f5a7 spec/Bennett-Dialect-Spec.md:14-15 wraps
+        # between tdl and effects. Paragraph breaks still end the declaration.
+        for dialect, isa in (('0.2.10', '0.8'), ('0.2.15', '0.9')):
+            pins = {'dialect':dialect, 'isa':isa}
+            producer = f'dialect="{dialect}"\nisa="{isa}"'
+            spec = (f'**Versioning.** Dialect {dialect}: markers 0.2, tdl 0.2.4,\n'
+                    f'effects 0.2.4, corpus 0.2; targets ISA {isa}.\n\n')
+            with self.subTest(isa=isa):
+                if isa == '0.8':
+                    spec += 'On ISA 0.8 a module has verdict blocked:BD-B-ISA7'
+                    with self.assertRaisesRegex(gate.GateError, 'BD-B-ISA7'):
+                        gate.validate_contract(pins, producer, spec)
+                else:
+                    self.assertEqual(gate.validate_contract(pins, producer, spec), (dialect, isa))
+                unrelated = spec.replace('; targets ISA ', ';\n\nOther paragraph targets ISA ')
+                with self.assertRaisesRegex(gate.GateError, 'unknown or mismatched R contract'):
+                    gate.validate_contract(pins, producer, unrelated)
+
     def test_contract_mismatch_in_publication_or_producer_is_loud(self):
         pins = {'dialect':'0.2.15', 'isa':'0.9'}
         for producer, spec in (
