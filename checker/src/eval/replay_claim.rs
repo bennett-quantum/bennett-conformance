@@ -361,8 +361,13 @@ pub(super) fn finish_outcome(
     } else {
         (
             "evidence",
-            draws_count.unwrap_or(0).to_string(),
-            fraction_string(&BigUint::from(distinct_count.unwrap_or(0)), &domain.full_n),
+            draws_count
+                .expect("sampled replay records a draw count")
+                .to_string(),
+            fraction_string(
+                &BigUint::from(distinct_count.expect("sampled replay records a distinct count")),
+                &domain.full_n,
+            ),
         )
     };
     let mut out = ClaimOutcome {
@@ -438,8 +443,8 @@ pub(super) fn finish_outcome(
     } else {
         format!(
             "{} sampled draws ({} distinct) were replayed on both sides and agree; sampled success is always evidence (distinct covered fraction {fraction}), even at full coverage",
-            draws_count.unwrap_or(0),
-            distinct_count.unwrap_or(0)
+            draws_count.expect("sampled replay records a draw count"),
+            distinct_count.expect("sampled replay records a distinct count")
         )
     };
     if requested_label.as_deref().is_some_and(|label| {

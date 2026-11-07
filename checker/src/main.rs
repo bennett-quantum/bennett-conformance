@@ -11,11 +11,11 @@ use bennett_cert_checker::cert::{check_certificate, Inputs, Limits};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-fn usage() -> ExitCode {
+fn usage(code: u8) -> ExitCode {
     eprintln!(
         "usage: bennett-check <cert.json> --object <object.bisa> [--target <t.json>] [--schedule <s.json>] [--library <cert.json>]... [--oracle-bin <path>] [--max-elements N] [--max-wires N]\n       bennett-check --from-object <object.bisa> [--target <t.json>] [--schedule <s.json>] ..."
     );
-    ExitCode::from(3)
+    ExitCode::from(code)
 }
 
 fn main() -> ExitCode {
@@ -42,7 +42,7 @@ fn main() -> ExitCode {
                 | "--max-wires"
         ) && args.get(i + 1).map(|v| v.starts_with("--")).unwrap_or(true)
         {
-            return usage();
+            return usage(3);
         }
         let next = |i: &mut usize| -> Option<String> {
             *i += 1;
@@ -54,28 +54,28 @@ fn main() -> ExitCode {
             "--schedule" => schedule_path = next(&mut i),
             "--library" => match next(&mut i) {
                 Some(p) => libraries.push(p),
-                None => return usage(),
+                None => return usage(3),
             },
             "--oracle-bin" => oracle_bin = next(&mut i).map(PathBuf::from),
             "--max-elements" => match next(&mut i).and_then(|v| v.parse().ok()) {
                 Some(v) => limits.max_elements = v,
-                None => return usage(),
+                None => return usage(3),
             },
             "--max-wires" => match next(&mut i).and_then(|v| v.parse().ok()) {
                 Some(v) => limits.max_wires = v,
-                None => return usage(),
+                None => return usage(3),
             },
             "--from-object" => from_object = true,
             "--help" | "-h" => {
                 println!(
                     "bennett-check: independent Bennett ISA certificate checker (spec section 12)"
                 );
-                return usage();
+                return usage(0);
             }
-            _ if a.starts_with("--") => return usage(),
+            _ if a.starts_with("--") => return usage(3),
             _ => {
                 if positional.is_some() {
-                    return usage();
+                    return usage(3);
                 }
                 positional = Some(a.clone());
             }
@@ -98,7 +98,7 @@ fn main() -> ExitCode {
     let (cert_bytes, object_text);
     if from_object {
         let Some(path) = positional else {
-            return usage();
+            return usage(3);
         };
         object_text = match read_text(&path) {
             Ok(t) => t,
@@ -121,7 +121,7 @@ fn main() -> ExitCode {
         }
     } else {
         let (Some(cert_path), Some(obj_path)) = (positional, object_path) else {
-            return usage();
+            return usage(3);
         };
         cert_bytes = match read(&cert_path) {
             Ok(b) => b,

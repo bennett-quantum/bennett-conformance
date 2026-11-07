@@ -153,7 +153,8 @@ impl Verdict {
         match self.overall.as_str() {
             "verified" => 0,
             "rejected" => 1,
-            _ => 2,
+            "unchecked" => 2,
+            other => panic!("invalid checker verdict state: {other:?}"),
         }
     }
     pub fn to_value(&self) -> Value {
@@ -515,7 +516,15 @@ pub fn parse_invocation_for_kind(
         has_token_args,
         &format!("{path}.token_aliases"),
     )?;
-    let params_hash = sha256_hex(&jcs(&Value::Arr(args.clone())).unwrap_or_default());
+    let params_bytes = jcs(&Value::Arr(args.clone())).map_err(|error| {
+        vec![rej(
+            "E_CERT_INVOCATION",
+            "§12.3",
+            format!("{path}.args"),
+            format!("cannot canonicalize invocation arguments: {error}"),
+        )]
+    })?;
+    let params_hash = sha256_hex(&params_bytes);
     Ok(Invocation {
         args,
         budget,
@@ -1365,7 +1374,7 @@ fn check_region(
             }
             let sig_ok = region
                 .get("signature")
-                .map(|s| jcs(s).unwrap_or_default() == jcs(&sym.signature).unwrap_or_default())
+                .map(|s| matches!((jcs(s), jcs(&sym.signature)), (Ok(actual), Ok(want)) if actual == want))
                 .unwrap_or(false);
             if !sig_ok {
                 report.errors.push(rej(
@@ -1381,7 +1390,7 @@ fn check_region(
                     .get("bounds")
                     .cloned()
                     .unwrap_or(Value::Arr(vec![]));
-                if jcs(b).unwrap_or_default() != jcs(&want).unwrap_or_default() {
+                if !matches!((jcs(b), jcs(&want)), (Ok(actual), Ok(want)) if actual == want) {
                     report.errors.push(rej("E_CERT_BINDING", "§12.3", format!("{base}.bounds"), "does not equal the signature bounds (§5.3 padded unitary is part of identity)"));
                 }
             }

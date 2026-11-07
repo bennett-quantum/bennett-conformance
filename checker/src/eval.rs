@@ -1297,10 +1297,10 @@ impl Lifted<'_, '_> {
                     self.depth + 1,
                     self.work,
                 )?;
-                let tgt_cur = self.read(&tgt_loc).unwrap_or_default();
+                let tgt_cur = self.read(&tgt_loc)?;
                 let tgt_w = self.width_of(&tgt_loc)?;
                 self.write(&tgt_loc, &tgt_cur ^ &outcome.payload, tgt_w);
-                let fr_cur = self.read(&fr_loc).unwrap_or_default();
+                let fr_cur = self.read(&fr_loc)?;
                 let fr_w = self.width_of(&fr_loc)?;
                 self.write(&fr_loc, &fr_cur ^ &outcome.code, fr_w);
                 Ok(RowFlow::Next)
@@ -4207,4 +4207,54 @@ fn check_inverse_pair(
         return Err(rejected);
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod fail_fast_tests {
+    use super::*;
+
+    #[test]
+    fn lifted_calls_cannot_create_missing_target_or_fault_values_from_zero() {
+        let object = Object::parse(include_str!(
+            "../tests/fixtures/replay-differential/oracle-store-load-heap/object.bisa"
+        ))
+        .unwrap();
+        for missing in ["t", "fr"] {
+            let mut work = 100;
+            let mut env = Lifted {
+                object: &object,
+                vals: HashMap::from([
+                    ("x".into(), 7u32.into()),
+                    ("t".into(), 0u32.into()),
+                    ("fr".into(), 0u32.into()),
+                ]),
+                widths: HashMap::from([("x".into(), 4), ("t".into(), 4), ("fr".into(), 4)]),
+                tokens: HashMap::from([(
+                    "tk".into(),
+                    [9u32.into(), 4u32.into(), 0u32.into(), 0u32.into()],
+                )]),
+                result_val: 0u32.into(),
+                tgt_width: 4,
+                depth: 0,
+                work: &mut work,
+                oracle_name: "o".into(),
+                heap_limit: 4u32.into(),
+                memory: None,
+                locations: HashSet::from(["t".into(), "fr".into()]),
+                fault_width: 4,
+                region_names: HashMap::new(),
+                in_lproc: false,
+            };
+            env.vals.remove(missing);
+            let toks =
+                ["lift.oracle_call", "@o", "tk", "(x)", "t", "fr", "()", "()"].map(str::to_string);
+            match env.exec_row(&toks, &[], &HashMap::new(), &mut HashMap::new(), &[]) {
+                Err(EvalError::Reject(error)) => {
+                    assert_eq!(error.code, "E_CERT_OBJECT");
+                    assert!(error.message.contains(missing), "{error:?}");
+                }
+                _ => panic!("missing {missing} was silently initialized by the call"),
+            }
+        }
+    }
 }

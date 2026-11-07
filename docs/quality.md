@@ -68,7 +68,7 @@ bennett-conformance-ac5:
 
 Fresh review and council review of verdict changes remain the orchestrator's
 responsibility; green tests are not a CLEAR verdict. Remaining quality items:
-fail-fast and CLI checks, artifact hygiene and the baseline ratchet.
+artifact hygiene and the baseline ratchet.
 
 ## Test oracles and clause mapping
 
@@ -117,3 +117,18 @@ remaining work is filed, without a zero-giants claim.
 The inventory masks strings/comments and handles array-type semicolons in
 function signatures. Line spans include whitespace; they are structural
 measurements, not semantic complexity claims.
+
+## Fail-fast checks
+
+Three failures were reproduced before their fixes: lifted calls invented zero
+for missing target/fault values, help exited 3, and unknown internal verdict
+states silently mapped to unchecked. Reads now propagate their errors; help
+exits 0; invalid verdict states panic with context. Canonicalization errors
+cannot become an empty hash or equal empty signature/bounds. Sampled replay
+counts assert their established state rather than inventing zero.
+
+The complete checker run passed 286 tests. CLI tests cover verified/rejected/
+unchecked/usage statuses 0/1/2/3, deterministic JSON, missing options, IO,
+non-UTF-8 and missing embedded certificates. Temporary inputs are removed by
+Drop. Remaining optional-operand/component defaults need individual invariant
+tests and are filed as bennett-conformance-hql.
