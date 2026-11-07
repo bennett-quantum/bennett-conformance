@@ -259,6 +259,8 @@ fn generated_lexical_admission_matches_the_pinned_interpreter() {
     );
     assert_eq!(check_certificate(&base).overall, "verified");
     let (numeric, punctuation) = sites(&base.object_text);
+    let numeric_sites = numeric.len();
+    let punctuation_sites = punctuation.len();
     let mut failures = vec![];
     let mut count = 0;
     let mut accepted = 0;
@@ -323,7 +325,7 @@ fn generated_lexical_admission_matches_the_pinned_interpreter() {
             }
         }
     }
-    eprintln!("lexical differential: {count} generated candidates; {accepted} accepted by oracle; {} disagreements", failures.len());
+    eprintln!("lexical differential: {numeric_sites} numeric sites; {punctuation_sites} punctuation sites; {count} generated candidates; {accepted} accepted by oracle; {} disagreements", failures.len());
     assert!(
         failures.is_empty(),
         "{} disagreements:\n{}",
@@ -368,7 +370,7 @@ fn sites(
             let bytes = line.as_bytes();
             let mut i = 0;
             while i < bytes.len() {
-                if b"()[]{},:=@^.".contains(&bytes[i]) {
+                if b"()[]{},:=@^.*".contains(&bytes[i]) {
                     punctuation.push(offset + i..offset + i + 1);
                 }
                 if !bytes[i].is_ascii_digit() {

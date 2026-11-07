@@ -152,7 +152,13 @@ fn gap(tokens: &[Token<'_>], i: usize, mode: Form, brackets: usize) -> &'static 
 }
 
 fn validate_type(tokens: &[Token<'_>]) -> Lexical {
-    let words: Vec<_> = tokens.iter().map(|t| t.text).collect();
+    // §16.2 region[INT,INT] is the longest type: six tokens plus its boundary.
+    const MAX_TYPE_TOKENS: usize = 6;
+    let words: Vec<_> = tokens
+        .iter()
+        .take(MAX_TYPE_TOKENS + 1)
+        .map(|t| t.text)
+        .collect();
     let end = match words.as_slice() {
         ["region", "[", a, ",", w, "]", ..] => {
             unsigned(a)?;
@@ -292,7 +298,11 @@ fn validate_atom(
             Number::Angle => numeric(token.text, mode, brackets, true),
             Number::Integer => numeric(token.text, mode, brackets, false),
         },
-        (Atom::Star, _, _) if brackets == 0 => Err("* is only a qreg width"),
+        (Atom::Star, Some("["), _) => match tokens[..i - 1].last().map(|t| t.text) {
+            Some("qreg") => Ok(()),
+            _ => Err("* is only a qreg width"),
+        },
+        (Atom::Star, _, _) => Err("* is only a qreg width"),
         (Atom::Header, _, Form::Header) => Ok(()),
         (Atom::Header, _, _) => Err("unexpected object header token"),
         _ => Ok(()),

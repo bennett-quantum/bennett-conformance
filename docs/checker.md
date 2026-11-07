@@ -461,3 +461,33 @@ replay, and assigns no element count, coverage or proof. Required frame fields,
 subject/schedule binding and standalone invocation binding are checked before
 this deferral. Domain, occurrence and sampler validity remain named unresolved
 obligations. Ordinary interface relations retain their closed domain schema.
+
+## Canonical source admission differential
+
+Before hashing, the reader checks §16.1 atoms in their §16.2 contexts: integer
+type/opcode widths, version components, unsigned bounds/counts/indices/region
+dimensions, signed integer literals, and canonical finite gate-angle floats.
+Punctuation uses the printed grammar spacing, including the empty-regs and
+empty-HEX exceptions. No host-width cap is added to lexical integer validation.
+
+The default integration test generates mutations at every numeric-atom and
+punctuation position of a canonical multi-function object: 52 numeric sites,
+183 punctuation sites, and 1,933 nonidentity mutation cases. Numeric changes
+include leading zeros, signs, hex, underscores, decimal-looking integer
+spellings and inserted whitespace; punctuation changes remove/add spaces,
+tabs and newlines on both sides. All eight numeric roles must occur in the seed.
+
+Each candidate goes through the gate-pinned release interpreter's black-box
+`hash` and `check` commands and this reader's object parser. The hash command
+repairs stated metadata independently, so a stale §9.2 binding cannot conceal
+an admission mismatch. Every interpreter-rejected candidate is also sent to
+the certificate entry point with bindings rebound if this reader admits it;
+neither overall verification nor a claim proof may result. JSON metadata and
+data HEX use their separate grammars and are excluded from INT mutations.
+
+The test runs the release interpreter under the validated ISA pin and checks
+that any `BENNETT_ISA_BINARY` identifies that same binary. Missing binaries fail
+with a build instruction. The canonical identity control still verifies;
+noncanonical integer declarations and bounds reject with `E_CERT_OBJECT`
+at §16.1. Internal evaluator defense tests inject malformed tokens after a
+valid parse; they do not treat those spellings as legal source objects.

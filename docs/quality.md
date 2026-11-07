@@ -29,7 +29,8 @@ Builds require at least 6 GB available RAM and one-minute load below 12.
 | Before pin repair | 270 passed, 4 missing-fixture failures | 37.45 s |
 | Updated pin, original binaries | 274 passed, 0 failed, 0 ignored | 79.86 s |
 | Consolidated binary, line-table test profile | 276 passed, 0 failed, 0 ignored | 46.30 s |
-| Final source, warm cache | 286 passed, 0 failed, 0 ignored | 28.23 s |
+| Quality-floor checkpoint, warm cache | 286 passed, 0 failed, 0 ignored | 28.23 s |
+| Canonical-admission repair | 291 passed, 0 failed, 0 ignored | 26.05 s |
 
 The consolidation run includes its profile rebuild; the final timing uses a warm cache. Every integration case is included in
 `tests/conformance.rs`; no slow tests or exclusions were needed. The two added
@@ -43,19 +44,20 @@ A recompute schedule retains explicit unchecked obligations.
 
 ## Coverage
 
-**Lines: 83.99% (14,412 / 17,159); functions: 82.26%; regions: 85.63%.**
-Measured on the final source at the unified pin: 286 passed,
+**Lines: 84.19% (14,587 / 17,326); functions: 82.64%; regions: 85.84%.**
+Measured after canonical-admission repair at the unified pin: 291 passed (277 integration + 14 unit),
 zero failures, without ignoring run failures.
 
 ```sh
-systemd-run --user --scope --quiet timeout 300 cargo llvm-cov --offline --manifest-path checker/Cargo.toml -j3 --json --summary-only --output-path .tmp/quality-checker/coverage-final.json -- --test-threads=4
+systemd-run --user --scope --quiet timeout 300 cargo llvm-cov --offline --manifest-path checker/Cargo.toml -j3 --json --summary-only --output-path .tmp/quality-checker/lexical-coverage.json -- --test-threads=4
 ```
 
 This measures Rust checker execution, separately from clause coverage. No
 threshold is imposed. `fault.rs` is now 100% lines: path prefixing, JSON fields,
 Display and both ResolveError conversions are asserted exactly.
 
-CLI line coverage is now 86.05%; the extracted replay phases are 92.76%.
+CLI line coverage is 86.05%; the extracted replay phases are 92.76%;
+the grammar-based lexical reader is 97.10%.
 
 The five weakest source files have explicit retained work in
 bennett-conformance-ac5:
@@ -65,8 +67,8 @@ bennett-conformance-ac5:
 | `eval/borrow_frames.rs` | 56.41% | Scheduled-context branches and independently derived frame-entry mechanics remain under the full adoption issue; no invented positive proof. |
 | `domain.rs` | 69.02% | Large host-limit/component-shape branches need bounded witnesses that avoid materializing huge domains. |
 | `structural.rs` | 75.08% | Adjoint/library and frame-provenance branches need contract-derived positive compositions. |
-| `eval.rs` | 75.05% | Remaining procedure/memory unsupported branches need bounded independent witnesses. |
-| `object.rs` | 83.01% | Remaining source-admission/provenance branches need determining malformed-input witnesses while retaining canonical positives. |
+| `eval.rs` | 74.89% | Remaining procedure/memory unsupported branches need bounded independent witnesses. |
+| `target.rs` | 83.10% | Remaining native/fragment descriptor branches need independently derived boundary and malformed-value witnesses. |
 
 ## Review and remaining work
 
@@ -82,7 +84,7 @@ and four shifted input rows of the controlled-action table. Type sweeps still
 visit every field; they no longer hard-code a snapshot's field count. The heap
 store/load witness additionally checks the independently derived payload x and
 zero fault for all sixteen x values, rather than only its verdict/count.
-The updated integration run passed 269 cases.
+The test-quality checkpoint passed 269 integration cases; the current count is 277.
 
 ```sh
 python3 clauses/clausegraph.py coverage clauses/ISA-0.9.json --tags checker/tests/clause_tags.json
@@ -102,7 +104,7 @@ It now coordinates schema, expected relation, table correspondence, compatible
 program binding, element selection and outcome assignment in 291 lines.
 Direct unit tests cover schema and relation phases; existing mutation,
 control-flow, fixed-image, domain, row-limit and replay integrations cover the
-remaining phases. All 269 integration cases and both new unit tests pass.
+remaining phases. That phase checkpoint passed 269 integration cases and both new unit tests; the current total is 291.
 Controlled-action CLI verdict bytes, for both verified and unchecked inputs,
 are identical before and after the split.
 
@@ -132,7 +134,7 @@ exits 0; invalid verdict states panic with context. Canonicalization errors
 cannot become an empty hash or equal empty signature/bounds. Sampled replay
 counts assert their established state rather than inventing zero.
 
-The complete checker run passed 286 tests. CLI tests cover verified/rejected/
+The fail-fast checkpoint passed 286 tests; the current count is 291. CLI tests cover verified/rejected/
 unchecked/usage statuses 0/1/2/3, deterministic JSON, missing options, IO,
 non-UTF-8 and missing embedded certificates. Temporary inputs are removed by
 Drop. Remaining optional-operand/component defaults need individual invariant
@@ -277,10 +279,10 @@ operation and is never invoked by the gate.
 
 ## Final component verification
 
-At d089feb (final source; subsequent changes are measurement documentation),
+At the earlier d089feb quality-floor checkpoint,
 the scoped default command above passed 286 tests in 28.23 seconds. Formatting,
 the ratchet and its self-tests passed. All 15 tagged test names occur as successful
-executions in the final test output.
+executions in that checkpoint output.
 
 With `BENNETT_ISA_BINARY` set to the release binary under
 `.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec/reference-interpreter`:
@@ -294,3 +296,39 @@ timeout 120 python3 -B -I suite/run.py --binary "$BENNETT_ISA_BINARY" --cases su
 Results: 113 clause-graph tests, 23 suite tests, and 16/16 neutral cases pass.
 The full push gate and council review are reserved for the orchestrator. No
 critical review or CLEAR result is claimed here.
+
+## Canonical-admission review repair
+
+The two review witnesses were reproduced separately against the saved pre-fix
+reader: both obtained overall verified and an identity-table proof with freshly
+bound hashes. They now reject with E_CERT_OBJECT, section §16.1, and retain the
+canonical verified control.
+
+The generated black-box differential covers 52 numeric-atom sites and 183
+punctuation sites of a canonical multi-function object: 1,933 nonidentity
+mutations, four interpreter-accepted changes, zero disagreements. Before the
+repair, the initial 1,662-case seed produced 755 discrepancies (including
+proof grants). The later seed adds zero-valued literals/dimensions, typed block
+parameters, both structured arms and wildcard punctuation. JSON metadata and
+data HEX retain their separate grammars.
+
+Source checks parse token kinds once and apply the printed punctuation and
+integer/float productions in context. Integer lexical checks have no host-width
+cap. The existing quality baseline is unchanged: lexical cognitive mass remains
+80 and its function-length distribution improves. No ratchet allowance was
+raised to accommodate the repair.
+
+The default checker command passed 291 tests in 26.05 seconds; the successful
+coverage command above also passed all 291 tests. Focused reproduction:
+
+~~~sh
+systemd-run --user --scope --quiet timeout 180 cargo test --offline --manifest-path checker/Cargo.toml -j3 --test conformance lexical_differential:: -- --test-threads=4 --nocapture
+~~~
+
+The test uses the gate-pinned release interpreter (and validates any configured
+BENNETT_ISA_BINARY against that path). It independently refreshes metadata via
+the binary's hash command before check, compares object admission, then
+ensures interpreter-rejected inputs cannot receive overall verification or a
+claim proof. Correcting older -0 region/index positives follows the pinned
+interpreter's §16.1 rejections; canonical positive tests remain, and internal
+MCX defense tests inject malformed tokens after parsing.
