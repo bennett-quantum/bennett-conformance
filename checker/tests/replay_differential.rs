@@ -35,6 +35,25 @@ fn negative_literal_witness_replays_all_sixteen_rows() {
 
 #[test]
 fn heap_store_load_witness_replays_all_sixteen_rows() {
+    // Allocating one byte, storing zero-extended x and loading/truncating
+    // it is the identity payload; the nine-row budget cannot fault.
+    let inputs = witness("oracle-store-load-heap");
+    let object = Object::parse(&inputs.object_text).unwrap();
+    for x in 0u32..16 {
+        let out = eval_oracle(
+            &object,
+            object.symbol("o").unwrap(),
+            &[x.into()],
+            &[],
+            &[],
+            &[9u32.into(), 4u32.into(), 0u32.into(), 0u32.into()],
+            0,
+        )
+        .unwrap();
+        assert_eq!(out.payload, BigUint::from(x));
+        assert_eq!(out.code, BigUint::from(0u32));
+    }
+
     let verdict = check_certificate(&witness("oracle-store-load-heap"));
     assert!(codes(&verdict).is_empty(), "{verdict:?}");
     let claim = &verdict.regions[0].claims[0].1;

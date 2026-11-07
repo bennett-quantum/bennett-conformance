@@ -68,5 +68,25 @@ bennett-conformance-ac5:
 
 Fresh review and council review of verdict changes remain the orchestrator's
 responsibility; green tests are not a CLEAR verdict. Remaining quality items:
-value mutation/clause tags, named function phases,
+named function phases,
 fail-fast and CLI checks, artifact hygiene and the baseline ratchet.
+
+## Test oracles and clause mapping
+
+Value mutations cover six same-type wrong binding hashes, all eight output bits
+and four shifted input rows of the controlled-action table. Type sweeps still
+visit every field; they no longer hard-code a snapshot's field count. The heap
+store/load witness additionally checks the independently derived payload x and
+zero fault for all sixteen x values, rather than only its verdict/count.
+The updated integration run passed 269 cases.
+
+```sh
+python3 clauses/clausegraph.py coverage clauses/ISA-0.9.json --tags checker/tests/clause_tags.json
+```
+
+Fifteen mapped tests were confirmed executed in the successful integration run.
+This partial checker-only map reports 671 clauses: 6 strong, 23 weak section-only,
+642 uncovered. It is separate from proof tags and line coverage. The clause graph
+predates the current pinned contract (source hashes differ); the retained tags
+refer to unchanged paragraph text. Updating the graph, K89 tags, Python tests and
+neutral-case aggregation is retained as bennett-conformance-fv9.

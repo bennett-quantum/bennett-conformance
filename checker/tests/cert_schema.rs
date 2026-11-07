@@ -193,8 +193,14 @@ fn unknown_claim_kind_rejected_per_claim() {
     let cert = mutate_cert(&f, |v| {
         if let Value::Obj(top) = v {
             let mut regions = top.get("regions").unwrap().as_obj().unwrap().clone();
-            let key =
-                "df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12".to_string();
+            let key = top
+                .get("bindings")
+                .unwrap()
+                .get("closure_hash")
+                .unwrap()
+                .as_str()
+                .unwrap()
+                .to_string();
             let mut region = regions.get(&key).unwrap().as_obj().unwrap().clone();
             let mut claims = region.get("claims").unwrap().as_arr().unwrap().to_vec();
             if let Value::Obj(c0) = &mut claims[0] {
@@ -225,8 +231,14 @@ fn frame_overlapping_live_ranges_rejected() {
     let cert = mutate_cert(&f, |v| {
         if let Value::Obj(top) = v {
             let mut regions = top.get("regions").unwrap().as_obj().unwrap().clone();
-            let key =
-                "df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12".to_string();
+            let key = top
+                .get("bindings")
+                .unwrap()
+                .get("closure_hash")
+                .unwrap()
+                .as_str()
+                .unwrap()
+                .to_string();
             let mut region = regions.get(&key).unwrap().as_obj().unwrap().clone();
             let frame = parse(r#"{"ancillae":[],"borrow":[],"history":[],"live_ranges":[{"end":2,"frame":"s","start":0},{"end":3,"frame":"s","start":1}],"scratch":[{"class":"fast","id":"s","state":"clean","width":1}],"slots":[{"class":"fast","id":"mut:0","role":"mut","width":1},{"class":"fast","id":"in:0","role":"in","width":1}]}"#).unwrap();
             region.insert("frame".into(), frame);
@@ -252,8 +264,14 @@ fn frame_witness_live_ranges_are_disjoint() {
     let cert = mutate_cert(&f, |v| {
         if let Value::Obj(top) = v {
             let mut regions = top.get("regions").unwrap().as_obj().unwrap().clone();
-            let key =
-                "df131e972083b8d3b3b7d9341342b55252ca7a1963c4b7b6f702b9cdf3fbde12".to_string();
+            let key = top
+                .get("bindings")
+                .unwrap()
+                .get("closure_hash")
+                .unwrap()
+                .as_str()
+                .unwrap()
+                .to_string();
             let mut region = regions.get(&key).unwrap().as_obj().unwrap().clone();
             let frame = parse(r#"{"ancillae":[],"borrow":[],"history":[],"live_ranges":[{"end":2,"frame":"s","start":0},{"end":4,"frame":"s","start":2}],"scratch":[{"class":"fast","id":"s","state":"clean","width":1}],"slots":[{"class":"fast","id":"mut:0","role":"mut","width":1},{"class":"fast","id":"in:0","role":"in","width":1}]}"#).unwrap();
             region.insert("frame".into(), frame);
