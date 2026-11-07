@@ -373,9 +373,9 @@ signature and fault-width checks, and classical result/memory operand types.
 Fresh export verification uses the committed head and explicit pin environment:
 
 ~~~sh
-mkdir -p .tmp/quality-checker/fresh
-git archive HEAD | tar -x -C .tmp/quality-checker/fresh
-cd .tmp/quality-checker/fresh
+checker_export="$(mktemp -d "$PWD/.tmp/quality-checker/fresh.XXXXXX")"
+git archive HEAD | tar -x -C "$checker_export"
+cd "$checker_export"
 systemd-run --user --scope --quiet timeout 240 /usr/bin/time -p cargo test --offline --manifest-path checker/Cargo.toml -j3 --no-fail-fast -- --test-threads=4
 ~~~
 
