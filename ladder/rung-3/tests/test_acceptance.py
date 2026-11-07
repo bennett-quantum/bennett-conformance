@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
 
@@ -178,27 +179,49 @@ class AcceptanceTests(unittest.TestCase):
         script = out/'comparison.ld'
         script.write_text('SECTIONS { . = 4096; .data : { *(.data .data.*) } '
                           'ASSERT(ALIGN(., 4096) == 4096, "heap") . = 4194304; .text : { *(.text*) } }')
+        adapter = self.root/'publication/scripts/native-check'
+        adapter.parent.mkdir(parents=True, exist_ok=True)
+        adapter.write_bytes(b'fixture native-check; execution mocked outside LLVM integration')
         merged = out/'comparison-linked.bc'; merged.write_bytes(b'merged')
+        check_input = out/'comparison-check-input.bc'; check_input.write_bytes(b'check input')
+        checked = out/'comparison-checked.bc'; checked.write_bytes(b'checked')
         final = out/'comparison.bc'; final.write_bytes(b'closed')
         prefix = f'/usr/lib/llvm-{m}/bin/'
+        # Command oracle: pinned driver 54d32fa src/native.rs:141-186,266-370;
+        # close_libraries in src/main.rs:302-332 links at least once, in place.
+        # The tiny integration has stable imports after one closure iteration,
+        # and initially lacks all three ABI memory definitions (native.rs:309-347).
         steps = [
             [prefix+'llvm-link', *map(str, paths), '--only-needed', '-o', str(merged)],
+            [prefix+'llvm-link', str(merged), *map(str, paths[1:]),
+             '--only-needed', '-o', str(merged)],
+            [prefix+'llvm-link', str(merged), '-o', str(check_input)],
+            [str(adapter), str(m), str(check_input), str(checked)],
             [prefix+'llvm-as', str(layout), '-o', str(out/'native-layout.bc')],
-            [prefix+'llvm-link', str(merged), str(out/'native-layout.bc'),
+            [prefix+'llvm-link', str(checked), str(out/'native-layout.bc'),
              '--override='+str(support), '-o', str(out/'comparison-adapted.bc')],
             [prefix+'llvm-link', str(out/'comparison-adapted.bc'), *map(str, paths[1:]),
+             '--only-needed', '-o', str(final)],
+            [prefix+'llvm-extract', str(paths[1]), '--func=memcpy', '--func=memmove',
+             '--func=memset', '-o', str(out/'native-memory.bc')],
+            [prefix+'llvm-link', str(final), str(out/'native-memory.bc'), '-o', str(final)],
+            [prefix+'llvm-link', str(final), *map(str, paths[1:]),
              '--only-needed', '-o', str(final)],
             [prefix+'opt', '-passes=strip-dead-prototypes,verify', str(final), '-o', str(final)],
         ]
         record = {'llvm_major':m, 'materialised_sha256':gate.sha(paths[0]),
                   'runtimes_sha256':gate.sha(paths[1]), 'arith_sha256':gate.sha(paths[2]),
-                  'native_support_sha256':gate.sha(support), 'linked_sha256':gate.sha(merged),
+                  'native_support_sha256':gate.sha(support),
+                  # native.rs:424 hashes the FINAL comparison.bc, after cleanup.
+                  'linked_sha256':gate.sha(final),
                   'bitcode_link_argv':steps[0],
                   'link_argv':[prefix+'clang', '-O2', '-nostdlib', '-nostdinc', '-static',
                       '-no-pie', '-fno-merge-all-constants', str(final), '-Wl,-T,'+str(script),
                       '-Wl,-e,_start', '-Wl,--no-undefined', '-Wl,--fatal-warnings',
                       '-Wl,-Map,'+str(out/'native.map'), '-o', str(d/'native')]}
-        manifest = {'commands':[{'argv':argv, 'success':True} for argv in steps]}
+        manifest = {'native_check_adapter':{'path':str(adapter), 'sha256':gate.sha(adapter)},
+                    'checked_materialised':{'path':str(checked), 'sha256':gate.sha(checked)},
+                    'commands':[{'argv':argv, 'success':True} for argv in steps]}
         return paths, record, manifest, d/'native'
 
     def test_auditable_multistage_receipt(self):
@@ -210,21 +233,90 @@ class AcceptanceTests(unittest.TestCase):
             self.assertEqual(audit_comparison(self.g, m, *paths, record, manifest, output), record['link_argv'])
             self.assertEqual(calls, [c['argv'] for c in manifest['commands']])
 
+    def test_receipt_hash_names_final_closure(self):
+        from native_audit import audit_comparison
+        for m in (18, 23):
+            with self.subTest(major=m):
+                paths, record, manifest, output = self.receipt(m)
+                self.g.command = lambda *a, **kw: b''
+                audit_comparison(self.g, m, *paths, record, manifest, output)
+                record['linked_sha256'] = gate.sha(Path(record['bitcode_link_argv'][-1]))
+                with self.assertRaisesRegex(gate.GateError, 'final bitcode closure hash mismatch'):
+                    audit_comparison(self.g, m, *paths, record, manifest, output)
+
+    def test_checked_stage_is_mandatory_and_must_feed_final_closure(self):
+        from native_audit import audit_comparison
+        for m in (18, 23):
+            paths, record, manifest, output = self.receipt(m)
+            self.g.command = lambda *a, **kw: b''
+            check = next(c for c in manifest['commands'] if Path(c['argv'][0]).name == 'native-check')
+            for mutation in ('omitted', 'bypassed', 'failed'):
+                mf = copy.deepcopy(manifest)
+                if mutation == 'omitted':
+                    mf['commands'].remove(check)
+                elif mutation == 'bypassed':
+                    support = next(c['argv'] for c in mf['commands']
+                                   if any(a.startswith('--override=') for a in c['argv']))
+                    support[1] = record['bitcode_link_argv'][-1]
+                else:
+                    next(c for c in mf['commands'] if c['argv'] == check['argv'])['success'] = False
+                with self.subTest(major=m, mutation=mutation), self.assertRaisesRegex(
+                        gate.GateError, 'checked|native.check'):
+                    audit_comparison(self.g, m, *paths, record, mf, output)
+
+    def test_native_check_is_bound_to_pinned_adapter_and_recorded_artifacts(self):
+        from native_audit import audit_comparison
+        for m in (18, 23):
+            paths, record, manifest, output = self.receipt(m)
+            self.g.command = lambda *a, **kw: b''
+            for mutation, error in (
+                ('path', 'pinned native-check'), ('adapter-hash', 'native-check adapter hash'),
+                ('major', 'native-check LLVM major'), ('input', 'unrecorded native-check input'),
+                ('checked-hash', 'checked bitcode hash'), ('output', 'checked output'),
+            ):
+                mf = copy.deepcopy(manifest)
+                check = next(c['argv'] for c in mf['commands'] if Path(c['argv'][0]).name == 'native-check')
+                match mutation:
+                    case 'path':
+                        check[0] = '/untrusted/scripts/native-check'
+                        mf['native_check_adapter']['path'] = check[0]
+                    case 'adapter-hash':
+                        mf['native_check_adapter']['sha256'] = '0'*64
+                    case 'major':
+                        check[1] = str(41-m)
+                    case 'input':
+                        check[2] = str(paths[0].parent/'opaque.bc')
+                    case 'checked-hash':
+                        mf['checked_materialised']['sha256'] = '0'*64
+                    case 'output':
+                        check[3] = check[2]
+                with self.subTest(major=m, mutation=mutation), self.assertRaisesRegex(gate.GateError, error):
+                    audit_comparison(self.g, m, *paths, record, mf, output)
+
     @unittest.skipUnless(all(Path(f'/usr/lib/llvm-{m}/bin/{tool}').is_file()
-                            for m in (18, 23) for tool in ('llvm-as', 'llvm-link', 'opt', 'clang')),
+                            for m in (18, 23) for tool in ('llvm-as', 'llvm-link', 'llvm-extract', 'opt', 'clang', 'clang++', 'llvm-config')),
                          'tiny receipt replay integration needs LLVM 18 and 23')
     def test_rebuilds_staged_receipt_from_exact_inputs(self):
         from native_audit import audit_comparison
         # Independent closure: main returns rt() + arith() = 7 + 11 = 18.
         # This is an adapter test, never either musl corpus workload.
+        self.g.args.timeout = 20  # Includes a cold build of the pinned checker.
         for m in (18, 23):
             paths, record, manifest, output = self.receipt(m)
             support = self.root/f'publication/dist/llvm{m}/musl-sysroot/lib/native-support.bc'
+            # Materialise only the pinned executable adapter publication, never
+            # live sibling sources. The script builds its own same-major checker.
+            archive = self.g.command(f'{m}/test-adapter-publication',
+                ['git', '-C', gate.WORKSPACE/'bennett-runtimes', 'archive',
+                 gate.PINS['bennett-runtimes'], 'scripts/native-check', 'scripts/native-check.cpp'])
+            with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+                tar.extractall(self.root/'publication', filter='data')
+            adapter = self.root/'publication/scripts/native-check'
+            manifest['native_check_adapter']['sha256'] = gate.sha(adapter)
             modules = {
                 paths[0]: 'declare i32 @rt()\ndeclare i32 @arith()\n'
                           'define i32 @main() { %r = call i32 @rt()\n'
                           '%a = call i32 @arith()\n%s = add i32 %r, %a\nret i32 %s }\n',
-                paths[1]: 'define i32 @rt() { ret i32 7 }\n',
                 paths[2]: 'define i32 @arith() { ret i32 11 }\n',
                 support: 'declare i32 @main()\ndefine void @_start() { %r = call i32 @main()\n'
                          '%rc = sext i32 %r to i64\ncall void asm sideeffect "syscall", '
@@ -235,16 +327,42 @@ class AcceptanceTests(unittest.TestCase):
                 source.write_text('target triple = "x86_64-unknown-linux-musl"\n'+ir)
                 self.g.command(f'{m}/test-assemble-{path.stem}',
                                [f'/usr/lib/llvm-{m}/bin/llvm-as', source, '-o', path])
+            # Real ABI memory bodies for the driver's conditional extraction.
+            runtime_c = paths[1].with_suffix('.c')
+            runtime_c.write_text('int rt(void) { return 7; }\n'
+                'void *memcpy(void *d, const void *s, unsigned long n) { '
+                'unsigned char *a=d; const unsigned char *b=s; '
+                'for (unsigned long i=0;i<n;i++) a[i]=b[i]; return d; }\n'
+                'void *memmove(void *d, const void *s, unsigned long n) { '
+                'unsigned char *a=d; const unsigned char *b=s; '
+                'if (a<b) for (unsigned long i=0;i<n;i++) a[i]=b[i]; '
+                'else while (n) { n--; a[n]=b[n]; } return d; }\n'
+                'void *memset(void *d, int c, unsigned long n) { unsigned char *a=d; '
+                'for (unsigned long i=0;i<n;i++) a[i]=c; return d; }\n')
+            self.g.command(f'{m}/test-runtime', [self.g.clang(m),
+                '--target=x86_64-unknown-linux-musl', '-O1', '-ffreestanding',
+                '-fno-builtin', '-nostdinc', '-emit-llvm', '-c', runtime_c, '-o', paths[1]])
             for key, path in zip(('materialised', 'runtimes', 'arith'), paths):
                 record[key+'_sha256'] = gate.sha(path)
             record['native_support_sha256'] = gate.sha(support)
-            self.g.command(f'{m}/test-initial-merge', record['bitcode_link_argv'])
-            record['linked_sha256'] = gate.sha(Path(record['bitcode_link_argv'][-1]))
+            # Independently produce the driver's receipt before invoking the audit.
+            for i, command in enumerate(manifest['commands']):
+                self.g.command(f'{m}/test-driver-stage-{i}', command['argv'])
+            final = paths[0].parent/'comparison.bc'
+            checked = paths[0].parent/'comparison-checked.bc'
+            record['linked_sha256'] = gate.sha(final)
+            manifest['checked_materialised']['sha256'] = gate.sha(checked)
+            self.assertNotEqual(record['linked_sha256'], gate.sha(paths[0].parent/'comparison-linked.bc'))
+            checked_ir = self.g.command(f'{m}/test-checked-ir',
+                [f'/usr/lib/llvm-{m}/bin/opt', '-S', checked, '-o', '-'])
+            self.assertIn(b'@__bennett_rt_native_objects', checked_ir)
             (paths[0].parent/'comparison.ld').write_text('SECTIONS { . = 4194304; '
                 '.text : { *(.text*) } .rodata : { *(.rodata*) } .data : { *(.data*) } '
                 '/DISCARD/ : { *(.eh_frame*) *(.comment*) *(.note*) } }')
             # Spoofing an intermediate cannot bypass the replay from exact leaves.
-            (paths[0].parent/'comparison.bc').write_bytes(b'not trusted bitcode')
+            for name in ('comparison-linked.bc', 'comparison-check-input.bc',
+                         'comparison-checked.bc', 'comparison-adapted.bc', 'comparison.bc'):
+                (paths[0].parent/name).write_bytes(b'not trusted bitcode')
             argv = audit_comparison(self.g, m, *paths, record, manifest, output)
             self.g.command(f'{m}/test-native-link', argv)
             run = subprocess.run([str(output)], capture_output=True, timeout=5)
@@ -273,6 +391,7 @@ class AcceptanceTests(unittest.TestCase):
                 self.g.command = command
                 self.g.native(m, workload)
                 self.assertIn('-bennett-out='+str(work), calls[0])
+                self.assertIn('--bennett-native-check='+str(self.root/'publication/scripts/native-check'), calls[0])
                 self.assertEqual(output.with_name('native.stdout').read_bytes(), expected)
                 self.g.command = lambda tag, argv, **kw: expected[:-1] if tag.endswith('/native-run') else b''
                 with self.assertRaisesRegex(AssertionError, 'native stdout differs'):
@@ -311,28 +430,54 @@ class AcceptanceTests(unittest.TestCase):
 
     def test_receipt_rejects_host_libc_missing_runtime_and_hash_substitution(self):
         from native_audit import audit_comparison
-        paths, record, manifest, output = self.receipt(18)
-        mutations = []
-        for extra in ('/usr/lib/libc.a', '-lc', '-Wl,-lc', '-Xlinker', '@response',
-                      '-Wl,-Map,'+str(paths[0].parent/'native.map')+',-lc'):
+        for m in (18, 23):
+            paths, record, manifest, output = self.receipt(m)
+            mutations = []
+            for extra in ('/usr/lib/libc.a', '-lc', '-Wl,-lc', '-Xlinker', '@response',
+                          '-Wl,-Map,'+str(paths[0].parent/'native.map')+',-lc'):
+                r, mf = copy.deepcopy(record), copy.deepcopy(manifest)
+                r['link_argv'].insert(-2, extra)
+                mutations.append((r, mf, 'unapproved comparison input|opaque linker option|opaque comma'))
+            for extra in ('/usr/lib/libc.a', '-L/usr/lib', '--override=/usr/lib/libm.bc'):
+                r, mf = copy.deepcopy(record), copy.deepcopy(manifest)
+                mf['commands'][0]['argv'].insert(1, extra)
+                mutations.append((r, mf, 'missing first bitcode merge'))
             r, mf = copy.deepcopy(record), copy.deepcopy(manifest)
-            r['link_argv'].insert(-2, extra); mutations.append((r, mf))
-        for extra in ('/usr/lib/libc.a', '-L/usr/lib', '--override=/usr/lib/libm.bc'):
+            mf['commands'][0]['argv'].remove(str(paths[1]))
+            mutations.append((r, mf, 'missing first bitcode merge'))
             r, mf = copy.deepcopy(record), copy.deepcopy(manifest)
-            mf['commands'][0]['argv'].insert(1, extra); mutations.append((r, mf))
-        r, mf = copy.deepcopy(record), copy.deepcopy(manifest)
-        mf['commands'][0]['argv'].remove(str(paths[1])); mutations.append((r, mf))
-        r, mf = copy.deepcopy(record), copy.deepcopy(manifest)
-        substitute = self.root/'publication/substitute.bc'; substitute.write_bytes(b'wrong input')
-        mf['commands'][0]['argv'][2] = str(substitute); mutations.append((r, mf))
-        r = copy.deepcopy(record); r['arith_sha256'] = '0'*64; mutations.append((r, manifest))
-        self.g.command = lambda *a, **kw: b''
-        for index, (r, mf) in enumerate(mutations):
-            with self.subTest(mutation=index), self.assertRaises((AssertionError, gate.GateError)):
-                audit_comparison(self.g, 18, *paths, r, mf, output)
-        paths[1].write_bytes(b'tampered runtime')
-        with self.assertRaisesRegex((AssertionError, gate.GateError), 'hash'):
-            audit_comparison(self.g, 18, *paths, record, manifest, output)
+            substitute = self.root/'publication/substitute.bc'; substitute.write_bytes(b'wrong input')
+            mf['commands'][0]['argv'][2] = str(substitute)
+            mutations.append((r, mf, 'missing first bitcode merge'))
+            for key in ('materialised', 'runtimes', 'arith'):
+                r = copy.deepcopy(record); r[key+'_sha256'] = '0'*64
+                mutations.append((r, manifest, key+' input hash mismatch'))
+            self.g.command = lambda *a, **kw: b''
+            for index, (r, mf, reason) in enumerate(mutations):
+                with self.subTest(major=m, mutation=index), self.assertRaisesRegex(gate.GateError, reason):
+                    audit_comparison(self.g, m, *paths, r, mf, output)
+            paths[1].write_bytes(b'tampered runtime')
+            with self.assertRaisesRegex(gate.GateError, 'runtimes input hash mismatch'):
+                audit_comparison(self.g, m, *paths, record, manifest, output)
+
+    def test_replay_preserves_checker_input_and_original_leaves(self):
+        from native_audit import audit_comparison
+        for m in (18, 23):
+            for victim in ('checker-input', 'materialised', 'runtimes', 'arith'):
+                paths, record, manifest, output = self.receipt(m)
+                cleanup = manifest['commands'][-1]['argv']
+                def command(tag, argv):
+                    if victim == 'checker-input' and Path(argv[0]).name == 'native-check':
+                        Path(argv[2]).write_bytes(b'changed during checker replay')
+                    elif victim != 'checker-input' and argv == cleanup:
+                        index = ('materialised', 'runtimes', 'arith').index(victim)
+                        paths[index].write_bytes(b'changed during closure replay')
+                    return b''
+                self.g.command = command
+                reason = ('native-check modified its input' if victim == 'checker-input'
+                          else victim+' input hash changed during replay')
+                with self.subTest(major=m, victim=victim), self.assertRaisesRegex(gate.GateError, reason):
+                    audit_comparison(self.g, m, *paths, record, manifest, output)
 
     def test_linker_script_cannot_import_libc(self):
         from native_audit import audit_comparison
@@ -354,7 +499,9 @@ class AcceptanceTests(unittest.TestCase):
             substitute.parent.mkdir(parents=True, exist_ok=True)
             substitute.write_bytes(b'host libc substitute')
             record['native_support_sha256'] = gate.sha(substitute)
-            manifest['commands'][2]['argv'][3] = '--override='+str(substitute)
+            support_link = next(c['argv'] for c in manifest['commands']
+                                if any(a.startswith('--override=') for a in c['argv']))
+            support_link[3] = '--override='+str(substitute)
             with self.assertRaisesRegex(gate.GateError, 'native support'):
                 audit_comparison(self.g, 18, *paths, record, manifest, output)
 
