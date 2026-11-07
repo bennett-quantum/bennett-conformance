@@ -46,7 +46,10 @@ def validate_contract(pins, producer_text, spec):
     for field, version in (('bennett-dialect-spec', declared[0]), ('bennett-isa-spec', declared[1])):
         if field in producer.get('specs', {}) and producer['specs'][field] != version:
             raise GateError('producer contract declarations disagree: '+field)
-    versioning = re.search(r'\*\*Versioning\.\*\* Dialect ([\d.]+):[^\n]*targets ISA ([\d.]+)\.', spec)
+    declaration = next((p for p in re.split(r'\n\s*\n', spec)
+                        if p.startswith('**Versioning.**')), '')
+    versioning = re.search(r'\*\*Versioning\.\*\* Dialect ([\d.]+):.*?targets ISA ([\d.]+)\.',
+                           declaration, flags=re.S)
     if pair[1] not in ('0.8', '0.9') or not versioning or pair != versioning.groups() or pair != declared:
         raise GateError(f'unknown or mismatched R contract: pins {pair}, producer {declared}, '
                         f'publication {versioning.groups() if versioning else "undeclared"}')
