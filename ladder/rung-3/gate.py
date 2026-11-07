@@ -247,6 +247,7 @@ class Gate(RecordedGate):
             '--bennett-materialised='+str(out/'device.bc'),*self.driver_publications(m,runtime,arith),
             '-bennett-out='+str(work),
             '--bennett-sysroot='+str(self.sysroots[m]),
+            '--bennett-native-check='+str(self.publications['bennett-runtimes']/'scripts/native-check'),
             '--bennett-comparison-record='+str(out/'native-comparison.json'),
             '--bennett-comparison-output='+str(d/'native')])
         if not (out/'native-comparison.json').is_file():

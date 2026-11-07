@@ -1,6 +1,6 @@
 """Audit and reproduce the native closure; receipts are consumer adapter data.
 
-Only LLVM bitcode transformations with known inputs are replayed. Generated layout
+Only known-input LLVM transforms and the pinned native checker are replayed. Generated layout
 data is restricted to its published constant, and linker scripts cannot load files.
 The gate separately audits the final ELF for imports and an interpreter.
 """
@@ -134,6 +134,30 @@ def bitcode_step(gate, major, argv, provenance, record, out):
     provenance[str(dest)] = roots
 
 
+def native_check_step(gate, major, argv, provenance, manifest, out):
+    """Bind the executable adapter to the frozen runtime source publication.
+
+    That publication includes scripts/native-check.cpp, compiled by native-check
+    for the selected LLVM major. Gate.freeze verifies the complete source tree.
+    The driver's artifact hash binds its receipt to this same adapter.
+    """
+    adapter = gate.publications['bennett-runtimes']/'scripts/native-check'
+    require(len(argv) == 4 and argv[0] == str(adapter),
+            'expected the pinned native-check adapter')
+    artifact = manifest['native_check_adapter']
+    require(artifact['path'] == str(adapter), 'receipt does not name the pinned native-check adapter')
+    require(artifact['sha256'] == sha(adapter), 'native-check adapter hash mismatch')
+    require(argv[1] == str(major), 'native-check LLVM major mismatch')
+    source = generated_path(argv[2], out)
+    dest = generated_path(argv[3], out)
+    require(str(source) in provenance, 'unrecorded native-check input: '+str(source))
+    require(dest.resolve() != source.resolve(), 'checked output must differ from its input')
+    checked = manifest['checked_materialised']
+    require(checked['path'] == str(dest), 'receipt names a different checked output')
+    provenance[str(dest)] = provenance[str(source)] | {str(dest)}
+    return str(dest)
+
+
 def audit_comparison(gate, major, device, runtime, arith, record, manifest, output):
     """Return the checked final argv, rebuilding a staged bitcode closure first.
 
@@ -162,22 +186,42 @@ def audit_comparison(gate, major, device, runtime, arith, record, manifest, outp
     require(start is not None, 'missing first bitcode merge in process receipt')
     provenance = {path:{path} for path in expected}
     steps = []
+    checked = None
     tools = {'llvm-link', 'llvm-as', 'llvm-extract', 'opt'}
     for command in commands[start:]:
         args = command['argv']
-        if args and Path(args[0]).name in tools and '-o' in args:
+        if args and Path(args[0]).name == 'native-check':
+            require(checked is None, 'duplicate native-check stage')
+            require(command['success'] is True, 'failed native-check transform in receipt')
+            checked = native_check_step(gate, major, args, provenance, manifest, out)
+            require(expected <= provenance[checked], 'native-check dropped the device, runtime or arith')
+            steps.append(args)
+        elif args and Path(args[0]).name in tools and '-o' in args:
             require(command['success'] is True, 'failed bitcode transform in receipt')
             bitcode_step(gate, major, args, provenance, record, out)
             steps.append(args)
+    require(checked is not None, 'missing mandatory native-check stage')
+    require(len(final_inputs) == 1, 'staged receipt must name one final bitcode closure')
     roots = set()
     for path in final_inputs:
         require(str(path) in provenance, 'final link uses an unrecorded bitcode input: '+str(path))
         roots.update(provenance[str(path)])
     require(expected <= roots, 'final closure dropped the device, runtime or arith')
+    require(checked in roots, 'final closure bypasses checked bitcode')
     require(all(str(p) not in expected for p in final_inputs), 'staged receipt bypasses its merged closure')
     for i, args in enumerate(steps):
         tag = str(out.relative_to(gate.run))+f'/audit-bitcode-{i}'
+        # Preserve the checker's separate-input contract during replay, too.
+        is_check = Path(args[0]).name == 'native-check'
+        check_input_sha = sha(Path(args[2])) if is_check else None
         gate.command(tag, args)
-        if i == 0:
-            require(record['linked_sha256'] == sha(Path(first[-1])), 'first bitcode merge hash mismatch')
+        if is_check:
+            require(sha(Path(args[2])) == check_input_sha, 'native-check modified its input')
+            require(manifest['checked_materialised']['sha256'] == sha(Path(checked)),
+                    'checked bitcode hash mismatch')
+    # The driver hashes comparison.bc after support/layout and memory closure,
+    # not comparison-linked.bc (54d32fa src/native.rs:424).
+    require(record['linked_sha256'] == sha(final_inputs[0]), 'final bitcode closure hash mismatch')
+    for key, path in (('materialised', device), ('runtimes', runtime), ('arith', arith)):
+        require(record[key+'_sha256'] == sha(path), key+' input hash changed during replay')
     return argv

@@ -137,17 +137,26 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
 
 * The native stage requests the frozen driver with `--bennett-materialised`,
   `--bennett-llvm-major`, `--bennett-plugin`, `--bennett-runtimes`, `--bennett-arith`,
-  `--bennett-sysroot`, `--bennett-comparison-record` and
+  `--bennett-sysroot`, the frozen runtime `--bennett-native-check`,
+  `--bennett-comparison-record` and
   `--bennett-comparison-output`, explicit `-bennett-out=out/native-work`, and the
   selected versions/R mode/entry. `out/native-comparison.json` must contain
   `llvm_major`, `materialised_sha256`, `runtimes_sha256`, `arith_sha256` and
   `link_argv`. A direct link must use those three exact files. A multi-stage
-  link supplies `bitcode_link_argv`, its `linked_sha256`, and ordered successful
-  `commands` (`argv`, `success`) in `out/native-work/manifest.json`.
+  link supplies `bitcode_link_argv`, `linked_sha256` of the **final**
+  `comparison.bc` after support/layout adaptation and cleanup, and ordered
+  successful `commands` (`argv`, `success`) in `out/native-work/manifest.json`.
+  That manifest also records `native_check_adapter` and `checked_materialised`
+  artifacts (`path`, `sha256`).
   [native_audit.py](native_audit.py) audits and **replays** the bitcode chain
   from those hash-checked leaves, rather than trusting a merged filename. It
   accepts same-major llvm-link merges, runtime memcpy/memmove/memset extraction,
   assembly of the published layout constant, and strip-dead-prototypes/verify.
+  The mandatory `native-check MAJOR INPUT OUTPUT` stage must use the pinned
+  runtime adapter, whose complete source publication is verified when frozen.
+  Replay runs that adapter, verifies its recorded output hash and unchanged
+  input, and requires the checked output to feed the final closure. The final
+  closure hash and all three original input hashes are checked after replay.
   Native support must be hashed and come from the pinned runtime publication;
   sysroot native support must match that publication byte for byte. Other
   leaves/transforms fail loudly. Final clang can consume the reproduced merged
@@ -211,7 +220,10 @@ env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
 The new suite also replays a tiny generated LLVM/static-link receipt on both
 majors when those tools are installed. It checks an independently derived return
 value and rejects a spoofed pre-existing intermediate. It builds no plugin, VM
-or driver and uses no sibling runtime code. Missing LLVM tools skip this one
+or driver. It materialises `scripts/native-check` and `native-check.cpp` from
+`pins.json`'s exact runtime revision and runs the real adapter, including its
+major-matched checker build. Its small arithmetic and ABI-memory modules are
+test inputs, not the musl acceptance corpus. Missing LLVM tools skip this one
 adapter integration test; the Python policy checks still run.
 
 Only command recording, git/hash helpers and failure/dependency propagation were
