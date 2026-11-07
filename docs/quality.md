@@ -12,6 +12,7 @@ against the main checkout and job commit dc5e2e2.
 unset DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
 export TMPDIR="$PWD/.tmp/quality-checker/tmp"
 export CARGO_TARGET_DIR="$PWD/.tmp/quality-checker/target"
+export BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec"
 mkdir -p "$TMPDIR"
 free -g
 uptime

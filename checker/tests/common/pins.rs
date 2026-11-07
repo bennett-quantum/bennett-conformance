@@ -17,22 +17,32 @@ pub fn isa_spec_dir() -> PathBuf {
         })
         .expect("ISA gate pin must have a SHA");
     assert_eq!(sha.len(), 40, "ISA gate pin must be a full SHA");
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../.tmp/gate/cache")
-        .join(format!("bennett-isa-spec@{}", &sha[..12]))
-        .join("bennett-isa-spec");
-    let gitfile = std::fs::read_to_string(path.join(".git"))
-        .unwrap_or_else(|e| panic!("ISA pin {sha}: missing cache {}: {e}", path.display()));
+    let path = PathBuf::from(std::env::var_os("BENNETT_ISA_SPEC").unwrap_or_else(|| {
+        panic!(
+            "BENNETT_ISA_SPEC is required: set it to the detached gate checkout for ISA pin {sha}"
+        )
+    }));
+    let gitfile = std::fs::read_to_string(path.join(".git")).unwrap_or_else(|e| {
+        panic!(
+            "BENNETT_ISA_SPEC={}: ISA pin {sha}: cannot read .git: {e}",
+            path.display()
+        )
+    });
     let gitdir = gitfile
         .trim()
         .strip_prefix("gitdir: ")
-        .expect("gate cache must identify its detached worktree");
-    let actual = std::fs::read_to_string(path.join(gitdir).join("HEAD"))
-        .unwrap_or_else(|e| panic!("ISA pin {sha}: cannot read cached HEAD: {e}"));
+        .expect("BENNETT_ISA_SPEC must identify a detached gate worktree via gitdir");
+    let actual = std::fs::read_to_string(path.join(gitdir).join("HEAD")).unwrap_or_else(|e| {
+        panic!(
+            "BENNETT_ISA_SPEC={}: ISA pin {sha}: cannot read detached HEAD: {e}",
+            path.display()
+        )
+    });
     assert_eq!(
         actual.trim(),
         sha,
-        "ISA pin {sha}: cached checkout actual HEAD {}",
+        "BENNETT_ISA_SPEC={}: expected detached ISA pin {sha}; actual HEAD {}",
+        path.display(),
         actual.trim()
     );
     path

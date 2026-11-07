@@ -437,10 +437,22 @@ Schedules containing a recompute cleanup decision remain `unchecked` because
 the checker has not derived that cleanup expansion or its resources. A source
 adjoint's reverse trace cannot certify a different scheduled implementation.
 
-Checker tests resolve ISA inputs through the `bennett-isa-spec` SHA in
-`gate.toml` and verify the cached checkout's detached HEAD before reading it.
-Missing pinned fixtures fail visibly. See [quality.md](quality.md) for the
-current pin blocker, measured runtime and coverage limits.
+Checker tests require `BENNETT_ISA_SPEC`, which the gate sets to
+`{sibling:bennett-isa-spec}`. The selected checkout must have a detached HEAD
+equal to the `bennett-isa-spec` SHA in `gate.toml`. An unset variable, missing
+checkout, symbolic HEAD or different revision fails with a diagnostic naming
+`BENNETT_ISA_SPEC`; no local-cache path or live sibling is substituted.
+
+After materializing the pin, use the headless environment in
+[quality.md](quality.md) and run this one-line command from the repository root:
+
+```sh
+BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec" systemd-run --user --scope --quiet timeout 240 cargo test --offline --manifest-path checker/Cargo.toml -j3 -- --test-threads=4
+```
+
+The variable points outside any fresh exported checkout, so the same pin can be
+used without a cache inside that export. See [quality.md](quality.md) for
+measured runtime and coverage limits.
 
 Selected §12.1 borrow-frame relations admit the published §12.2 workspace and
 entry-products vocabulary. They remain **unchecked**: this checker does not

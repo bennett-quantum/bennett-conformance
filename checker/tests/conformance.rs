@@ -26,6 +26,7 @@ mod mutation_sweep;
 mod native_models;
 mod numerical;
 mod parallel;
+mod pin_environment;
 mod procedures;
 mod published_certificates;
 mod replay;
