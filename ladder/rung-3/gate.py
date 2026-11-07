@@ -7,31 +7,56 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tarfile
 import tomllib
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
+from native_audit import audit_comparison
 
 HERE = Path(__file__).resolve().parent
 CONFORMANCE = HERE.parents[1]
 WORKSPACE = CONFORMANCE.parent
 PINS = json.loads((HERE/'pins.json').read_text())
 BUDGET = '10000000,1048576,65536,256'
-STAGES = ('fixtures', 'plugin build', 'VM build', 'driver build', 'musl C front end',
+WORKLOADS = ('hello', 'printf_fmt')
+CORPUS_STAGES = ('musl C front end',
           'runtime bitcode link', 'post-link LTO', 'reversible production',
           'launch artefacts', 'native comparison',
-          'reference admission', 'reference forward = native', 'reference reset', 'reference tape replay',
-          'VM admission', 'VM forward = native', 'VM reset', 'VM tape replay',
+          'reference admission', 'reference forward = native', 'reference reset', 'reference tape replay', 'reference corrupt-tape rejection',
+          'VM admission', 'VM forward = native', 'VM reset', 'VM tape replay', 'VM corrupt-tape rejection')
+
+def workload_stage(workload, stage):
+    return stage if workload == 'hello' else workload+': '+stage
+
+STAGES = ('fixtures', 'plugin build', 'VM build', 'driver build', 'R contract (prerequisite)',
+          *(workload_stage(w,s) for w in WORKLOADS for s in CORPUS_STAGES),
           'runtime libc/console audit (diagnostic)', 'R-mode probe (diagnostic)',
-          'driver probe (diagnostic)', 'ISA-0.8 R contract (prerequisite)',
+          'driver probe (diagnostic)',
           'reference device/reset control (diagnostic)', 'reference replay API (diagnostic)',
           'VM device/reset control (diagnostic)', 'VM replay API (diagnostic)')
+
+def validate_contract(pins, producer_text, spec):
+    """Check the full compatibility unit against the pinned producer and publication."""
+    pair = pins['dialect'], pins['isa']
+    producer = tomllib.loads(producer_text)
+    declared = producer['dialect'], producer['isa']
+    versioning = re.search(r'\*\*Versioning\.\*\* Dialect ([\d.]+):[^\n]*targets ISA ([\d.]+)\.', spec)
+    if pair[1] not in ('0.8', '0.9') or not versioning or pair != versioning.groups() or pair != declared:
+        raise GateError(f'unknown or mismatched R contract: pins {pair}, producer {declared}, '
+                        f'publication {versioning.groups() if versioning else "undeclared"}')
+    if pair[1] == '0.8':
+        if 'On ISA 0.8 a module has verdict blocked:BD-B-ISA7' not in spec:
+            raise GateError('unknown ISA-0.8 R contract: missing §11.5/17.6 prerequisite')
+        raise GateError('BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7')
+    return pair
 
 class Gate(RecordedGate):
     def __init__(self, args):
         self.args=args
+        self.contract=PINS['dialect'],PINS['isa']
         self.tmp=CONFORMANCE/'.tmp'
         self.out=Path(args.output).resolve() if args.output else self.tmp/'rung-3'
         self.out.mkdir(parents=True, exist_ok=True)
@@ -39,6 +64,7 @@ class Gate(RecordedGate):
         self.run.mkdir()
         for m in (18,23):
             (self.run/str(m)).mkdir()
+            (self.run/str(m)/'printf_fmt').mkdir()
         self.rows={m:{} for m in (18,23)}
         self.known=json.loads((HERE/'blockers.json').read_text())
         self.stages=STAGES
@@ -46,13 +72,24 @@ class Gate(RecordedGate):
         self.sysroots={m:Path(getattr(args,f'sysroot{m}',None) or
                          WORKSPACE/f'bennett-runtimes/dist/llvm{m}/musl-sysroot').resolve() for m in (18,23)}
         self.manifest={'time_utc':datetime.now(timezone.utc).isoformat(), 'commands':[],
-                       'pins':dict(PINS), 'dialect':'0.2.10', 'isa':'0.8', 'budget':BUDGET,
+                       'pins':dict(PINS), 'dialect':self.contract[0], 'isa':self.contract[1], 'budget':BUDGET,
                        'environment':{k:os.environ.get(k) for k in
                            ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
                        'sysroots':{str(m):str(p) for m,p in self.sysroots.items()},
                        'gate_sha256':sha(HERE/'gate.py'),
                        'shared_support_sha256':sha(HERE.parent/'common/gate_support.py'),
                        'blockers_sha256':sha(HERE/'blockers.json')}
+
+    def workdir(self,m,workload='hello'):
+        assert workload in WORKLOADS, 'unknown workload: '+workload
+        return self.run/str(m) if workload=='hello' else self.run/str(m)/workload
+
+    def expected(self,workload):
+        if workload=='hello':
+            return json.loads((HERE/'fixtures/expect.json').read_text())
+        value=json.loads((HERE/'fixtures'/f'{workload}.expect.json').read_text())
+        return {'stdout_hex':''.join(line['stdout'] for line in value['lines']).encode('ascii').hex(),
+                'exit_status':value['exit_status']}
 
     def freeze(self, repo, rev):
         rev=git(WORKSPACE/repo,'rev-parse',rev)
@@ -110,19 +147,25 @@ class Gate(RecordedGate):
             assert sha(HERE/'fixtures'/f)==digest, 'fixture hash mismatch: '+f
         expect=json.loads((HERE/'fixtures/expect.json').read_text())
         ids=set()
-        for spec in ('DLT-0.2.10','ISA-0.8'):
+        for spec in (f'DLT-{self.contract[0]}',f'ISA-{self.contract[1]}'):
             ids.update(n['id'] for n in json.loads((CONFORMANCE/f'clauses/{spec}.json').read_text())['nodes'])
         assert expect['clauses'] and set(expect['clauses'])<=ids, 'missing/invalid clause tags'
+        for workload in WORKLOADS:
+            assert workload+'.c' in pins, 'unhashed workload: '+workload
+            value=self.expected(workload)
+            assert value['exit_status']==0, 'fixture requires a zero return status'
+            assert bytes.fromhex(value['stdout_hex']), 'empty workload oracle'
+        assert 'printf_fmt.expect.json' in pins, 'unhashed formatted oracle'
         self.manifest['fixtures']=pins
 
     def clang(self,m):
         return f'/usr/lib/llvm-{m}/bin/clang'
 
-    def frontend(self,m):
+    def frontend(self,m,workload='hello'):
         root=self.sysroots[m]
-        self.command(f'{m}/frontend',[self.clang(m),'--target=x86_64-unknown-linux-musl',
+        self.command(f'{m}/{workload}/frontend',[self.clang(m),'--target=x86_64-unknown-linux-musl',
             '--sysroot='+str(root),'-nostdinc','-isystem',root/'include','-O2','-flto','-emit-llvm','-c',
-            HERE/'fixtures/hello.c','-o',self.run/str(m)/'input.bc'])
+            HERE/'fixtures'/f'{workload}.c','-o',self.workdir(m,workload)/'input.bc'])
         assert (root/'include/stdio.h').is_file(), 'missing musl stdio.h: '+str(root)
         self.manifest.setdefault('musl_stdio_sha256',{})[str(m)]=sha(root/'include/stdio.h')
 
@@ -140,30 +183,32 @@ class Gate(RecordedGate):
         self.manifest.setdefault('arith_sha256',{})[str(m)]=sha(arith)
         return runtime,arith
 
-    def runtime_link(self,m):
+    def runtime_link(self,m,workload='hello'):
         runtime,arith=self.runtime_files(m)
-        self.command(f'{m}/runtime-link',[f'/usr/lib/llvm-{m}/bin/llvm-link',self.run/str(m)/'input.bc',runtime,arith,'--only-needed','-o',self.run/str(m)/'linked.bc'])
+        d=self.workdir(m,workload)
+        self.command(f'{m}/{workload}/runtime-link',[f'/usr/lib/llvm-{m}/bin/llvm-link',d/'input.bc',runtime,arith,'--only-needed','-o',d/'linked.bc'])
 
-    def postlink(self,m):
-        self.command(f'{m}/postlink',[f'/usr/lib/llvm-{m}/bin/opt','-passes=lto<O3>','-S',self.run/str(m)/'linked.bc','-o',self.run/str(m)/'postlink.ll'])
+    def postlink(self,m,workload='hello'):
+        d=self.workdir(m,workload)
+        self.command(f'{m}/{workload}/postlink',[f'/usr/lib/llvm-{m}/bin/opt','-passes=lto<O3>','-S',d/'linked.bc','-o',d/'postlink.ll'])
 
-    def pipeline(self,m,probe=False):
-        d=self.run/str(m)
+    def pipeline(self,m,probe=False,workload='hello'):
+        d=self.workdir(m,workload)
         source=HERE/'fixtures/effect-console-r.ll' if probe else d/'postlink.ll'
-        self.command(f'{m}/'+('mode-probe' if probe else 'production'),[f'/usr/lib/llvm-{m}/bin/opt',
+        self.command(f'{m}/{workload}/'+('mode-probe' if probe else 'production'),[f'/usr/lib/llvm-{m}/bin/opt',
             '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),'-passes=bennett',
-            '-bennett-dialect=0.2.10','-bennett-isa=0.8','--bennett-tier=reversible','--bennett-entry=main',
+            '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],'--bennett-tier=reversible','--bennett-entry=main',
             '-bennett-budget-default='+BUDGET+',65536','-bennett-out='+str(d/('probe-out' if probe else 'out')),
             '-disable-output',source])
         if probe:
             assert (d/'probe-out/launches.json').is_file(), 'R-mode probe produced no launches'
 
-    def artifacts(self,m):
-        d=self.run/str(m)/'out'
+    def artifacts(self,m,workload='hello'):
+        d=self.workdir(m,workload)/'out'
         for f in ('host.bc','device.bc','launches.json'):
             assert (d/f).is_file(), 'missing launch artefact: '+f
         for kind in ('host','device'):
-            self.command(f'{m}/verify-{kind}',[f'/usr/lib/llvm-{m}/bin/opt','-passes=verify','-disable-output',d/(kind+'.bc')])
+            self.command(f'{m}/{workload}/verify-{kind}',[f'/usr/lib/llvm-{m}/bin/opt','-passes=verify','-disable-output',d/(kind+'.bc')])
         launches=json.loads((d/'launches.json').read_text())
         assert any(x['entry']=='main' for x in launches), 'missing main launch'
         for f in ('launch.bennett','build.json','certificate.json','coverage.json','blockers.json','launch-record.json'):
@@ -179,7 +224,7 @@ class Gate(RecordedGate):
         runtime,arith=self.runtime_files(m)
         self.command(f'{m}/driver-probe',[self.driver_exe,'--bennett-tier=reversible','--bennett-entry=main',
             *self.driver_publications(m,runtime,arith),
-            '-bennett-dialect=0.2.10','-bennett-isa=0.8','-bennett-out='+str(out),HERE/'fixtures/effect-console-r.ll'])
+            '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],'-bennett-out='+str(out),HERE/'fixtures/effect-console-r.ll'])
         assert (out/'launches.json').is_file(), 'driver returned success without pipeline outputs'
 
     def driver_publications(self,m,runtime,arith):
@@ -188,12 +233,13 @@ class Gate(RecordedGate):
             '--bennett-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),
             '--bennett-runtimes='+str(runtime),'--bennett-arith='+str(arith)]
 
-    def native(self,m):
+    def native(self,m,workload='hello'):
         # This consumer manifest is gate glue, not an addition to the dialect contract.
         # Driver integration must publish an auditable comparison link; no host-libc fallback.
-        d=self.run/str(m); out=d/'out'
+        d=self.workdir(m,workload); out=d/'out'
         runtime,arith=self.runtime_files(m)
-        self.command(f'{m}/driver-comparison',[self.driver_exe,'--bennett-tier=reversible','--bennett-entry=main',
+        self.command(f'{m}/{workload}/driver-comparison',[self.driver_exe,'--bennett-tier=reversible','--bennett-entry=main',
+            '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],
             '--bennett-materialised='+str(out/'device.bc'),*self.driver_publications(m,runtime,arith),
             '--bennett-sysroot='+str(self.sysroots[m]),
             '--bennett-comparison-record='+str(out/'native-comparison.json'),
@@ -201,28 +247,17 @@ class Gate(RecordedGate):
         if not (out/'native-comparison.json').is_file():
             raise GateError('missing native comparison link record from driver')
         record=json.loads((out/'native-comparison.json').read_text())
-        assert record['llvm_major']==m
-        assert record['materialised_sha256']==sha(out/'device.bc')
-        argv=record['link_argv']
-        assert argv[0]==self.clang(m) and all(flag in argv for flag in ('-nostdlib','-nostdinc','-static'))
-        assert '-O0' not in argv and not any(a.startswith(('-l','-L','@')) or
-            (a.startswith('-Wl,') and not a.startswith(('-Wl,--section-start=', '-Wl,-e,_start')))
-            for a in argv), 'host libc/libm or opaque linker input forbidden'
-        allowed=[out.resolve(),self.sysroots[m].resolve(),*(p.resolve() for p in self.publications.values())]
-        for a in argv[1:]:
-            if not a.startswith('-') and Path(a).suffix in ('.bc','.o','.a','.so','.c'):
-                assert Path(a).is_absolute() and any(Path(a).resolve().is_relative_to(p) for p in allowed), 'unapproved comparison input: '+a
-        for p in (out/'device.bc',runtime,arith):
-            assert str(p) in argv, 'comparison must link the actual materialised module, runtimes and arith'
-        assert '--sysroot='+str(self.sysroots[m]) in argv
-        assert argv[argv.index('-o')+1]==str(d/'native')
-        self.command(f'{m}/native-link',argv)
-        dynamic=self.command(f'{m}/native-dynamic',['readelf','-d',d/'native'])
+        manifest=json.loads((out/'manifest.json').read_text()) if 'bitcode_link_argv' in record else {}
+        argv=audit_comparison(self,m,out/'device.bc',runtime,arith,record,manifest,d/'native')
+        self.command(f'{m}/{workload}/native-link',argv)
+        dynamic=self.command(f'{m}/{workload}/native-dynamic',['readelf','-d',d/'native'])
         assert b'NEEDED' not in dynamic, 'comparison unexpectedly imports a shared library'
-        undefined=self.command(f'{m}/native-undefined',[f'/usr/lib/llvm-{m}/bin/llvm-nm','--undefined-only',d/'native'])
+        headers=self.command(f'{m}/{workload}/native-headers',['readelf','-l',d/'native'])
+        assert b'INTERP' not in headers, 'comparison unexpectedly has a dynamic interpreter'
+        undefined=self.command(f'{m}/{workload}/native-undefined',[f'/usr/lib/llvm-{m}/bin/llvm-nm','--undefined-only',d/'native'])
         assert not undefined.strip(), 'native comparison unresolved imports'
-        output=self.command(f'{m}/native-run',[d/'native'])
-        assert output==b'hello, world\n', 'native stdout differs from corpus'
+        output=self.command(f'{m}/{workload}/native-run',[d/'native'])
+        assert output==bytes.fromhex(self.expected(workload)['stdout_hex']), 'native stdout differs from corpus: '+workload
         (d/'native.stdout').write_bytes(output)
 
     def executor(self,name):
@@ -231,16 +266,16 @@ class Gate(RecordedGate):
         self.manifest.setdefault('executor_sha256',{})[name]=sha(exe)
         return exe
 
-    def obj(self,m):
-        return self.run/str(m)/'out/main/launch.bennett'
+    def obj(self,m,workload='hello'):
+        return self.workdir(m,workload)/'out/main/launch.bennett'
 
-    def admission(self,m,name):
+    def admission(self,m,name,workload='hello'):
         for verb in ('check','hash'):
-            self.command(f'{m}/{name}-{verb}',[self.executor(name),verb,self.obj(m)])
+            self.command(f'{m}/{workload}/{name}-{verb}',[self.executor(name),verb,self.obj(m,workload)])
 
-    def argv_replies(self,m):
+    def argv_replies(self,m,workload='hello'):
         # Gate adapter file from the driver: exact public executor --replies format.
-        path=self.run/str(m)/'out/main/argv-replies.json'
+        path=self.workdir(m,workload)/'out/main/argv-replies.json'
         replies=json.loads(path.read_text())
         assert len(replies)==1 and replies[0]['service']=='bennett.argv', 'need exactly one argv/envp reply'
         assert all(k in replies[0] for k in ('payload','reply')), 'incomplete argv/envp reply'
@@ -260,28 +295,28 @@ class Gate(RecordedGate):
         assert all(len(e['args'])==2 and e['args'][1]==len(bytes.fromhex(e['bytes'])) for e in tape), 'invalid console tape operands'
         assert b''.join(bytes.fromhex(e['bytes']) for e in tape)==expected, 'tape bytes differ from native'
 
-    def execute(self,m,name,reverse=False):
-        tag=f'{m}/{name}-'+('reset' if reverse else 'forward')
-        replies=self.argv_replies(m)
-        argv=[self.executor(name),'run-program',self.obj(m),'main','--budget',BUDGET,'--replies',replies]
+    def execute(self,m,name,reverse=False,workload='hello'):
+        tag=f'{m}/{workload}/{name}-'+('reset' if reverse else 'forward')
+        replies=self.argv_replies(m,workload)
+        argv=[self.executor(name),'run-program',self.obj(m,workload),'main','--budget',BUDGET,'--replies',replies]
         if reverse:
             argv+=['--reverse']
         value=json.loads(self.command(tag,argv))
         self.successful(value)
         assert value['status']==('REVERSED' if reverse else 'COMPLETED')
         assert value['run_state']=='CLOSED', 'launch not closed'
-        native=(self.run/str(m)/'native.stdout').read_bytes()
+        native=(self.workdir(m,workload)/'native.stdout').read_bytes()
         self.console_tape(value,native)
         if reverse:
             assert value['reversed'] is True
             self.restored(value)
-            r=json.loads(self.command(tag+'-history',[self.executor(name),'reverse',self.obj(m),'main','--budget',BUDGET,'--replies',replies]))
+            r=json.loads(self.command(tag+'-history',[self.executor(name),'reverse',self.obj(m,workload),'main','--budget',BUDGET,'--replies',replies]))
             self.successful(r); self.restored(r)
             assert r['tape']==value['tape'], 'one-shot and retained-history tapes differ'
         else:
             assert bytes.fromhex(value['console_hex'])==native, 'console differs from native'
             assert value['effect_tape_length']==len(value['tape'])
-            self.forward_results[(m,name)]=value
+            self.forward_results[(m,name,workload)]=value
 
     @staticmethod
     def restored(value):
@@ -293,22 +328,26 @@ class Gate(RecordedGate):
         assert value['console_hex']=='', 'console not reset'
         assert value['effect_tape_length']==0, 'tape not reset'
 
-    def replay(self,m,name):
-        value=self.forward_results[(m,name)]
-        tape=self.run/str(m)/(name+'-saved-tape.json')
+    def replay(self,m,name,workload='hello',tampered=False):
+        value=self.forward_results[(m,name,workload)]
+        tape=self.workdir(m,workload)/(name+'-saved-tape.json')
         tape.write_text(json.dumps(value['tape'],indent=2)+'\n')
-        base=[self.executor(name),'run-program',self.obj(m),'main','--budget',BUDGET,'--entropy','',
-              '--replies',self.argv_replies(m)]
-        r=json.loads(self.command(f'{m}/{name}-replay',base+['--replay-tape',tape]))
-        self.successful(r)
-        for field in ('status','results','console_hex','tape','effect_tape_length'):
-            assert r[field]==value[field], 'replay differs in '+field
+        base=[self.executor(name),'run-program',self.obj(m,workload),'main','--budget',BUDGET,'--entropy','',
+              '--replies',self.argv_replies(m,workload)]
+        if not tampered:
+            r=json.loads(self.command(f'{m}/{workload}/{name}-replay',base+['--replay-tape',tape]))
+            self.successful(r)
+            for field in ('status','results','console_hex','tape','effect_tape_length','run_state'):
+                assert r[field]==value[field], 'replay differs in '+field
+            return
         corrupt=json.loads(tape.read_text())
-        corrupt[0]['bytes']='00'+corrupt[0]['bytes'][2:]
+        first=bytes.fromhex(corrupt[0]['bytes'])
+        assert first, 'cannot corrupt an empty console write'
+        corrupt[0]['bytes']=bytes([first[0]^1]).hex()+first[1:].hex()
         bad=tape.with_name(name+'-tampered-tape.json')
         bad.write_text(json.dumps(corrupt)+'\n')
         try:
-            result=json.loads(self.command(f'{m}/{name}-replay-tampered',base+['--replay-tape',bad]))
+            result=json.loads(self.command(f'{m}/{workload}/{name}-replay-tampered',base+['--replay-tape',bad]))
         except GateError as exc:
             # A crash/timeout/unsupported option is not evidence of tape validation.
             assert 'replay' in str(exc).lower() and ('mismatch' in str(exc).lower() or 'diverg' in str(exc).lower()), str(exc)
@@ -325,9 +364,11 @@ class Gate(RecordedGate):
             raise GateError('runtime libc/console publication missing: '+', '.join(missing))
 
     def isa_contract(self):
-        spec=self.command('contract/dialect',['git','-C',WORKSPACE/'bennett-dialect-spec','show',PINS['bennett-dialect-spec']+':spec/Bennett-Dialect-Spec.md']).decode()
-        assert 'On ISA 0.8 a module has verdict blocked:BD-B-ISA7' in spec
-        raise GateError('BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7')
+        spec=self.command('contract/dialect',['git','-C',WORKSPACE/'bennett-dialect-spec','show',
+            PINS['bennett-dialect-spec']+':'+PINS['dialect_spec_path']]).decode()
+        producer=self.command('contract/producer',['git','-C',WORKSPACE/'bennett-plugin','show',
+            self.args.plugin_rev+':SPEC_VERSIONS.toml']).decode()
+        self.contract=validate_contract(PINS,producer,spec)
 
     def control(self,m,name):
         exe=self.executor(name); obj=HERE/'fixtures/executor-control.bisa'
@@ -363,22 +404,26 @@ class Gate(RecordedGate):
         for stage,action in [('fixtures',self.fixtures),('plugin build',self.plugin),('VM build',self.vm),('driver build',self.driver)]:
             self.stage(18,stage,action)
             self.rows[23][stage]=dict(self.rows[18][stage])
+        self.stage(18,'R contract (prerequisite)',self.isa_contract)
+        self.rows[23]['R contract (prerequisite)']=dict(self.rows[18]['R contract (prerequisite)'])
         def major(m):
-            self.stage(m,'musl C front end',lambda:self.frontend(m),('fixtures',))
-            self.stage(m,'runtime bitcode link',lambda:self.runtime_link(m),('musl C front end','plugin build'))
-            self.stage(m,'post-link LTO',lambda:self.postlink(m),('runtime bitcode link',))
-            self.stage(m,'reversible production',lambda:self.pipeline(m),('post-link LTO','plugin build'))
-            self.stage(m,'launch artefacts',lambda:self.artifacts(m),('reversible production',))
-            self.stage(m,'native comparison',lambda:self.native(m),('launch artefacts','driver build'))
-            for name in ('reference','VM'):
-                self.stage(m,name+' admission',lambda:self.admission(m,name),('launch artefacts',)+(('VM build',) if name=='VM' else ()))
-                self.stage(m,name+' forward = native',lambda:self.execute(m,name),('native comparison',name+' admission'))
-                self.stage(m,name+' reset',lambda:self.execute(m,name,True),(name+' forward = native',))
-                self.stage(m,name+' tape replay',lambda:self.replay(m,name),(name+' reset',))
+            for workload in WORKLOADS:
+                row=lambda name:workload_stage(workload,name)
+                self.stage(m,row('musl C front end'),lambda:self.frontend(m,workload),('fixtures',))
+                self.stage(m,row('runtime bitcode link'),lambda:self.runtime_link(m,workload),(row('musl C front end'),'plugin build'))
+                self.stage(m,row('post-link LTO'),lambda:self.postlink(m,workload),(row('runtime bitcode link'),))
+                self.stage(m,row('reversible production'),lambda:self.pipeline(m,workload=workload),(row('post-link LTO'),'plugin build','R contract (prerequisite)'))
+                self.stage(m,row('launch artefacts'),lambda:self.artifacts(m,workload),(row('reversible production'),))
+                self.stage(m,row('native comparison'),lambda:self.native(m,workload),(row('launch artefacts'),'driver build'))
+                for name in ('reference','VM'):
+                    self.stage(m,row(name+' admission'),lambda:self.admission(m,name,workload),(row('launch artefacts'),)+(('VM build',) if name=='VM' else ()))
+                    self.stage(m,row(name+' forward = native'),lambda:self.execute(m,name,workload=workload),(row('native comparison'),row(name+' admission')))
+                    self.stage(m,row(name+' reset'),lambda:self.execute(m,name,True,workload=workload),(row(name+' forward = native'),))
+                    self.stage(m,row(name+' tape replay'),lambda:self.replay(m,name,workload=workload),(row(name+' reset'),))
+                    self.stage(m,row(name+' corrupt-tape rejection'),lambda:self.replay(m,name,workload=workload,tampered=True),(row(name+' tape replay'),))
             self.stage(m,'runtime libc/console audit (diagnostic)',lambda:self.runtime_audit(m),('plugin build',))
             self.stage(m,'R-mode probe (diagnostic)',lambda:self.pipeline(m,True),('fixtures','plugin build'))
             self.stage(m,'driver probe (diagnostic)',lambda:self.driver_probe(m),('driver build','fixtures','plugin build'))
-            self.stage(m,'ISA-0.8 R contract (prerequisite)',self.isa_contract)
             for name in ('reference','VM'):
                 self.stage(m,name+' device/reset control (diagnostic)',lambda:self.control(m,name),('fixtures',)+(('VM build',) if name=='VM' else ()))
                 self.stage(m,name+' replay API (diagnostic)',lambda:self.replay_probe(m,name),(name+' device/reset control (diagnostic)',))

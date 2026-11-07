@@ -11,7 +11,7 @@
   {
     "id": "bp-is0",
     "repo": "bennett-plugin",
-    "pattern": "(?s)^(?:18|23)/(?:mode-probe|production): exit 3\\nbennett: blocked:BD-B-ISA7 ",
+    "pattern": "(?s)^(?:18|23)/(?:hello/|printf_fmt/)?(?:mode-probe|production): exit 3\\nbennett: blocked:BD-B-ISA7 ",
     "stage": "R-mode probe / reversible production",
     "size": "large",
     "evidence": ".tmp/rung-3/20261103T093332.236979Z/",
@@ -20,7 +20,7 @@
   {
     "id": "bennett-conformance-igc",
     "repo": "bennett-conformance",
-    "pattern": "(?s)^(?:18|23)/driver-probe: exit 1\\n.*BD-E-INPUT: hash /home/tobias/Projects/bennett\\-workspace/bennett\\-conformance/\\.tmp/bennett-runtimes/dist/llvm(?:18|23)/bennett-runtimes\\.bc:.*No such file or directory",
+    "pattern": "(?s)^(?:18|23)/driver-probe: exit 1\\n.*BD-E-INPUT: hash /[^\\n ]*/bennett-conformance(?:-[^/\\s]+)?/\\.tmp/bennett-runtimes/dist/llvm(?:18|23)/bennett-runtimes\\.bc:.*No such file or directory",
     "stage": "driver probe (archived publication paths)",
     "size": "small",
     "evidence": ".tmp/rung-3/20261103T093332.236979Z/",
@@ -38,7 +38,7 @@
   {
     "id": "brt-1ft",
     "repo": "bennett-runtimes",
-    "pattern": "(?s)(?:18|23)/frontend: exit 1.*'stdio.h' file not found|runtime libc/console publication missing:",
+    "pattern": "(?s)(?:18|23)/(?:hello/|printf_fmt/)?frontend: exit 1.*'stdio.h' file not found|runtime libc/console publication missing:",
     "stage": "musl C front end / libc publication",
     "size": "large",
     "evidence": ".tmp/rung-3/20261101T125019.671846Z/",
@@ -74,7 +74,7 @@
   {
     "id": "b-isa-spec-04d",
     "repo": "bennett-isa-spec",
-    "pattern": "(?s)(?:18|23)/reference-replay(?:-probe)?: exit 1.*unknown option --replay-tape",
+    "pattern": "(?s)(?:18|23)/(?:hello/|printf_fmt/)?reference-replay(?:-probe)?: exit 1.*unknown option --replay-tape",
     "stage": "reference saved-tape replay interface",
     "size": "medium",
     "evidence": ".tmp/rung-3/20261101T125019.671846Z/",
@@ -83,7 +83,7 @@
   {
     "id": "bennett-vm-u8m",
     "repo": "bennett-vm",
-    "pattern": "(?s)(?:18|23)/VM-replay(?:-probe)?: exit 1.*unknown option --replay-tape",
+    "pattern": "(?s)(?:18|23)/(?:hello/|printf_fmt/)?VM-replay(?:-probe)?: exit 1.*unknown option --replay-tape",
     "stage": "VM saved-tape replay interface",
     "size": "medium",
     "evidence": ".tmp/rung-3/20261101T125019.671846Z/",

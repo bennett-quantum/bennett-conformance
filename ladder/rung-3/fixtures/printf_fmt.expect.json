@@ -1,0 +1,26 @@
+{
+  "exit_status": 0,
+  "encoding": "ASCII",
+  "lines": [
+    {
+      "stdout": "text=musl signed=-42 unsigned=42 hex=2a char=Z\n",
+      "derivation": "%s copies musl; %d includes the minus sign on -42; %u is decimal 42; 0x2a = 2*16+10 gives lowercase 2a; %c writes Z. The format ends with LF."
+    },
+    {
+      "stdout": "width=[      xy][    -7][     9][    ab][  Q]\n",
+      "derivation": "Default alignment is right, padded with spaces: xy has length 2 in width 8 (6 spaces); -7 length 2 in width 6 (4); 9 length 1 in width 6 (5); ab length 2 in width 6 (4); Q length 1 in width 3 (2). Followed by LF."
+    },
+    {
+      "stdout": "precision=[abc][-00012][00023][00ab]\n",
+      "derivation": "%.3s copies the first 3 bytes abc. Integer precision counts digits, excluding the sign: -12 becomes -00012 for 5 digits; 23 becomes 00023; hexadecimal ab becomes 00ab for 4 digits. Followed by LF."
+    },
+    {
+      "stdout": "extremes=-2147483648,2147483647,4294967295,ffffffff zero=[]\n",
+      "derivation": "The selected x86_64 musl target has 32-bit int: INT_MIN=-2^31, INT_MAX=2^31-1, UINT_MAX=2^32-1, whose 8 hexadecimal digits are all f. Integer zero with precision 0 emits no digits inside the brackets. Followed by LF."
+    },
+    {
+      "stdout": "buffered=tail:-1:0:10:!",
+      "derivation": "%s copies tail; signed -1, unsigned zero, hexadecimal 0x10 (16 decimal) and character ! are separated by colons. There is no LF and no explicit flush: normal return from main must flush this final buffered output."
+    }
+  ]
+}
