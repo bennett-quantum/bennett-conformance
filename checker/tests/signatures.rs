@@ -173,12 +173,12 @@ fn unknown_signature_fields_and_invalid_arrays_reject_before_a_width_host_limit(
 }
 
 #[test]
-fn optional_wire_roles_and_nonnegative_minus_zero_region_widths_remain_legal() {
+fn optional_wire_roles_and_zero_region_widths_require_canonical_spelling() {
     let source = &sources()[0].1;
     let source = source
         .replacen("t:wire[2] mut", "t:wire[2]", 1)
         .replacen("c:wire in", "c:wire", 1)
-        .replacen("region[1,2]", "region[-0,2]", 1);
+        .replacen("region[1,2]", "region[0,2]", 1);
     let source = signature_text(&source, |sig| {
         let Value::Obj(fields) = sig else { panic!() };
         let Value::Arr(mem) = fields.get_mut("mem").unwrap() else {
@@ -190,4 +190,8 @@ fn optional_wire_roles_and_nonnegative_minus_zero_region_widths_remain_legal() {
         Object::parse(&source).unwrap().interface("a").is_ok(),
         "{source}"
     );
+    for invalid in ["region[-0,2]", "region[00,2]"] {
+        let error = Object::parse(&source.replacen("region[0,2]", invalid, 1)).unwrap_err();
+        assert!(error.starts_with("§16.1:"), "{error}");
+    }
 }

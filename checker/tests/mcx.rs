@@ -8,9 +8,20 @@ use bennett_cert_checker::{
 use common::*;
 fn object(gate: &str, coherent: bool) -> Object {
     let h = if coherent { "h t\nh t\n" } else { "" };
-    let (inputs,_)=standalone(&format!("action @a (t:wire[1] mut) (s:wire in, c:wire[2] in, r:wire in) () () ()\n^entry():\n{h}ctl r {gate}"),
+    let gate_source = gate.replace("[-0]", "[0]");
+    let (inputs,_)=standalone(&format!("action @a (t:wire[1] mut) (s:wire in, c:wire[2] in, r:wire in) () () ()\n^entry():\n{h}ctl r {gate_source}"),
         r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1,2,1],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#,"a",vec![]);
-    Object::parse(&inputs.object_text).unwrap()
+    let mut parsed = Object::parse(&inputs.object_text).unwrap();
+    if gate.contains("[-0]") {
+        let function = &mut parsed.functions[0];
+        function.bytes = function.bytes.replace(&gate_source, gate);
+        for block in &mut function.blocks {
+            for line in &mut block.instructions {
+                *line = line.replace(&gate_source, gate);
+            }
+        }
+    }
+    parsed
 }
 #[test]
 fn mixed_bundle_scalar_and_empty_lists_replay_every_controlled_basis_column() {

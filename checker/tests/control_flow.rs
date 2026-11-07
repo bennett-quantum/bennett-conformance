@@ -596,12 +596,15 @@ fn malformed_predicate_scopes_and_dangling_control_prefixes_cannot_prove_tables(
                 (0..2).map(move |c| row(&[t, c], &[t ^ if conditional { c } else { 0 }, c]))
             })
             .collect();
-        let (inputs, _) = standalone(
-            &source,
+        let (mut inputs, _) = standalone(
+            &source.replace("\nctl c", "\nx t"),
             r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
             "a",
             vec![table_claim(&[("t", 1), ("c", 1)], rows)],
         );
+        if body == "ctl c" {
+            inputs.object_text = inputs.object_text.replace("\nx t", "\nctl c");
+        }
         let verdict = check_certificate(&inputs);
         assert!(
             codes(&verdict).contains(&"E_CERT_OBJECT"),
@@ -648,12 +651,15 @@ fn qif_selector_writes_cannot_escape_through_balanced_explicit_pops_or_callees()
                     "a"
                 };
                 let rows = (0..4).map(|t| row(&[t], &[t ^ 1])).collect();
-                let (inputs, _) = standalone(
-                    &source,
+                let (mut inputs, _) = standalone(
+                    &source.replace("[-0]", "[0]"),
                     &encode(&sig),
                     root,
                     vec![table_claim(&[("t", 2)], rows)],
                 );
+                if selector == "t[-0]" {
+                    inputs.object_text = inputs.object_text.replace("t[0]", "t[-0]");
+                }
                 let verdict = check_certificate(&inputs);
                 assert!(
                     codes(&verdict).contains(&"E_CERT_OBJECT"),
@@ -691,13 +697,25 @@ fn indexed_qif_guards_preserve_unrelated_bits_and_forward_the_precise_callee_bit
                 let rows = (0..4)
                     .map(|t| row(&[t], &[t ^ if call { 2 } else { (t & 1) << 1 }]))
                     .collect();
-                let (inputs, _) = standalone(
-                    &source,
+                let (mut inputs, _) = standalone(
+                    &source.replace("[-0]", "[0]"),
                     &encode(&sig),
                     root,
                     vec![table_claim(&[("t", 2)], rows)],
                 );
+                if selector == "t[-0]" {
+                    inputs.object_text = inputs.object_text.replace("t[0]", "t[-0]");
+                }
                 let verdict = check_certificate(&inputs);
+                if selector == "t[-0]" {
+                    assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
+                    assert!(
+                        verdict.errors.iter().any(|e| e.section == "§16.1"),
+                        "{verdict:?}"
+                    );
+                    checked += 1;
+                    continue;
+                }
                 assert!(
                     codes(&verdict).is_empty(),
                     "call={call} adjoint={adjoint} selector={selector}: {verdict:?}"

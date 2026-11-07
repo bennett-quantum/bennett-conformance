@@ -19,6 +19,7 @@ mod interval_matrix;
 mod inverse_pairs;
 mod jcs_rfc;
 mod lexical;
+mod lexical_differential;
 mod loops;
 mod mcx;
 mod metadata;

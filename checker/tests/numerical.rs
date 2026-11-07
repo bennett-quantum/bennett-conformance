@@ -322,14 +322,14 @@ fn exact_native_rotations_verify_the_requested_rigorous_bound() {
 }
 #[test]
 fn malformed_rotation_literals_are_rejected_and_huge_angles_report_host_limits() {
-    for angle in ["1", "NaN", "inf"] {
+    for angle in ["NaN", "inf"] {
         let verdict = check_certificate(&rotation_inputs("rx", angle));
         assert!(
             codes(&verdict).contains(&"E_CERT_OBJECT"),
             "{angle}: {verdict:?}"
         );
     }
-    for angle in ["1.00", "1e999"] {
+    for angle in ["1", "1.00", "1e999"] {
         // These fail at the lexical boundary, before source/hash binding.
         let mut inputs = rotation_inputs("rx", "1.0");
         inputs.object_text = inputs
