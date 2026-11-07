@@ -12,12 +12,12 @@ use std::{
 };
 static NEXT: AtomicUsize = AtomicUsize::new(0);
 
-struct Oracle {
+pub(super) struct Oracle {
     dir: PathBuf,
     binary: PathBuf,
 }
 impl Oracle {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         let pin = pins::isa_spec_dir();
         let binary = pin.join("reference-interpreter/target/release/bennett-isa-ref");
         assert!(
@@ -40,7 +40,7 @@ impl Oracle {
         std::fs::create_dir(&dir).unwrap();
         Self { dir, binary }
     }
-    fn run(&self, command: &str, text: &str) -> Output {
+    pub(super) fn run(&self, command: &str, text: &str) -> Output {
         let path = self.dir.join("candidate.bisa");
         std::fs::write(&path, text).unwrap();
         let out = Command::new("timeout")
@@ -56,7 +56,7 @@ impl Oracle {
         );
         out
     }
-    fn bound_candidate(&self, text: &str) -> String {
+    pub(super) fn bound_candidate(&self, text: &str) -> String {
         // The oracle's hash command ignores stale stated hashes. This keeps
         // accepted whitespace/value changes from being rejected only for §9.2.
         let hashed = self.run("hash", text);
@@ -163,7 +163,7 @@ fn seed(extra: bool) -> Inputs {
     }
 }
 
-fn candidate_inputs(base: &Inputs, text: String) -> Inputs {
+pub(super) fn candidate_inputs(base: &Inputs, text: String) -> Inputs {
     let mut input = base.clone();
     input.object_text = text;
     let Ok(_) = Object::parse(&input.object_text) else {

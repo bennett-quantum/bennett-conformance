@@ -37,6 +37,7 @@ mod rotations;
 mod row_limits;
 mod schemes;
 mod signatures;
+mod source_admission;
 mod source_limits;
 mod structural;
 mod token_aliases;
