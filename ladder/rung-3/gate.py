@@ -43,6 +43,9 @@ def validate_contract(pins, producer_text, spec):
     pair = pins['dialect'], pins['isa']
     producer = tomllib.loads(producer_text)
     declared = producer['dialect'], producer['isa']
+    for field, version in (('bennett-dialect-spec', declared[0]), ('bennett-isa-spec', declared[1])):
+        if field in producer.get('specs', {}) and producer['specs'][field] != version:
+            raise GateError('producer contract declarations disagree: '+field)
     versioning = re.search(r'\*\*Versioning\.\*\* Dialect ([\d.]+):[^\n]*targets ISA ([\d.]+)\.', spec)
     if pair[1] not in ('0.8', '0.9') or not versioning or pair != versioning.groups() or pair != declared:
         raise GateError(f'unknown or mismatched R contract: pins {pair}, producer {declared}, '
@@ -77,6 +80,7 @@ class Gate(RecordedGate):
                            ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
                        'sysroots':{str(m):str(p) for m,p in self.sysroots.items()},
                        'gate_sha256':sha(HERE/'gate.py'),
+                       'native_audit_sha256':sha(HERE/'native_audit.py'),
                        'shared_support_sha256':sha(HERE.parent/'common/gate_support.py'),
                        'blockers_sha256':sha(HERE/'blockers.json')}
 
@@ -236,18 +240,19 @@ class Gate(RecordedGate):
     def native(self,m,workload='hello'):
         # This consumer manifest is gate glue, not an addition to the dialect contract.
         # Driver integration must publish an auditable comparison link; no host-libc fallback.
-        d=self.workdir(m,workload); out=d/'out'
+        d=self.workdir(m,workload); out=d/'out'; work=out/'native-work'
         runtime,arith=self.runtime_files(m)
         self.command(f'{m}/{workload}/driver-comparison',[self.driver_exe,'--bennett-tier=reversible','--bennett-entry=main',
             '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],
             '--bennett-materialised='+str(out/'device.bc'),*self.driver_publications(m,runtime,arith),
+            '-bennett-out='+str(work),
             '--bennett-sysroot='+str(self.sysroots[m]),
             '--bennett-comparison-record='+str(out/'native-comparison.json'),
             '--bennett-comparison-output='+str(d/'native')])
         if not (out/'native-comparison.json').is_file():
             raise GateError('missing native comparison link record from driver')
         record=json.loads((out/'native-comparison.json').read_text())
-        manifest=json.loads((out/'manifest.json').read_text()) if 'bitcode_link_argv' in record else {}
+        manifest=json.loads((work/'manifest.json').read_text()) if 'bitcode_link_argv' in record else {}
         argv=audit_comparison(self,m,out/'device.bc',runtime,arith,record,manifest,d/'native')
         self.command(f'{m}/{workload}/native-link',argv)
         dynamic=self.command(f'{m}/{workload}/native-dynamic',['readelf','-d',d/'native'])
@@ -341,9 +346,9 @@ class Gate(RecordedGate):
                 assert r[field]==value[field], 'replay differs in '+field
             return
         corrupt=json.loads(tape.read_text())
-        first=bytes.fromhex(corrupt[0]['bytes'])
-        assert first, 'cannot corrupt an empty console write'
-        corrupt[0]['bytes']=bytes([first[0]^1]).hex()+first[1:].hex()
+        event=next(e for e in corrupt if e['bytes'])
+        first=bytes.fromhex(event['bytes'])
+        event['bytes']=bytes([first[0]^1]).hex()+first[1:].hex()
         bad=tape.with_name(name+'-tampered-tape.json')
         bad.write_text(json.dumps(corrupt)+'\n')
         try:
@@ -367,7 +372,7 @@ class Gate(RecordedGate):
         spec=self.command('contract/dialect',['git','-C',WORKSPACE/'bennett-dialect-spec','show',
             PINS['bennett-dialect-spec']+':'+PINS['dialect_spec_path']]).decode()
         producer=self.command('contract/producer',['git','-C',WORKSPACE/'bennett-plugin','show',
-            self.args.plugin_rev+':SPEC_VERSIONS.toml']).decode()
+            self.manifest['pins']['bennett-plugin']+':SPEC_VERSIONS.toml']).decode()
         self.contract=validate_contract(PINS,producer,spec)
 
     def control(self,m,name):

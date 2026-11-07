@@ -1,9 +1,12 @@
 """Consumer glue only: these tests never establish rung acceptance."""
 import argparse
 import copy
+from contextlib import redirect_stdout
+import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -49,6 +52,7 @@ class AcceptanceTests(unittest.TestCase):
         self.g.finish = lambda: 0
         self.assertEqual(self.g.main(), 0)
         for m in (18, 23):
+            self.assertEqual(set(self.g.rows[m]), set(gate.STAGES))
             for workload in ('hello', 'printf_fmt'):
                 for executor in ('reference', 'VM'):
                     for suffix in ('forward = native', 'reset', 'tape replay', 'corrupt-tape rejection'):
@@ -57,6 +61,11 @@ class AcceptanceTests(unittest.TestCase):
                     self.assertIn(('execute', (m, executor), {'workload':workload}), calls)
                     self.assertIn(('replay', (m, executor), {'workload':workload, 'tampered':True}), calls)
         self.assertNotEqual(self.g.workdir(18, 'hello'), self.g.workdir(18, 'printf_fmt'))
+        # A complete hello path cannot hide one failed formatted acceptance row.
+        self.g.rows[18][gate.workload_stage('printf_fmt', 'native comparison')]['status'] = 'FAIL'
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(gate.Gate.finish(self.g), 1)
+        self.assertEqual(self.g.rows[18]['native comparison']['status'], 'PASS')
 
     def test_contract_is_derived_from_pinned_publication_and_producer(self):
         for dialect, isa in (('0.2.10', '0.8'), ('0.2.15', '0.9'), ('0.3', '0.9')):
@@ -79,6 +88,8 @@ class AcceptanceTests(unittest.TestCase):
             ('dialect="0.2.15"\nisa="0.8"', '**Versioning.** Dialect 0.2.15: targets ISA 0.9.'),
             ('dialect="0.2.15"\nisa="0.9"', '**Versioning.** Dialect 0.2.15: targets ISA 0.8.'),
             ('dialect="0.2.15"\nisa="0.9"', 'no version declaration'),
+            ('dialect="0.2.15"\nisa="0.9"\n[specs]\n"bennett-isa-spec"="0.8"',
+             '**Versioning.** Dialect 0.2.15: targets ISA 0.9.'),
         ):
             with self.assertRaisesRegex(gate.GateError, 'contract'):
                 gate.validate_contract(pins, producer, spec)
@@ -104,6 +115,20 @@ class AcceptanceTests(unittest.TestCase):
                         f'--bennett-arith={self.root}/arith{m}.bc',
                         f'--bennett-plugin={self.root}/plugin/build/libbennett-plugin-{m}.so'):
                 self.assertIn(arg, calls[-1])
+
+    def test_contract_reads_the_effective_frozen_producer(self):
+        self.g.args.plugin_rev = 'moving-ref'
+        self.g.manifest['pins']['bennett-plugin'] = 'frozen-producer'
+        calls = []
+        def command(tag, argv, **kw):
+            calls.append(list(map(str, argv)))
+            return (b'**Versioning.** Dialect 0.2.10: targets ISA 0.8.\n'
+                    b'On ISA 0.8 a module has verdict blocked:BD-B-ISA7' if tag.endswith('dialect')
+                    else b'dialect="0.2.10"\nisa="0.8"')
+        self.g.command = command
+        with self.assertRaisesRegex(gate.GateError, 'BD-B-ISA7'):
+            self.g.isa_contract()
+        self.assertEqual(calls[1][-1], 'frozen-producer:SPEC_VERSIONS.toml')
 
     def test_blockers_recognize_workload_paths_in_any_checkout(self):
         for workload in ('', 'hello/', 'printf_fmt/'):
@@ -139,13 +164,14 @@ class AcceptanceTests(unittest.TestCase):
                     with self.assertRaisesRegex(AssertionError, 'tape bytes differ'):
                         self.g.execute(major, executor, workload=workload)
 
-    def receipt(self, m):
-        d = self.g.workdir(m, 'hello'); out = d/'out'; out.mkdir(exist_ok=True)
+    def receipt(self, m, workload='hello'):
+        d = self.g.workdir(m, workload); out = d/'out'; out.mkdir(exist_ok=True)
         paths = [out/'device.bc', self.root/'publication/runtime.bc', self.root/'publication/arith.bc']
         for path, data in zip(paths, (b'device', b'runtime', b'arith')):
             path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
         self.g.publications = {'bennett-runtimes':self.root/'publication'}
-        support = self.root/'publication/native-support.bc'; support.write_bytes(b'support')
+        support = self.root/f'publication/dist/llvm{m}/musl-sysroot/lib/native-support.bc'
+        support.parent.mkdir(parents=True, exist_ok=True); support.write_bytes(b'support')
         layout = out/'native-layout.ll'
         layout.write_text('target triple = "x86_64-unknown-linux-musl"\n'
             '@__bennett_rt_native_layout = constant { i64, i64, i64 } { i64 1, i64 4096, i64 65536 }, align 8\n')
@@ -184,11 +210,111 @@ class AcceptanceTests(unittest.TestCase):
             self.assertEqual(audit_comparison(self.g, m, *paths, record, manifest, output), record['link_argv'])
             self.assertEqual(calls, [c['argv'] for c in manifest['commands']])
 
+    @unittest.skipUnless(all(Path(f'/usr/lib/llvm-{m}/bin/{tool}').is_file()
+                            for m in (18, 23) for tool in ('llvm-as', 'llvm-link', 'opt', 'clang')),
+                         'tiny receipt replay integration needs LLVM 18 and 23')
+    def test_rebuilds_staged_receipt_from_exact_inputs(self):
+        from native_audit import audit_comparison
+        # Independent closure: main returns rt() + arith() = 7 + 11 = 18.
+        # This is an adapter test, never either musl corpus workload.
+        for m in (18, 23):
+            paths, record, manifest, output = self.receipt(m)
+            support = self.root/f'publication/dist/llvm{m}/musl-sysroot/lib/native-support.bc'
+            modules = {
+                paths[0]: 'declare i32 @rt()\ndeclare i32 @arith()\n'
+                          'define i32 @main() { %r = call i32 @rt()\n'
+                          '%a = call i32 @arith()\n%s = add i32 %r, %a\nret i32 %s }\n',
+                paths[1]: 'define i32 @rt() { ret i32 7 }\n',
+                paths[2]: 'define i32 @arith() { ret i32 11 }\n',
+                support: 'declare i32 @main()\ndefine void @_start() { %r = call i32 @main()\n'
+                         '%rc = sext i32 %r to i64\ncall void asm sideeffect "syscall", '
+                         '"{rax},{rdi},~{rcx},~{r11},~{memory}"(i64 60, i64 %rc)\nunreachable }\n',
+            }
+            for path, ir in modules.items():
+                source = path.with_suffix('.ll')
+                source.write_text('target triple = "x86_64-unknown-linux-musl"\n'+ir)
+                self.g.command(f'{m}/test-assemble-{path.stem}',
+                               [f'/usr/lib/llvm-{m}/bin/llvm-as', source, '-o', path])
+            for key, path in zip(('materialised', 'runtimes', 'arith'), paths):
+                record[key+'_sha256'] = gate.sha(path)
+            record['native_support_sha256'] = gate.sha(support)
+            self.g.command(f'{m}/test-initial-merge', record['bitcode_link_argv'])
+            record['linked_sha256'] = gate.sha(Path(record['bitcode_link_argv'][-1]))
+            (paths[0].parent/'comparison.ld').write_text('SECTIONS { . = 4194304; '
+                '.text : { *(.text*) } .rodata : { *(.rodata*) } .data : { *(.data*) } '
+                '/DISCARD/ : { *(.eh_frame*) *(.comment*) *(.note*) } }')
+            # Spoofing an intermediate cannot bypass the replay from exact leaves.
+            (paths[0].parent/'comparison.bc').write_bytes(b'not trusted bitcode')
+            argv = audit_comparison(self.g, m, *paths, record, manifest, output)
+            self.g.command(f'{m}/test-native-link', argv)
+            run = subprocess.run([str(output)], capture_output=True, timeout=5)
+            self.assertEqual((run.returncode, run.stdout), (18, b''))
+            dynamic = self.g.command(f'{m}/test-dynamic', ['readelf', '-d', output])
+            self.assertNotIn(b'NEEDED', dynamic)
+            undefined = self.g.command(f'{m}/test-undefined', [f'/usr/lib/llvm-{m}/bin/llvm-nm', '--undefined-only', output])
+            self.assertEqual(undefined.strip(), b'')
+
+    def test_native_reads_explicit_adapter_work_manifest(self):
+        for m in (18, 23):
+            for workload in ('hello', 'printf_fmt'):
+                paths, record, manifest, output = self.receipt(m, workload)
+                out = paths[0].parent
+                (out/'native-comparison.json').write_text(json.dumps(record))
+                work = out/'native-work'; work.mkdir()
+                (work/'manifest.json').write_text(json.dumps(manifest))
+                self.g.runtime_files = lambda m: tuple(paths[1:])
+                self.g.driver_exe = self.root/'driver'
+                self.g.plugin_build = self.root/'plugin/build'
+                expected = bytes.fromhex(self.g.expected(workload)['stdout_hex'])
+                calls = []
+                def command(tag, argv, **kw):
+                    calls.append(list(map(str,argv)))
+                    return expected if tag.endswith('/native-run') else b''
+                self.g.command = command
+                self.g.native(m, workload)
+                self.assertIn('-bennett-out='+str(work), calls[0])
+                self.assertEqual(output.with_name('native.stdout').read_bytes(), expected)
+                self.g.command = lambda tag, argv, **kw: expected[:-1] if tag.endswith('/native-run') else b''
+                with self.assertRaisesRegex(AssertionError, 'native stdout differs'):
+                    self.g.native(m, workload)
+
+    def test_saved_and_corrupted_tapes_for_each_workload(self):
+        self.g.argv_replies = lambda *a: Path('/argv-replies.json')
+        self.g.executor = lambda *a: Path('/executor')
+        for major in (18, 23):
+            for executor in ('reference', 'VM'):
+                for workload in ('hello', 'printf_fmt'):
+                    expected = bytes.fromhex(self.g.expected(workload)['stdout_hex'])
+                    value = {'fault':None, 'faults':[], 'host_requests':[],
+                        'results':[{'type':'i32','value':'0'}], 'status':'COMPLETED',
+                        'run_state':'CLOSED', 'console_hex':expected.hex(), 'effect_tape_length':2,
+                        'tape':[{'dev':'console','op':'write','args':[4096,0],'bytes':''},
+                                {'dev':'console','op':'write','args':[4096,len(expected)],'bytes':expected.hex()}]}
+                    self.g.forward_results[(major,executor,workload)] = value
+                    calls = []
+                    def command(tag, argv, **kw):
+                        saved = json.loads(Path(argv[-1]).read_text())
+                        calls.append(saved)
+                        if tag.endswith('tampered'):
+                            self.assertNotEqual(saved, value['tape'])
+                            self.assertEqual(saved[1]['args'], value['tape'][1]['args'])
+                            return b'{"status":"FAILED","replay_mismatch":true}'
+                        self.assertEqual(saved, value['tape'])
+                        return json.dumps(value).encode()
+                    self.g.command = command
+                    self.g.replay(major, executor, workload)
+                    self.g.replay(major, executor, workload, tampered=True)
+                    self.assertEqual(len(calls), 2)
+                    self.g.command = lambda *a, **kw: json.dumps(value).encode()
+                    with self.assertRaisesRegex(AssertionError, 'accepted a tampered'):
+                        self.g.replay(major, executor, workload, tampered=True)
+
     def test_receipt_rejects_host_libc_missing_runtime_and_hash_substitution(self):
         from native_audit import audit_comparison
         paths, record, manifest, output = self.receipt(18)
         mutations = []
-        for extra in ('/usr/lib/libc.a', '-lc', '-Wl,-lc', '-Xlinker', '@response'):
+        for extra in ('/usr/lib/libc.a', '-lc', '-Wl,-lc', '-Xlinker', '@response',
+                      '-Wl,-Map,'+str(paths[0].parent/'native.map')+',-lc'):
             r, mf = copy.deepcopy(record), copy.deepcopy(manifest)
             r['link_argv'].insert(-2, extra); mutations.append((r, mf))
         for extra in ('/usr/lib/libc.a', '-L/usr/lib', '--override=/usr/lib/libm.bc'):
@@ -201,8 +327,8 @@ class AcceptanceTests(unittest.TestCase):
         mf['commands'][0]['argv'][2] = str(substitute); mutations.append((r, mf))
         r = copy.deepcopy(record); r['arith_sha256'] = '0'*64; mutations.append((r, manifest))
         self.g.command = lambda *a, **kw: b''
-        for r, mf in mutations:
-            with self.subTest(receipt=r, manifest=mf), self.assertRaises((AssertionError, gate.GateError)):
+        for index, (r, mf) in enumerate(mutations):
+            with self.subTest(mutation=index), self.assertRaises((AssertionError, gate.GateError)):
                 audit_comparison(self.g, 18, *paths, r, mf, output)
         paths[1].write_bytes(b'tampered runtime')
         with self.assertRaisesRegex((AssertionError, gate.GateError), 'hash'):
@@ -213,9 +339,23 @@ class AcceptanceTests(unittest.TestCase):
         paths, record, manifest, output = self.receipt(18)
         script = paths[0].parent/'comparison.ld'
         self.g.command = lambda *a, **kw: b''
-        for text in ('INPUT(/usr/lib/libc.a)', 'INCLUDE host.ld', 'SECTIONS { .text : { libc.a(*) } }'):
+        for text in ('INPUT(/usr/lib/libc.a)', 'INCLUDE host.ld', 'SECTIONS { .text : { libc.a(*) } }',
+                     'SECTIONS { .text : { "/usr/lib/libc.a"(*) } }'):
             script.write_text(text)
             with self.assertRaisesRegex((AssertionError, gate.GateError), 'script'):
+                audit_comparison(self.g, 18, *paths, record, manifest, output)
+
+    def test_support_must_be_the_same_major_pinned_publication(self):
+        from native_audit import audit_comparison
+        paths, record, manifest, output = self.receipt(18)
+        self.g.command = lambda *a, **kw: b''
+        for relative in ('untracked/native-support.bc', 'dist/llvm23/musl-sysroot/lib/native-support.bc'):
+            substitute = self.root/'publication'/relative
+            substitute.parent.mkdir(parents=True, exist_ok=True)
+            substitute.write_bytes(b'host libc substitute')
+            record['native_support_sha256'] = gate.sha(substitute)
+            manifest['commands'][2]['argv'][3] = '--override='+str(substitute)
+            with self.assertRaisesRegex(gate.GateError, 'native support'):
                 audit_comparison(self.g, 18, *paths, record, manifest, output)
 
 
