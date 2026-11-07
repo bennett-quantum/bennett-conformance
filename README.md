@@ -12,4 +12,4 @@ depends on everything through published contracts and binary edges.
 - `proofs/`: structured proofs of the invariants the specs lean on (INV-1..INV-6; see `proofs/INDEX.md`).
 - legality corpus runner (dialect spec corpus): not written yet.
 
-Gate: `scripts/pre-push` (clean worktree of the pushed commit). Current state and next steps: [HANDOFF.md](HANDOFF.md).
+Gate: `scripts/pre-push` (clean worktree of the pushed commit). Current state and next steps: [bennett/HANDOFF.md](../bennett/HANDOFF.md).
