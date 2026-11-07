@@ -305,14 +305,15 @@ fn selector_guards_allow_structural_qif_flips_and_end_with_the_loop() {
 fn selector_guard_follows_callee_reads_without_treating_a_mutable_formal_as_a_write() {
     for indexed in [false, true] {
         for read_only_gate in [false, true] {
-            let gate = if read_only_gate {
-                "\ncx c t"
-            } else {
-                "\nx t\nx t"
-            };
             let width = if indexed { 2 } else { 1 };
-            let actual = if indexed { "t[0], c[0]" } else { "t, c" };
-            let source=format!("perm_action @a (t:wire[{width}] mut, c:wire mut) () () () ()\nregs {{  }} bounds {{1}}\n^entry():\nqloop 1 while c {{\naction_call @reader ({actual}) () () ()\n}}\nx c\nperm_action @reader (t:wire mut, c:wire mut) () () () ()\n^entry():{gate}");
+            let target = if indexed { "t[0]" } else { "t" };
+            let gate = if read_only_gate {
+                format!("\ncx c {target}")
+            } else {
+                format!("\nx {target}\nx {target}")
+            };
+            let actual = "t, c";
+            let source=format!("perm_action @a (t:wire[{width}] mut, c:wire mut) () () () ()\nregs {{  }} bounds {{1}}\n^entry():\nqloop 1 while c {{\naction_call @reader ({actual}) () () ()\n}}\nx c\nperm_action @reader (t:wire[{width}] mut, c:wire mut) () () () ()\n^entry():{gate}");
             let mut rows = vec![];
             for t in 0..1 << width {
                 for c in 0..2 {
@@ -323,7 +324,7 @@ fn selector_guard_follows_callee_reads_without_treating_a_mutable_formal_as_a_wr
                 }
             }
             let signatures = format!(
-                r#"{{"a":{{"abi":"0.9","args":[],"bounds":[1],"in":[],"kind":"perm_action","mem":[],"mut":[{width},1],"tier":"q"}},"reader":{{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1,1],"tier":"q"}}}}"#
+                r#"{{"a":{{"abi":"0.9","args":[],"bounds":[1],"in":[],"kind":"perm_action","mem":[],"mut":[{width},1],"tier":"q"}},"reader":{{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[{width},1],"tier":"q"}}}}"#
             );
             let (inputs, _) = standalone(
                 &source,
@@ -681,12 +682,12 @@ fn balanced_repeated_predicates_express_the_same_control() {
 #[test]
 fn qif_selector_writes_cannot_escape_through_balanced_explicit_pops_or_callees() {
     let mut checked = 0;
-    for operation in ["x t[0]", "action_call @flip (t[0]) () () ()"] {
+    for operation in ["x t[0]", "action_call @flip (t) () () ()"] {
         for adjoint in [false, true] {
             for selector in ["t[0]", "t[-0]"] {
-                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\nqunpred {selector}\n{operation}\nqpred {selector}\n}} {{\nx t[1]\nx t[1]\n}}\nperm_action @flip (v:wire mut) () () () ()\n^entry():\nx v");
+                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\nqunpred {selector}\n{operation}\nqpred {selector}\n}} {{\nx t[1]\nx t[1]\n}}\nperm_action @flip (v:wire[2] mut) () () () ()\n^entry():\nx v[0]");
                 let mut sig = json(
-                    r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"},"flip":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+                    r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"},"flip":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,
                 );
                 let root = if adjoint {
                     source.push_str("\nperm_action @inverse (t:wire[2] mut) () () () ()\n^entry():\nadj action_call @a (t) () () ()");

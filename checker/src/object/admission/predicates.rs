@@ -35,7 +35,7 @@ fn repeated_stack_effects_match_literal_push_pop_execution() {
     }
 }
 #[test]
-fn nested_huge_counts_keep_the_stack_symbolic() {
+fn huge_balanced_loop_counts_do_not_unroll_source_predicates() {
     // Balanced loop bodies need a bounded number of visits, regardless of the source count.
     let count = "1000000000000000000000000000000000000000000000000000000000000";
     let text = source("qpred c\nqpred c\nqunpred c\nqunpred c")

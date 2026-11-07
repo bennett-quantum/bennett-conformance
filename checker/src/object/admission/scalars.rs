@@ -290,45 +290,50 @@ impl<'a> Scalar<'a> {
             Type::Integer(width)
         })
     }
+    fn compare_type(&self, row: &Row) -> Result<Type, String> {
+        self.same_bits(&row.args)?;
+        if !row.lifted {
+            let ty = self.value(&row.args[0])?;
+            require(
+                matches!(ty, Type::Integer(_) | Type::Pointer) && self.value(&row.args[1])? == ty,
+                "§3.3",
+                "icmp operand types differ",
+            )?;
+        }
+        Ok(if row.lifted {
+            Type::Location(1u32.into())
+        } else {
+            Type::Integer(1u32.into())
+        })
+    }
+    fn select_type(&self, row: &Row) -> Result<Type, String> {
+        require(
+            self.bits(&row.args[0])? == 1u32.into(),
+            "§3.3",
+            "select condition is not one bit",
+        )?;
+        let width = self.same_bits(&row.args[1..])?;
+        if row.lifted {
+            return Ok(Type::Location(width));
+        }
+        require(
+            self.value(&row.args[0])? == &Type::Integer(1u32.into()),
+            "§3.3",
+            "classical select condition requires i1",
+        )?;
+        require(
+            self.value(&row.args[1])? == self.value(&row.args[2])?,
+            "§3.3",
+            "select arm types differ",
+        )?;
+        Ok(self.value(&row.args[1])?.clone())
+    }
     fn row(&mut self, row: &Row) -> Result<(), String> {
         let result = match &row.code {
             Code::Const(n) => Some(self.constant(row, n)?),
             Code::Binary(_) => Some(self.arithmetic(row)?),
-            Code::Compare(_) => {
-                self.same_bits(&row.args)?;
-                if !row.lifted {
-                    let t = self.value(&row.args[0])?;
-                    require(
-                        matches!(t, Type::Integer(_) | Type::Pointer)
-                            && self.value(&row.args[1])? == t,
-                        "§3.3",
-                        "icmp operand types differ",
-                    )?;
-                }
-                Some(if row.lifted {
-                    Type::Location(1u32.into())
-                } else {
-                    Type::Integer(1u32.into())
-                })
-            }
-            Code::Select => {
-                require(
-                    self.bits(&row.args[0])? == 1u32.into(),
-                    "§3.3",
-                    "select condition is not one bit",
-                )?;
-                let width = self.same_bits(&row.args[1..])?;
-                Some(if row.lifted {
-                    Type::Location(width)
-                } else {
-                    require(
-                        self.value(&row.args[1])? == self.value(&row.args[2])?,
-                        "§3.3",
-                        "select arm types differ",
-                    )?;
-                    self.value(&row.args[1])?.clone()
-                })
-            }
+            Code::Compare(_) => Some(self.compare_type(row)?),
+            Code::Select => Some(self.select_type(row)?),
             Code::Cast(c, n) => Some(self.cast(row, *c, n)?),
             Code::Move => Some(Type::Location(self.bits(&row.args[0])?)),
             Code::ParallelMove => {
@@ -385,6 +390,11 @@ impl<'a> Scalar<'a> {
                 )?;
                 match row.code {
                     Code::StoreScalar(_) => {
+                        require(
+                            row.lifted || self.value(&row.args[1])? == &Type::Integer(n.clone()),
+                            "§3.3",
+                            "classical store requires an integer value",
+                        )?;
                         require(
                             self.bits(&row.args[1])? == *n,
                             "§3.3",
@@ -516,15 +526,20 @@ impl<'a> Scalar<'a> {
         )
     }
     fn length(&self, name: &str, lifted: bool) -> Result<(), String> {
-        if lifted && crate::rat::is_canonical_uint_str(name) {
-            require(
+        match (lifted, crate::rat::is_canonical_uint_str(name)) {
+            (true, true) => require(
                 uint(name)?.bits() <= self.object.header.ptr_width,
                 "§3.3",
                 "memory length literal exceeds ptr width",
-            )
-        } else {
-            self.bits(name)?;
-            Ok(())
+            ),
+            (false, _) => {
+                self.integer_value(name)?;
+                Ok(())
+            }
+            (true, false) => {
+                self.bits(name)?;
+                Ok(())
+            }
         }
     }
     fn label(&self, text: &str, args: bool) -> Result<(), String> {

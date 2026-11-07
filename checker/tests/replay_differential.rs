@@ -112,7 +112,8 @@ fn explicit_mcx_bundle_bits_replay_the_complete_sixteen_row_table() {
         .next()
         .unwrap();
     let mut claim = region.get("claims").unwrap().as_arr().unwrap()[0].clone();
-    // standalone rebinds the claim subject to the changed object.
+    // NAME-only source lists expand to the canonical two explicit controls.
+    // standalone rebinds the unchanged independent truth-table subject.
     if let Value::Obj(m) = &mut claim {
         m.remove("subject");
     }
@@ -122,7 +123,7 @@ fn explicit_mcx_bundle_bits_replay_the_complete_sixteen_row_table() {
         .function("a")
         .unwrap()
         .bytes
-        .replace("mcx (c) p", "mcx (c[0], c[1]) p");
+        .replace("mcx (c) p", "ccx c[0] c[1] p");
     let (inp, _) = standalone(
         &functions,
         &format!("{{\"a\":{}}}", encode(sig)),

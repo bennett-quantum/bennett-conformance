@@ -19,7 +19,7 @@ fn input_with(source: &str, signature: &str, companions: &[(&str, &str)]) -> Inp
     for (name, sig) in companions {
         text = add_symbol(&text, name, sig);
     }
-    if source.contains("lift.call") {
+    if source.contains("lift.call") || source.contains("alloc ") || source.contains("store.i") {
         text.push_str("\nsection layout\n");
         text.push_str(r#"{"A_tab":0,"H":6,"S_cells":4,"globals":{},"heap_base":32,"heap_limit_max":0,"interface_regions":{},"null_size":16,"ptr_width":32}"#);
         text.push('\n');
@@ -357,6 +357,29 @@ fn operand_lists_consume_only_the_published_name_production() {
         rejected(
             &format!("action @host (t:wire mut) (c:wire in) () () ()\n^entry():\n{body}"),
             r#"{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"action","mem":[],"mut":[1],"tier":"q"}"#,
+        );
+    }
+}
+
+#[test]
+fn classical_cast_results_respect_the_i128_type_bound() {
+    for (params, types, body) in [
+        ("p:ptr", r#"["ptr"]"#, "r = ptrtoint.i129 p"),
+        ("x:i8", r#"["i8"]"#, "r = zext.i129 x"),
+    ] {
+        let source = format!("fn cc @host ({params}) () () () ()\n^entry():\n{body}\nret");
+        let sig =
+            format!(r#"{{"abi":"0.9","kind":"cc","params":{types},"results":[],"tier":"cc"}}"#);
+        rejected(&source, &sig);
+    }
+}
+#[test]
+fn classical_memory_lengths_and_values_require_integer_operands() {
+    let signature = r#"{"abi":"0.9","kind":"cc","params":["ptr"],"results":[],"tier":"cc"}"#;
+    for body in ["r = alloc p", "store.i32 p p"] {
+        rejected(
+            &format!("fn cc @host (p:ptr) () () () ()\n^entry():\n{body}\nret"),
+            signature,
         );
     }
 }

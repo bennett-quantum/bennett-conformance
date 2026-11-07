@@ -14,10 +14,9 @@ pub(super) fn definitions(scope: &mut Scalar, rows: &[Row]) -> Result<(), String
             "§3.4",
             "return value count differs",
         )?;
-        for (name, param) in row.args.iter().zip(&scope.function.groups[1]) {
-            if defined.contains(name) {
-                declare(scope, name, Type::parse(&param.ty)?)?;
-            }
+        let return_bindings = row.args.iter().zip(&scope.function.groups[1]);
+        for (name, param) in return_bindings.filter(|(name, _)| defined.contains(*name)) {
+            declare(scope, name, Type::parse(&param.ty)?)?;
         }
     }
     let mut pending: Vec<_> = rows.iter().filter(|r| !r.results.is_empty()).collect();
@@ -49,6 +48,13 @@ pub(super) fn definitions(scope: &mut Scalar, rows: &[Row]) -> Result<(), String
     Ok(())
 }
 pub(super) fn declare(scope: &mut Scalar, name: &str, ty: Type) -> Result<(), String> {
+    if let Type::Integer(n) = &ty {
+        require(
+            n <= &MAX_INLINE_WIDTH.into(),
+            "§3.3",
+            "classical result width exceeds i128",
+        )?;
+    }
     match scope.values.get(name) {
         Some(existing) => require(
             existing == &ty,
