@@ -509,3 +509,11 @@ same-type definitions whose pinned SSA admission disagrees with §3.4, indirect
 label widths that require full binding-instance index spaces (§3.6), and linked
 imported bodies (§3.3/§9.2). Any such obligation defers the whole certificate
 before a region or claim proof is issued.
+
+
+The default generated source differential currently checks 3,331 candidates
+against the detached gate-pinned release interpreter in both admission
+directions, with zero disagreements. Every interpreter-rejected candidate also
+passes through the public certificate entry point to ensure it receives no
+verification or claim proof. The original canonical and indexed-control
+positives retain independently specified full-domain truth tables.

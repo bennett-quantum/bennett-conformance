@@ -13,6 +13,7 @@ unset DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
 export TMPDIR="$PWD/.tmp/quality-checker/tmp"
 export CARGO_TARGET_DIR="$PWD/.tmp/quality-checker/target"
 export BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec"
+export BENNETT_ISA_BINARY="$BENNETT_ISA_SPEC/reference-interpreter/target/release/bennett-isa-ref"
 mkdir -p "$TMPDIR"
 free -g
 uptime
@@ -20,7 +21,7 @@ systemd-run --user --scope --quiet timeout 240 /usr/bin/time -p cargo test --off
 cargo fmt --manifest-path checker/Cargo.toml -- --check
 ```
 
-Builds require at least 6 GB available RAM and one-minute load below 12.
+Builds require at least 6 GB available RAM and one-minute load below 8.
 
 ## Default checker tests
 
@@ -31,6 +32,7 @@ Builds require at least 6 GB available RAM and one-minute load below 12.
 | Consolidated binary, line-table test profile | 276 passed, 0 failed, 0 ignored | 46.30 s |
 | Quality-floor checkpoint, warm cache | 286 passed, 0 failed, 0 ignored | 28.23 s |
 | Canonical-admission repair | 291 passed, 0 failed, 0 ignored | 26.05 s |
+| Whole-object source admission | 330 passed, 0 failed, 0 ignored | 44.39 s |
 
 The consolidation run includes its profile rebuild; the final timing uses a warm cache. Every integration case is included in
 `tests/conformance.rs`; no slow tests or exclusions were needed. The two added
@@ -44,31 +46,31 @@ A recompute schedule retains explicit unchecked obligations.
 
 ## Coverage
 
-**Lines: 84.19% (14,587 / 17,326); functions: 82.64%; regions: 85.84%.**
-Measured after canonical-admission repair at the unified pin: 291 passed (277 integration + 14 unit),
-zero failures, without ignoring run failures.
+**Lines: 83.96% (16,808 / 20,019); functions: 81.60%; regions: 85.31%.**
+Measured at source checkpoint 856d2d8: 330 passed (314 integration + 16 unit),
+zero failures or ignored tests. The new source-admission modules are included.
 
-```sh
-systemd-run --user --scope --quiet timeout 300 cargo llvm-cov --offline --manifest-path checker/Cargo.toml -j3 --json --summary-only --output-path .tmp/quality-checker/lexical-coverage.json -- --test-threads=4
-```
+~~~sh
+systemd-run --user --scope --quiet timeout 300 cargo llvm-cov --offline --manifest-path checker/Cargo.toml -j3 --json --summary-only --output-path .tmp/quality-checker/whole-source-coverage.json -- --test-threads=4 --nocapture
+~~~
 
 This measures Rust checker execution, separately from clause coverage. No
 threshold is imposed. `fault.rs` is now 100% lines: path prefixing, JSON fields,
 Display and both ResolveError conversions are asserted exactly.
 
 CLI line coverage is 86.05%; the extracted replay phases are 92.76%;
-the grammar-based lexical reader is 97.10%.
+the grammar-based lexical reader is 97.13%.
 
 The five weakest source files have explicit retained work in
 bennett-conformance-ac5:
 
 | File | Lines | Reason / next witness |
 | --- | ---: | --- |
-| `eval/borrow_frames.rs` | 56.41% | Scheduled-context branches and independently derived frame-entry mechanics remain under the full adoption issue; no invented positive proof. |
-| `domain.rs` | 69.02% | Large host-limit/component-shape branches need bounded witnesses that avoid materializing huge domains. |
-| `structural.rs` | 75.08% | Adjoint/library and frame-provenance branches need contract-derived positive compositions. |
-| `eval.rs` | 74.89% | Remaining procedure/memory unsupported branches need bounded independent witnesses. |
-| `target.rs` | 83.10% | Remaining native/fragment descriptor branches need independently derived boundary and malformed-value witnesses. |
+| eval/borrow_frames.rs | 56.41% | Scheduled-context and independently derived frame-entry mechanics remain under the adoption issue; no invented positive proof. |
+| domain.rs | 69.02% | Large host-limit/component-shape branches need bounded witnesses that avoid materializing huge domains. |
+| eval.rs | 71.31% | Remaining procedure/memory execution paths need independent bounded witnesses. |
+| structural.rs | 74.43% | Adjoint/library and frame-provenance branches need contract-derived positive compositions. |
+| object/admission/scalars.rs | 78.89% | Remaining scalar-opcode and width/role cross products need additional positive and negative witnesses; unresolved index and linked-source mechanics stay explicitly unchecked. |
 
 ## Review and remaining work
 
@@ -84,7 +86,7 @@ and four shifted input rows of the controlled-action table. Type sweeps still
 visit every field; they no longer hard-code a snapshot's field count. The heap
 store/load witness additionally checks the independently derived payload x and
 zero fault for all sixteen x values, rather than only its verdict/count.
-The test-quality checkpoint passed 269 integration cases; the current count is 277.
+The test-quality checkpoint passed 269 integration cases; the current count is 314.
 
 ```sh
 python3 clauses/clausegraph.py coverage clauses/ISA-0.9.json --tags checker/tests/clause_tags.json
@@ -134,7 +136,7 @@ exits 0; invalid verdict states panic with context. Canonicalization errors
 cannot become an empty hash or equal empty signature/bounds. Sampled replay
 counts assert their established state rather than inventing zero.
 
-The fail-fast checkpoint passed 286 tests; the current count is 291. CLI tests cover verified/rejected/
+The fail-fast checkpoint passed 286 tests; the current count is 330. CLI tests cover verified/rejected/
 unchecked/usage statuses 0/1/2/3, deterministic JSON, missing options, IO,
 non-UTF-8 and missing embedded certificates. Temporary inputs are removed by
 Drop. Remaining optional-operand/component defaults need individual invariant
@@ -354,4 +356,30 @@ The loop-boundary ruling is implemented as named source rejection. Audit
 deferrals are tracked by bennett-conformance-a4n (repeated definitions and pin
 admission), -020 (complete indirect-label index spaces), and -0xm (imported
 closure admission). These forms yield unchecked with no claim proof.
-Final default-run, fresh-archive and coverage measurements are still pending.
+The default command passed 330 tests in 44.39 seconds; coverage passed the same
+330 tests. The generated matrix now contains 62 numeric sites, 258 punctuation
+sites and 3,331 nonidentity candidates, with 46 accepted alternatives and zero
+admission or rejected-source-proof disagreements. It includes indexed ctl,
+whole-bundle mcx, numeric/opcode word substitutions, structural mutations,
+NAME-only list checks, both qif arms and invalid zero-trip operands.
+
+The loop-boundary negative is paired with a balanced positive over the same
+independent t XOR c truth table. Every saved review/council witness rejects with
+E_CERT_OBJECT; canonical and indexed-control positives retain verified/proof.
+The whole-object audit also covers global forward definitions, CFG view
+ownership, dynamic register transfers, slot/control disjointness, procedure
+signature and fault-width checks, and classical result/memory operand types.
+
+Fresh export verification uses the committed head and explicit pin environment:
+
+~~~sh
+mkdir -p .tmp/quality-checker/fresh
+git archive HEAD | tar -x -C .tmp/quality-checker/fresh
+cd .tmp/quality-checker/fresh
+systemd-run --user --scope --quiet timeout 240 /usr/bin/time -p cargo test --offline --manifest-path checker/Cargo.toml -j3 --no-fail-fast -- --test-threads=4
+~~~
+
+The export contains no .git or gate cache. BENNETT_ISA_SPEC and
+BENNETT_ISA_BINARY remain the explicit detached gate-pin paths shown above.
+Exact final-head results are recorded in the job resume evidence; the
+orchestrator owns the full isolated push gate and independent review.
