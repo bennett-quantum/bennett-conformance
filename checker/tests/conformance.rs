@@ -39,5 +39,6 @@ mod schemes;
 mod signatures;
 mod source_admission;
 mod source_limits;
+mod static_admission;
 mod structural;
 mod token_aliases;

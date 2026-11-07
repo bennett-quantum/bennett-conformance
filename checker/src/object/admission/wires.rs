@@ -44,7 +44,6 @@ pub(super) struct Action<'a> {
     pub args: BTreeMap<String, Type>,
     predicates: Predicates,
     guards: Vec<Slice>,
-    predicate_boundary_obligation: bool,
 }
 impl<'a> Action<'a> {
     pub(super) fn new(object: &'a Object, function: &'a Function) -> Result<Self, String> {
@@ -57,7 +56,6 @@ impl<'a> Action<'a> {
             args: BTreeMap::new(),
             predicates: Predicates::default(),
             guards: vec![],
-            predicate_boundary_obligation: false,
         };
         let mut names = BTreeSet::new();
         for (group, params) in function.groups.iter().enumerate() {
@@ -118,7 +116,7 @@ impl<'a> Action<'a> {
         }
         Ok(scope)
     }
-    pub fn validate(object: &'a Object, function: &'a Function) -> Result<bool, String> {
+    pub fn validate(object: &'a Object, function: &'a Function) -> Result<(), String> {
         let mut scope = Self::new(object, function)?;
         let loops = function
             .bytes
@@ -146,7 +144,7 @@ impl<'a> Action<'a> {
             "§3.3",
             "local wire lifetime escapes function or interface wire consumed",
         )?;
-        Ok(scope.predicate_boundary_obligation)
+        Ok(())
     }
     pub fn wire(&self, text: &str) -> Result<Slice, String> {
         let (name, index) = if let Some((name, rest)) = text.split_once('[') {
@@ -315,9 +313,11 @@ impl<'a> Action<'a> {
                             self.wires = wires;
                             self.predicates = predicates;
                         }
-                        if !count.is_zero() && !self.predicates.agrees(&frame.predicates) {
-                            self.predicate_boundary_obligation = true;
-                        }
+                        require(
+                            count.is_zero() || self.predicates.agrees(&frame.predicates),
+                            "§3.5/§4.6",
+                            "loop body altered predicate stack",
+                        )?;
                         let effect = frame.effect.counted(&count)?;
                         self.predicates = effect.apply(&frame.predicates)?;
                         if let Some(parent) = frames.last_mut() {

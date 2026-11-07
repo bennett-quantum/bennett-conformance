@@ -110,7 +110,11 @@ fn matching(
         "call argument count differs",
     )?;
     for (a, t) in actuals.iter().zip(types) {
-        require(value(a)? == *t, "§3.3", "call argument type differs")?;
+        require(
+            value(a)?.accepts_transfer_to(t),
+            "§3.3",
+            "call argument type differs",
+        )?;
     }
     Ok(())
 }

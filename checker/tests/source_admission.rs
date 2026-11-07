@@ -9,7 +9,7 @@ use bennett_cert_checker::{
 };
 use std::path::Path;
 
-fn saved(name: &str) -> Inputs {
+pub(super) fn saved(name: &str) -> Inputs {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/source-admission");
     Inputs {
         cert_bytes: std::fs::read(root.join(format!("{name}.json"))).unwrap(),
@@ -94,7 +94,7 @@ fn review_source(instruction: &str) -> String {
         r#"{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"}"#,
     )
 }
-fn add_symbol(text: &str, name: &str, signature: &str) -> String {
+pub(super) fn add_symbol(text: &str, name: &str, signature: &str) -> String {
     let (before, rest) = text.split_once("section symbols\n").unwrap();
     let (symbols, after) = rest.split_once("\n\nsection functions\n").unwrap();
     let mut symbols = json(symbols);

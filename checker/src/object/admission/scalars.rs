@@ -47,6 +47,14 @@ impl Type {
             }
         })
     }
+    pub fn accepts_transfer_to(&self, expected: &Self) -> bool {
+        match (self, expected) {
+            (Self::Register(actual), Self::Register(wanted)) => {
+                actual.is_none() || wanted.is_none() || actual == wanted
+            }
+            _ => self == expected,
+        }
+    }
     pub fn bits(&self, ptr: u64) -> Result<BigUint, String> {
         match self {
             Self::Integer(n) | Self::Wire(n) | Self::Location(n) => Ok(n.clone()),
@@ -137,13 +145,19 @@ impl<'a> Scalar<'a> {
         for block in &function.blocks {
             for param in &block.params {
                 let ty = Type::parse(&param.ty)?;
-                scope.values.insert(param.name.clone(), ty);
+                classical::declare(&mut scope, &param.name, ty)?;
             }
+        }
+        if matches!(function.kind.as_str(), "cc" | "r") {
+            classical::definitions(&mut scope, rows)?;
         }
         for row in rows {
             scope.row(row)?;
         }
         scope.terminators()?;
+        if matches!(function.kind.as_str(), "cc" | "r") {
+            views::validate(function, &scope)?;
+        }
         Ok(())
     }
     pub fn value(&self, name: &str) -> Result<&Type, String> {
@@ -175,12 +189,7 @@ impl<'a> Scalar<'a> {
                     )?;
                 }
                 _ => {
-                    require(
-                        !self.values.contains_key(name),
-                        "§3.3",
-                        "SSA result redefines an existing value",
-                    )?;
-                    self.values.insert(name.clone(), ty);
+                    classical::declare(self, name, ty)?;
                 }
             }
         }
@@ -543,7 +552,7 @@ impl<'a> Scalar<'a> {
             )?;
             for (a, p) in actuals.iter().zip(params) {
                 require(
-                    self.value(a)? == &Type::parse(&p.ty)?,
+                    self.value(a)?.accepts_transfer_to(&Type::parse(&p.ty)?),
                     "§3.3",
                     "branch block argument type differs",
                 )?;

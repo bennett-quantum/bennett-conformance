@@ -627,7 +627,7 @@ fn malformed_predicate_scopes_and_dangling_control_prefixes_cannot_prove_tables(
     }
 }
 #[test]
-fn repeated_predicate_pushes_can_balance_across_counted_loops_and_blocks() {
+fn predicate_stack_changes_at_loop_boundaries_are_rejected() {
     let source="perm_action @a (t:wire mut) (c:wire in) () () ()\nregs {  } bounds {2, 2}\n^entry():\nqloop 2 {\nqpred c\n}\n^middle():\nx t\nqloop 2 {\nqunpred c\n}";
     let rows = (0..2)
         .flat_map(|t| (0..2).map(move |c| row(&[t, c], &[t ^ c, c])))
@@ -638,8 +638,40 @@ fn repeated_predicate_pushes_can_balance_across_counted_loops_and_blocks() {
         "a",
         vec![table_claim(&[("t", 1), ("c", 1)], rows)],
     );
+    // b-isa-spec-6meo: pinned executable meaning requires loop-boundary balance.
+    assert!(!crate::lexical_differential::Oracle::new()
+        .run("check", &inputs.object_text)
+        .status
+        .success());
     let verdict = check_certificate(&inputs);
-    assert!(codes(&verdict).is_empty(), "{verdict:?}");
+    assert_eq!(verdict.overall, "rejected", "{verdict:?}");
+    assert!(
+        verdict
+            .errors
+            .iter()
+            .any(|e| e.code == "E_CERT_OBJECT" && e.section == "§3.5/§4.6"),
+        "{verdict:?}"
+    );
+    assert!(verdict.regions.is_empty());
+}
+#[test]
+fn balanced_repeated_predicates_express_the_same_control() {
+    let source="perm_action @a (t:wire mut) (c:wire in) () () ()\nregs {  } bounds {1}\n^entry():\nqloop 1 {\nqpred c\nqpred c\nx t\nqunpred c\nqunpred c\n}";
+    let rows = (0..2)
+        .flat_map(|t| (0..2).map(move |c| row(&[t, c], &[t ^ c, c])))
+        .collect();
+    let (inputs, _) = standalone(
+        source,
+        r#"{"a":{"abi":"0.9","args":[],"bounds":[1],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
+        "a",
+        vec![table_claim(&[("t", 1), ("c", 1)], rows)],
+    );
+    assert!(crate::lexical_differential::Oracle::new()
+        .run("check", &inputs.object_text)
+        .status
+        .success());
+    let verdict = check_certificate(&inputs);
+    assert_eq!(verdict.overall, "verified", "{verdict:?}");
     assert_eq!(
         verdict.regions[0].claims[0].1.outcome, "proof",
         "{verdict:?}"

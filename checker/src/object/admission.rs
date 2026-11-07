@@ -5,10 +5,12 @@ use num_bigint::{BigInt, BigUint};
 use num_traits::Zero;
 use std::collections::{BTreeMap, BTreeSet};
 mod calls;
+mod classical;
 mod operations;
 mod predicates;
 mod scalars;
 mod syntax;
+mod views;
 mod wires;
 use operations::{Code, Row};
 use scalars::{Scalar, Type};
@@ -75,12 +77,15 @@ pub(super) fn validate(object: &Object) -> Result<Vec<String>, String> {
             .map(|line| Row::parse(line.strip_suffix(" {").unwrap_or(line), &function.kind))
             .collect::<Result<Vec<_>, _>>()?;
         match function.kind.as_str() {
-            "action" | "perm_action" => {
-                if Action::validate(object, function)? {
-                    obligations.push(format!("@{}: source admission for a loop that changes its boundary predicate stack is unresolved (§3.5); proof is deferred",function.name));
+            "action" | "perm_action" => Action::validate(object, function)?,
+            _ => {
+                Scalar::validate(object, function, &rows)?;
+                if matches!(function.kind.as_str(), "cc" | "r")
+                    && classical::repeated_definitions(function, &rows)
+                {
+                    obligations.push(format!("@{}: multiple definitions retain their §3.4 type constraints, but source admission against the pinned SSA rule is unresolved; proof is deferred",function.name));
                 }
             }
-            _ => Scalar::validate(object, function, &rows)?,
         }
     }
     Ok(obligations)
