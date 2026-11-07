@@ -107,7 +107,7 @@ remaining work is filed, without a zero-giants claim.
 
 | File | Function | Physical lines |
 | --- | --- | ---: |
-| `cert.rs` | check_certificate / check_region | 507 / 484 |
+| `cert.rs` | check_certificate / check_region | 507 / 485 |
 | `domain.rs` | resolve_domain | 408 |
 | `eval/procedures.rs` | run | 342 |
 | `eval.rs` | exec_row / exec_line / check_inverse_pair | 656 / 389 / 362 |
@@ -132,3 +132,140 @@ unchecked/usage statuses 0/1/2/3, deterministic JSON, missing options, IO,
 non-UTF-8 and missing embedded certificates. Temporary inputs are removed by
 Drop. Remaining optional-operand/component defaults need individual invariant
 tests and are filed as bennett-conformance-hql.
+
+## Structural baseline and push ratchet
+
+`python3 -B scripts/quality_ratchet.py` checks the recorded per-file baseline
+below. One gate check runs its self-tests and the ratchet. Initial missing
+baseline failed first; recording it made the check pass. Self-tests also require
+failure for each worsened metric and new tracked litter, and check raw strings,
+nested comments and array-type signatures.
+
+Scope: checker Rust source (including embedded unit tests) and repository Python
+tooling outside test directories/files. C/IR/object fixtures and tests are not
+implementation complexity. Function spans count physical lines. The cumulative
+over-50/over-100/over-300 counts and maximum length ratchet the length distribution;
+the four noncumulative buckets and function count are descriptive.
+
+Cognitive mass is a reproducible branch-nesting estimate, not a semantic proof:
+Rust control keywords cost 1 plus enclosing control-block depth, and logical
+operators cost 1. Python uses the equivalent AST control nesting plus logical
+operators. Nested Python functions are measured separately. Trivial wrappers
+(single returned call, or a bare Rust call) are counted alongside mass so splits
+cannot hide growth behind wrappers. The gate also rejects increased process-id
+matches and newly tracked litter paths; removing inherited litter is allowed.
+Known outside-owned litter is retained explicitly under bennett-conformance-pem
+and bennett-conformance-bnk.
+
+```sh
+python3 -B scripts/quality_ratchet.py --self-test
+python3 -B scripts/quality_ratchet.py
+git ls-files '*.log' '*.pyc' '*.darc' '*LOCK*'
+rg -n 'bennett-conformance-[a-z0-9]{3}\b|quality-checker|job/|shift [0-9]+' checker/src
+```
+
+The source grep has no matches. The JSON records every file's distribution,
+complexity mass, trivial-wrapper count and process-identifier matches, plus the
+18 inherited tracked litter paths. Ratchet values come only from this repo,
+with no external grade, complexity ceiling or coverage threshold. Baseline
+updates require a reviewed explanation; `--record` is an explicit maintenance
+operation and is never invoked by the gate.
+
+<!-- quality-baseline -->
+```json
+{"fields": ["functions", "length_le_50", "length_51_100", "length_101_300", "length_gt_300", "over_50", "over_100", "max_lines", "cognitive_mass", "trivial_wrappers", "process_identifiers"],
+"files": {
+"checker-replay/checker_replay/__init__.py": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+"checker-replay/checker_replay/__main__.py": [3, 3, 0, 0, 0, 0, 0, 27, 14, 0, 0],
+"checker-replay/checker_replay/action.py": [45, 44, 1, 0, 0, 1, 0, 86, 687, 3, 0],
+"checker-replay/checker_replay/differential.py": [25, 23, 2, 0, 0, 2, 0, 94, 129, 0, 0],
+"checker-replay/checker_replay/errors.py": [3, 3, 0, 0, 0, 0, 0, 5, 1, 0, 0],
+"checker-replay/checker_replay/hashes.py": [16, 15, 1, 0, 0, 1, 0, 60, 138, 2, 0],
+"checker-replay/checker_replay/jcs.py": [3, 3, 0, 0, 0, 0, 0, 24, 104, 0, 0],
+"checker-replay/checker_replay/objparse.py": [10, 9, 1, 0, 0, 1, 0, 85, 256, 0, 0],
+"checker-replay/checker_replay/oracle.py": [35, 33, 1, 1, 0, 2, 1, 106, 677, 2, 0],
+"checker-replay/checker_replay/realised.py": [14, 14, 0, 0, 0, 0, 0, 31, 141, 1, 0],
+"checker-replay/checker_replay/replay.py": [48, 45, 2, 1, 0, 3, 1, 104, 530, 2, 0],
+"checker-replay/checker_replay/synthetic.py": [18, 17, 0, 1, 0, 1, 1, 109, 79, 2, 0],
+"checker/src/accounting.rs": [15, 9, 3, 3, 0, 6, 3, 183, 169, 2, 0],
+"checker/src/cert.rs": [30, 23, 4, 1, 2, 7, 3, 507, 508, 7, 0],
+"checker/src/coherent.rs": [10, 9, 0, 1, 0, 1, 1, 142, 94, 2, 0],
+"checker/src/coverage.rs": [5, 4, 0, 1, 0, 1, 1, 112, 24, 2, 0],
+"checker/src/decimal_limits.rs": [9, 7, 2, 0, 0, 2, 0, 95, 275, 1, 0],
+"checker/src/domain.rs": [19, 18, 0, 0, 1, 1, 1, 408, 125, 4, 0],
+"checker/src/domain/fixed_images.rs": [1, 0, 0, 1, 0, 1, 1, 104, 42, 0, 0],
+"checker/src/eval.rs": [75, 60, 7, 5, 3, 15, 8, 656, 1069, 5, 0],
+"checker/src/eval/borrow_frames.rs": [1, 0, 1, 0, 0, 1, 0, 94, 28, 0, 0],
+"checker/src/eval/procedures.rs": [10, 8, 1, 0, 1, 2, 1, 342, 163, 2, 0],
+"checker/src/eval/procedures/bindings.rs": [4, 3, 1, 0, 0, 1, 0, 82, 76, 0, 0],
+"checker/src/eval/replay_claim.rs": [8, 3, 3, 2, 0, 5, 2, 132, 89, 0, 0],
+"checker/src/expressions.rs": [4, 3, 1, 0, 0, 1, 0, 78, 34, 1, 0],
+"checker/src/fault.rs": [6, 6, 0, 0, 0, 0, 0, 13, 2, 3, 0],
+"checker/src/frames.rs": [5, 3, 1, 1, 0, 2, 1, 145, 52, 1, 0],
+"checker/src/inplace.rs": [1, 0, 1, 0, 0, 1, 0, 61, 35, 0, 0],
+"checker/src/json.rs": [25, 23, 2, 0, 0, 2, 0, 71, 104, 7, 0],
+"checker/src/lib.rs": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+"checker/src/lifted_memory.rs": [24, 22, 1, 1, 0, 2, 1, 204, 90, 4, 0],
+"checker/src/main.rs": [2, 1, 0, 1, 0, 1, 1, 147, 43, 0, 0],
+"checker/src/matrix.rs": [26, 26, 0, 0, 0, 0, 0, 36, 65, 1, 0],
+"checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 535, 1, 0],
+"checker/src/object.rs": [41, 30, 7, 4, 0, 11, 4, 172, 482, 6, 0],
+"checker/src/object/lexical.rs": [2, 1, 1, 0, 0, 1, 0, 88, 80, 0, 0],
+"checker/src/object/signatures.rs": [5, 4, 0, 1, 0, 1, 1, 152, 60, 0, 0],
+"checker/src/rat.rs": [37, 36, 1, 0, 0, 1, 0, 69, 65, 6, 0],
+"checker/src/realisation.rs": [37, 26, 7, 4, 0, 11, 4, 265, 430, 5, 0],
+"checker/src/realisation/native_model.rs": [17, 15, 0, 2, 0, 2, 2, 147, 156, 1, 0],
+"checker/src/sampler.rs": [6, 6, 0, 0, 0, 0, 0, 25, 17, 0, 0],
+"checker/src/sha256.rs": [3, 2, 1, 0, 0, 1, 0, 67, 12, 1, 0],
+"checker/src/structural.rs": [10, 6, 2, 1, 1, 4, 2, 328, 217, 1, 0],
+"checker/src/target.rs": [16, 12, 3, 1, 0, 4, 1, 217, 280, 1, 0],
+"checker/src/tokens.rs": [1, 1, 0, 0, 0, 0, 0, 44, 12, 0, 0],
+"checker/src/transcendental.rs": [8, 8, 0, 0, 0, 0, 0, 45, 25, 0, 0],
+"clauses/clausegraph.py": [106, 94, 10, 2, 0, 12, 2, 151, 1529, 6, 0],
+"harness/bdiff.py": [1, 0, 1, 0, 0, 1, 0, 62, 22, 0, 0],
+"harness/lib/compare.py": [21, 21, 0, 0, 0, 0, 0, 43, 184, 1, 0],
+"harness/lib/corpora.py": [9, 9, 0, 0, 0, 0, 0, 37, 75, 0, 0],
+"harness/lib/drivers.py": [10, 10, 0, 0, 0, 0, 0, 22, 55, 2, 0],
+"harness/lib/engine.py": [26, 26, 0, 0, 0, 0, 0, 33, 139, 2, 0],
+"harness/lib/executors.py": [7, 7, 0, 0, 0, 0, 0, 15, 11, 0, 0],
+"harness/lib/generate.py": [61, 56, 5, 0, 0, 5, 0, 81, 899, 2, 0],
+"harness/lib/identity.py": [19, 18, 1, 0, 0, 1, 0, 72, 180, 1, 0],
+"harness/lib/objfile.py": [13, 13, 0, 0, 0, 0, 0, 50, 79, 5, 0],
+"harness/lib/prng.py": [7, 7, 0, 0, 0, 0, 0, 15, 7, 1, 0],
+"harness/lib/shrink.py": [16, 15, 1, 0, 0, 1, 0, 51, 141, 0, 0],
+"harness/tools/extract_vm_differential.py": [3, 3, 0, 0, 0, 0, 0, 30, 62, 0, 0],
+"ladder/common/gate_support.py": [4, 4, 0, 0, 0, 0, 0, 21, 17, 2, 0],
+"ladder/rung-1/classify_report.py": [4, 4, 0, 0, 0, 0, 0, 27, 68, 0, 0],
+"ladder/rung-1/full_domain_worker.py": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+"ladder/rung-1/gate.py": [38, 38, 0, 0, 0, 0, 0, 50, 160, 2, 0],
+"ladder/rung-1/input_worker.py": [1, 1, 0, 0, 0, 0, 0, 6, 0, 0, 0],
+"ladder/rung-2/gate.py": [21, 21, 0, 0, 0, 0, 0, 31, 76, 0, 0],
+"ladder/rung-3/gate.py": [33, 33, 0, 0, 0, 0, 0, 36, 97, 0, 0],
+"ladder/rung-4/gate.py": [80, 80, 0, 0, 0, 0, 0, 45, 186, 2, 0],
+"scripts/quality_ratchet.py": [10, 10, 0, 0, 0, 0, 0, 37, 101, 0, 0],
+"suite/run.py": [14, 13, 1, 0, 0, 1, 0, 65, 189, 1, 0],
+"suite/tools/import_fixtures.py": [31, 29, 2, 0, 0, 2, 0, 63, 175, 4, 0]
+},
+"litter": [
+  "harness/runs/2026-11-01-seed1.log",
+  "ladder/rung-1/evidence/20261101T135131.872696Z/coverage-audit.log",
+  "ladder/rung-1/evidence/20261101T135131.872696Z/gate.log",
+  "ladder/rung-1/evidence/20261101T135131.872696Z/rung1-rung2-checks.log",
+  "ladder/rung-1/evidence/20261101T135131.872696Z/rung1-rung3-checks.log",
+  "ladder/rung-1/evidence/20261101T135131.872696Z/rung1-tests-green.log",
+  "ladder/rung-1/evidence/20261101T135131.872696Z/rung1-tests-red.log",
+  "ladder/rung-1/evidence/20261101T141544.771577Z/pre-push.log",
+  "ladder/rung-2/evidence/default-gate/gate.log",
+  "ladder/rung-2/evidence/driver-smoke/gate.log",
+  "ladder/rung-2/evidence/first-run/gate.log",
+  "ladder/rung-2/evidence/required-pipeline/gate.log",
+  "ladder/rung-3/evidence/20261101T125405.461872Z/gate.log",
+  "ladder/rung-3/evidence/20261103T093332.236979Z/gate.log",
+  "ladder/rung-3/evidence/20261103T093332.236979Z/recording.log",
+  "ladder/rung-4/__pycache__/check_gate.cpython-312.pyc",
+  "ladder/rung-4/__pycache__/gate.cpython-312.pyc",
+  "ladder/rung-4/evidence/20261101T221646.155856Z/gate.log"
+]
+}
+```
+<!-- /quality-baseline -->

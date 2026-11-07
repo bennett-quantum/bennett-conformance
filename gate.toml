@@ -24,6 +24,10 @@ argv = ["python3", "-I", "-m", "unittest", "discover", "-s", "suite/tests"]
 name = "neutral suite"
 argv = ["sh", "-c", "python3 -I suite/run.py --binary \"$BENNETT_ISA_BINARY\" --cases suite/cases"]
 
+[[check]]
+name = "quality baseline ratchet"
+argv = ["sh", "-c", "python3 -B scripts/quality_ratchet.py --self-test && python3 -B scripts/quality_ratchet.py"]
+
 [siblings."bennett-isa-spec"]
 sha = "3b1090790d82a00ac95d30b8da6b42d1d7a9f5d1"
 note = "Published ISA 0.9 including K84/K89/K91; tests and neutral suite share this pin"
