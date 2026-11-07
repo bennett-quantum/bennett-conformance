@@ -10,7 +10,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 BEGIN = "<!-- quality-baseline -->"
 END = "<!-- /quality-baseline -->"
-PROCESS_ID = re.compile(r"\bbennett-conformance-[a-z0-9]{3}\b|\b(?:job|wip)/[a-z0-9_-]+|\bshift [0-9]+")
+PROCESS_ID = re.compile(r"\bquality\-checker\b|\bbennett-conformance-[a-z0-9]{3}\b|\b(?:job|wip)/[a-z0-9_-]+|\bshift [0-9]+")
 RUST_TOKEN = re.compile(r'//[^\n]*|/\*[\s\S]*?\*/|(?:br|r)(?P<h>\#*)"[\s\S]*?"(?P=h)|b?"(?:\\.|[^"\\])*"|b?\'(?:\\.|[^\'\\\n])\'')
 CONTROLS = (ast.If, ast.For, ast.AsyncFor, ast.While, ast.ExceptHandler,
             ast.IfExp, ast.comprehension, ast.match_case)
@@ -176,6 +176,7 @@ def self_test():
     assert not regressions(before, before)
     py = file_metrics(Path("sample.py"), "def f(x):\n if x:\n  for y in x:\n   call(y)\n")
     assert py["cognitive_mass"] == 3
+    assert PROCESS_ID.search("quality" + "-checker")
     print("quality ratchet self-tests passed")
 
 

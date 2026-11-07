@@ -107,7 +107,7 @@ remaining work is filed, without a zero-giants claim.
 
 | File | Function | Physical lines |
 | --- | --- | ---: |
-| `cert.rs` | check_certificate / check_region | 507 / 485 |
+| `cert.rs` | check_certificate / check_region | 507 / 484 |
 | `domain.rs` | resolve_domain | 408 |
 | `eval/procedures.rs` | run | 342 |
 | `eval.rs` | exec_row / exec_line / check_inverse_pair | 656 / 389 / 362 |
