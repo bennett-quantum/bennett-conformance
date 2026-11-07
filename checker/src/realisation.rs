@@ -408,7 +408,13 @@ fn collect(
     for (_, stmts) in &blocks {
         loop_bounds(stmts, &mut bounds)?;
     }
-    if bounds != f.bounds {
+    if bounds
+        .iter()
+        .copied()
+        .map(num_bigint::BigUint::from)
+        .collect::<Vec<_>>()
+        != f.bounds
+    {
         return Err(ClaimOutcome::rejected(vec![rej(
             "E_CERT_OBJECT",
             "§5.3",

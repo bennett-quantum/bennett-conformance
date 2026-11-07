@@ -135,7 +135,7 @@ impl Row {
                     controls.push(
                         tokens
                             .get(at + 1)
-                            .ok_or_else(|| error("§4.8", "missing ctl wire"))?
+                            .ok_or_else(|| sec_err("§4.8", "missing ctl wire"))?
                             .clone(),
                     );
                     at += 2;
@@ -165,7 +165,7 @@ impl Row {
         }
         let mnemonic = tokens
             .get(at)
-            .ok_or_else(|| error("§4.8", "missing opcode"))?;
+            .ok_or_else(|| sec_err("§4.8", "missing opcode"))?;
         let lifted = mnemonic.starts_with("lift.");
         let base = mnemonic.strip_prefix("lift.").unwrap_or(mnemonic);
         let shorthand = base.starts_with('@');
@@ -271,7 +271,7 @@ impl Row {
 fn width(s: &str) -> Result<BigUint, String> {
     let n = positive(
         s.strip_prefix('i')
-            .ok_or_else(|| error("§4.8", "expected .iN suffix"))?,
+            .ok_or_else(|| sec_err("§4.8", "expected .iN suffix"))?,
     )?;
     Ok(n)
 }
@@ -283,7 +283,7 @@ fn decode(base: &str, lifted: bool) -> Result<Code, String> {
     let p: Vec<_> = base.split('.').collect();
     let suffix = || {
         p.get(1)
-            .ok_or_else(|| error("§4.8", "missing type suffix"))
+            .ok_or_else(|| sec_err("§4.8", "missing type suffix"))
             .and_then(|s| width(s))
     };
     let code = match p[0] {
@@ -305,7 +305,7 @@ fn decode(base: &str, lifted: bool) -> Result<Code, String> {
             Some("ule") => Compare::Ule,
             Some("slt") => Compare::Slt,
             Some("sle") => Compare::Sle,
-            _ => return Err(error("§4.8", "unknown comparison predicate")),
+            _ => return Err(sec_err("§4.8", "unknown comparison predicate")),
         }),
         "qreg" => {
             return match p.as_slice() {
@@ -316,13 +316,13 @@ fn decode(base: &str, lifted: bool) -> Result<Code, String> {
                 ["qreg", "width"] => Ok(Code::RegisterWidth),
                 ["qreg", "id"] => Ok(Code::RegisterId),
                 ["qreg", "from_id"] => Ok(Code::RegisterFromId),
-                _ => Err(error("§4.8", "unknown qreg opcode")),
+                _ => Err(sec_err("§4.8", "unknown qreg opcode")),
             }
         }
         "budget" => {
             return match p.as_slice() {
                 ["budget", "mint"] => Ok(Code::Budget),
-                _ => Err(error("§4.8", "unknown budget opcode")),
+                _ => Err(sec_err("§4.8", "unknown budget opcode")),
             }
         }
         _ => return no_suffix(&p, bare(p[0], lifted)?),
@@ -405,7 +405,7 @@ fn bare(word: &str, lifted: bool) -> Result<Code, String> {
         "trap" => Code::Trap,
         "effect" => Code::Effect,
         "hostcall" => Code::HostCall,
-        _ => return Err(error("§4.8", format!("unknown opcode {word}"))),
+        _ => return Err(sec_err("§4.8", format!("unknown opcode {word}"))),
     })
 }
 fn action_code(code: &Code) -> bool {
@@ -563,7 +563,7 @@ fn operand(text: &str) -> Result<(), String> {
         uint(
             index
                 .strip_suffix(']')
-                .ok_or_else(|| error("§16.2", "unterminated index"))?,
+                .ok_or_else(|| sec_err("§16.2", "unterminated index"))?,
         )?;
         return Ok(());
     }
@@ -573,5 +573,5 @@ fn operand(text: &str) -> Result<(), String> {
     if integer(text).is_ok() {
         return Ok(());
     }
-    super::super::lexical::float(text).map_err(|e| error("§16.1", e))
+    super::super::lexical::float(text).map_err(|e| sec_err("§16.1", e))
 }

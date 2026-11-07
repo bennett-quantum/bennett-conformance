@@ -491,3 +491,18 @@ with a build instruction. The canonical identity control still verifies;
 noncanonical integer declarations and bounds reject with `E_CERT_OBJECT`
 at §16.1. Internal evaluator defense tests inject malformed tokens after a
 valid parse; they do not treat those spellings as legal source objects.
+
+
+Source admission now runs before document binding and verdict evaluation. It
+checks complete function/header productions and all instruction bodies,
+including unclaimed functions, both conditional arms and zero-trip loops.
+Malformed source receives E_CERT_OBJECT with its specification section. Indexed
+control prefixes retain their complete operand, and opcode/operand typing is
+separate from basis-state replay.
+
+A loop that carries a changed predicate stack across its body boundary currently
+defers the entire certificate as unchecked, with a named §3.5 source-admission
+obligation and no claim proof. The published region-entry/exit balance rule and
+the pinned interpreter's per-loop admission rule need reconciliation before
+this form can be certified. The generated differential retains this disagreement;
+it is not an accepted exception in the admission test.

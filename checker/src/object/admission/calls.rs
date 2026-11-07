@@ -9,22 +9,22 @@ pub(super) struct Signature {
 fn number(v: &Value) -> Result<BigUint, String> {
     match v {
         Value::Str(s) | Value::Num(s) => uint(s),
-        _ => Err(error("§9.1", "signature size is not an integer")),
+        _ => Err(sec_err("§9.1", "signature size is not an integer")),
     }
 }
 fn field<'a>(v: &'a Value, key: &str) -> Result<&'a Value, String> {
     v.get(key)
-        .ok_or_else(|| error("§9.1", format!("missing signature {key}")))
+        .ok_or_else(|| sec_err("§9.1", format!("missing signature {key}")))
 }
 fn array<'a>(v: &'a Value, key: &str) -> Result<&'a [Value], String> {
     field(v, key)?
         .as_arr()
-        .ok_or_else(|| error("§9.1", "signature field must be an array"))
+        .ok_or_else(|| sec_err("§9.1", "signature field must be an array"))
 }
 pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String> {
     let name = text
         .strip_prefix('@')
-        .ok_or_else(|| error("§16.2", "callee must be @NAME"))?;
+        .ok_or_else(|| sec_err("§16.2", "callee must be @NAME"))?;
     if let Some(f) = object.function(name) {
         return Ok(Signature {
             kind: f.kind.clone(),
@@ -38,10 +38,10 @@ pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String
     let s = object
         .imports
         .get(name)
-        .ok_or_else(|| error("§9.1", format!("unknown callee @{name}")))?;
+        .ok_or_else(|| sec_err("§9.1", format!("unknown callee @{name}")))?;
     let kind = field(s, "kind")?
         .as_str()
-        .ok_or_else(|| error("§9.1", "signature kind must be a string"))?
+        .ok_or_else(|| sec_err("§9.1", "signature kind must be a string"))?
         .to_string();
     let wires = |key: &str| {
         array(s, key)?
@@ -54,7 +54,7 @@ pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String
             .iter()
             .map(|v| {
                 v.as_str()
-                    .ok_or_else(|| error("§9.1", "signature type must be a string"))
+                    .ok_or_else(|| sec_err("§9.1", "signature type must be a string"))
                     .and_then(Type::parse)
             })
             .collect::<Result<Vec<_>, _>>()
@@ -92,7 +92,7 @@ pub(super) fn signature(object: &Object, text: &str) -> Result<Signature, String
             types("args")?,
             mem()?,
         ],
-        _ => return Err(error("§9.1", "unknown callee kind")),
+        _ => return Err(sec_err("§9.1", "unknown callee kind")),
     };
     Ok(Signature { kind, groups })
 }
@@ -120,7 +120,7 @@ fn action_args(scope: &Action, actuals: &str, types: &[Type]) -> Result<(), Stri
             .args
             .get(a)
             .cloned()
-            .ok_or_else(|| error("§3.3", "unknown fixed classical argument"))
+            .ok_or_else(|| sec_err("§3.3", "unknown fixed classical argument"))
     })
 }
 fn action_mem(
@@ -145,7 +145,7 @@ fn action_mem(
         let (a, w, readonly) = scope
             .regions
             .get(name)
-            .ok_or_else(|| error("§3.3", "unknown region actual"))?;
+            .ok_or_else(|| sec_err("§3.3", "unknown region actual"))?;
         require(
             ty == &Type::Region(a.clone(), w.clone()),
             "§3.3",
@@ -430,7 +430,7 @@ fn scalar_region(scope: &mut Scalar, row: &Row, sig: &Signature) -> Result<(), S
                     require(n == &width, "§3.3", "qreg region width differs")?
                 }
                 Type::Register(None) => (),
-                _ => return Err(error("§3.3", "CC/R region wires require qreg operands")),
+                _ => return Err(sec_err("§3.3", "CC/R region wires require qreg operands")),
             }
         }
     }
@@ -448,7 +448,7 @@ fn scalar_region(scope: &mut Scalar, row: &Row, sig: &Signature) -> Result<(), S
         )?;
         for (a, t) in regs.iter().zip(&sig.groups[group]) {
             let Type::Region(address, cell) = t else {
-                return Err(error("§3.3", "expected region type"));
+                return Err(sec_err("§3.3", "expected region type"));
             };
             match scope.value(a)? {
                 Type::Register(Some(n)) => {
@@ -463,7 +463,7 @@ fn scalar_region(scope: &mut Scalar, row: &Row, sig: &Signature) -> Result<(), S
                     )?;
                 }
                 Type::Register(None) => (),
-                _ => return Err(error("§3.3", "CC/R regions require qreg operands")),
+                _ => return Err(sec_err("§3.3", "CC/R regions require qreg operands")),
             }
         }
     }
@@ -477,7 +477,7 @@ fn write_set(
     visiting: &mut BTreeSet<String>,
 ) -> Result<Vec<Slice>, String> {
     if !visiting.insert(function.name.clone()) {
-        return Err(error("§5.3", "recursive structured action call"));
+        return Err(sec_err("§5.3", "recursive structured action call"));
     }
     let scope = Action::new(object, function)?;
     let mut writes = vec![];

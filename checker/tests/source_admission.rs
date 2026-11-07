@@ -47,29 +47,24 @@ fn rejected(name: &str) {
     );
 }
 
-#[test]
-fn malformed_structure_rejects_before_proof() {
-    for name in ["missing-close", "extra-close", "header-tail", "block-tail"] {
-        rejected(name);
-    }
+macro_rules! rejected_source {
+    ($test:ident,$fixture:literal) => {
+        #[test]
+        fn $test() {
+            rejected($fixture);
+        }
+    };
 }
-#[test]
-fn zero_trip_operands_are_checked_statically() {
-    for name in [
-        "zero-overlap",
-        "zero-undefined",
-        "zero-wrong-arity",
-        "zero-unknown-opcode",
-    ] {
-        rejected(name);
-    }
-}
-#[test]
-fn unclaimed_functions_require_valid_opcodes_and_bounds() {
-    for name in ["unused-unknown-opcode", "unused-empty-bounds"] {
-        rejected(name);
-    }
-}
+rejected_source!(missing_closing_brace, "missing-close");
+rejected_source!(extra_closing_brace, "extra-close");
+rejected_source!(trailing_function_header, "header-tail");
+rejected_source!(trailing_block_header, "block-tail");
+rejected_source!(zero_trip_overlap, "zero-overlap");
+rejected_source!(zero_trip_unknown_wire, "zero-undefined");
+rejected_source!(zero_trip_wrong_arity, "zero-wrong-arity");
+rejected_source!(zero_trip_unknown_opcode, "zero-unknown-opcode");
+rejected_source!(unclaimed_unknown_opcode, "unused-unknown-opcode");
+rejected_source!(unclaimed_empty_bounds, "unused-empty-bounds");
 #[test]
 fn canonical_and_zero_trip_controls_remain_verified() {
     for name in ["canonical", "zero-valid"] {
@@ -86,7 +81,10 @@ fn canonical_and_zero_trip_controls_remain_verified() {
 
 fn review_source(instruction: &str) -> String {
     let base = saved("canonical");
-    let text = base.object_text.trim_end().replace("c:wire in", "c:wire[1] in")
+    let text = base
+        .object_text
+        .trim_end()
+        .replace("c:wire in", "c:wire[1] in")
         + "\naction @unused (w:wire mut) () () () ()\n^entry():\n"
         + instruction
         + "\n";
@@ -142,7 +140,8 @@ fn indexed_and_scalar_controlled_calls_remain_verified() {
     let oracle = Oracle::new();
     for control in ["c", "c[0]"] {
         let text = base
-            .object_text.trim_end()
+            .object_text
+            .trim_end()
             .replace("c:wire in", "c:wire[1] in")
             .replace(
                 "cx c t",

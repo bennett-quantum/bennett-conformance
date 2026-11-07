@@ -2,7 +2,7 @@
 use super::{sec_err, Function, Object, Param};
 use crate::eval::{canonical_list, tokenise};
 use num_bigint::{BigInt, BigUint};
-use num_traits::{ToPrimitive, Zero};
+use num_traits::Zero;
 use std::collections::{BTreeMap, BTreeSet};
 mod calls;
 mod operations;
@@ -14,7 +14,20 @@ use operations::{Code, Row};
 use scalars::{Scalar, Type};
 use wires::Action;
 
-pub(super) fn validate(object: &Object) -> Result<(), String> {
+pub(super) fn validate(object: &Object) -> Result<Vec<String>, String> {
+    let mut obligations = vec![];
+    require(
+        (1..=128).contains(&object.header.ptr_width),
+        "§3.3",
+        "ptr_width must be 1..128",
+    )?;
+    if let Some(layout) = &object.layout {
+        require(
+            layout.get("ptr_width").and_then(crate::cert::u64_of) == Some(object.header.ptr_width),
+            "§7.2",
+            "layout pointer width mismatch",
+        )?;
+    }
     let mut names = BTreeSet::new();
     for function in &object.functions {
         require(
@@ -24,13 +37,34 @@ pub(super) fn validate(object: &Object) -> Result<(), String> {
         )?;
         let symbol = object
             .symbol(&function.name)
-            .ok_or_else(|| error("§9.1", "function has no symbol"))?;
+            .ok_or_else(|| sec_err("§9.1", "function has no symbol"))?;
         require(
             symbol.kind == function.kind,
             "§9.1",
             "symbol and source function kinds differ",
         )?;
         super::signatures::validate(symbol, function, &object.header.versions["isa"])?;
+        if matches!(function.kind.as_str(), "cc" | "r") {
+            for (group, key) in [(0, "params"), (1, "results")] {
+                let declared = symbol
+                    .signature
+                    .get(key)
+                    .and_then(crate::json::Value::as_arr)
+                    .ok_or_else(|| sec_err("§9.1", "missing classical signature group"))?;
+                require(
+                    declared.len() == function.groups[group].len(),
+                    "§9.1",
+                    "classical signature group count differs",
+                )?;
+                for (p, t) in function.groups[group].iter().zip(declared) {
+                    require(
+                        t.as_str() == Some(&p.ty),
+                        "§9.1",
+                        "classical signature type differs from source",
+                    )?;
+                }
+            }
+        }
         syntax::validate(function)?;
         let rows = function
             .bytes
@@ -41,21 +75,22 @@ pub(super) fn validate(object: &Object) -> Result<(), String> {
             .map(|line| Row::parse(line.strip_suffix(" {").unwrap_or(line), &function.kind))
             .collect::<Result<Vec<_>, _>>()?;
         match function.kind.as_str() {
-            "action" | "perm_action" => Action::validate(object, function)?,
+            "action" | "perm_action" => {
+                if Action::validate(object, function)? {
+                    obligations.push(format!("@{}: source admission for a loop that changes its boundary predicate stack is unresolved (§3.5); proof is deferred",function.name));
+                }
+            }
             _ => Scalar::validate(object, function, &rows)?,
         }
     }
-    Ok(())
+    Ok(obligations)
 }
 
-fn error(section: &str, message: impl Into<String>) -> String {
-    sec_err(section, message)
-}
 fn require(ok: bool, section: &str, message: &str) -> Result<(), String> {
     if ok {
         Ok(())
     } else {
-        Err(error(section, message))
+        Err(sec_err(section, message))
     }
 }
 fn uint(text: &str) -> Result<BigUint, String> {
@@ -64,11 +99,11 @@ fn uint(text: &str) -> Result<BigUint, String> {
         "§16.1",
         "expected canonical unsigned INT",
     )?;
-    text.parse().map_err(|_| error("§16.1", "invalid INT"))
+    text.parse().map_err(|_| sec_err("§16.1", "invalid INT"))
 }
 fn integer(text: &str) -> Result<BigInt, String> {
     uint(text.strip_prefix('-').unwrap_or(text))?;
-    text.parse().map_err(|_| error("§16.1", "invalid INT"))
+    text.parse().map_err(|_| sec_err("§16.1", "invalid INT"))
 }
 fn positive(text: &str) -> Result<BigUint, String> {
     let value = uint(text)?;
@@ -76,5 +111,5 @@ fn positive(text: &str) -> Result<BigUint, String> {
     Ok(value)
 }
 fn list(text: &str) -> Result<Vec<String>, String> {
-    canonical_list(text).ok_or_else(|| error("§16.2", "expected a canonical operand list"))
+    canonical_list(text).ok_or_else(|| sec_err("§16.2", "expected a canonical operand list"))
 }

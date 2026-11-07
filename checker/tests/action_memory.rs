@@ -21,9 +21,22 @@ fn object_with_image(body: &str, a: u32, w: u32, t: u32, image: Option<&str>) ->
             )
         })
         .unwrap_or_default();
-    let source=format!("perm_action @a (t:wire[{t}] mut) (c:wire in) (r:region[{a},{w}] mut) () ()\n^entry():\n{body}{data}");
+    let counts = body
+        .lines()
+        .filter_map(|l| {
+            l.strip_prefix("qloop ")
+                .map(|s| s.split(' ').next().unwrap())
+        })
+        .collect::<Vec<_>>();
+    let bounds = counts.join(", ");
+    let regs = if counts.is_empty() {
+        String::new()
+    } else {
+        format!("regs {{  }} bounds {{{bounds}}}\n")
+    };
+    let source=format!("perm_action @a (t:wire[{t}] mut) (c:wire in) (r:region[{a},{w}] mut) () ()\n{regs}^entry():\n{body}{data}");
     let sig = format!(
-        r#"{{"a":{{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[{{"A":{a},"W":{w},"role":"mut"}}],"mut":[{t}],"tier":"q"}}{data_sig}}}"#
+        r#"{{"a":{{"abi":"0.9","args":[],"bounds":[{bounds}],"in":[1],"kind":"perm_action","mem":[{{"A":{a},"W":{w},"role":"mut"}}],"mut":[{t}],"tier":"q"}}{data_sig}}}"#
     );
     let (inputs, _) = standalone(&source, &sig, "a", vec![]);
     let text=rebind_object_symbols(&format!("{}\nsection layout\n{{\"A_tab\":0,\"H\":4,\"S_cells\":0,\"globals\":{{}},\"heap_base\":1,\"heap_limit_max\":0,\"interface_regions\":{{}},\"null_size\":1,\"ptr_width\":32}}\n",inputs.object_text));

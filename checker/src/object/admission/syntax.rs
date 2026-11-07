@@ -46,14 +46,14 @@ pub(super) fn validate(function: &Function) -> Result<(), String> {
             "}" | "} {" => {
                 let frame = frames
                     .last_mut()
-                    .ok_or_else(|| error("§16.2", "unmatched closing brace"))?;
+                    .ok_or_else(|| sec_err("§16.2", "unmatched closing brace"))?;
                 require(frame.nonempty, "§16.2", "empty structured body")?;
                 match (line, frame.body) {
                     ("} {", Body::Then) => {
                         frame.body = Body::Else;
                         frame.nonempty = false;
                     }
-                    ("} {", _) => return Err(error("§16.2", "else belongs only to qif")),
+                    ("} {", _) => return Err(sec_err("§16.2", "else belongs only to qif")),
                     _ => {
                         frames.pop();
                     }
@@ -152,10 +152,10 @@ fn declarations(function: &Function) -> Result<(), String> {
     for line in function.bytes.lines().filter(|l| l.starts_with("regs ")) {
         let rest = line
             .strip_prefix("regs { ")
-            .ok_or_else(|| error("§16.2", "malformed regs"))?;
+            .ok_or_else(|| sec_err("§16.2", "malformed regs"))?;
         let (entries, tail) = rest
             .split_once(" }")
-            .ok_or_else(|| error("§16.2", "malformed regs closing brace"))?;
+            .ok_or_else(|| sec_err("§16.2", "malformed regs closing brace"))?;
         if !entries.is_empty() {
             require(
                 matches!(function.kind.as_str(), "oracle" | "lproc"),
@@ -184,7 +184,7 @@ fn declarations(function: &Function) -> Result<(), String> {
             let values = tail
                 .strip_prefix(" bounds {")
                 .and_then(|s| s.strip_suffix('}'))
-                .ok_or_else(|| error("§16.2", "unexpected trailing regs tokens"))?;
+                .ok_or_else(|| sec_err("§16.2", "unexpected trailing regs tokens"))?;
             for n in values.split(", ") {
                 uint(n)?;
             }

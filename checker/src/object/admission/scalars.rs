@@ -39,10 +39,10 @@ impl Type {
                 {
                     let (a, w) = s
                         .split_once(',')
-                        .ok_or_else(|| error("§16.2", "invalid region type"))?;
+                        .ok_or_else(|| sec_err("§16.2", "invalid region type"))?;
                     Self::Region(uint(a)?, positive(w)?)
                 } else {
-                    return Err(error("§3.3", format!("unknown type {text}")));
+                    return Err(sec_err("§3.3", format!("unknown type {text}")));
                 }
             }
         })
@@ -52,7 +52,7 @@ impl Type {
             Self::Integer(n) | Self::Wire(n) | Self::Location(n) => Ok(n.clone()),
             Self::Pointer => Ok(ptr.into()),
             Self::Float => Ok(64u32.into()),
-            _ => Err(error("§3.3", "expected a bit-vector operand")),
+            _ => Err(sec_err("§3.3", "expected a bit-vector operand")),
         }
     }
 }
@@ -92,7 +92,7 @@ impl<'a> Scalar<'a> {
             let body = line
                 .strip_prefix("regs { ")
                 .and_then(|s| s.split_once(" }").map(|p| p.0))
-                .ok_or_else(|| error("§16.2", "malformed regs"))?;
+                .ok_or_else(|| sec_err("§16.2", "malformed regs"))?;
             if body.is_empty() {
                 continue;
             }
@@ -149,7 +149,7 @@ impl<'a> Scalar<'a> {
     pub fn value(&self, name: &str) -> Result<&Type, String> {
         self.values
             .get(name)
-            .ok_or_else(|| error("§3.3", format!("unknown value/location {name}")))
+            .ok_or_else(|| sec_err("§3.3", format!("unknown value/location {name}")))
     }
     pub fn bits(&self, name: &str) -> Result<BigUint, String> {
         self.value(name)?.bits(self.object.header.ptr_width)
@@ -254,7 +254,7 @@ impl<'a> Scalar<'a> {
             Cast::IntToPtr => BigUint::from(self.object.header.ptr_width),
             _ => n
                 .clone()
-                .ok_or_else(|| error("§4.8", "cast width absent"))?,
+                .ok_or_else(|| sec_err("§4.8", "cast width absent"))?,
         };
         let valid = match cast {
             Cast::Zext | Cast::Sext => width > old,
@@ -342,7 +342,7 @@ impl<'a> Scalar<'a> {
             Code::Address => {
                 let name = row.args[0]
                     .strip_prefix('@')
-                    .ok_or_else(|| error("§4.8", "address requires symbol"))?;
+                    .ok_or_else(|| sec_err("§4.8", "address requires symbol"))?;
                 let global = self
                     .object
                     .layout
@@ -525,7 +525,7 @@ impl<'a> Scalar<'a> {
     fn label(&self, text: &str, args: bool) -> Result<(), String> {
         let text = text
             .strip_prefix('^')
-            .ok_or_else(|| error("§4.8", "expected block label"))?;
+            .ok_or_else(|| sec_err("§4.8", "expected block label"))?;
         let (name, actuals) = match text.split_once('(') {
             Some((name, rest)) => (name, Some(list(&format!("({rest}"))?)),
             None => (text, None),
@@ -533,7 +533,7 @@ impl<'a> Scalar<'a> {
         let params = self
             .labels
             .get(name)
-            .ok_or_else(|| error("§3.3", "unknown block label"))?;
+            .ok_or_else(|| sec_err("§3.3", "unknown block label"))?;
         if args {
             let actuals = actuals.unwrap_or_else(Vec::new);
             require(
@@ -562,7 +562,7 @@ impl<'a> Scalar<'a> {
             let line = block
                 .instructions
                 .last()
-                .ok_or_else(|| error("§16.2", "empty block"))?;
+                .ok_or_else(|| sec_err("§16.2", "empty block"))?;
             let row = Row::parse(line, &self.function.kind)?;
             let valid = match self.function.kind.as_str() {
                 "oracle" | "lproc" => matches!(
@@ -594,7 +594,7 @@ impl<'a> Scalar<'a> {
                         self.label(&row.args[1], true)?;
                         self.label(&row.args[2], true)?;
                     }
-                    _ => return Err(error("§4.8", "br operand count differs")),
+                    _ => return Err(sec_err("§4.8", "br operand count differs")),
                 }
                 Ok(())
             }
@@ -646,14 +646,14 @@ impl<'a> Scalar<'a> {
                 Ok(())
             }
             Code::Trap => Ok(()),
-            _ => Err(error("§4.8", "unexpected scalar opcode")),
+            _ => Err(sec_err("§4.8", "unexpected scalar opcode")),
         }
     }
     fn register(&mut self, row: &Row) -> Result<(), String> {
         let q = |s: &str| -> Result<Option<BigUint>, String> {
             match self.value(s)? {
                 Type::Register(n) => Ok(n.clone()),
-                _ => Err(error("§3.3", "expected qreg")),
+                _ => Err(sec_err("§3.3", "expected qreg")),
             }
         };
         let result = match &row.code {
@@ -675,7 +675,7 @@ impl<'a> Scalar<'a> {
                 Some(Type::Register(n))
             }
             Code::RegisterSlice => {
-                let n = q(&row.args[0])?;
+                q(&row.args[0])?;
                 for a in &row.args[1..] {
                     if uint(a).is_err() {
                         require(
@@ -692,9 +692,6 @@ impl<'a> Scalar<'a> {
                         "§3.3",
                         "literal slice length must be positive",
                     )?;
-                }
-                if let (Some(size), Ok(lo), Some(len)) = (n, uint(&row.args[1]), &len) {
-                    require(lo + len <= size, "§3.3", "static slice exceeds qreg")?;
                 }
                 Some(Type::Register(len))
             }
@@ -733,7 +730,7 @@ impl<'a> Scalar<'a> {
                         )?;
                         w.clone()
                     }
-                    _ => return Err(error("§3.3", "runtime qreg requires measure.iN")),
+                    _ => return Err(sec_err("§3.3", "runtime qreg requires measure.iN")),
                 };
                 require(
                     !n.is_zero() && n <= 128u32.into(),
@@ -742,7 +739,7 @@ impl<'a> Scalar<'a> {
                 )?;
                 Some(Type::Integer(n))
             }
-            _ => return Err(error("§4.8", "unexpected qreg opcode")),
+            _ => return Err(sec_err("§4.8", "unexpected qreg opcode")),
         };
         match result {
             Some(t) => self.result(row, vec![t]),

@@ -186,7 +186,8 @@ pub fn parse_blocks(func: &Function) -> Vec<(String, Vec<Stmt>)> {
         if let Some(rest) = line.strip_prefix('^') {
             let name = rest.split('(').next().unwrap_or("").to_string();
             i += 1;
-            let (stmts, ni) = parse_seq(&lines, i);
+            let (stmts, ni) = parse_seq(&lines, i, false)
+                .expect("Object::parse established complete structured source");
             i = ni;
             out.push((name, stmts));
         } else {
@@ -196,38 +197,36 @@ pub fn parse_blocks(func: &Function) -> Vec<(String, Vec<Stmt>)> {
     out
 }
 
-fn parse_seq(lines: &[&str], mut i: usize) -> (Vec<Stmt>, usize) {
+fn parse_seq(lines: &[&str], mut i: usize, nested: bool) -> Result<(Vec<Stmt>, usize), String> {
     let mut out = Vec::new();
     while i < lines.len() {
         let line = lines[i];
         if line.starts_with('^') || line == "}" || line == "} {" {
             break;
         }
-        if line.starts_with("regs ") || line.starts_with("regs{") {
-            i += 1;
-            continue;
-        }
         let toks = tokenise(line);
         if toks.last().map(String::as_str) == Some("{") {
             let head = toks[..toks.len() - 1].to_vec();
-            let (body, ni) = parse_seq(lines, i + 1);
+            let (body, ni) = parse_seq(lines, i + 1, true)?;
             i = ni;
             // lines[i] is "}" or "} {"
             if i < lines.len() && lines[i] == "} {" {
-                let (rest, ni2) = parse_seq(lines, i + 1);
+                let (rest, ni2) = parse_seq(lines, i + 1, true)?;
                 i = ni2;
-                if i < lines.len() && lines[i] == "}" {
-                    i += 1;
+                if lines.get(i) != Some(&"}") {
+                    return Err("§16.2: expected closing brace".into());
                 }
+                i += 1;
                 out.push(Stmt::Block {
                     head,
                     body,
                     rest: Some(rest),
                 });
             } else {
-                if i < lines.len() && lines[i] == "}" {
-                    i += 1;
+                if lines.get(i) != Some(&"}") {
+                    return Err("§16.2: expected closing brace".into());
                 }
+                i += 1;
                 out.push(Stmt::Block {
                     head,
                     body,
@@ -239,7 +238,10 @@ fn parse_seq(lines: &[&str], mut i: usize) -> (Vec<Stmt>, usize) {
             i += 1;
         }
     }
-    (out, i)
+    if nested && (out.is_empty() || !matches!(lines.get(i), Some(&"}" | &"} {"))) {
+        return Err("§16.2: empty or unterminated structured body".into());
+    }
+    Ok((out, i))
 }
 
 fn flatten(stmts: &[Stmt], out: &mut Vec<Vec<String>>) {

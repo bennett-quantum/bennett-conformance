@@ -214,10 +214,10 @@ fn opcode(tokens: &[Token<'_>]) -> usize {
         match tokens.get(i).map(|t| t.text) {
             Some("adj") => i += 1,
             Some("ctl") => {
-                i += 2;
-                if tokens.get(i).is_some_and(|t| t.text == "[") {
-                    i += 3;
-                }
+                // NAME[INT] adds three lexical tokens after the NAME.
+                const INDEX_TAIL_TOKENS: usize = 3;
+                let indexed = usize::from(tokens.get(i + 2).is_some_and(|t| t.text == "["));
+                i += 2 + INDEX_TAIL_TOKENS * indexed;
             }
             _ => return i,
         }

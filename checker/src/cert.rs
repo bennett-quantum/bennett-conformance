@@ -781,6 +781,12 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
             return finish(verdict);
         }
     };
+    if !object.source_admission_obligations.is_empty() {
+        verdict
+            .unchecked_items
+            .extend(object.source_admission_obligations.iter().cloned());
+        return finish(verdict);
+    }
     verdict
         .hashes
         .insert("object_hash".into(), object.object_hash.clone());

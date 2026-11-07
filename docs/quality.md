@@ -332,3 +332,13 @@ ensures interpreter-rejected inputs cannot receive overall verification or a
 claim proof. Correcting older -0 region/index positives follows the pinned
 interpreter's §16.1 rejections; canonical positive tests remain, and internal
 MCX defense tests inject malformed tokens after parsing.
+
+
+The unmerged whole-object admission change is blocked on the predicate-boundary
+contract decision tracked by bennett-conformance-yzn. Its saved source witnesses
+pass, but the expanded generated differential exposes a region-balanced loop
+form rejected by the pinned interpreter. Proof is deferred for this form and
+the admission comparison stays red. The prior coverage and structural baseline
+above predate these new admission modules; no new coverage or green ratchet is
+claimed. The new modules remain unregistered in the baseline, and existing file
+ceilings have not been raised.

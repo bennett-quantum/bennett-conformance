@@ -54,7 +54,7 @@ pub struct Function {
     pub bytes: String,
     pub blocks: Vec<Block>,
     /// The `bounds { ... }` list of the regs line, if present.
-    pub bounds: Vec<u64>,
+    pub bounds: Vec<num_bigint::BigUint>,
 }
 
 #[derive(Debug, Clone)]
@@ -118,6 +118,7 @@ pub struct Object {
     /// §3.6: SCC order key, then member index. Kept from the closure hash pass
     /// because a cyclic member's hash does not reveal its SCC's ordering key.
     closure_order: HashMap<String, (String, usize)>,
+    pub(crate) source_admission_obligations: Vec<String>,
 }
 
 fn sec_err(section: &str, msg: impl Into<String>) -> String {
@@ -264,7 +265,6 @@ impl Object {
             Some(body) => parse_functions(body)?,
             None => Vec::new(),
         };
-
         let object_hash = sha256_hex(stripped_object_bytes(text).as_bytes());
 
         let mut obj = Object {
@@ -293,8 +293,9 @@ impl Object {
             coverage_raw: raw_line("coverage"),
             object_hash,
             closure_order: HashMap::new(),
+            source_admission_obligations: vec![],
         };
-        admission::validate(&obj)?;
+        obj.source_admission_obligations = admission::validate(&obj)?;
         obj.compute_hashes()?;
         Ok(obj)
     }
@@ -362,6 +363,12 @@ fn parse_header(line: &str) -> Result<Header, String> {
     let ptr_width: u64 = pw
         .parse()
         .map_err(|_| sec_err("§16.2", format!("bad ptr_width {pw:?}")))?;
+    let isa = versions
+        .get("isa")
+        .ok_or_else(|| sec_err("§1", "missing ISA version"))?;
+    if !matches!(isa.as_str(), "0.8" | "0.9") || versions.values().any(|v| v != isa) {
+        return Err(sec_err("§1", "unsupported or mixed object versions"));
+    }
     Ok(Header {
         versions,
         ptr_width,
@@ -911,7 +918,18 @@ impl Object {
                 }
             }
         }
-        let bounds = sig_widths(sig, "bounds").unwrap_or_else(|| func.bounds.clone());
+        let bounds = func
+            .bounds
+            .iter()
+            .map(|n| {
+                n.to_string().parse::<u64>().map_err(|_| {
+                    sec_err(
+                        "§12.2",
+                        "host limit: loop bound exceeds u64 interface representation",
+                    )
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         let _ = args.len();
         Ok(Interface {
             bundles,

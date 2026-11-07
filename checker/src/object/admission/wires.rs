@@ -44,6 +44,7 @@ pub(super) struct Action<'a> {
     pub args: BTreeMap<String, Type>,
     predicates: Predicates,
     guards: Vec<Slice>,
+    predicate_boundary_obligation: bool,
 }
 impl<'a> Action<'a> {
     pub(super) fn new(object: &'a Object, function: &'a Function) -> Result<Self, String> {
@@ -56,6 +57,7 @@ impl<'a> Action<'a> {
             args: BTreeMap::new(),
             predicates: Predicates::default(),
             guards: vec![],
+            predicate_boundary_obligation: false,
         };
         let mut names = BTreeSet::new();
         for (group, params) in function.groups.iter().enumerate() {
@@ -116,8 +118,22 @@ impl<'a> Action<'a> {
         }
         Ok(scope)
     }
-    pub fn validate(object: &'a Object, function: &'a Function) -> Result<(), String> {
+    pub fn validate(object: &'a Object, function: &'a Function) -> Result<bool, String> {
         let mut scope = Self::new(object, function)?;
+        let loops = function
+            .bytes
+            .lines()
+            .filter(|l| l.starts_with("qloop "))
+            .map(|l| {
+                let tokens = tokenise(l);
+                uint(&tokens[1])
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        require(
+            loops == function.bounds,
+            "§5.3",
+            "bounds must list every loop count in source order",
+        )?;
         let entry = scope.wires.clone();
         scope.source()?;
         require(
@@ -129,13 +145,14 @@ impl<'a> Action<'a> {
             scope.wires == entry,
             "§3.3",
             "local wire lifetime escapes function or interface wire consumed",
-        )
+        )?;
+        Ok(scope.predicate_boundary_obligation)
     }
     pub fn wire(&self, text: &str) -> Result<Slice, String> {
         let (name, index) = if let Some((name, rest)) = text.split_once('[') {
             let digits = rest
                 .strip_suffix(']')
-                .ok_or_else(|| error("§16.2", "malformed indexed operand"))?;
+                .ok_or_else(|| sec_err("§16.2", "malformed indexed operand"))?;
             (name, Some(uint(digits)?))
         } else {
             (text, None)
@@ -143,7 +160,7 @@ impl<'a> Action<'a> {
         let b = self
             .wires
             .get(name)
-            .ok_or_else(|| error("§3.3", format!("wire {name} is not live")))?;
+            .ok_or_else(|| sec_err("§3.3", format!("wire {name} is not live")))?;
         let (start, width) = match index {
             Some(i) => {
                 require(i < b.width, "§3.3", "wire index outside live bundle")?;
@@ -228,12 +245,12 @@ impl<'a> Action<'a> {
         if let Some(image) = row.args.get(3) {
             let name = image
                 .strip_prefix('@')
-                .ok_or_else(|| error("§4.6", "region image must be a data reference"))?;
+                .ok_or_else(|| sec_err("§4.6", "region image must be a data reference"))?;
             let hex = self
                 .object
                 .data
                 .get(name)
-                .ok_or_else(|| error("§4.6", "unknown region image"))?;
+                .ok_or_else(|| sec_err("§4.6", "unknown region image"))?;
             let bits = BigUint::from(hex.len()) * 4u32;
             // Test the exact product without materialising 2^A for huge A.
             require(
@@ -266,7 +283,7 @@ impl<'a> Action<'a> {
             if matches!(*line, "}" | "} {") {
                 let mut frame = frames
                     .pop()
-                    .ok_or_else(|| error("§16.2", "unmatched brace"))?;
+                    .ok_or_else(|| sec_err("§16.2", "unmatched brace"))?;
                 match frame.row.code {
                     Code::If => {
                         let selector = self.single(&frame.row.args[0])?;
@@ -297,6 +314,9 @@ impl<'a> Action<'a> {
                             self.source_lines(&lines[frame.start + 1..index], false)?;
                             self.wires = wires;
                             self.predicates = predicates;
+                        }
+                        if !count.is_zero() && !self.predicates.agrees(&frame.predicates) {
+                            self.predicate_boundary_obligation = true;
                         }
                         let effect = frame.effect.counted(&count)?;
                         self.predicates = effect.apply(&frame.predicates)?;
@@ -423,7 +443,7 @@ impl<'a> Action<'a> {
             Code::Region => Ok(()),
             Code::Load | Code::Unload | Code::Store | Code::ExchangeMemory => self.memory(row),
             Code::ActionCall | Code::OracleCall | Code::Inplace => calls::action(self, row),
-            _ => Err(error("§4.8", "unexpected action opcode")),
+            _ => Err(sec_err("§4.8", "unexpected action opcode")),
         }
     }
     fn gate(&self, row: &Row, gate: Gate) -> Result<(), String> {
@@ -431,7 +451,7 @@ impl<'a> Action<'a> {
             Gate::Rx | Gate::Ry | Gate::Rz => {
                 let angle = &row.args[0];
                 if self.args.get(angle) != Some(&Type::Float) {
-                    super::super::lexical::float(angle).map_err(|e| error("§16.1", e))?;
+                    super::super::lexical::float(angle).map_err(|e| sec_err("§16.1", e))?;
                 }
                 (vec![self.single(&row.args[1])?], vec![0])
             }
@@ -491,7 +511,7 @@ impl<'a> Action<'a> {
             .regions
             .get(&row.args[0])
             .cloned()
-            .ok_or_else(|| error("§3.3", "unknown region"))?;
+            .ok_or_else(|| sec_err("§3.3", "unknown region"))?;
         let mut wires = vec![];
         if a.is_zero() {
             require(

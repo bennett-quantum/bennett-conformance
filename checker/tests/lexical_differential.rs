@@ -119,7 +119,7 @@ fn identity_claim() -> Value {
 }
 
 fn seed(extra: bool) -> Inputs {
-    let root = "perm_action @a (t:wire[1] mut) (c:wire[1] in) () () ()\nregs {  } bounds {2}\n^entry():\nqloop 2 {\ncx c[0] t[0]\n}";
+    let root = "perm_action @a (t:wire[1] mut) (c:wire[1] in) () () ()\nregs {  } bounds {2}\n^entry():\nqloop 2 {\nctl c[0] action_call @flip (t) () () ()\nmcx (c) t[0]\n}";
     let mut functions =
         root.to_string() + "\nperm_action @flip (x:wire mut) () () () ()\n^entry():\nx x";
     let mut sigs = json(
@@ -352,6 +352,13 @@ fn generated_lexical_admission_matches_the_pinned_interpreter() {
         "mcx (c, c) w[0]",
         "frobnicate",
         "qloop NaN {\nx w[0]\n}",
+        "qpred c\nqunpred c",
+        "qpred c",
+        "qunpred c",
+        "qloop 0 {\nx missing\n}",
+        "qif c {\nx missing\n} {\nx w[0]\n}",
+        "qif c {\nx w[0]\n} {\ncx c c\n}",
+        "qif c {\n} {\nx w[0]\n}",
     ] {
         compare_candidate(
             &oracle,
@@ -362,6 +369,34 @@ fn generated_lexical_admission_matches_the_pinned_interpreter() {
             &mut count,
             &mut accepted,
         );
+    }
+    for count_value in 0..=3 {
+        for (body, pops) in [
+            ("qpred c", "qunpred c"),
+            ("qpred c\nqpred w[0]", "qunpred w[0]\nqunpred c"),
+            ("x w[0]\nqpred w[0]", "qunpred w[0]"),
+            ("qpred c\nqunpred c", "qpred c\nqunpred c"),
+        ] {
+            let start = base.object_text.find("action @dead ").unwrap();
+            let end = start + base.object_text[start..].find("fn cc @counts").unwrap();
+            let function=format!("action @dead (w:wire[2] mut) (c:wire in) () () ()\nregs {{  }} bounds {{{count_value}, {count_value}}}\n^entry():\nqloop {count_value} {{\n{body}\n}}\nqloop {count_value} {{\n{pops}\n}}\n");
+            let mut text = base.object_text.clone();
+            text.replace_range(start..end, &function);
+            text = text.replacen(
+                "\"bounds\":[0]",
+                &format!("\"bounds\":[{count_value},{count_value}]"),
+                1,
+            );
+            compare_candidate(
+                &oracle,
+                &base,
+                0..base.object_text.len(),
+                &text,
+                &mut failures,
+                &mut count,
+                &mut accepted,
+            );
+        }
     }
     assert_eq!(
         covered,
@@ -415,7 +450,7 @@ fn generated_lexical_admission_matches_the_pinned_interpreter() {
         failures.len(),
         failures
             .iter()
-            .take(30)
+            .take(100)
             .cloned()
             .collect::<Vec<_>>()
             .join("\n")
@@ -531,6 +566,10 @@ fn numeric_spellings(atom: &str) -> Vec<String> {
     };
     vec![
         leading,
+        "0".into(),
+        "1".into(),
+        "2".into(),
+        "3".into(),
         "NaN".into(),
         "inf".into(),
         "identifier".into(),

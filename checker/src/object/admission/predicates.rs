@@ -39,6 +39,25 @@ impl Word {
                 _ => flat.push(part),
             }
         }
+        let mut merged: Vec<Self> = vec![];
+        for word in flat {
+            let (base, count) = match word.node.as_ref() {
+                Node::Repeat(base, n) => (base.clone(), n.clone()),
+                _ => (word.clone(), BigUint::from(1u32)),
+            };
+            if let Some(last) = merged.last_mut() {
+                let (previous, copies) = match last.node.as_ref() {
+                    Node::Repeat(base, n) => (base.clone(), n.clone()),
+                    _ => (last.clone(), BigUint::from(1u32)),
+                };
+                if base == previous {
+                    *last = Self::repeat(base, count + copies);
+                    continue;
+                }
+            }
+            merged.push(word);
+        }
+        let mut flat = merged;
         if flat.is_empty() {
             return Self::default();
         }
@@ -257,5 +276,106 @@ impl Effect {
             "counted-loop predicate pop mismatch",
         )?;
         Ok(Word::cat(vec![self.push.clone(), rest]))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn wire(name: &str) -> Slice {
+        Slice {
+            name: name.into(),
+            start: BigUint::zero(),
+            width: 1u32.into(),
+        }
+    }
+    #[test]
+    fn repeated_stack_effects_match_literal_push_pop_execution() {
+        // Finite exhaustive words provide a separate stack-machine oracle.
+        for length in 0..=5 {
+            for encoding in 0usize..4usize.pow(length) {
+                let mut code = encoding;
+                let mut effect = Effect::default();
+                let mut valid = true;
+                let mut ops = vec![];
+                for _ in 0..length {
+                    let op = code % 4;
+                    code /= 4;
+                    let w = wire(if op % 2 == 0 { "a" } else { "b" });
+                    let step = if op < 2 {
+                        Effect {
+                            pop: Word::default(),
+                            push: Word::wire(w.clone()),
+                        }
+                    } else {
+                        Effect {
+                            pop: Word::wire(w.clone()),
+                            push: Word::default(),
+                        }
+                    };
+                    if effect.then(&step).is_err() {
+                        valid = false;
+                        break;
+                    }
+                    ops.push((op < 2, w));
+                }
+                if !valid {
+                    continue;
+                }
+                for repeats in 0..=4 {
+                    let initial = vec![wire("a"), wire("b"), wire("a"), wire("b")];
+                    let mut actual = initial.clone();
+                    let mut success = true;
+                    'visits: for _ in 0..repeats {
+                        for (push, w) in &ops {
+                            if *push {
+                                actual.push(w.clone());
+                            } else if actual.pop().as_ref() != Some(w) {
+                                success = false;
+                                break 'visits;
+                            }
+                        }
+                    }
+                    let mut stack = Word::default();
+                    for w in initial {
+                        stack.push(w);
+                    }
+                    let result = effect
+                        .counted(&BigUint::from(repeats as u32))
+                        .and_then(|e| e.apply(&stack));
+                    assert_eq!(result.is_ok(), success, "{length}/{encoding}/{repeats}");
+                    if let Ok(mut word) = result {
+                        while let Some(w) = actual.pop() {
+                            word.pop(&w).unwrap();
+                        }
+                        assert!(word.is_empty());
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn nested_huge_counts_keep_the_stack_symbolic() {
+        let count = BigUint::from(10u32).pow(60);
+        let mut push = Effect::default();
+        for name in ["a", "b", "a", "b"] {
+            push.then(&Effect {
+                pop: Word::default(),
+                push: Word::wire(wire(name)),
+            })
+            .unwrap();
+        }
+        let repeated = push.counted(&count).unwrap().counted(&count).unwrap();
+        let mut pop = Effect::default();
+        for name in ["b", "a", "b", "a"] {
+            pop.then(&Effect {
+                pop: Word::wire(wire(name)),
+                push: Word::default(),
+            })
+            .unwrap();
+        }
+        let undo = pop.counted(&(&count * &count)).unwrap();
+        let stack = repeated.apply(&Word::default()).unwrap();
+        assert!(undo.apply(&stack).unwrap().is_empty());
     }
 }
