@@ -147,17 +147,17 @@ fn matching_table_does_not_license_mutation_of_input_bundle() {
     let c = json(
         r#"{"domain":{"borrowed":[],"bundles":[{"hi":1,"lo":0,"name":"t","width":1},{"hi":1,"lo":0,"name":"c","width":1}],"regions":[]},"expected":{"table":[{"before":{"bundles":["0","0"],"borrowed":[],"regions":[]},"after":{"bundles":["0","1"],"borrowed":[],"regions":[]}},{"before":{"bundles":["0","1"],"borrowed":[],"regions":[]},"after":{"bundles":["0","0"],"borrowed":[],"regions":[]}},{"before":{"bundles":["1","0"],"borrowed":[],"regions":[]},"after":{"bundles":["1","1"],"borrowed":[],"regions":[]}},{"before":{"bundles":["1","1"],"borrowed":[],"regions":[]},"after":{"bundles":["1","0"],"borrowed":[],"regions":[]}}]},"invocation":{"args":[],"budget":["0","0","0","0"]},"kind":"exhaustive"}"#,
     );
-    let (inp, h) = standalone(
+    let (inp, _) = standalone(
         "perm_action @bad (t:wire mut) (c:wire in) () () ()\n^entry():\nx c",
         r#"{"bad":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
         "bad",
         vec![c],
     );
-    let o = outcome(&inp, &h);
-    assert_eq!(o.outcome, "reject", "{o:?}");
-    assert_eq!(o.errors[0].code, "E_CERT_REPLAY");
-    assert!(o.errors[0].message.contains("input"));
+    let verdict = check_certificate(&inp);
+    assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
+    assert!(verdict.regions.is_empty());
 }
+
 #[test]
 fn scheduled_root_explicit_invocation_cannot_conflict_with_binding() {
     let mut inp = controlled();
@@ -191,33 +191,9 @@ fn scheduled_root_explicit_invocation_cannot_conflict_with_binding() {
 #[test]
 fn nested_action_cannot_hide_a_callees_input_mutation() {
     let (inp,_)=standalone("perm_action @outer (t:wire mut) (c:wire in) () () ()\n^entry():\naction_call @inner (t) (c) () ()\nperm_action @inner (u:wire mut) (p:wire in) () () ()\n^entry():\nx p",r#"{"outer":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"},"inner":{"abi":"0.9","args":[],"bounds":[],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,"outer",vec![]);
-    let object = bennett_cert_checker::object::Object::parse(&inp.object_text).unwrap();
-    let iface = object.interface("outer").unwrap();
-    let before = bennett_cert_checker::domain::Tuple {
-        bundles: vec![0u32.into(), 0u32.into()],
-        borrowed: vec![],
-        regions: vec![],
-        args: vec![],
-    };
-    let invocation = bennett_cert_checker::cert::parse_invocation(
-        &json(r#"{"args":[],"budget":["0","0","0","0"]}"#),
-        &[],
-        &object,
-        "test",
-    )
-    .unwrap();
-    let after = bennett_cert_checker::eval::eval_subject_tuple(
-        &object,
-        object.symbol("outer").unwrap(),
-        &iface,
-        &before,
-        &invocation,
-        0,
-    );
-    assert!(
-        matches!(after, Err(bennett_cert_checker::eval::EvalError::Reject(_))),
-        "{after:?}"
-    );
+    let verdict = check_certificate(&inp);
+    assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
+    assert!(verdict.regions.is_empty());
 }
 
 #[test]

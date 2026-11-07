@@ -13,7 +13,7 @@ fn inputs(mut claim: Value) -> bennett_cert_checker::cert::Inputs {
         );
     }
     standalone(
-        "perm_action @a (t:wire mut) () () () ()\nregs {  } bounds {}\n^entry():\nc = qalloc any 1\nb = qborrow any 1\ncx c b\nqreturn b\nqfree c",
+        "perm_action @a (t:wire mut) () () () ()\nregs {  }\n^entry():\nc = qalloc any 1\nb = qborrow any 1\ncx c b\nqreturn b\nqfree c",
         r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
         "a", vec![claim],
     ).0

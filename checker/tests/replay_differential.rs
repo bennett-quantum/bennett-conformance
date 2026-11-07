@@ -263,7 +263,14 @@ fn invalid_lifted_destinations_widths_and_labels_reject_instead_of_defaulting() 
             "o",
             vec![],
         );
-        let object = Object::parse(&inputs.object_text).unwrap();
+        let object = match Object::parse(&inputs.object_text) {
+            Ok(object) => object,
+            Err(error) => {
+                assert!(error.starts_with('§'), "{error}");
+                assert!(codes(&check_certificate(&inputs)).contains(&"E_CERT_OBJECT"));
+                continue;
+            }
+        };
         let result = eval_oracle(
             &object,
             object.symbol("o").unwrap(),
@@ -383,7 +390,14 @@ fn ill_formed_fault_literals_reject_even_when_the_predicate_is_false() {
             "o",
             vec![],
         );
-        let object = Object::parse(&inputs.object_text).unwrap();
+        let object = match Object::parse(&inputs.object_text) {
+            Ok(object) => object,
+            Err(error) => {
+                assert!(error.starts_with('§'), "{error}");
+                assert!(codes(&check_certificate(&inputs)).contains(&"E_CERT_OBJECT"));
+                continue;
+            }
+        };
         let result = eval_oracle(
             &object,
             object.symbol("o").unwrap(),

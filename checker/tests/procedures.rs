@@ -454,7 +454,7 @@ fn fixed_parameter_names_resolve_to_origins_and_cannot_address_root_regions() {
         );
     assert!(Object::parse(&illegal)
         .unwrap_err()
-        .contains("undefined @view"));
+        .contains("unknown global or mapped oracle region"));
 }
 
 fn through(object: &Object) -> Result<(BigUint, BigUint), EvalError> {
@@ -603,7 +603,13 @@ fn malformed_fixed_arguments_and_role_suffixes_reject_with_object_errors() {
     ];
     for (before, after) in variants {
         assert!(source.contains(before));
-        let object = Object::parse(&source.replacen(before, after, 1)).unwrap();
+        let object = match Object::parse(&source.replacen(before, after, 1)) {
+            Ok(object) => object,
+            Err(error) => {
+                assert!(error.starts_with('§'), "{before} => {after}: {error}");
+                continue;
+            }
+        };
         assert!(
             matches!(through(&object),Err(EvalError::Reject(r))if r.code=="E_CERT_OBJECT"),
             "{before} => {after}"
@@ -621,7 +627,13 @@ fn root_arguments_cannot_alias_writable_locations_and_outputs_are_not_pseudo_loc
             .replacen("r = lift.call", "a = lift.const.i2 0\nr = lift.call", 1),
         source.replacen("r = lift.call", "r = lift.mov t\nr = lift.call", 1),
     ] {
-        let object = Object::parse(&changed).unwrap();
+        let object = match Object::parse(&changed) {
+            Ok(object) => object,
+            Err(error) => {
+                assert!(error.starts_with('§'), "{error}");
+                continue;
+            }
+        };
         assert!(matches!(through(&object),Err(EvalError::Reject(r))if r.code=="E_CERT_OBJECT"));
     }
 }

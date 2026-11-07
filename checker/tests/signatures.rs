@@ -7,8 +7,8 @@ use bennett_cert_checker::{
 use common::*;
 fn sources() -> Vec<(String, String)> {
     let declarations=[
-        ("a","perm_action @a (t:wire[2] mut) (c:wire in) (r:region[1,2] in) (n:i2, tk:token) ()\n^entry():",r#"{"a":{"abi":"0.9","args":["i2","token"],"bounds":[],"in":[1],"kind":"perm_action","mem":[{"A":1,"W":2,"role":"in"}],"mut":[2],"tier":"q"}}"#),
-        ("o","oracle @o (x:wire in) (t:wire[2]) (f:wire[4]) (r:region[1,2] in) (p:ptr, angle:f64, tk:token, n:i128)\n^entry():\nlift.retval x",r#"{"o":{"abi":"0.9","args":["ptr","f64","token","i128"],"fault":4,"in":[1],"kind":"oracle","mem":[{"A":1,"W":2,"role":"in"}],"tgt":2,"tier":"q"}}"#),
+        ("a","perm_action @a (t:wire[2] mut) (c:wire in) (r:region[1,2] in) (n:i2, tk:token) ()\n^entry():\nx t[0]\nx t[0]",r#"{"a":{"abi":"0.9","args":["i2","token"],"bounds":[],"in":[1],"kind":"perm_action","mem":[{"A":1,"W":2,"role":"in"}],"mut":[2],"tier":"q"}}"#),
+        ("o","oracle @o (x:wire in) (t:wire[2]) (f:wire[4]) (r:region[1,2] in) (p:ptr, angle:f64, tk:token, n:i128)\nregs { result:reg[2] }\n^entry():\nresult = lift.const.i2 0\nlift.retval result",r#"{"o":{"abi":"0.9","args":["ptr","f64","token","i128"],"fault":4,"in":[1],"kind":"oracle","mem":[{"A":1,"W":2,"role":"in"}],"tgt":2,"tier":"q"}}"#),
     ];
     declarations
         .into_iter()

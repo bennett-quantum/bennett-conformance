@@ -138,7 +138,7 @@ fn sampled_identity(rows: Vec<Value>) -> Inputs {
         "sampler",
         json(r#"{"algorithm":"xoshiro256**","seed":["1","0","0","0"],"count":1}"#),
     );
-    standalone("perm_action @a (t:wire mut) () () () ()\n^entry():",
+    standalone("perm_action @a (t:wire mut) () () () ()\n^entry():\nx t\nx t",
         r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,"a",vec![claim]).0
 }
 #[test]
@@ -305,7 +305,11 @@ fn selector_guards_allow_structural_qif_flips_and_end_with_the_loop() {
 fn selector_guard_follows_callee_reads_without_treating_a_mutable_formal_as_a_write() {
     for indexed in [false, true] {
         for read_only_gate in [false, true] {
-            let gate = if read_only_gate { "\ncx c t" } else { "" };
+            let gate = if read_only_gate {
+                "\ncx c t"
+            } else {
+                "\nx t\nx t"
+            };
             let width = if indexed { 2 } else { 1 };
             let actual = if indexed { "t[0], c[0]" } else { "t, c" };
             let source=format!("perm_action @a (t:wire[{width}] mut, c:wire mut) () () () ()\nregs {{  }} bounds {{1}}\n^entry():\nqloop 1 while c {{\naction_call @reader ({actual}) () () ()\n}}\nx c\nperm_action @reader (t:wire mut, c:wire mut) () () () ()\n^entry():{gate}");
@@ -378,7 +382,7 @@ fn action_memory_actuals_preserve_origins_and_require_exact_shapes_and_disjointn
         } else {
             format!("p:region[{a},{w}] mut")
         };
-        let source=format!("perm_action @a (t:wire mut) () (r:region[0,1] mut) () ()\n^entry():\naction_call @reader (t) () ({actual}) ()\nperm_action @reader (t:wire mut) () ({formal}) () ()\n^entry():");
+        let source=format!("perm_action @a (t:wire mut) () (r:region[0,1] mut) () ()\n^entry():\naction_call @reader (t) () ({actual}) ()\nperm_action @reader (t:wire mut) () ({formal}) () ()\n^entry():\nx t\nx t");
         let mem = json(&format!(r#"{{"A":{a},"W":{w},"role":"mut"}}"#));
         let mut reader = json(
             r#"{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}"#,
@@ -394,7 +398,17 @@ fn action_memory_actuals_preserve_origins_and_require_exact_shapes_and_disjointn
         set(&mut signatures, "reader", reader);
         let (inputs, _) = standalone(&source, &encode(&signatures), "a", vec![]);
         let text=rebind_object_symbols(&format!("{}\nsection layout\n{{\"A_tab\":0,\"H\":4,\"S_cells\":0,\"globals\":{{}},\"heap_base\":1,\"heap_limit_max\":0,\"interface_regions\":{{}},\"null_size\":1,\"ptr_width\":32}}\n",inputs.object_text));
-        let object = Object::parse(&text).unwrap();
+        let object = match Object::parse(&text) {
+            Ok(object) => object,
+            Err(error) => {
+                assert_ne!((a, w, duplicate), (0, 1, false), "{error}");
+                assert!(error.starts_with('§'), "{error}");
+                let mut invalid = inputs.clone();
+                invalid.object_text = text;
+                assert!(codes(&check_certificate(&invalid)).contains(&"E_CERT_OBJECT"));
+                continue;
+            }
+        };
         let symbol = object.symbol("a").unwrap();
         let iface = object.interface("a").unwrap();
         for t in 0..2u32 {
@@ -422,7 +436,7 @@ fn qif_lifetime_adjoints_reverse_the_complete_expansion_and_all_blocks() {
         let body=match case {
             0=>"^entry():\nqif c {\nd = qalloc any 1\n} {\nqfree d\n}",
             1=>"^entry():\nqif c {\nd = qalloc any 1\nx t\n} {\nqfree d\n}",
-            _=>"^entry():\nd = qalloc any 2\ncx t u\n^middle():\nqif c {\nx t\n} {\n}\n^done():\nqfree d",
+            _=>"^entry():\nd = qalloc any 2\ncx t u\n^middle():\nqif c {\nx t\n} {\nqpred c\nqunpred c\n}\n^done():\nqfree d",
         };
         let params = if case == 2 {
             "t:wire mut, u:wire mut"
@@ -638,7 +652,7 @@ fn qif_selector_writes_cannot_escape_through_balanced_explicit_pops_or_callees()
     for operation in ["x t[0]", "action_call @flip (t[0]) () () ()"] {
         for adjoint in [false, true] {
             for selector in ["t[0]", "t[-0]"] {
-                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\nqunpred {selector}\n{operation}\nqpred {selector}\n}} {{\n}}\nperm_action @flip (v:wire mut) () () () ()\n^entry():\nx v");
+                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\nqunpred {selector}\n{operation}\nqpred {selector}\n}} {{\nx t[1]\nx t[1]\n}}\nperm_action @flip (v:wire mut) () () () ()\n^entry():\nx v");
                 let mut sig = json(
                     r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"},"flip":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
                 );
@@ -682,7 +696,7 @@ fn indexed_qif_guards_preserve_unrelated_bits_and_forward_the_precise_callee_bit
                 } else {
                     "x t[1]".into()
                 };
-                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\n{body}\n}} {{\n}}\nperm_action @other (v:wire[2] mut) () () () ()\n^entry():\nx v[1]");
+                let mut source=format!("perm_action @a (t:wire[2] mut) () () () ()\n^entry():\nqif {selector} {{\n{body}\n}} {{\nx t[1]\nx t[1]\n}}\nperm_action @other (v:wire[2] mut) () () () ()\n^entry():\nx v[1]");
                 let mut sig = json(
                     r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"},"other":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[2],"tier":"q"}}"#,
                 );

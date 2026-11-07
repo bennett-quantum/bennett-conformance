@@ -43,7 +43,13 @@ pub fn encode(v: &Value) -> String {
 /// Rebind symbol hashes after a source/layout mutation. Certificate/root document
 /// bindings, when present, must be rebound separately by the calling test.
 pub fn rebind_object_symbols(text: &str) -> String {
-    let object = Object::parse(text).unwrap();
+    let object = match Object::parse(text) {
+        Ok(object) => object,
+        Err(error) => {
+            eprintln!("source has no bindable semantic identity: {error}");
+            return text.into();
+        }
+    };
     let (prefix, rest) = text.split_once("section symbols\n").unwrap();
     let (symbols, suffix) = rest.split_once("\n\nsection functions\n").unwrap();
     let mut symbols = json(symbols);
@@ -113,7 +119,20 @@ pub fn standalone(
         format!(
         "bennett-object isa=0.9 object=0.9 launch=0.9 sched=0.9 cert=0.9 coverage=0.9 target=0.9 ptr_width=32\n\nsection symbols\n{}\n\nsection functions\n{}\n", encode(symbols), functions.trim_end())
     };
-    let initial = Object::parse(&make_object(&symbols)).unwrap();
+    let initial = match Object::parse(&make_object(&symbols)) {
+        Ok(object) => object,
+        Err(error) => {
+            // Negative source tests must reach the public byte entry point.
+            // Such bytes have no semantic identity to bind; keep a valid JCS
+            // certificate so the test observes source admission before binding.
+            eprintln!("constructing rejected source test input: {error}");
+            let mut input = controlled();
+            input.object_text = make_object(&symbols);
+            input.target_bytes = None;
+            input.schedule_bytes = None;
+            return (input, String::from("invalid-source"));
+        }
+    };
     for (i, s) in initial.symbols.iter().enumerate() {
         let Value::Obj(m) = &mut symbols else {
             unreachable!()

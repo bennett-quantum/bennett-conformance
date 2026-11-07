@@ -54,10 +54,7 @@ fn translation_frames_expand_bundle_controls_without_hiding_duplicates() {
             assert!(codes(&verdict).is_empty(), "{verdict:?}");
             assert_eq!(verdict.regions[0].claims[0].1.outcome, "accept");
         } else {
-            assert!(
-                codes(&verdict).contains(&"E_CERT_STRUCTURAL"),
-                "{verdict:?}"
-            );
+            assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
         }
     }
 }
@@ -87,7 +84,12 @@ fn translation_lemma_rejects_wrong_shape_wrong_target_and_swap() {
             frame,
         );
         let v = check_certificate(&inp);
-        assert!(codes(&v).contains(&"E_CERT_STRUCTURAL"), "{v:?}");
+        let expected = if body.contains("cx b[0] x") {
+            "E_CERT_OBJECT"
+        } else {
+            "E_CERT_STRUCTURAL"
+        };
+        assert!(codes(&v).contains(&expected), "{v:?}");
     }
 }
 #[test]
@@ -372,7 +374,12 @@ fn oracles_cannot_substitute_translation_lemma_for_their_t3_frame_proof() {
     let claim = json(
         r#"{"invocation":{"args":"all","budget":"all"},"kind":"structural","rule":"translation_lemma","subclaims":[],"witness":{"B":["b[0]"],"X":["x"],"V":["entry:1"],"W":["entry:2"],"frame":["entry:1","entry:4"]}}"#,
     );
-    let (inp,_)=standalone("oracle @wrong_kind (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nb = qborrow any 1\ncx x b[0]\ncx b[0] t\ncx x b[0]\ncx b[0] t\nqreturn b",r#"{"wrong_kind":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,"wrong_kind",vec![claim]);
+    let (inp, _) = standalone(
+        "oracle @wrong_kind (x:wire in) (t:wire) (f:wire[4]) () ()\n^entry():\nlift.retval x",
+        r#"{"wrong_kind":{"abi":"0.9","args":[],"fault":4,"in":[1],"kind":"oracle","mem":[],"tgt":1,"tier":"q"}}"#,
+        "wrong_kind",
+        vec![claim],
+    );
     let v = check_certificate(&inp);
     assert!(codes(&v).contains(&"E_CERT_STRUCTURAL"), "{v:?}");
 }

@@ -27,7 +27,31 @@ fn object_with_image(body: &str, a: u32, w: u32, t: u32, image: Option<&str>) ->
     );
     let (inputs, _) = standalone(&source, &sig, "a", vec![]);
     let text=rebind_object_symbols(&format!("{}\nsection layout\n{{\"A_tab\":0,\"H\":4,\"S_cells\":0,\"globals\":{{}},\"heap_base\":1,\"heap_limit_max\":0,\"interface_regions\":{{}},\"null_size\":1,\"ptr_width\":32}}\n",inputs.object_text));
-    Object::parse(&text).unwrap()
+    match Object::parse(&text) {
+        Ok(object) => object,
+        Err(error) => {
+            assert!(error.starts_with('§'), "{error}");
+            let mut rejected = controlled();
+            rejected.object_text = text.clone();
+            assert!(
+                codes(&bennett_cert_checker::cert::check_certificate(&rejected))
+                    .contains(&"E_CERT_OBJECT")
+            );
+            // Retain evaluator defense tests by injecting malformed operations
+            // only after a canonical identity has passed byte admission.
+            let canonical = text.replace(body, "x t[0]\nx t[0]");
+            let canonical = rebind_object_symbols(&canonical);
+            let mut object = Object::parse(&canonical).unwrap();
+            let f = object.functions.iter_mut().find(|f| f.name == "a").unwrap();
+            f.bytes = f.bytes.replace("x t[0]\nx t[0]", body);
+            f.blocks[0].instructions = body
+                .lines()
+                .filter(|l| !matches!(*l, "}" | "} {"))
+                .map(str::to_owned)
+                .collect();
+            object
+        }
+    }
 }
 fn run(object: &Object, before: &Tuple, adjoint: bool) -> Result<Tuple, EvalError> {
     eval_action_tuple(
@@ -131,7 +155,7 @@ fn local_regions_exist_at_entry_in_zero_trip_loops_and_are_created_once_per_invo
     for body in [
         "d = qload local ()\nqunload local () d\nqloop 0 {\nqregion local 0 1\n}",
         "qloop 2 {\nqregion local 0 1\nqstore local () t[0]\n}",
-        "qif c {\nqregion local 0 1\n} {\n}\nd = qload local ()\nqunload local () d",
+        "qif c {\nqregion local 0 1\n} {\nx t[0]\nx t[0]\n}\nd = qload local ()\nqunload local () d",
     ] {
         let object = object(body, 0, 1, 1);
         for t in 0..2 {

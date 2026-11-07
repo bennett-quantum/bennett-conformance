@@ -255,6 +255,10 @@ fn rotation_inputs(op: &str, angle: &str) -> bennett_cert_checker::cert::Inputs 
             r#"{"bound":0.000000000000001,"kind":"numerical","metric":"operator_norm","precision_bits":128}"#,
         )],
     );
+    if h == "invalid-source" {
+        assert!(codes(&check_certificate(&inp)).contains(&"E_CERT_OBJECT"));
+        return inp;
+    }
     let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
     let Value::Obj(top) = &mut cert else {
         unreachable!()

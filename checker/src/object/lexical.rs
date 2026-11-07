@@ -183,7 +183,7 @@ fn validate_type(tokens: &[Token<'_>]) -> Lexical {
     }
 }
 
-fn float(atom: &str) -> Lexical {
+pub(super) fn float(atom: &str) -> Lexical {
     let value = atom
         .parse::<f64>()
         .ok()
@@ -213,7 +213,12 @@ fn opcode(tokens: &[Token<'_>]) -> usize {
     loop {
         match tokens.get(i).map(|t| t.text) {
             Some("adj") => i += 1,
-            Some("ctl") => i += 2,
+            Some("ctl") => {
+                i += 2;
+                if tokens.get(i).is_some_and(|t| t.text == "[") {
+                    i += 3;
+                }
+            }
             _ => return i,
         }
     }

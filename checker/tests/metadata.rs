@@ -181,7 +181,15 @@ fn beyond_host_width(
     let make = |symbols: &Value| {
         format!("{header}\n\nsection symbols\n{}\n\nsection functions\naction @a (t:wire[{source_width}] mut) () () () ()\n^entry():\nx t[0]\n",encode(symbols))
     };
-    let initial = Object::parse(&make(&symbols)).unwrap();
+    let initial = match Object::parse(&make(&symbols)) {
+        Ok(object) => object,
+        Err(error) => {
+            assert_ne!(signature_width, source_width, "{error}");
+            assert!(error.starts_with("§9.1:"), "{error}");
+            inp.object_text = make(&symbols);
+            return inp;
+        }
+    };
     let Value::Obj(table) = &mut symbols else {
         unreachable!()
     };
@@ -286,7 +294,9 @@ fn source_interfaces_require_positive_widths_fault_width_four_and_matching_kinds
         ),
     ];
     for (source, name) in cases {
-        let object = Object::parse(&source).unwrap();
-        assert!(object.interface(name).is_err(), "{source}");
+        match Object::parse(&source) {
+            Ok(object) => assert!(object.interface(name).is_err(), "{source}"),
+            Err(error) => assert!(error.starts_with('§'), "{error}"),
+        }
     }
 }

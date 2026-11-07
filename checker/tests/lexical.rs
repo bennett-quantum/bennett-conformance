@@ -38,5 +38,5 @@ fn lexical_exceptions_preserve_empty_regs_empty_data_and_quoted_spaces() {
     Object::parse(&valid).unwrap();
     Object::parse(&format!("{valid}\nsection data\nempty \n")).unwrap();
     let quoted = valid.replace("cx c t", "future_op \"a  b\"");
-    Object::parse(&quoted).unwrap();
+    assert!(Object::parse(&quoted).unwrap_err().starts_with("§4.8:"));
 }

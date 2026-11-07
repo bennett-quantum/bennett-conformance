@@ -120,12 +120,33 @@ fn identity_claim() -> Value {
 
 fn seed(extra: bool) -> Inputs {
     let root = "perm_action @a (t:wire[1] mut) (c:wire[1] in) () () ()\nregs {  } bounds {2}\n^entry():\nqloop 2 {\ncx c[0] t[0]\n}";
-    let mut functions = root.to_string();
+    let mut functions =
+        root.to_string() + "\nperm_action @flip (x:wire mut) () () () ()\n^entry():\nx x";
     let mut sigs = json(
         r#"{"a":{"abi":"0.9","args":[],"bounds":[2],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#,
     );
+    set(
+        &mut sigs,
+        "flip",
+        json(
+            r#"{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}"#,
+        ),
+    );
     if extra {
         functions.push_str("\naction @types (w:wire[2] mut) () () (n:i4, p:ptr, f:f64, tk:token) ()\nregs {  } bounds {2}\n^entry():\nd = qalloc any 2\nb = qborrow any 2\nqregion local 1 2\nqloop 2 {\nx d[1]\n}\nqreturn b\nqfree d\nqif w[0] {\nx w[1]\n} {\nx w[1]\n}\nrx 1.0 w[0]\noracle @o (x:wire[4] in) (t:wire[4]) (f:wire[4]) (db:region[0,8] in) ()\nregs { r:reg[4], s:reg[4], zero:reg[4] }\n^entry():\nr = lift.const.i4 -1\ns = lift.const.i4 1\nzero = lift.const.i4 0\nlift.retval r\nfn cc @host (q:qreg[2], dyn:qreg[*], n:i4, p:ptr, f:f64, tk:token) () () () ()\n^entry():\nbr ^next(n)\n^next(value:i4):\nret");
+        functions.push_str("\naction @dead (w:wire[2] mut) (c:wire in) () () ()\nregs {  } bounds {0}\n^entry():\nqloop 0 {\ncx c w[0]\n}\nfn cc @counts () () () () ()\n^entry():\nq = qreg.new any 2\ns = qreg.slice q 0 1\nn = const.i64 2\nfault 0");
+        set(
+            &mut sigs,
+            "dead",
+            json(
+                r#"{"abi":"0.9","args":[],"bounds":[0],"in":[1],"kind":"action","mem":[],"mut":[2],"tier":"q"}"#,
+            ),
+        );
+        set(
+            &mut sigs,
+            "counts",
+            json(r#"{"abi":"0.9","kind":"cc","params":[],"results":[],"tier":"cc"}"#),
+        );
         set(
             &mut sigs,
             "types",
@@ -279,6 +300,68 @@ fn generated_lexical_admission_matches_the_pinned_interpreter() {
                 &mut accepted,
             );
         }
+    }
+    for range in opcode_sites(&base.object_text) {
+        for replacement in [
+            "NaN",
+            "inf",
+            "identifier",
+            "frobnicate",
+            "x",
+            "cx",
+            "ctl",
+            "lift.const.i4",
+        ] {
+            compare_candidate(
+                &oracle,
+                &base,
+                range.clone(),
+                replacement,
+                &mut failures,
+                &mut count,
+                &mut accepted,
+            );
+        }
+    }
+    for (range, replacement) in structural_candidates(&base.object_text) {
+        compare_candidate(
+            &oracle,
+            &base,
+            range,
+            &replacement,
+            &mut failures,
+            &mut count,
+            &mut accepted,
+        );
+    }
+    let dead = base.object_text.rfind("cx c w[0]").unwrap();
+    for row in [
+        "cx missing w[0]",
+        "cx c",
+        "cx c c",
+        "cx c w[2]",
+        "x w",
+        "rx NaN w[0]",
+        "x c",
+        "qfree w",
+        "d = qalloc any 0",
+        "cx c w[0] ignored",
+        "d = qalloc any 1\nqfree d\nx d",
+        "qpred c\nx c\nqunpred c",
+        "qxor c w",
+        "mcx (c, c) w[0]",
+        "frobnicate",
+        "qloop NaN {\nx w[0]\n}",
+    ] {
+        compare_candidate(
+            &oracle,
+            &base,
+            dead..dead + "cx c w[0]".len(),
+            row,
+            &mut failures,
+            &mut count,
+            &mut accepted,
+        );
     }
     assert_eq!(
         covered,
@@ -448,6 +531,9 @@ fn numeric_spellings(atom: &str) -> Vec<String> {
     };
     vec![
         leading,
+        "NaN".into(),
+        "inf".into(),
+        "identifier".into(),
         format!("+{atom}"),
         format!("-{digits}"),
         format!("0x{digits}"),
@@ -502,4 +588,82 @@ fn compare_candidate(
             ));
         }
     }
+}
+
+// Every instruction site, including prefixes and rows in unclaimed functions.
+fn opcode_sites(text: &str) -> Vec<std::ops::Range<usize>> {
+    let mut out = vec![];
+    let mut offset = 0;
+    let mut functions = false;
+    for line in text.split_inclusive('\n') {
+        if line.starts_with("section ") {
+            functions = line == "section functions\n";
+        }
+        if functions
+            && ![
+                "section ",
+                "regs ",
+                "^",
+                "}",
+                "fn ",
+                "action ",
+                "perm_action ",
+                "oracle ",
+                "lproc ",
+            ]
+            .iter()
+            .any(|p| line.starts_with(p))
+            && !line.trim().is_empty()
+        {
+            let mut start = line.find(" = ").map_or(0, |i| i + 3);
+            loop {
+                let tail = &line[start..];
+                if tail.starts_with("adj ") {
+                    out.push(offset + start..offset + start + 3);
+                    start += 4;
+                } else if tail.starts_with("ctl ") {
+                    out.push(offset + start..offset + start + 3);
+                    start += 4 + tail[4..].find(' ').unwrap() + 1;
+                } else {
+                    break;
+                }
+            }
+            let end = start
+                + line[start..]
+                    .find([' ', '\n'])
+                    .unwrap_or(line.len() - start);
+            out.push(offset + start..offset + end);
+        }
+        offset += line.len();
+    }
+    out
+}
+fn structural_candidates(text: &str) -> Vec<(std::ops::Range<usize>, String)> {
+    let mut out = vec![];
+    let mut offset = 0;
+    for line in text.split_inclusive('\n') {
+        if line == "}\n" {
+            out.push((offset..offset + line.len(), String::new()));
+            out.push((offset..offset + line.len(), "}\n}\n".into()));
+        }
+        if ["action ", "perm_action ", "oracle ", "lproc ", "fn ", "^"]
+            .iter()
+            .any(|p| line.starts_with(p))
+        {
+            out.push((
+                offset + line.len() - 1..offset + line.len() - 1,
+                " trailing".into(),
+            ));
+        }
+        if line.starts_with("regs ") && line.contains("bounds {") {
+            let start = offset + line.find("bounds {").unwrap() + 8;
+            out.push((start..offset + line.len() - 2, String::new()));
+        }
+        offset += line.len();
+    }
+    // Truncations at each instruction boundary exercise nonempty bodies and EOF.
+    for range in opcode_sites(text) {
+        out.push((range.start..text.len(), String::new()));
+    }
+    out
 }

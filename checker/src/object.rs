@@ -5,6 +5,7 @@
 
 use crate::json::{jcs, parse, Value};
 use crate::sha256::sha256_hex;
+mod admission;
 mod lexical;
 mod signatures;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -293,6 +294,7 @@ impl Object {
             object_hash,
             closure_order: HashMap::new(),
         };
+        admission::validate(&obj)?;
         obj.compute_hashes()?;
         Ok(obj)
     }
@@ -515,7 +517,9 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
             let (bname, plist) = rest
                 .split_once('(')
                 .ok_or_else(|| sec_err("§16.2", format!("bad block header {line:?}")))?;
-            let inner = plist.trim_end_matches("):");
+            let inner = plist
+                .strip_suffix("):")
+                .ok_or_else(|| sec_err("§16.2", "block header must consume its complete line"))?;
             blocks.push(Block {
                 name: bname.to_string(),
                 params: parse_plist(inner)?,
@@ -560,38 +564,30 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
 
 /// Split the five parenthesised groups of a function header.
 fn parse_header_groups(header: &str, fname: &str) -> Result<Vec<Vec<Param>>, String> {
-    let mut groups = Vec::new();
-    let mut depth = 0i32;
-    let mut start: Option<usize> = None;
-    for (i, ch) in header.char_indices() {
-        match ch {
-            '(' => {
-                if depth == 0 {
-                    start = Some(i + 1);
-                }
-                depth += 1;
-            }
-            ')' => {
-                depth -= 1;
-                if depth == 0 {
-                    let s = start.take().unwrap();
-                    groups.push(parse_plist(&header[s..i])?);
-                }
-            }
-            '[' => depth += 0, // brackets do not nest groups; commas inside are plist-split aware
-            _ => {}
-        }
-    }
-    if groups.len() != 5 {
+    let tokens = crate::eval::tokenise(header);
+    let offset = if tokens.first().map(String::as_str) == Some("fn") {
+        3
+    } else {
+        2
+    };
+    if tokens.len() != offset + 5
+        || tokens.get(offset - 1).map(String::as_str) != Some(&format!("@{fname}"))
+    {
         return Err(sec_err(
             "§16.2",
-            format!(
-                "function @{fname} header has {} parameter groups, expected 5",
-                groups.len()
-            ),
+            "function header must consume exactly five parameter groups",
         ));
     }
-    Ok(groups)
+    tokens[offset..]
+        .iter()
+        .map(|group| {
+            let inner = group
+                .strip_prefix('(')
+                .and_then(|g| g.strip_suffix(')'))
+                .ok_or_else(|| sec_err("§16.2", "expected parenthesised parameter group"))?;
+            parse_plist(inner)
+        })
+        .collect()
 }
 
 fn parse_plist(text: &str) -> Result<Vec<Param>, String> {
