@@ -1,5 +1,5 @@
 //! ISA-12.1 / ISA-12.2: selected borrow frames remain explicit obligations.
-mod common;
+use crate::common;
 use bennett_cert_checker::{cert::check_certificate, json::Value};
 use common::*;
 

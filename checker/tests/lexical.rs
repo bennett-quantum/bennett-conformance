@@ -1,5 +1,5 @@
 //! clause: ISA-16.1, ISA-16.2
-mod common;
+use crate::common;
 use bennett_cert_checker::object::Object;
 use common::*;
 

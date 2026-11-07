@@ -1,6 +1,6 @@
 //! Every field and array position of the published positive certificate is
 //! mutated, without sampling. Each mutation must produce its expected code.
-mod common;
+use crate::common;
 use bennett_cert_checker::cert::check_certificate;
 use bennett_cert_checker::json::{jcs, Value};
 use common::*;

@@ -1,6 +1,6 @@
 //! Static source point ordinals and dynamic qloop iterations are separate
 //! schedule coordinates. All test expected counts and timing are explicit.
-mod common;
+use crate::common;
 use bennett_cert_checker::cert::{check_certificate, Inputs};
 use bennett_cert_checker::json::{jcs, n, Value};
 use common::*;

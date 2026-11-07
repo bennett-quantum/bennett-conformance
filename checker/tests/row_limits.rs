@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::eval::{eval_oracle_bounded, Classical, EvalError};
 use bennett_cert_checker::object::Object;
 use common::*;

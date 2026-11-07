@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::cert::check_certificate;
 use bennett_cert_checker::json::Value;
 use common::*;

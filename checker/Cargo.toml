@@ -2,6 +2,7 @@
 name = "bennett-cert-checker"
 version = "0.0.0"
 edition = "2021"
+autotests = false
 description = "Independent certificate checker for Bennett ISA-spec certificates (ISA section 12)"
 license-file = "../LICENSE"
 
@@ -14,3 +15,10 @@ num-bigint = "0.4"
 num-rational = "0.4"
 num-traits = "0.2"
 ryu-js = "1.0.3"
+
+[[test]]
+name = "conformance"
+path = "tests/conformance.rs"
+
+[profile.test]
+debug = "line-tables-only"

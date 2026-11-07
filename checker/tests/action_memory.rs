@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::{
     domain::Tuple,
     eval::{eval_action_tuple, EvalError},

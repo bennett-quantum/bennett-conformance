@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::cert::{check_certificate, Inputs, Limits};
 use bennett_cert_checker::eval::{eval_oracle, EvalError};
 use bennett_cert_checker::json::Value;
