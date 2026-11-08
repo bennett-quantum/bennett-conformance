@@ -1,0 +1,26 @@
+{
+  "plugin": "592c19d3b47550cbc609f9d711aa5f35d6fc43d8",
+  "arithmetic": "cd245bcb07ad38da629d9b47f642e46e3c25cae9",
+  "declared": {
+    "commit": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
+    "llvm18_path": ".tmp/gate/cache/bennett-arith@5e9b4509f3ee/bennett-arith/dist/llvm18/bennett-arith.bc",
+    "llvm18_sha256": "a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff",
+    "llvm23_path": ".tmp/gate/cache/bennett-arith@5e9b4509f3ee/bennett-arith/dist/llvm23/bennett-arith.bc",
+    "llvm23_sha256": "8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79"
+  },
+  "actual": {
+    "18": "053d820087cdb91f851d2505c6eb37d117ec3041a614f1c53d23d47a93423d92",
+    "23": "b08ca7c535aa4475452b7a82e4d82847c667fef8dc019affb914a327ade590c5"
+  },
+  "build_pins": {
+    "bennett-isa-spec": "3b1090790d82a00ac95d30b8da6b42d1d7a9f5d1",
+    "bennett-dialect-spec": "1c29c8d731228b67902c3fa72e410e1bb71d16b4",
+    "bennett-r-contract-dialect": "4bca41b49eb0999449c9475cb15e78b1e83d18e2",
+    "bennett-arith": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
+    "bennett-runtimes": "248e468ca505c684bbf254e52eb8148f1e530c83",
+    "bennett-native-runtimes": "248e468ca505c684bbf254e52eb8148f1e530c83",
+    "bennett-vm": "805f0ec3481365132d517fefd5b5c12cbd39a845",
+    "bennett-targets": "dd036711936c496f53f6f1a9bebeb686335bf7cc",
+    "bennett-conformance": "6e6a6f1ebd69f6e81f4f7ea2dd15ea775733e616"
+  }
+}
