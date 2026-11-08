@@ -230,9 +230,9 @@ class LaunchArguments(unittest.TestCase):
         with self.assertRaisesRegex(gate.GateError, 'launch budget allowances.*build.json'):
             gate.launch_allowances(launch)
 
-    def test_allowances_reject_missing_empty_or_malformed_budget_entries(self):
+    def test_allowances_reject_missing_or_malformed_budget_entries(self):
         launch = self.g.run/'18/N16/out/rung4_tuple'
-        for metadata in ({}, {'budgets': None}, {'budgets': {}}, {'budgets': []},
+        for metadata in ({}, {'budgets': None}, {'budgets': {}},
                          {'budgets': [{}]}, {'budgets': [None]},
                          *({'budgets': [{'steps': value}]} for value in (None, True, -1, 1.5, '01', '+1', ''))):
             with self.subTest(metadata=metadata):
@@ -242,6 +242,11 @@ class LaunchArguments(unittest.TestCase):
         (launch/'build.json').write_text('{')
         with self.assertRaisesRegex(gate.GateError, 'launch budget allowances.*build.json'):
             gate.launch_allowances(launch)
+
+    def test_explicit_empty_budget_array_supplies_zero_allowances(self):
+        launch = self.g.run/'18/N16/out/rung4_tuple'
+        (launch/'build.json').write_text(json.dumps({'budgets': []}))
+        self.assertEqual(gate.launch_allowances(launch), ())
 
     def test_allowances_preserve_zero_repetitions_and_integer_values(self):
         launch = self.g.run/'18/N16/out/rung4_tuple'

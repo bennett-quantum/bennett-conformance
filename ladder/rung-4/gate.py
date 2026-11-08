@@ -270,8 +270,8 @@ def launch_allowances(launch):
     if not isinstance(metadata, dict) or 'budgets' not in metadata:
         raise GateError(f'missing budgets in {build}; SQLite launches hold oracle regions')
     budgets = metadata['budgets']
-    if not isinstance(budgets, list) or not budgets:
-        raise GateError(f'expected nonempty budgets array in {build}; SQLite launches hold oracle regions')
+    if not isinstance(budgets, list):
+        raise GateError(f'expected budgets array in {build}; SQLite launches hold oracle regions')
     allowances = []
     for index, row in enumerate(budgets):
         if not isinstance(row, dict) or 'steps' not in row:
