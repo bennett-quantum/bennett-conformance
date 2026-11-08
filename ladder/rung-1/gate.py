@@ -133,11 +133,11 @@ class Gate(RecordedGate):
 
     def plugin(self):
         src=self.freeze('bennett-plugin',self.args.plugin_rev)
+        pins=self.sources.plugin_arith(src)
         self.plugin_build=src/'build'
         self.command('build/plugin-configure',['cmake','-S',src,'-B',self.plugin_build])
         self.command('build/plugin-build',['cmake','--build',self.plugin_build,'-j',self.args.jobs],timeout=1800)
         self.manifest['plugin_sha256']={str(m):sha(self.plugin_build/f'libbennett-plugin-{m}.so') for m in (18,23)}
-        pins=tomllib.loads((src/'SPEC_VERSIONS.toml').read_text())['arith']
         arith_revision=self.args.arith_rev or (PINS['bennett-arith'] if self.args.plugin_rev==PINS['bennett-plugin'] else pins['commit'])
         self.publications={
             'bennett-runtimes':self.sources.paths.get('bennett-runtimes') or self.freeze('bennett-runtimes',PINS['bennett-runtimes']),

@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import subprocess
+import tomllib
 
 from gate_support import GateError, git, sha
 
@@ -38,7 +39,7 @@ class RevisionSources:
         self.workspace = Path(os.environ.get('BENNETT_GATE_WORKSPACE', workspace)).resolve()
         self.paths = {}
 
-    def freeze(self, name, revision):
+    def detached(self, name, revision):
         repo = self.workspace / name
         try:
             commit = git(repo, 'rev-parse', '--verify', '--end-of-options', revision + '^{commit}')
@@ -53,9 +54,29 @@ class RevisionSources:
                 or git(source, 'rev-parse', 'HEAD') != commit
                 or git(source, 'status', '--porcelain', '--untracked-files=no')):
             raise GateError(f'{name}: dirty or incorrect detached cache: {source}')
+        return commit, source
+
+    def freeze(self, name, revision):
+        commit, source = self.detached(name, revision)
         self.gate.manifest.setdefault('pins', {})[name] = commit
         self.paths[name] = source
         return source
+
+    def plugin_arith(self, plugin_source):
+        """Provide the plugin's declared build input before CMake configures it."""
+        pins = tomllib.loads((plugin_source / 'SPEC_VERSIONS.toml').read_text())['arith']
+        commit, source = self.detached('bennett-arith', pins['commit'])
+        cache = plugin_source / '.tmp/gate/cache' / ('bennett-arith@' + commit[:12]) / 'bennett-arith'
+        if cache.is_symlink():
+            if cache.resolve() != source:
+                raise GateError('incorrect plugin arithmetic cache: ' + str(cache))
+        elif cache.exists():
+            raise GateError('plugin arithmetic cache must be a frozen-source link: ' + str(cache))
+        else:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.symlink_to(source, target_is_directory=True)
+        self.gate.manifest.setdefault('build_pins', {})['plugin_arith'] = commit
+        return pins
 
     def prepare(self):
         for name in REVISION_SIBLINGS:

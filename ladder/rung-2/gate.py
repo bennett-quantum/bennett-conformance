@@ -90,12 +90,12 @@ class Gate(RecordedGate):
             for member in t.getmembers():
                 if member.isfile():
                     assert (src/member.name).read_bytes() == t.extractfile(member).read(), 'dirty plugin cache: ' + member.name
+        pins = self.sources.plugin_arith(src)
         self.plugin_build = src / 'build'
         self.command('build/plugin-configure', ['cmake','-S',src,'-B',self.plugin_build])
         self.command('build/plugin-build', ['cmake','--build',self.plugin_build,'-j',str(self.args.jobs)], timeout=1800)
         self.manifest['plugin_sha256'] = {str(m):sha(self.plugin_build / f'libbennett-plugin-{m}.so') for m in (18,23)}
         if self.args.arith_rev or self.args.plugin_rev:
-            pins = tomllib.loads((src/'SPEC_VERSIONS.toml').read_text())['arith']
             self.sources.freeze('bennett-arith', self.args.arith_rev or pins['commit'])
 
     def vm(self):

@@ -103,6 +103,14 @@ class FrozenRevisions(unittest.TestCase):
         self.commands.append((tag, argv))
         if argv[0] == 'git':
             return subprocess.check_output(argv, stderr=subprocess.PIPE)
+        if argv[0] == 'cmake' and '-S' in argv:
+            # Model the plugin's configure-time requirement, before a build can run.
+            import tomllib
+            source = Path(argv[argv.index('-S') + 1])
+            commit = tomllib.loads((source / 'SPEC_VERSIONS.toml').read_text())['arith']['commit']
+            cache = source / '.tmp/gate/cache' / ('bennett-arith@' + commit[:12]) / 'bennett-arith'
+            self.assertTrue(cache.is_dir(), 'plugin arithmetic pin must exist before CMake configures')
+            self.assertEqual(self.git(cache, 'rev-parse', 'HEAD'), commit)
         if argv[0] == 'cmake' and '--build' in argv:
             build = Path(argv[argv.index('--build') + 1])
             build.mkdir(exist_ok=True)
