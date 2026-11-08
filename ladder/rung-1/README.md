@@ -114,7 +114,7 @@ TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp python3 
 ```
 
 Rung 1 reuses `ladder/common/gate_support.py` for command evidence, failures and
-red dependency propagation. Rung 2 and rung 3 source and behaviour are unchanged.
+red dependency propagation. Rung 2 shares the revision-source helper in `revision_sources.py`.
 
 If an observed failure needs a new bead after a run, `classify_report.py
 /path/to/report.json` attaches the current blocker mappings without changing any
@@ -122,3 +122,40 @@ measured status or command. It preserves `report.unclassified.json` and records
 the raw report hash, mapping hash, UTC time and exact classification command.
 Unfiled failures make classification fail loudly. This is annotation of that
 same real run, not a rerun or a conversion of a failure to a pass.
+
+## Frozen sibling revisions
+
+Both `gate.sh` entry points accept `--plugin-rev`, `--vm-rev`,
+`--runtimes-rev`, `--driver-rev`, `--isa-spec-rev`, and `--arith-rev`.
+Runtime and arithmetic bitcode are the tracked `dist/llvm<M>/*.bc` publications
+at the selected commits, resolved in clean detached caches under `$TMPDIR`.
+`--isa-spec-rev` builds that commit's reference interpreter offline in release
+mode. Unknown revisions and dirty caches fail loudly. The report records each
+resolved commit and the reference profile/hash. These rungs invoke the plugin
+directly: the driver revision is frozen and recorded, with its unused-binary
+status explicit in the manifest; no driver execution is claimed.
+
+Without the new selectors, rung 1 retains `pins.json` and its accepted review
+reference. An explicitly selected plugin uses its own declared arithmetic
+commit by default; `--arith-rev` can select another commit, whose bitcode must
+still match the plugin's digest pins. `--runtimes18/23`, `--arith18/23`, and
+`--reference` keep their explicit-path behavior and conflict with the matching
+revision option; conflicts are rejected before building anything.
+
+Revision regression checks (includes the real, read-only main-health
+`ladder_argv` implementation when run in the Bennett workspace):
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s ladder/rung-1/tests -v
+```
+
+For full rung reruns on `tobias-ThinkPad-X1-Carbon-Gen-11`, use a 12000-second
+outer hang guard, classified UNKNOWN on exit 124. The last durable rung-1
+receipt, `evidence/20261101T141544.771577Z/report.json` (2026-11-01), records
+1187.938 summed command wall seconds, a conservative upper bound on elapsed
+run time because language/major workers overlap. The outer guard exceeds 10x
+that measurement (machine factor 1). This does not change the existing
+per-command workload, budgets, or timeout options. Run one rung at a time in
+a `bennett-heavy-ladder-<rung>-<UTC time>` systemd user scope, after checking
+that no `bennett-heavy` scope exists. Record outer wall/user/system CPU seconds
+alongside the per-command receipt.

@@ -66,3 +66,29 @@ env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
 ```
 
 These use a published allocation control through both executors, mutate the reported restoration flags/digest to check rejection, test integer/fault/host-request result handling, and verify that a known failure remains red and blocks dependants. They do not substitute for the hashtable run.
+
+## Frozen sibling revisions
+
+`--runtimes-rev` uses tracked runtime bitcode from a clean detached cache;
+`--isa-spec-rev` builds that frozen reference interpreter offline in release
+mode. `--driver-rev` freezes and records driver provenance: the gate continues
+to invoke the plugin directly and does not claim to execute a driver binary.
+`--arith-rev` selects frozen arithmetic publications, still checked against the
+plugin's digest pins. When `--plugin-rev` is supplied, its declared arithmetic
+commit supplies the default bitcode, avoiding live arithmetic paths.
+Without these selectors, the existing HEAD plugin/VM, live runtime and plugin
+arithmetic paths, and accepted review reference defaults remain unchanged.
+Explicit `--runtimes18/23`, `--arith18/23`, and `--reference` paths conflict
+with their sibling's revision option; conflicting input is rejected before
+building. Resolved pins and reference profile/hash are recorded in report.json.
+
+Both rungs' revision checks run via
+`python3 -m unittest discover -s ladder/rung-1/tests -v`.
+For a full rerun on `tobias-ThinkPad-X1-Carbon-Gen-11`, use the same
+12000-second outer hang guard documented in [rung 1](../rung-1/README.md), with
+machine factor 1 and exit 124 classified UNKNOWN. This exceeds 10x the last
+durable rung-2 receipt's 11.531 summed command wall seconds
+(`evidence/required-pipeline/report.json`, 2026-10-31), allowing substantial
+room for complete builds and corpus execution beyond that early failing run.
+Use a `bennett-heavy-ladder-rung-2-<UTC time>` user scope only when no other
+heavy scope exists, and retain outer wall/user/system CPU seconds.
