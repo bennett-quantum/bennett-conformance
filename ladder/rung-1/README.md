@@ -131,7 +131,9 @@ Runtime and arithmetic bitcode are the tracked `dist/llvm<M>/*.bc` publications
 at the selected commits, resolved in clean detached caches under `$TMPDIR`.
 `--isa-spec-rev` builds that commit's reference interpreter offline in release
 mode. Unknown revisions and dirty caches fail loudly. The report records each
-resolved commit and the reference profile/hash. These rungs invoke the plugin
+resolved commit and the reference profile/hash. Main-health supplies
+`BENNETT_GATE_WORKSPACE` as the object-source workspace for pinned siblings;
+this also resolves arithmetic when only the five health inputs are symlinked. These rungs invoke the plugin
 directly: the driver revision is frozen and recorded, with its unused-binary
 status explicit in the manifest; no driver execution is claimed.
 

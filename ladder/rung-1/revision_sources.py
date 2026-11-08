@@ -1,4 +1,5 @@
 """Frozen sibling sources for the rung-1 and rung-2 revision selectors."""
+import os
 from pathlib import Path
 import subprocess
 
@@ -34,7 +35,7 @@ def validate_revision_options(parser, args):
 class RevisionSources:
     def __init__(self, gate, workspace):
         self.gate = gate
-        self.workspace = workspace
+        self.workspace = Path(os.environ.get('BENNETT_GATE_WORKSPACE', workspace)).resolve()
         self.paths = {}
 
     def freeze(self, name, revision):

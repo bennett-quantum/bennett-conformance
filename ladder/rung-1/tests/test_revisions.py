@@ -29,6 +29,18 @@ class RevisionCLI(unittest.TestCase):
                 for name in health.LADDER_REPOS:
                     self.assertIn('--' + name.removeprefix('bennett-') + '-rev', help_text)
 
+    def test_shell_help_keeps_the_callers_tmpdir(self):
+        with tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as temp:
+            # A python shim observes the environment after gate.sh, before gate.py.
+            shim = Path(temp) / 'python3'
+            shim.write_text('#!/bin/sh\nprintf \"%s\\n\" \"$TMPDIR\"\n')
+            shim.chmod(0o755)
+            env = dict(os.environ, PATH=temp + os.pathsep + os.environ['PATH'])
+            for rung in ('rung-1', 'rung-2'):
+                with self.subTest(rung=rung):
+                    output = subprocess.check_output(['bash', str(ROOT / 'ladder' / rung / 'gate.sh'), '--help'], text=True, env=env)
+                    self.assertEqual(output.strip(), os.environ['TMPDIR'])
+
     def test_main_health_can_construct_the_actual_gate_command(self):
         revisions = {name: '1' * 40 for name in health.LADDER_REPOS}
         for rung in ('rung-1', 'rung-2'):
@@ -161,6 +173,19 @@ class FrozenRevisions(unittest.TestCase):
                     g.plugin()
                 self.assertEqual(g.manifest['pins']['bennett-arith'], self.revisions['arith'][1])
                 self.assertEqual((g.sources.paths['bennett-arith'] / 'version').read_text(), 'new')
+
+    def test_main_health_workspace_resolves_arithmetic_object_source(self):
+        # main-health links its five LADDER_REPOS beside a detached conformance.
+        # It provides BENNETT_GATE_WORKSPACE for additional pinned object sources.
+        nested = self.workspace / 'health-checkouts'
+        nested.mkdir()
+        for name in health.LADDER_REPOS:
+            (nested / name).symlink_to(self.workspace / name, target_is_directory=True)
+        g = self.make_gate('rung-1')
+        with patch.dict(os.environ, BENNETT_GATE_WORKSPACE=str(self.workspace)):
+            sources = g.sources.__class__(g, nested)
+            source = sources.freeze('bennett-arith', self.revisions['arith'][1])
+        self.assertEqual((source / 'version').read_text(), 'new')
 
     def test_cached_sources_are_rechecked_and_dirty_cache_is_rejected(self):
         g = self.make_gate('rung-1')
