@@ -297,12 +297,18 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         layout_flags='-Wl,--gc-sections,--build-id=none,-e,_start,--section-start=.text=0x400000'
         if layout['globals']:
             layout_flags+=',--section-start=.rodata=0x1000,--section-start=.data=0x2000'
+        linked=d/'comparison-linked.bc'
+        bitcode_argv=[f'/usr/lib/llvm-{m}/bin/llvm-link',out/'materialised.bc',rt,ar,
+            '--only-needed','-o',linked]
+        self.command(f'{lang}/{m}/{c}/native-comparison-bitcode-link',bitcode_argv)
         argv=[f'/usr/lib/llvm-{m}/bin/clang','-O2','-nostdlib','-static','-no-pie',
-            '-ffunction-sections','-fdata-sections',out/'materialised.bc',rt,ar,runner,
+            '-ffunction-sections','-fdata-sections',linked,runner,
             layout_flags,
             '-o',d/'comparison']
         (d/'native-comparison.json').write_text(json.dumps({'materialised_sha256':sha(out/'materialised.bc'),
-            'runtime_sha256':sha(rt),'arith_sha256':sha(ar),'link_argv':list(map(str,argv)),
+            'runtime_sha256':sha(rt),'arith_sha256':sha(ar),
+            'bitcode_link_argv':list(map(str,bitcode_argv)),'linked_sha256':sha(linked),
+            'link_argv':list(map(str,argv)),
             'notes':'freestanding scalar-only oracle harness; fixed non-PIE text/data, no host libc/libm'},indent=2)+'\n')
         self.command(f'{lang}/{m}/{c}/native-comparison-link',argv)
         symbols=self.command(f'{lang}/{m}/{c}/native-comparison-symbols',[f'/usr/lib/llvm-{m}/bin/llvm-nm',d/'comparison'])
