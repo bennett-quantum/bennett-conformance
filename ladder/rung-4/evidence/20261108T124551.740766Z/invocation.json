@@ -1,0 +1,84 @@
+{
+  "time_utc": "20261108T124551Z",
+  "head": "f9d2317e61d91ab05bb60beaece514fb3b7a3af8",
+  "argv": [
+    "systemd-run",
+    "--user",
+    "--scope",
+    "--unit=bennett-heavy-ladder-rung4-124551",
+    "/usr/bin/time",
+    "-o",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-rung4/.tmp/ladder-rung4/recorded-20261108T124551Z/time.json",
+    "-f",
+    "{\"wall_seconds\":%e,\"user_cpu_seconds\":%U,\"system_cpu_seconds\":%S,\"exit\":%x}",
+    "timeout",
+    "12000",
+    "bash",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-rung4/ladder/rung-4/gate.sh"
+  ],
+  "unit": "bennett-heavy-ladder-rung4-124551",
+  "pins": {
+    "bennett-conformance": "12f3e86b4ccd83baa342b41398c7d3aac5b690fa",
+    "bennett-plugin": "3a856a7f0f34e31cb99fe4b7acc544e935b76211",
+    "bennett-vm": "2456722617fac22ab632b9436a780b4379223a59",
+    "bennett-runtimes": "bf11bcc67e04242bd38a51cd4fcab08fc2772064",
+    "bennett-driver": "c92bf23fbeda262c2b6ebc6842d0dff93f435c14",
+    "bennett-estimate": "bb1c62180e7e44a6f7ca2b3dfeecab33f54fdcc8",
+    "bennett-targets": "5113d9acabaaac335a178b60263eb710b151f74b",
+    "bennett-dialect-spec": "023f5a771a814270634db3be9cfde88ded69f975",
+    "dialect": "0.2.10",
+    "isa": "0.8",
+    "sqlite": {
+      "version": "3.54.1",
+      "url": "https://sqlite.org/2026/sqlite-amalgamation-3540100.zip",
+      "zip_bytes": 2990966,
+      "zip_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
+      "zip_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
+      "sqlite3_c_sha256": "0c657666d819f261cc4007526ad57e1669de9949df7a8ea847aa284a2bf0ee52",
+      "sqlite3_h_sha256": "d6c84557261893439b341d2e6c35187ae3ea24fbfd843ad94616f72d89242b8c",
+      "flags": [
+        "-DSQLITE_THREADSAFE=0",
+        "-DSQLITE_OMIT_LOAD_EXTENSION",
+        "-DSQLITE_OS_OTHER=1",
+        "-DSQLITE_TEMP_STORE=3",
+        "-DSQLITE_DEFAULT_MEMSTATUS=0",
+        "-DSQLITE_OMIT_SHARED_CACHE",
+        "-DSQLITE_OMIT_DEPRECATED",
+        "-DSQLITE_DQS=0"
+      ],
+      "cflags": [
+        "-O2",
+        "-flto",
+        "-g0",
+        "-fno-stack-protector",
+        "-fno-exceptions"
+      ]
+    },
+    "budget": {
+      "steps": 1000000,
+      "heap": 524288,
+      "stack": 4194304,
+      "depth": 64,
+      "shadow_stack": 65536
+    },
+    "plugin_limits": {
+      "analysis_budget_ms": 1500000,
+      "analysis_max_rounds": 100000000
+    },
+    "target": "superconducting-grid-illustrative.json",
+    "bennett-isa-spec": "8d9a5c60aff9aa35b44eb3ac1c541c020f24d737",
+    "bennett-arith": "0dea42d001ffe832493fa0711da4a59b8cc1dd10"
+  },
+  "hang_guard_source": "ladder/rung-4/README.md",
+  "environment": {
+    "TMPDIR": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-rung4/.tmp/ladder-rung4/tmp",
+    "CARGO_TARGET_DIR": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-rung4/.tmp/ladder-rung4/target",
+    "DISPLAY": null,
+    "WAYLAND_DISPLAY": null,
+    "DBUS_SESSION_BUS_ADDRESS": null,
+    "BROWSER": null
+  },
+  "exit": 1,
+  "state": "FAIL",
+  "raw_run": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-rung4/.tmp/rung-4/runs/20261108T124551.740766Z"
+}

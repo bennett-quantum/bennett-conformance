@@ -100,3 +100,51 @@ ladder/rung-4/gate.sh                    # add --record to copy evidence
 
 Pins: [pins.json](pins.json). The recorded run took about 11 minutes with builds cached, under load; acceptance
 once open is hours (DESIGN §11). Pins will need moving as beads land: that is the rung's ordinary maintenance.
+
+
+## Recorded-input reproduction after revision selectors and diagnostic repairs
+
+The no-flag run at code head `f9d2317e61d91ab05bb60beaece514fb3b7a3af8`
+completed with **FAIL, exit 1**: the recorded product frontier reproduced.
+All **76 unchanged stage verdicts and bead mappings** match the 2026-11-01
+report exactly. The required oracle, Grover and estimate rows remain blocked.
+No arithmetic digest mismatch precedes the vector-GEP witness.
+
+- [Report](evidence/20261108T124551.740766Z/report.json), [table](evidence/20261108T124551.740766Z/table.md), [raw-file inventory](evidence/20261108T124551.740766Z/raw-evidence-sha256.json)
+- [Exact invocation, head and inputs](evidence/20261108T124551.740766Z/invocation.json), [verdict comparison](evidence/20261108T124551.740766Z/comparison.json), [wall/CPU receipt](evidence/20261108T124551.740766Z/timing.json)
+
+Command: `qwait.sh '' '' -- python3 .tmp/ladder-rung4/run_recorded.py`, using
+`bennett/.tmp/orchestrator/s4/qwait.sh`. The launcher invoked
+`bash ladder/rung-4/gate.sh` with **no flags**, in user scope
+`bennett-heavy-ladder-rung4-124551` after qwait released at 2026-11-08T12:45:51Z.
+The README's 12000-second outer hang guard did not trip. Measured wall time
+304.38 s; user CPU 732.38 s; system CPU 33.73 s. The report records the
+headless job environment and the exact absolute command paths.
+
+| Check | Historical recording | Reproduction |
+|---|---|---|
+| Primary inputs | Historical sibling pins; plugin reads live arithmetic path | Every sibling resolved from pins.json, including arithmetic `0dea42d`; plugin reads the frozen publication |
+| Reference | Existing review-checkout binary | Release built from canonical ISA pin `8d9a5c6` |
+| Sibling revisions; reference build | Not separate rows | PASS on both majors |
+| Runtime libc closure | FAIL · brt-dj7 | FAIL · brt-dj7 |
+| Coherent production | FAIL · bp-1bb | FAIL · bp-1bb |
+| Other unchanged rows | Recorded PASS/FAIL/BLOCKED verdicts | All 76 verdict/bead cells match |
+| Reduced state diagnostic | Unsupported `--state-out` probes FAIL | Replaced by measured-control diagnostics: PASS for both executors on both majors |
+
+The diagnostic replacement is the intentional 5jd repair, so the whole tables
+are not identical. It uses the selected ISA revision's published Bell measurement
+launch with `run-program --draws 0.0` and `--draws 0.9`, checks observed basis
+states `00` and `11` and matching results, and labels its local state sidecar
+as measured basis states. It claims no amplitude export. The lossless readout
+remains required by the full Grover amplitude rows; the requested P3 switch
+back to `--state-out` once `bennett-vm-1wf` lands is recorded for the orchestrator.
+
+The h7y repair appends exactly the `steps` allowance from each launch's
+`build.json` budgets entry after its ordinary entry arguments. Array order,
+duplicate allowances and zero values are preserved; absent or malformed
+metadata fails. An explicitly empty array supplies zero allowances.
+Regression evidence: `python3 ladder/rung-4/check_gate.py -v` passes 46 tests;
+`python3 ladder/rung-4/check_revisions.py -v` passes 15, including the real
+main-health `ladder_argv` check against `gate.sh --help`. Red-first evidence and
+four successful focused measuring CLI calls are retained in the job's local
+`.tmp/ladder-rung4/` directory.
