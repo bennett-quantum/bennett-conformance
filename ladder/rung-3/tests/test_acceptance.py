@@ -243,6 +243,70 @@ class AcceptanceTests(unittest.TestCase):
                     'commands':[{'argv':argv, 'success':True} for argv in steps]}
         return paths, record, manifest, d/'native'
 
+    def test_comparison_steps_validate_order_and_checked_provenance(self):
+        from native_audit import comparison_steps
+        for m in (18, 23):
+            paths, record, manifest, output = self.receipt(m)
+            expected = set(map(str, paths))
+            self.g.command = lambda *a, **kw: self.fail('validation executed a command')
+            steps, provenance, checked = comparison_steps(
+                self.g, m, record['bitcode_link_argv'], paths, record, manifest, paths[0].parent)
+            self.assertEqual(steps, [c['argv'] for c in manifest['commands']])
+            self.assertEqual(checked, str(paths[0].parent/'comparison-checked.bc'))
+            self.assertEqual(provenance[checked], expected | {checked})
+            self.assertEqual(provenance[str(paths[0].parent/'comparison.bc')], expected | {checked})
+            for mutation, reason in (('first', 'first bitcode merge must use the exact'),
+                                     ('missing', 'missing first bitcode merge')):
+                first = list(record['bitcode_link_argv'])
+                mf = copy.deepcopy(manifest)
+                if mutation == 'first':
+                    first[1], first[2] = first[2], first[1]
+                else:
+                    mf['commands'].pop(0)
+                with self.subTest(major=m, mutation=mutation), self.assertRaisesRegex(gate.GateError, reason):
+                    comparison_steps(self.g, m, first, paths, record, mf, paths[0].parent)
+
+    def test_final_inputs_require_all_leaves_and_checked_closure(self):
+        from native_audit import audit_final_inputs
+        device, runtime, arith, checked, final = (self.root/name for name in
+            ('device.bc', 'runtime.bc', 'arith.bc', 'checked.bc', 'final.bc'))
+        expected = set(map(str, (device, runtime, arith)))
+        roots = expected | {str(checked)}
+        self.assertIsNone(audit_final_inputs([final], {str(final):roots}, expected, str(checked)))
+        cases = (
+            ([], {}, 'staged receipt must name one final bitcode closure'),
+            ([final, device], {}, 'staged receipt must name one final bitcode closure'),
+            ([final], {}, 'final link uses an unrecorded bitcode input'),
+            ([final], {str(final):roots - {str(runtime)}}, 'final closure dropped'),
+            ([final], {str(final):expected}, 'final closure bypasses checked bitcode'),
+            ([device], {str(device):roots}, 'staged receipt bypasses its merged closure'),
+        )
+        for inputs, provenance, reason in cases:
+            with self.subTest(reason=reason), self.assertRaisesRegex(gate.GateError, reason):
+                audit_final_inputs(inputs, provenance, expected, str(checked))
+
+    def test_replay_comparison_preserves_order_and_checker_artifacts(self):
+        from native_audit import replay_comparison
+        for m in (18, 23):
+            paths, record, manifest, output = self.receipt(m)
+            steps = [c['argv'] for c in manifest['commands']]
+            checked = manifest['checked_materialised']['path']
+            calls = []
+            self.g.command = lambda tag, argv: calls.append((tag, argv))
+            replay_comparison(self.g, steps, manifest, checked, paths[0].parent)
+            prefix = str(paths[0].parent.relative_to(self.g.run))
+            self.assertEqual(calls, [(prefix+f'/audit-bitcode-{i}', args) for i, args in enumerate(steps)])
+            for victim, reason in (('input', 'native-check modified its input'),
+                                   ('output', 'checked bitcode hash mismatch')):
+                paths, record, manifest, output = self.receipt(m)
+                steps = [c['argv'] for c in manifest['commands']]
+                def command(tag, argv):
+                    if Path(argv[0]).name == 'native-check':
+                        Path(argv[2 if victim == 'input' else 3]).write_bytes(b'changed during replay')
+                self.g.command = command
+                with self.subTest(major=m, victim=victim), self.assertRaisesRegex(gate.GateError, reason):
+                    replay_comparison(self.g, steps, manifest, checked, paths[0].parent)
+
     def test_auditable_multistage_receipt(self):
         from native_audit import audit_comparison
         for m in (18, 23):
