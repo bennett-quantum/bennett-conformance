@@ -5,6 +5,8 @@
 
 use crate::json::{jcs, parse, Value};
 use crate::sha256::sha256_hex;
+mod admission;
+mod lexical;
 mod signatures;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -52,7 +54,19 @@ pub struct Function {
     pub bytes: String,
     pub blocks: Vec<Block>,
     /// The `bounds { ... }` list of the regs line, if present.
-    pub bounds: Vec<u64>,
+    pub bounds: Vec<num_bigint::BigUint>,
+}
+
+impl Function {
+    pub(crate) fn matches_bounds(&self, bounds: &[u64]) -> bool {
+        if self.bounds.len() != bounds.len() {
+            return false;
+        }
+        self.bounds
+            .iter()
+            .zip(bounds)
+            .all(|(source, value)| source == &num_bigint::BigUint::from(*value))
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -116,6 +130,7 @@ pub struct Object {
     /// §3.6: SCC order key, then member index. Kept from the closure hash pass
     /// because a cyclic member's hash does not reveal its SCC's ordering key.
     closure_order: HashMap<String, (String, usize)>,
+    pub(crate) source_admission_obligations: Vec<String>,
 }
 
 fn sec_err(section: &str, msg: impl Into<String>) -> String {
@@ -128,6 +143,7 @@ impl Object {
             return Err(sec_err("§16.1", "object text does not end with LF"));
         }
         let lines: Vec<&str> = text.split('\n').collect(); // last element is ""
+        lexical::validate(&lines)?;
         let header = parse_header(lines.first().copied().unwrap_or(""))?;
 
         // Split into sections, enforcing order, uniqueness, blank-line rule.
@@ -141,7 +157,7 @@ impl Object {
                     .map(|l| l.starts_with("section "))
                     .unwrap_or(false)
             {
-                let name = lines[i + 1]["section ".len()..].trim_end();
+                let name = &lines[i + 1]["section ".len()..];
                 let order = SECTION_ORDER
                     .iter()
                     .position(|s| *s == name)
@@ -186,42 +202,7 @@ impl Object {
 
         let symbols_json = parse_metadata(sec("symbols"), "symbols")?
             .ok_or_else(|| sec_err("§9.1", "missing symbols section"))?;
-        let mut raw_symbols = Vec::new();
-        let sym_obj = symbols_json
-            .as_obj()
-            .ok_or_else(|| sec_err("§9.1", "symbols section is not an object"))?;
-        for (idx, entry) in sym_obj {
-            let name = entry
-                .get("name")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .to_string();
-            let kind = entry
-                .get("kind")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .to_string();
-            let signature = entry.get("signature").cloned().unwrap_or(Value::Null);
-            let stated = entry
-                .get("interface_hash")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .to_string();
-            let index: i128 = idx
-                .parse()
-                .map_err(|_| sec_err("§9.1", format!("bad symbol index {idx:?}")))?;
-            raw_symbols.push((
-                index,
-                RawSymbol {
-                    name,
-                    kind,
-                    signature,
-                    stated,
-                },
-            ));
-        }
-        raw_symbols.sort_by_key(|(i, _)| *i);
-
+        let symbols = parse_symbols(&symbols_json)?;
         let mut imports = BTreeMap::new();
         if let Some(v) = parse_metadata(sec("imports"), "imports")? {
             let obj = v
@@ -261,22 +242,11 @@ impl Object {
             Some(body) => parse_functions(body)?,
             None => Vec::new(),
         };
-
         let object_hash = sha256_hex(stripped_object_bytes(text).as_bytes());
 
         let mut obj = Object {
             header,
-            symbols: raw_symbols
-                .into_iter()
-                .map(|(_, r)| Symbol {
-                    name: r.name,
-                    kind: r.kind,
-                    signature: r.signature,
-                    stated_interface_hash: r.stated,
-                    interface_hash: String::new(),
-                    closure_hash: None,
-                })
-                .collect(),
+            symbols,
             functions,
             data,
             layout,
@@ -290,7 +260,9 @@ impl Object {
             coverage_raw: raw_line("coverage"),
             object_hash,
             closure_order: HashMap::new(),
+            source_admission_obligations: vec![],
         };
+        obj.source_admission_obligations = admission::validate(&obj)?;
         obj.compute_hashes()?;
         Ok(obj)
     }
@@ -320,11 +292,45 @@ impl Object {
     }
 }
 
-struct RawSymbol {
-    name: String,
-    kind: String,
-    signature: Value,
-    stated: String,
+fn parse_symbols(value: &Value) -> Result<Vec<Symbol>, String> {
+    let mut raw_symbols = Vec::new();
+    let sym_obj = value
+        .as_obj()
+        .ok_or_else(|| sec_err("§9.1", "symbols section is not an object"))?;
+    for (idx, entry) in sym_obj {
+        let name = entry
+            .get("name")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string();
+        let kind = entry
+            .get("kind")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string();
+        let signature = entry.get("signature").cloned().unwrap_or(Value::Null);
+        let stated = entry
+            .get("interface_hash")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string();
+        let index: i128 = idx
+            .parse()
+            .map_err(|_| sec_err("§9.1", format!("bad symbol index {idx:?}")))?;
+        raw_symbols.push((
+            index,
+            Symbol {
+                name,
+                kind,
+                signature,
+                stated_interface_hash: stated,
+                interface_hash: String::new(),
+                closure_hash: None,
+            },
+        ));
+    }
+    raw_symbols.sort_by_key(|(i, _)| *i);
+    Ok(raw_symbols.into_iter().map(|(_, symbol)| symbol).collect())
 }
 
 fn parse_header(line: &str) -> Result<Header, String> {
@@ -358,6 +364,12 @@ fn parse_header(line: &str) -> Result<Header, String> {
     let ptr_width: u64 = pw
         .parse()
         .map_err(|_| sec_err("§16.2", format!("bad ptr_width {pw:?}")))?;
+    let isa = versions
+        .get("isa")
+        .ok_or_else(|| sec_err("§1", "missing ISA version"))?;
+    if !matches!(isa.as_str(), "0.8" | "0.9") || versions.values().any(|v| v != isa) {
+        return Err(sec_err("§1", "unsupported or mixed object versions"));
+    }
     Ok(Header {
         versions,
         ptr_width,
@@ -513,7 +525,9 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
             let (bname, plist) = rest
                 .split_once('(')
                 .ok_or_else(|| sec_err("§16.2", format!("bad block header {line:?}")))?;
-            let inner = plist.trim_end_matches("):");
+            let inner = plist
+                .strip_suffix("):")
+                .ok_or_else(|| sec_err("§16.2", "block header must consume its complete line"))?;
             blocks.push(Block {
                 name: bname.to_string(),
                 params: parse_plist(inner)?,
@@ -558,38 +572,30 @@ fn build_function(name: String, kind: String, lines: Vec<String>) -> Result<Func
 
 /// Split the five parenthesised groups of a function header.
 fn parse_header_groups(header: &str, fname: &str) -> Result<Vec<Vec<Param>>, String> {
-    let mut groups = Vec::new();
-    let mut depth = 0i32;
-    let mut start: Option<usize> = None;
-    for (i, ch) in header.char_indices() {
-        match ch {
-            '(' => {
-                if depth == 0 {
-                    start = Some(i + 1);
-                }
-                depth += 1;
-            }
-            ')' => {
-                depth -= 1;
-                if depth == 0 {
-                    let s = start.take().unwrap();
-                    groups.push(parse_plist(&header[s..i])?);
-                }
-            }
-            '[' => depth += 0, // brackets do not nest groups; commas inside are plist-split aware
-            _ => {}
-        }
-    }
-    if groups.len() != 5 {
+    let tokens = crate::eval::tokenise(header);
+    let offset = if tokens.first().map(String::as_str) == Some("fn") {
+        3
+    } else {
+        2
+    };
+    if tokens.len() != offset + 5
+        || tokens.get(offset - 1).map(String::as_str) != Some(&format!("@{fname}"))
+    {
         return Err(sec_err(
             "§16.2",
-            format!(
-                "function @{fname} header has {} parameter groups, expected 5",
-                groups.len()
-            ),
+            "function header must consume exactly five parameter groups",
         ));
     }
-    Ok(groups)
+    tokens[offset..]
+        .iter()
+        .map(|group| {
+            let inner = group
+                .strip_prefix('(')
+                .and_then(|g| g.strip_suffix(')'))
+                .ok_or_else(|| sec_err("§16.2", "expected parenthesised parameter group"))?;
+            parse_plist(inner)
+        })
+        .collect()
 }
 
 fn parse_plist(text: &str) -> Result<Vec<Param>, String> {
@@ -913,7 +919,18 @@ impl Object {
                 }
             }
         }
-        let bounds = sig_widths(sig, "bounds").unwrap_or_else(|| func.bounds.clone());
+        let bounds = func
+            .bounds
+            .iter()
+            .map(|n| {
+                n.to_string().parse::<u64>().map_err(|_| {
+                    sec_err(
+                        "§12.2",
+                        "host limit: loop bound exceeds u64 interface representation",
+                    )
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         let _ = args.len();
         Ok(Interface {
             bundles,

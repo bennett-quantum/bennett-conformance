@@ -1,0 +1,12 @@
+bennett-object isa=0.9 object=0.9 launch=0.9 sched=0.9 cert=0.9 coverage=0.9 target=0.9 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"51e5826e565d1e3da590ea6943e1b863f2b890a21a60a86a7f29d44fb6c0f604","kind":"perm_action","name":"a","signature":{"abi":"0.9","args":[],"bounds":[2],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}}
+
+section functions
+perm_action @a (t:wire mut) (c:wire in) () () ()
+regs {  } bounds {2}
+^entry(): junk
+qloop 2 {
+cx c t
+}

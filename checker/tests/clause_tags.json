@@ -1,0 +1,49 @@
+{
+  "lexical::eq2_noncanonical_body_tokens_cannot_enter_the_checker": [
+    "ISA-16.1-P1"
+  ],
+  "lexical::lexical_exceptions_preserve_empty_regs_empty_data_and_quoted_spaces": [
+    "ISA-16.1-P1"
+  ],
+  "control_flow::nested_while_flags_preserve_disabled_outer_predicates_and_continuations": [
+    "ISA-4.6"
+  ],
+  "control_flow::nested_while_cannot_certify_the_reviewed_wrong_inner_only_relation": [
+    "ISA-4.6"
+  ],
+  "control_flow::qif_executes_both_arms_unconditional_lifetimes_and_predicates_only_gates": [
+    "ISA-4.6"
+  ],
+  "control_flow::qif_lifetime_adjoints_reverse_the_complete_expansion_and_all_blocks": [
+    "ISA-4.6"
+  ],
+  "control_flow::sampled_tables_cover_the_declared_domain_while_execution_covers_only_draws": [
+    "ISA-12.1-P2",
+    "ISA-12.1-P8"
+  ],
+  "control_flow::sampled_tables_reject_missing_duplicate_reordered_and_malformed_undrawn_rows": [
+    "ISA-12.1-P8"
+  ],
+  "control_flow::every_sampler_field_and_seed_position_rejects_bad_types_and_removals": [
+    "ISA-12.1-P13"
+  ],
+  "mutation_sweep::plausible_wrong_hashes_are_rejected_without_rebinding": [
+    "ISA-9.2"
+  ],
+  "mutation_sweep::every_plausible_output_bit_and_shifted_input_row_is_checked": [
+    "ISA-12.1-P7",
+    "ISA-12.1-P8"
+  ],
+  "replay_differential::heap_store_load_witness_replays_all_sixteen_rows": [
+    "ISA-12.1-P7"
+  ],
+  "row_limits::host_row_limit_discharges_no_proof_request_or_evidence_count": [
+    "ISA-12.2-P5"
+  ],
+  "row_limits::reference_storage_limits_precede_quantum_workspace_materialisation": [
+    "ISA-12.2-P5"
+  ],
+  "resource_contexts::a_recompute_cleanup_cannot_be_certified_using_the_two_gate_reverse_trace": [
+    "ISA-12.3"
+  ]
+}

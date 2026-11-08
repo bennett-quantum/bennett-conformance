@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::cert::check_certificate;
 use common::*;
 #[test]
@@ -255,6 +255,10 @@ fn rotation_inputs(op: &str, angle: &str) -> bennett_cert_checker::cert::Inputs 
             r#"{"bound":0.000000000000001,"kind":"numerical","metric":"operator_norm","precision_bits":128}"#,
         )],
     );
+    if h == "invalid-source" {
+        assert!(codes(&check_certificate(&inp)).contains(&"E_CERT_OBJECT"));
+        return inp;
+    }
     let mut cert = json(std::str::from_utf8(&inp.cert_bytes).unwrap());
     let Value::Obj(top) = &mut cert else {
         unreachable!()
@@ -322,8 +326,20 @@ fn exact_native_rotations_verify_the_requested_rigorous_bound() {
 }
 #[test]
 fn malformed_rotation_literals_are_rejected_and_huge_angles_report_host_limits() {
-    for angle in ["1", "1.00", "NaN", "inf", "1e999"] {
+    for angle in ["NaN", "inf"] {
         let verdict = check_certificate(&rotation_inputs("rx", angle));
+        assert!(
+            codes(&verdict).contains(&"E_CERT_OBJECT"),
+            "{angle}: {verdict:?}"
+        );
+    }
+    for angle in ["1", "1.00", "1e999"] {
+        // These fail at the lexical boundary, before source/hash binding.
+        let mut inputs = rotation_inputs("rx", "1.0");
+        inputs.object_text = inputs
+            .object_text
+            .replace("rx 1.0 t", &format!("rx {angle} t"));
+        let verdict = check_certificate(&inputs);
         assert!(
             codes(&verdict).contains(&"E_CERT_OBJECT"),
             "{angle}: {verdict:?}"

@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::{
     cert::check_certificate,
     json::{jcs, Value},
@@ -7,8 +7,8 @@ use bennett_cert_checker::{
 use common::*;
 fn sources() -> Vec<(String, String)> {
     let declarations=[
-        ("a","perm_action @a (t:wire[2] mut) (c:wire in) (r:region[1,2] in) (n:i2, tk:token) ()\n^entry():",r#"{"a":{"abi":"0.9","args":["i2","token"],"bounds":[],"in":[1],"kind":"perm_action","mem":[{"A":1,"W":2,"role":"in"}],"mut":[2],"tier":"q"}}"#),
-        ("o","oracle @o (x:wire in) (t:wire[2]) (f:wire[4]) (r:region[1,2] in) (p:ptr, angle:f64, tk:token, n:i128)\n^entry():\nlift.retval x",r#"{"o":{"abi":"0.9","args":["ptr","f64","token","i128"],"fault":4,"in":[1],"kind":"oracle","mem":[{"A":1,"W":2,"role":"in"}],"tgt":2,"tier":"q"}}"#),
+        ("a","perm_action @a (t:wire[2] mut) (c:wire in) (r:region[1,2] in) (n:i2, tk:token) ()\n^entry():\nx t[0]\nx t[0]",r#"{"a":{"abi":"0.9","args":["i2","token"],"bounds":[],"in":[1],"kind":"perm_action","mem":[{"A":1,"W":2,"role":"in"}],"mut":[2],"tier":"q"}}"#),
+        ("o","oracle @o (x:wire in) (t:wire[2]) (f:wire[4]) (r:region[1,2] in) (p:ptr, angle:f64, tk:token, n:i128)\nregs { result:reg[2] }\n^entry():\nresult = lift.const.i2 0\nlift.retval result",r#"{"o":{"abi":"0.9","args":["ptr","f64","token","i128"],"fault":4,"in":[1],"kind":"oracle","mem":[{"A":1,"W":2,"role":"in"}],"tgt":2,"tier":"q"}}"#),
     ];
     declarations
         .into_iter()
@@ -173,12 +173,12 @@ fn unknown_signature_fields_and_invalid_arrays_reject_before_a_width_host_limit(
 }
 
 #[test]
-fn optional_wire_roles_and_nonnegative_minus_zero_region_widths_remain_legal() {
+fn optional_wire_roles_and_zero_region_widths_require_canonical_spelling() {
     let source = &sources()[0].1;
     let source = source
         .replacen("t:wire[2] mut", "t:wire[2]", 1)
         .replacen("c:wire in", "c:wire", 1)
-        .replacen("region[1,2]", "region[-0,2]", 1);
+        .replacen("region[1,2]", "region[0,2]", 1);
     let source = signature_text(&source, |sig| {
         let Value::Obj(fields) = sig else { panic!() };
         let Value::Arr(mem) = fields.get_mut("mem").unwrap() else {
@@ -190,4 +190,8 @@ fn optional_wire_roles_and_nonnegative_minus_zero_region_widths_remain_legal() {
         Object::parse(&source).unwrap().interface("a").is_ok(),
         "{source}"
     );
+    for invalid in ["region[-0,2]", "region[00,2]"] {
+        let error = Object::parse(&source.replacen("region[0,2]", invalid, 1)).unwrap_err();
+        assert!(error.starts_with("§16.1:"), "{error}");
+    }
 }

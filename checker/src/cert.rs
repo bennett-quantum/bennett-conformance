@@ -153,7 +153,8 @@ impl Verdict {
         match self.overall.as_str() {
             "verified" => 0,
             "rejected" => 1,
-            _ => 2,
+            "unchecked" => 2,
+            other => panic!("invalid checker verdict state: {other:?}"),
         }
     }
     pub fn to_value(&self) -> Value {
@@ -515,7 +516,15 @@ pub fn parse_invocation_for_kind(
         has_token_args,
         &format!("{path}.token_aliases"),
     )?;
-    let params_hash = sha256_hex(&jcs(&Value::Arr(args.clone())).unwrap_or_default());
+    let params_bytes = jcs(&Value::Arr(args.clone())).map_err(|error| {
+        vec![rej(
+            "E_CERT_INVOCATION",
+            "§12.3",
+            format!("{path}.args"),
+            format!("cannot canonicalize invocation arguments: {error}"),
+        )]
+    })?;
+    let params_hash = sha256_hex(&params_bytes);
     Ok(Invocation {
         args,
         budget,
@@ -750,15 +759,9 @@ pub struct LoadedDocs {
     pub expansion_unknown: bool,
 }
 
-/// Check one certificate against its object (and target/schedule when bound).
-pub fn check_certificate(inputs: &Inputs) -> Verdict {
-    let mut verdict = Verdict::default();
-    let Some(cert) = load_jcs_doc(&inputs.cert_bytes, "certificate", &mut verdict) else {
-        return finish(verdict);
-    };
-    let object = match Object::parse(&inputs.object_text) {
-        Ok(o) => o,
-        Err(e) => {
+fn load_object(inputs: &Inputs, verdict: &mut Verdict) -> Option<Object> {
+    let object = Object::parse(&inputs.object_text)
+        .map_err(|e| {
             let (section, msg) = match e.split_once(": ") {
                 Some((sec, rest)) if sec.starts_with('§') => (sec.to_string(), rest.to_string()),
                 _ => ("§9.1".to_string(), e),
@@ -769,9 +772,14 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                 path: "object".into(),
                 message: msg,
             });
-            return finish(verdict);
-        }
-    };
+        })
+        .ok()?;
+    if !object.source_admission_obligations.is_empty() {
+        verdict
+            .unchecked_items
+            .extend(object.source_admission_obligations.iter().cloned());
+        return None;
+    }
     verdict
         .hashes
         .insert("object_hash".into(), object.object_hash.clone());
@@ -782,9 +790,21 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
             "object.symbols",
             "object's stated interface_hash values do not match recomputation; the object is mislabelled",
         ));
-        return finish(verdict);
+        return None;
     }
 
+    Some(object)
+}
+
+/// Check one certificate against its object (and target/schedule when bound).
+pub fn check_certificate(inputs: &Inputs) -> Verdict {
+    let mut verdict = Verdict::default();
+    let Some(cert) = load_jcs_doc(&inputs.cert_bytes, "certificate", &mut verdict) else {
+        return finish(verdict);
+    };
+    let Some(object) = load_object(inputs, &mut verdict) else {
+        return finish(verdict);
+    };
     crate::coverage::validate(&object, &mut verdict.errors);
     if !verdict.errors.is_empty() {
         return finish(verdict);
@@ -1365,7 +1385,7 @@ fn check_region(
             }
             let sig_ok = region
                 .get("signature")
-                .map(|s| jcs(s).unwrap_or_default() == jcs(&sym.signature).unwrap_or_default())
+                .map(|s| matches!((jcs(s), jcs(&sym.signature)), (Ok(actual), Ok(want)) if actual == want))
                 .unwrap_or(false);
             if !sig_ok {
                 report.errors.push(rej(
@@ -1381,7 +1401,7 @@ fn check_region(
                     .get("bounds")
                     .cloned()
                     .unwrap_or(Value::Arr(vec![]));
-                if jcs(b).unwrap_or_default() != jcs(&want).unwrap_or_default() {
+                if !matches!((jcs(b), jcs(&want)), (Ok(actual), Ok(want)) if actual == want) {
                     report.errors.push(rej("E_CERT_BINDING", "§12.3", format!("{base}.bounds"), "does not equal the signature bounds (§5.3 padded unitary is part of identity)"));
                 }
             }

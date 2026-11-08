@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::{
     cert::check_certificate,
     domain::Tuple,
@@ -8,9 +8,24 @@ use bennett_cert_checker::{
 use common::*;
 fn object(gate: &str, coherent: bool) -> Object {
     let h = if coherent { "h t\nh t\n" } else { "" };
-    let (inputs,_)=standalone(&format!("action @a (t:wire[1] mut) (s:wire in, c:wire[2] in, r:wire in) () () ()\n^entry():\n{h}ctl r {gate}"),
+    let gate_source = gate
+        .replace("[-0]", "[0]")
+        .replace("(c[0], c[1], s)", "(c, s)");
+    let (inputs,_)=standalone(&format!("action @a (t:wire[1] mut) (s:wire in, c:wire[2] in, r:wire in) () () ()\n^entry():\n{h}qpred r\n{gate_source}\nqunpred r"),
         r#"{"a":{"abi":"0.9","args":[],"bounds":[],"in":[1,2,1],"kind":"action","mem":[],"mut":[1],"tier":"q"}}"#,"a",vec![]);
-    Object::parse(&inputs.object_text).unwrap()
+    let mut parsed = Object::parse(&inputs.object_text).unwrap();
+    if gate != gate_source {
+        // Retain internal indexed-operand replay coverage after canonical source
+        // admission. §16.2 operand lists in the object text contain NAMEs.
+        let function = &mut parsed.functions[0];
+        function.bytes = function.bytes.replace(&gate_source, gate);
+        for block in &mut function.blocks {
+            for line in &mut block.instructions {
+                *line = line.replace(&gate_source, gate);
+            }
+        }
+    }
+    parsed
 }
 #[test]
 fn mixed_bundle_scalar_and_empty_lists_replay_every_controlled_basis_column() {
@@ -97,7 +112,17 @@ fn repeated_overlapping_nonscalar_and_invalid_indexed_operands_reject_even_when_
     let mut cases = 0;
     for coherent in [false, true] {
         for gate in gates {
-            let object = object(gate, coherent);
+            // Inject malformed operands after parsing a canonical object so
+            // this also tests the evaluator's own validation. The text-entry
+            // rejection of noncanonical integers is covered in lexical.rs.
+            let mut object = object("mcx (s) t", coherent);
+            let function = &mut object.functions[0];
+            function.bytes = function.bytes.replace("mcx (s) t", &format!("{gate}"));
+            for line in &mut function.blocks[0].instructions {
+                if line == "mcx (s) t" {
+                    *line = format!("{gate}");
+                }
+            }
             let symbol = object.symbol("a").unwrap();
             let iface = object.interface("a").unwrap();
             for r in 0..2u32 {

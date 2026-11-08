@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::cert::check_certificate;
 use bennett_cert_checker::json::{jcs, Value};
 use bennett_cert_checker::object::Object;
@@ -93,7 +93,7 @@ fn canonical_integer_strings_keep_signature_widths_regions_and_bounds_exact() {
     );
     assert_eq!((iface.regions[0].a, iface.regions[0].w), (0, 8));
     let (action,_) = standalone(
-        "action @a (t:wire mut) (c:wire in) () () ()\nregs { } bounds { 2 }\n^entry():\nqloop 2 {\ncx c t\n}",
+        "action @a (t:wire mut) (c:wire in) () () ()\nregs {  } bounds {2}\n^entry():\nqloop 2 {\ncx c t\n}",
         r#"{"a":{"abi":"0.9","args":[],"bounds":["2"],"in":["1"],"kind":"action","mem":[],"mut":["1"],"tier":"q"}}"#,
         "a",vec![],
     );
@@ -181,7 +181,15 @@ fn beyond_host_width(
     let make = |symbols: &Value| {
         format!("{header}\n\nsection symbols\n{}\n\nsection functions\naction @a (t:wire[{source_width}] mut) () () () ()\n^entry():\nx t[0]\n",encode(symbols))
     };
-    let initial = Object::parse(&make(&symbols)).unwrap();
+    let initial = match Object::parse(&make(&symbols)) {
+        Ok(object) => object,
+        Err(error) => {
+            assert_ne!(signature_width, source_width, "{error}");
+            assert!(error.starts_with("§9.1:"), "{error}");
+            inp.object_text = make(&symbols);
+            return inp;
+        }
+    };
     let Value::Obj(table) = &mut symbols else {
         unreachable!()
     };
@@ -286,7 +294,9 @@ fn source_interfaces_require_positive_widths_fault_width_four_and_matching_kinds
         ),
     ];
     for (source, name) in cases {
-        let object = Object::parse(&source).unwrap();
-        assert!(object.interface(name).is_err(), "{source}");
+        match Object::parse(&source) {
+            Ok(object) => assert!(object.interface(name).is_err(), "{source}"),
+            Err(error) => assert!(error.starts_with('§'), "{error}"),
+        }
     }
 }

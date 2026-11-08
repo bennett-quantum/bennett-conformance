@@ -1,0 +1,44 @@
+bennett-object isa=0.9 object=0.9 launch=0.9 sched=0.9 cert=0.9 coverage=0.9 target=0.9 ptr_width=32
+
+section symbols
+{"0":{"interface_hash":"dcd0da5a94291689b4b94b4aee7a026fb12841777a621292c69ddb90868359da","kind":"perm_action","name":"a","signature":{"abi":"0.9","args":[],"bounds":[2],"in":[1],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}},"1":{"interface_hash":"0087f9cdd5cc9d6689110f368960618bd14907409b0921e861df5d8fded7fffb","kind":"cc","name":"host","signature":{"abi":"0.9","kind":"cc","params":["qreg[2]","qreg[*]","i4","ptr","f64","token"],"results":[],"tier":"cc"}},"2":{"interface_hash":"168385644ab8c91ec6326f473e369746531adb3d7e512b110592915294b7ba5d","kind":"oracle","name":"o","signature":{"abi":"0.9","args":[],"fault":4,"in":[4],"kind":"oracle","mem":[{"A":0,"W":8,"role":"in"}],"tgt":4,"tier":"q"}},"3":{"interface_hash":"c49c05496f61dae5b3ff2a7c5ad0d75f8664081fa557ca96a520c00c9b24b5df","kind":"action","name":"types","signature":{"abi":"0.9","args":["i4","ptr","f64","token"],"bounds":[2],"in":[],"kind":"action","mem":[],"mut":[2],"tier":"q"}}}
+
+section functions
+perm_action @a (t:wire[1] mut) (c:wire[1] in) () () ()
+regs {  } bounds {2}
+^entry():
+qloop 2 {
+cx c[0] t[0]
+}
+action @types (w:wire[2] mut) () () (n:i4, p:ptr, f:f64, tk:token) ()
+regs {  } bounds {}
+^entry():
+d = qalloc any 2
+b = qborrow any 2
+qregion local 1 2
+qloop 2 {
+x d[1]
+}
+qreturn b
+qfree d
+qif w[0] {
+x w[1]
+} {
+x w[1]
+}
+rx 1.0 w[0]
+oracle @o (x:wire[4] in) (t:wire[4]) (f:wire[4]) (db:region[0,8] in) ()
+regs { r:reg[4], s:reg[4], zero:reg[4] }
+^entry():
+r = lift.const.i4 -1
+s = lift.const.i4 1
+zero = lift.const.i4 0
+lift.retval r
+fn cc @host (q:qreg[2], dyn:qreg[*], n:i4, p:ptr, f:f64, tk:token) () () () ()
+^entry():
+br ^next(n)
+^next(value:i4):
+ret
+
+section layout
+{"A_tab":2,"H":6,"S_cells":0,"globals":{},"heap_base":16,"heap_limit_max":32,"interface_regions":{"o":{"db":{"base":4}}},"null_size":4,"ptr_width":32}

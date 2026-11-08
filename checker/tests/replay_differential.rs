@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::cert::{check_certificate, Inputs, Limits};
 use bennett_cert_checker::eval::{eval_oracle, EvalError};
 use bennett_cert_checker::json::Value;
@@ -35,6 +35,25 @@ fn negative_literal_witness_replays_all_sixteen_rows() {
 
 #[test]
 fn heap_store_load_witness_replays_all_sixteen_rows() {
+    // Allocating one byte, storing zero-extended x and loading/truncating
+    // it is the identity payload; the nine-row budget cannot fault.
+    let inputs = witness("oracle-store-load-heap");
+    let object = Object::parse(&inputs.object_text).unwrap();
+    for x in 0u32..16 {
+        let out = eval_oracle(
+            &object,
+            object.symbol("o").unwrap(),
+            &[x.into()],
+            &[],
+            &[],
+            &[9u32.into(), 4u32.into(), 0u32.into(), 0u32.into()],
+            0,
+        )
+        .unwrap();
+        assert_eq!(out.payload, BigUint::from(x));
+        assert_eq!(out.code, BigUint::from(0u32));
+    }
+
     let verdict = check_certificate(&witness("oracle-store-load-heap"));
     assert!(codes(&verdict).is_empty(), "{verdict:?}");
     let claim = &verdict.regions[0].claims[0].1;
@@ -93,7 +112,8 @@ fn explicit_mcx_bundle_bits_replay_the_complete_sixteen_row_table() {
         .next()
         .unwrap();
     let mut claim = region.get("claims").unwrap().as_arr().unwrap()[0].clone();
-    // standalone rebinds the claim subject to the changed object.
+    // NAME-only source lists expand to the canonical two explicit controls.
+    // standalone rebinds the unchanged independent truth-table subject.
     if let Value::Obj(m) = &mut claim {
         m.remove("subject");
     }
@@ -103,7 +123,7 @@ fn explicit_mcx_bundle_bits_replay_the_complete_sixteen_row_table() {
         .function("a")
         .unwrap()
         .bytes
-        .replace("mcx (c) p", "mcx (c[0], c[1]) p");
+        .replace("mcx (c) p", "ccx c[0] c[1] p");
     let (inp, _) = standalone(
         &functions,
         &format!("{{\"a\":{}}}", encode(sig)),
@@ -119,14 +139,24 @@ fn explicit_mcx_bundle_bits_replay_the_complete_sixteen_row_table() {
 }
 
 fn literal_outcome(literal: &str) -> Result<bennett_cert_checker::eval::OracleOutcome, EvalError> {
-    let source = format!("oracle @o () (t:wire[4]) (f:wire[4]) () ()\nregs {{ c:reg[4] }}\n^entry():\nc = lift.const.i4 {literal}\nlift.retval c");
+    let source = "oracle @o () (t:wire[4]) (f:wire[4]) () ()\nregs { c:reg[4] }\n^entry():\nc = lift.const.i4 0\nlift.retval c";
     let (inp, _) = standalone(
-        &source,
+        source,
         r#"{"o":{"abi":"0.9","args":[],"fault":4,"in":[],"kind":"oracle","mem":[],"tgt":4,"tier":"q"}}"#,
         "o",
         vec![],
     );
-    let object = Object::parse(&inp.object_text).unwrap();
+    let text = inp
+        .object_text
+        .replace("lift.const.i4 0", &format!("lift.const.i4 {literal}"));
+    let object = Object::parse(&text).map_err(|e| {
+        EvalError::Reject(bennett_cert_checker::fault::Reject::new(
+            "E_CERT_OBJECT",
+            "§16.1",
+            "object",
+            e,
+        ))
+    })?;
     eval_oracle(
         &object,
         object.symbol("o").unwrap(),
@@ -234,7 +264,14 @@ fn invalid_lifted_destinations_widths_and_labels_reject_instead_of_defaulting() 
             "o",
             vec![],
         );
-        let object = Object::parse(&inputs.object_text).unwrap();
+        let object = match Object::parse(&inputs.object_text) {
+            Ok(object) => object,
+            Err(error) => {
+                assert!(error.starts_with('§'), "{error}");
+                assert!(codes(&check_certificate(&inputs)).contains(&"E_CERT_OBJECT"));
+                continue;
+            }
+        };
         let result = eval_oracle(
             &object,
             object.symbol("o").unwrap(),
@@ -354,7 +391,14 @@ fn ill_formed_fault_literals_reject_even_when_the_predicate_is_false() {
             "o",
             vec![],
         );
-        let object = Object::parse(&inputs.object_text).unwrap();
+        let object = match Object::parse(&inputs.object_text) {
+            Ok(object) => object,
+            Err(error) => {
+                assert!(error.starts_with('§'), "{error}");
+                assert!(codes(&check_certificate(&inputs)).contains(&"E_CERT_OBJECT"));
+                continue;
+            }
+        };
         let result = eval_oracle(
             &object,
             object.symbol("o").unwrap(),
@@ -548,15 +592,15 @@ fn coherent_fixture(body: &str, extra: &str, flip: bool) -> (Inputs, String) {
 #[test]
 fn exact_phase_cancellation_controls_and_adjoint_calls_preserve_all_four_inputs() {
     for (body, inner) in [
-        ("ctl c h t\nctl c t t\nctl c tdg t\nctl c h t", "x t"),
-        ("ctl c action_call @inner (t) () () ()\nctl c h t", "h t"),
+        ("qpred c\nh t\nqunpred c\nqpred c\nt t\nqunpred c\nqpred c\ntdg t\nqunpred c\nqpred c\nh t\nqunpred c", "x t"),
+        ("ctl c action_call @inner (t) () () ()\nqpred c\nh t\nqunpred c", "h t"),
         (
             "ctl c action_call @inner (t) () () ()\nctl c adj action_call @inner (t) () () ()",
             "h t\nt t\ns t",
         ),
         ("h t\nt t\nt t\nt t\nt t\nt t\nt t\nt t\nt t\nh t", "x t"),
         ("cz c t\ncz c t\nh t\nh t", "x t"),
-        ("qpred c\nctl c h t\nctl c h t\nqunpred c", "x t"),
+        ("qpred c\nqpred c\nh t\nqunpred c\nqpred c\nh t\nqunpred c\nqunpred c", "x t"),
         ("qif c {\nh t\nh t\n} {\nt t\ntdg t\n}", "x t"),
     ] {
         let (inputs, root) = coherent_fixture(body, inner, false);

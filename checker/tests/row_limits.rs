@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 use bennett_cert_checker::eval::{eval_oracle_bounded, Classical, EvalError};
 use bennett_cert_checker::object::Object;
 use common::*;
@@ -218,10 +218,10 @@ fn action_to_oracle_calls_use_the_configured_reference_row_limit() {
 }
 
 #[test]
-fn reference_work_limit_counts_empty_loop_visits() {
+fn reference_work_limit_counts_identity_loop_visits() {
     use bennett_cert_checker::cert::check_certificate;
     use bennett_cert_checker::json::{jcs, Value};
-    let source="perm_action @loops (t:wire mut) () () () ()\nregs {  } bounds {1000}\n^entry():\nqloop 1000 {\n}";
+    let source="perm_action @loops (t:wire mut) () () () ()\nregs {  } bounds {1000}\n^entry():\nqloop 1000 {\nx t\nx t\n}";
     let sig = r#"{"loops":{"abi":"0.9","args":[],"bounds":[1000],"in":[],"kind":"perm_action","mem":[],"mut":[1],"tier":"q"}}"#;
     let claim = json(
         r#"{"kind":"exhaustive","label":"proof","domain":{"bundles":[],"borrowed":[],"regions":[]},"invocation":{"args":[],"budget":["0","0","0","0"]},"expected":{"table":[{"before":{"bundles":["0"],"borrowed":[],"regions":[]},"after":{"bundles":["0"],"borrowed":[],"regions":[]}}]}}"#,

@@ -427,3 +427,93 @@ Token-free omission derives the unique empty/oracle-singleton partition for
 published older positives; a specification clarification is recorded. Scheduled
 carrier/lifecycle integration remains unfinished, and the value-only coherent
 entry API defers token-bearing replay until it carries identities.
+
+Object parsing checks §16.1 lexical form before hashing function bodies:
+canonical numeric spellings, spacing, LF line endings and comment-free text.
+The empty `regs {  }` and empty-HEX data exceptions retain their specified
+spelling. Metadata JSON and quoted strings keep their own lexical rules.
+
+Schedules containing a recompute cleanup decision remain `unchecked` because
+the checker has not derived that cleanup expansion or its resources. A source
+adjoint's reverse trace cannot certify a different scheduled implementation.
+
+Checker tests require `BENNETT_ISA_SPEC`, which the gate sets to
+`{sibling:bennett-isa-spec}`. The selected checkout must have a detached HEAD
+equal to the `bennett-isa-spec` SHA in `gate.toml`. An unset variable, missing
+checkout, symbolic HEAD or different revision fails with a diagnostic naming
+`BENNETT_ISA_SPEC`; no local-cache path or live sibling is substituted.
+
+After materializing the pin, use the headless environment in
+[quality.md](quality.md) and run this one-line command from the repository root:
+
+```sh
+BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec" systemd-run --user --scope --quiet timeout 240 cargo test --offline --manifest-path checker/Cargo.toml -j3 -- --test-threads=4
+```
+
+The variable points outside any fresh exported checkout, so the same pin can be
+used without a cache inside that export. See [quality.md](quality.md) for
+measured runtime and coverage limits.
+
+Selected §12.1 borrow-frame relations admit the published §12.2 workspace and
+entry-products vocabulary. They remain **unchecked**: this checker does not
+derive maximal source occurrences, normative entry domains or tensor-factor
+replay, and assigns no element count, coverage or proof. Required frame fields,
+subject/schedule binding and standalone invocation binding are checked before
+this deferral. Domain, occurrence and sampler validity remain named unresolved
+obligations. Ordinary interface relations retain their closed domain schema.
+
+## Canonical source admission differential
+
+Before hashing, the reader checks §16.1 atoms in their §16.2 contexts: integer
+type/opcode widths, version components, unsigned bounds/counts/indices/region
+dimensions, signed integer literals, and canonical finite gate-angle floats.
+Punctuation uses the printed grammar spacing, including the empty-regs and
+empty-HEX exceptions. No host-width cap is added to lexical integer validation.
+
+The default integration test generates mutations at every numeric-atom and
+punctuation position of a canonical multi-function object: 52 numeric sites,
+183 punctuation sites, and 1,933 nonidentity mutation cases. Numeric changes
+include leading zeros, signs, hex, underscores, decimal-looking integer
+spellings and inserted whitespace; punctuation changes remove/add spaces,
+tabs and newlines on both sides. All eight numeric roles must occur in the seed.
+
+Each candidate goes through the gate-pinned release interpreter's black-box
+`hash` and `check` commands and this reader's object parser. The hash command
+repairs stated metadata independently, so a stale §9.2 binding cannot conceal
+an admission mismatch. Every interpreter-rejected candidate is also sent to
+the certificate entry point with bindings rebound if this reader admits it;
+neither overall verification nor a claim proof may result. JSON metadata and
+data HEX use their separate grammars and are excluded from INT mutations.
+
+The test runs the release interpreter under the validated ISA pin and checks
+that any `BENNETT_ISA_BINARY` identifies that same binary. Missing binaries fail
+with a build instruction. The canonical identity control still verifies;
+noncanonical integer declarations and bounds reject with `E_CERT_OBJECT`
+at §16.1. Internal evaluator defense tests inject malformed tokens after a
+valid parse; they do not treat those spellings as legal source objects.
+
+
+Source admission now runs before document binding and verdict evaluation. It
+checks complete function/header productions and all instruction bodies,
+including unclaimed functions, both conditional arms and zero-trip loops.
+Malformed source receives E_CERT_OBJECT with its specification section. Indexed
+control prefixes retain their complete operand, and opcode/operand typing is
+separate from basis-state replay.
+
+Executed loop bodies must preserve the predicate stack at body boundaries
+(§3.5/§4.6); a violation receives E_CERT_OBJECT. The equivalent control can be
+written with balanced qpred/qunpred inside each body.
+
+Three complete-source checks remain explicit unchecked obligations: repeated
+same-type definitions whose pinned SSA admission disagrees with §3.4, indirect
+label widths that require full binding-instance index spaces (§3.6), and linked
+imported bodies (§3.3/§9.2). Any such obligation defers the whole certificate
+before a region or claim proof is issued.
+
+
+The default generated source differential currently checks 3,331 candidates
+against the detached gate-pinned release interpreter in both admission
+directions, with zero disagreements. Every interpreter-rejected candidate also
+passes through the public certificate entry point to ensure it receives no
+verification or claim proof. The original canonical and indexed-control
+positives retain independently specified full-domain truth tables.

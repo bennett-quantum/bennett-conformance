@@ -186,7 +186,8 @@ pub fn parse_blocks(func: &Function) -> Vec<(String, Vec<Stmt>)> {
         if let Some(rest) = line.strip_prefix('^') {
             let name = rest.split('(').next().unwrap_or("").to_string();
             i += 1;
-            let (stmts, ni) = parse_seq(&lines, i);
+            let (stmts, ni) = parse_seq(&lines, i, false)
+                .expect("Object::parse established complete structured source");
             i = ni;
             out.push((name, stmts));
         } else {
@@ -196,38 +197,36 @@ pub fn parse_blocks(func: &Function) -> Vec<(String, Vec<Stmt>)> {
     out
 }
 
-fn parse_seq(lines: &[&str], mut i: usize) -> (Vec<Stmt>, usize) {
+fn parse_seq(lines: &[&str], mut i: usize, nested: bool) -> Result<(Vec<Stmt>, usize), String> {
     let mut out = Vec::new();
     while i < lines.len() {
         let line = lines[i];
         if line.starts_with('^') || line == "}" || line == "} {" {
             break;
         }
-        if line.starts_with("regs ") || line.starts_with("regs{") {
-            i += 1;
-            continue;
-        }
         let toks = tokenise(line);
         if toks.last().map(String::as_str) == Some("{") {
             let head = toks[..toks.len() - 1].to_vec();
-            let (body, ni) = parse_seq(lines, i + 1);
+            let (body, ni) = parse_seq(lines, i + 1, true)?;
             i = ni;
             // lines[i] is "}" or "} {"
             if i < lines.len() && lines[i] == "} {" {
-                let (rest, ni2) = parse_seq(lines, i + 1);
+                let (rest, ni2) = parse_seq(lines, i + 1, true)?;
                 i = ni2;
-                if i < lines.len() && lines[i] == "}" {
-                    i += 1;
+                if lines.get(i) != Some(&"}") {
+                    return Err("§16.2: expected closing brace".into());
                 }
+                i += 1;
                 out.push(Stmt::Block {
                     head,
                     body,
                     rest: Some(rest),
                 });
             } else {
-                if i < lines.len() && lines[i] == "}" {
-                    i += 1;
+                if lines.get(i) != Some(&"}") {
+                    return Err("§16.2: expected closing brace".into());
                 }
+                i += 1;
                 out.push(Stmt::Block {
                     head,
                     body,
@@ -239,7 +238,10 @@ fn parse_seq(lines: &[&str], mut i: usize) -> (Vec<Stmt>, usize) {
             i += 1;
         }
     }
-    (out, i)
+    if nested && (out.is_empty() || !matches!(lines.get(i), Some(&"}" | &"} {"))) {
+        return Err("§16.2: empty or unterminated structured body".into());
+    }
+    Ok((out, i))
 }
 
 fn flatten(stmts: &[Stmt], out: &mut Vec<Vec<String>>) {
@@ -1297,10 +1299,10 @@ impl Lifted<'_, '_> {
                     self.depth + 1,
                     self.work,
                 )?;
-                let tgt_cur = self.read(&tgt_loc).unwrap_or_default();
+                let tgt_cur = self.read(&tgt_loc)?;
                 let tgt_w = self.width_of(&tgt_loc)?;
                 self.write(&tgt_loc, &tgt_cur ^ &outcome.payload, tgt_w);
-                let fr_cur = self.read(&fr_loc).unwrap_or_default();
+                let fr_cur = self.read(&fr_loc)?;
                 let fr_w = self.width_of(&fr_loc)?;
                 self.write(&fr_loc, &fr_cur ^ &outcome.code, fr_w);
                 Ok(RowFlow::Next)
@@ -3379,6 +3381,10 @@ fn eval_subject_tuple_bounded(
     Ok(after)
 }
 
+mod borrow_frames;
+mod replay_claim;
+use replay_claim::Expected;
+
 // ---------- replay claim shell ----------
 
 use crate::cert::{
@@ -3562,58 +3568,7 @@ fn check_replay_inner(
     inputs: &Inputs,
 ) -> Result<ClaimOutcome, ClaimOutcome> {
     let kind = claim.get("kind").and_then(Value::as_str).unwrap_or("");
-    // Strict claim shape.
-    {
-        let mut errs = Vec::new();
-        let allowed: &[&str] = if kind == "sampled" {
-            &[
-                "kind",
-                "subject",
-                "domain",
-                "expected",
-                "sampler",
-                "label",
-                "invocation",
-            ]
-        } else {
-            &[
-                "kind",
-                "subject",
-                "domain",
-                "expected",
-                "label",
-                "invocation",
-            ]
-        };
-        let required: &[&str] = if kind == "sampled" {
-            &["kind", "subject", "domain", "expected", "sampler"]
-        } else {
-            &["kind", "subject", "domain", "expected"]
-        };
-        if let Some(obj) = claim.as_obj() {
-            for k in obj.keys() {
-                if !allowed.contains(&k.as_str()) {
-                    errs.push(schema_err(
-                        format!("{path}.{k}"),
-                        format!("unknown field {k:?} in {kind} claim"),
-                    ));
-                }
-            }
-            for r in required {
-                if !obj.contains_key(*r) {
-                    errs.push(schema_err(
-                        format!("{path}.{r}"),
-                        format!("missing required field {r:?}"),
-                    ));
-                }
-            }
-        } else {
-            errs.push(schema_err(path.to_string(), "claim is not an object"));
-        }
-        if !errs.is_empty() {
-            return Err(ClaimOutcome::rejected(errs));
-        }
-    }
+    replay_claim::validate_shape(claim, kind, path)?;
     let subject = claim_subject(claim, path, region_hash, false)?;
     let symbol = match docs.object.symbol_by_closure(&subject.closure_hash) {
         Some(s) => s.clone(),
@@ -3635,43 +3590,7 @@ fn check_replay_inner(
         ClaimOutcome::unchecked(format!("subject interface cannot be derived: {e}"))
     })?;
 
-    // Expected relation.
-    #[derive(PartialEq)]
-    enum Expected {
-        Oracle,
-        InversePair,
-        Table(Vec<Value>),
-        Program(String),
-    }
-    let expected = match claim.get("expected") {
-        Some(Value::Str(x)) if x == "oracle" => Expected::Oracle,
-        Some(Value::Str(x)) if x == "inverse_pair" => Expected::InversePair,
-        Some(Value::Obj(m)) if m.len() == 1 && m.contains_key("table") => {
-            match m.get("table").and_then(Value::as_arr) {
-                Some(rows) => Expected::Table(rows.to_vec()),
-                None => return Err(ClaimOutcome::rejected(vec![rej("E_CERT_TABLE", "§12.1", format!("{path}.expected.table"), "expected array of before/after rows")])),
-            }
-        }
-        Some(Value::Obj(m)) if m.len() == 1 && m.contains_key("program") => {
-            match m.get("program").and_then(Value::as_str).filter(|h| crate::is_hash_hex(h)) {
-                Some(h) => Expected::Program(h.to_string()),
-                None => {
-                    return Err(ClaimOutcome::rejected(vec![schema_err(
-                        format!("{path}.expected.program"),
-                        "expected closure hash",
-                    )]))
-                }
-            }
-        }
-        _ => {
-            return Err(ClaimOutcome::rejected(vec![rej(
-                "E_CERT_BINDING",
-                "§12.1",
-                format!("{path}.expected"),
-                "expected must be \"oracle\", {table}, {program}, or (exhaustive) \"inverse_pair\"; there is no default relation",
-            )]))
-        }
-    };
+    let expected = replay_claim::parse_expected(claim, path)?;
     let requested_label = match claim.get("label") {
         None => None,
         Some(Value::Str(x))
@@ -3722,6 +3641,18 @@ fn check_replay_inner(
             "a region record's claims are about that region; subject names a different closure",
         )]));
     }
+    if expected == Expected::BorrowFrame {
+        return borrow_frames::check_claim(
+            claim,
+            path,
+            &subject,
+            &symbol,
+            &iface,
+            docs,
+            root_invocation,
+            cert_schedule_hash,
+        );
+    }
     if expected == Expected::Oracle && subject.schedule_hash.is_none() {
         return Err(ClaimOutcome::rejected(vec![rej(
             "E_CERT_BINDING",
@@ -3747,72 +3678,7 @@ fn check_replay_inner(
         }
         Err(ResolveError::HostLimit(h)) => return Ok(host_limit_outcome(h)),
     };
-    // Table correspondence.
-    let table_rows: Option<Vec<(Tuple, Tuple)>> = match &expected {
-        Expected::Table(rows) => {
-            if BigUint::from(rows.len()) != domain.n {
-                return Err(ClaimOutcome::rejected(vec![rej(
-                    "E_CERT_TABLE",
-                    "§12.1",
-                    format!("{path}.expected.table"),
-                    format!(
-                        "table has {} rows; the declared domain has {} elements",
-                        rows.len(),
-                        domain.n
-                    ),
-                )]));
-            }
-            // Both before/after tuples are retained. Validate the entire
-            // declared table even when only a drawn subset will execute.
-            if let Err(limit) = domain.check_retained_elements(&(BigUint::from(rows.len()) * 2u32))
-            {
-                return Ok(host_limit_outcome(limit));
-            }
-            let mut parsed = Vec::new();
-            for (i, (row, element)) in rows.iter().zip(domain.elements()).enumerate() {
-                let mut errors = vec![];
-                if !crate::cert::check_keys(
-                    row,
-                    &["before", "after"],
-                    &["before", "after"],
-                    &format!("{path}.expected.table[{i}]"),
-                    &mut errors,
-                ) {
-                    for error in &mut errors {
-                        error.code = "E_CERT_TABLE";
-                    }
-                    return Err(ClaimOutcome::rejected(errors));
-                }
-                let before = parse_tuple(
-                    row.get("before").unwrap_or(&Value::Null),
-                    &domain,
-                    &format!("{path}.expected.table[{i}].before"),
-                )
-                .map_err(|e| ClaimOutcome::rejected(vec![e]))?;
-                if before != element {
-                    return Err(ClaimOutcome::rejected(vec![rej(
-                        "E_CERT_TABLE",
-                        "§12.1",
-                        format!("{path}.expected.table[{i}].before"),
-                        format!(
-                            "row before {} is not declared-domain element {i} {}",
-                            fmt_tuple(&before),
-                            fmt_tuple(&element)
-                        ),
-                    )]));
-                }
-                let after = parse_tuple(
-                    row.get("after").unwrap_or(&Value::Null),
-                    &domain,
-                    &format!("{path}.expected.table[{i}].after"),
-                )
-                .map_err(|e| ClaimOutcome::rejected(vec![e]))?;
-                parsed.push((before, after));
-            }
-            Some(parsed)
-        }
-        _ => None,
-    };
+    let table_rows = replay_claim::table_rows(&expected, &domain, path)?;
     // Invocation.
     let scheduled = subject.schedule_hash.is_some();
     if scheduled && subject.schedule_hash.as_deref() != cert_schedule_hash {
@@ -3873,161 +3739,14 @@ fn check_replay_inner(
     } else if scheduled {
         return Ok(ClaimOutcome::unchecked("nested scheduled invocation: explicit arguments/budget cannot be trusted until every invocation context has been independently resolved (§12.3)"));
     }
-    // Expected program compatibility (K73: positional, never by name).
-    let program: Option<(Symbol, Interface)> = match &expected {
-        Expected::Program(h) => {
-            let sym = match docs.object.symbol_by_closure(h) {
-                Some(s) => s.clone(),
-                None if docs.object.imports.is_empty() => return Err(ClaimOutcome::rejected(vec![rej(
-                    "E_CERT_BINDING", "§12.1", format!("{path}.expected.program"),
-                    "expected program closure is absent from the complete supplied object (no imports)",
-                )])),
-                None => {
-                    return Ok(ClaimOutcome::unchecked(
-                        "expected program is not in the supplied object",
-                    ))
-                }
-            };
-            let piface = docs
-                .object
-                .interface(&sym.name)
-                .map_err(|e| ClaimOutcome::unchecked(format!("expected program interface: {e}")))?;
-            let shape = |i: &Interface| {
-                (
-                    i.bundles
-                        .iter()
-                        .map(|b| (b.group.clone(), b.width))
-                        .collect::<Vec<_>>(),
-                    i.regions
-                        .iter()
-                        .map(|r| (r.role.clone(), r.a, r.w))
-                        .collect::<Vec<_>>(),
-                    i.args.clone(),
-                    i.borrowed_widths.clone(),
-                )
-            };
-            if shape(&iface) != shape(&piface) {
-                return Err(ClaimOutcome::rejected(vec![rej(
-                    "E_CERT_BINDING",
-                    "§12.1",
-                    format!("{path}.expected.program"),
-                    "expected program signature is not compatible with the subject (roles, widths, region shapes, argument types, borrowed widths)",
-                )]));
-            }
-            Some((sym, piface))
-        }
-        _ => None,
-    };
-
+    let program = replay_claim::bind_program(&expected, &iface, docs, path)?;
     if expected == Expected::Oracle {
         return Ok(ClaimOutcome::unchecked(
             "expected \"oracle\" compares the realised (§5.2-constructed) operation with F_B; re-deriving that construction requires the §11.1 expansion/step-machine simulation this checker does not yet perform",
         ));
     }
-    // Elements to replay.
-    let (elements, draws_count, distinct_count): (Vec<Tuple>, Option<u64>, Option<usize>) = if kind
-        == "exhaustive"
-    {
-        if domain.n > BigUint::from(inputs.limits.max_elements) {
-            return Ok(host_limit_outcome(crate::fault::HostLimit {
-                quantity: format!(
-                    "domain element count {} (cap {})",
-                    domain.n, inputs.limits.max_elements
-                ),
-            }));
-        }
-        if let Err(h) = domain.check_retained_elements(&domain.n) {
-            return Ok(host_limit_outcome(h));
-        }
-        (domain.elements().collect(), None, None)
-    } else {
-        let sampler = claim.get("sampler").cloned().unwrap_or(Value::Null);
-        let mut errs = Vec::new();
-        crate::cert::check_keys(
-            &sampler,
-            &["algorithm", "seed", "count"],
-            &["algorithm", "seed", "count"],
-            &format!("{path}.sampler"),
-            &mut errs,
-        );
-        if sampler.get("algorithm").and_then(Value::as_str) != Some("xoshiro256**") {
-            errs.push(rej(
-                "E_CERT_SAMPLER",
-                "§12.1",
-                format!("{path}.sampler.algorithm"),
-                "algorithm must be \"xoshiro256**\"",
-            ));
-        }
-        let seed: Vec<String> = sampler
-            .get("seed")
-            .and_then(Value::as_arr)
-            .map(|a| {
-                a.iter()
-                    .filter_map(|x| x.as_str().map(str::to_string))
-                    .collect()
-            })
-            .unwrap_or_default();
-        if seed.len() != 4
-            || sampler.get("seed").and_then(Value::as_arr).map(|a| a.len()) != Some(4)
-        {
-            errs.push(rej(
-                "E_CERT_SAMPLER",
-                "§12.1",
-                format!("{path}.sampler.seed"),
-                "seed must be 4 decimal strings",
-            ));
-        }
-        let count = sampler
-            .get("count")
-            .and_then(|v| {
-                v.as_str()
-                    .and_then(crate::rat::parse_biguint_str)
-                    .or_else(|| u64_of(v).map(BigUint::from))
-            })
-            .unwrap_or_else(|| {
-                errs.push(rej(
-                    "E_CERT_SAMPLER",
-                    "§12.1",
-                    format!("{path}.sampler.count"),
-                    "count must be a nonnegative integer",
-                ));
-                BigUint::zero()
-            });
-        if !errs.is_empty() {
-            return Err(ClaimOutcome::rejected(errs));
-        }
-        if let Err(e) = crate::sampler::Sampler::new([&seed[0], &seed[1], &seed[2], &seed[3]]) {
-            return Err(ClaimOutcome::rejected(vec![rej(
-                "E_CERT_SAMPLER",
-                "§12.1",
-                format!("{path}.sampler.seed"),
-                e,
-            )]));
-        }
-        if count > BigUint::from(inputs.limits.max_elements) {
-            return Ok(host_limit_outcome(crate::fault::HostLimit {
-                quantity: format!("sampler count {count} (cap {})", inputs.limits.max_elements),
-            }));
-        }
-        if let Err(h) = domain.check_retained_elements(&count) {
-            return Ok(host_limit_outcome(h));
-        }
-        let count = count
-            .to_string()
-            .parse::<u64>()
-            .expect("count was bounded by the u64 host limit");
-        let draws = match crate::sampler::draw_elements(
-            &domain,
-            [&seed[0], &seed[1], &seed[2], &seed[3]],
-            count,
-        ) {
-            Ok(d) => d,
-            Err(ResolveError::Reject(r)) => return Err(ClaimOutcome::rejected(vec![r.at(path)])),
-            Err(ResolveError::HostLimit(h)) => return Ok(host_limit_outcome(h)),
-        };
-        let distinct: std::collections::HashSet<String> = draws.iter().map(fmt_tuple).collect();
-        (draws, Some(count), Some(distinct.len()))
-    };
+    let (elements, draws_count, distinct_count) =
+        replay_claim::select_elements(claim, kind, &domain, inputs, path)?;
 
     // Scheduled replay compares the realised operation; require an exact
     // realisation so reference replay is the same operation.
@@ -4116,121 +3835,17 @@ fn check_replay_inner(
     }
     let _ = replayed;
 
-    let (computed, elements_s, fraction) = if kind == "exhaustive" {
-        (
-            if domain.covers_full {
-                "proof"
-            } else if domain.covers_relative_to_image {
-                "proof_relative_to_image"
-            } else {
-                "evidence"
-            },
-            domain.n.to_string(),
-            domain.covered_fraction(),
-        )
-    } else {
-        (
-            "evidence",
-            draws_count.unwrap_or(0).to_string(),
-            fraction_string(&BigUint::from(distinct_count.unwrap_or(0)), &domain.full_n),
-        )
-    };
-    let mut out = ClaimOutcome {
-        outcome: computed.into(),
-        establishes: String::new(),
-        elements: Some(elements_s.clone()),
-        draws: draws_count.map(|d| d.to_string()),
-        distinct: distinct_count.map(|d| d.to_string()),
-        covered_fraction: Some(fraction.clone()),
-        token_aliases: Some(invocation.token_aliases.clone()),
-        image_bindings: if domain.fixed_regions.is_empty() {
-            None
-        } else {
-            let regions = domain
-                .fixed_regions
-                .iter()
-                .map(|r| {
-                    Value::Obj(std::collections::BTreeMap::from([
-                        (
-                            "identity".into(),
-                            Value::Arr(vec![Value::Str("mem".into()), crate::json::n(r.position)]),
-                        ),
-                        ("A".into(), crate::json::n(r.a)),
-                        ("W".into(), crate::json::n(r.w)),
-                        ("sha256".into(), Value::Str(r.sha256.clone())),
-                    ]))
-                })
-                .collect();
-            Some(Value::Obj(std::collections::BTreeMap::from([
-                ("fixed_regions".into(), Value::Arr(regions)),
-                ("context_key".into(), Value::Arr(vec![])),
-                (
-                    "invocation".into(),
-                    Value::Obj(std::collections::BTreeMap::from([
-                        ("args".into(), Value::Arr(invocation.args.clone())),
-                        (
-                            "budget".into(),
-                            Value::Arr(
-                                invocation
-                                    .budget
-                                    .iter()
-                                    .map(|n| Value::Str(n.to_string()))
-                                    .collect(),
-                            ),
-                        ),
-                        (
-                            "token_aliases".into(),
-                            Value::Arr(
-                                invocation
-                                    .token_aliases
-                                    .iter()
-                                    .map(crate::json::n)
-                                    .collect(),
-                            ),
-                        ),
-                    ])),
-                ),
-            ])))
-        },
-        ..Default::default()
-    };
-    out.establishes = if computed == "proof" {
-        format!(
-            "every element of D ({elements_s} tuples) was replayed and full output tuples agree with the expected relation under the subject {} variant {:?} with {} inherited control(s); by §12.2 this is proof (and the §14.3 T3 premise for permutation subjects)",
-            if scheduled { "realised (schedule-bound, exact) " } else { "" },
-            subject.variant,
-            subject.inherited_controls
-        )
-    } else if computed == "proof_relative_to_image" {
-        format!("all {elements_s} tuples of every remaining unrestricted component were replayed with the independently bound fixed image(s); this is a conditional proof_relative_to_image theorem with exact +1 phase, full outputs, input-image restoration and clean workspace, covering {fraction} of unrestricted D; executable preparation and entry factorisation are separate obligations, not established by this theorem")
-    } else if kind == "exhaustive" {
-        format!("all {elements_s} domain elements were replayed and agree; this is evidence over a strict slice of D (covered fraction {fraction}), never proof")
-    } else {
-        format!(
-            "{} sampled draws ({} distinct) were replayed on both sides and agree; sampled success is always evidence (distinct covered fraction {fraction}), even at full coverage",
-            draws_count.unwrap_or(0),
-            distinct_count.unwrap_or(0)
-        )
-    };
-    if requested_label.as_deref().is_some_and(|label| {
-        matches!(label, "proof" | "proof_relative_to_image") && label != computed
-    }) {
-        let mut rejected = ClaimOutcome::rejected(vec![Reject::new(
-            "E_CERT_COVERAGE_LABEL",
-            "§12.2",
-            format!("{path}.label"),
-            format!("producer requested {}; the checker-computed outcome is {computed} (fraction {fraction})",requested_label.unwrap()),
-        )]);
-        rejected.elements = out.elements;
-        rejected.draws = out.draws;
-        rejected.distinct = out.distinct;
-        rejected.covered_fraction = out.covered_fraction;
-        rejected.establishes = out.establishes;
-        rejected.image_bindings = out.image_bindings;
-        rejected.token_aliases = out.token_aliases;
-        return Err(rejected);
-    }
-    Ok(out)
+    replay_claim::finish_outcome(
+        kind,
+        &domain,
+        &invocation,
+        &subject,
+        scheduled,
+        requested_label,
+        draws_count,
+        distinct_count,
+        path,
+    )
 }
 
 fn check_inverse_pair(
@@ -4594,4 +4209,54 @@ fn check_inverse_pair(
         return Err(rejected);
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod fail_fast_tests {
+    use super::*;
+
+    #[test]
+    fn lifted_calls_cannot_create_missing_target_or_fault_values_from_zero() {
+        let object = Object::parse(include_str!(
+            "../tests/fixtures/replay-differential/oracle-store-load-heap/object.bisa"
+        ))
+        .unwrap();
+        for missing in ["t", "fr"] {
+            let mut work = 100;
+            let mut env = Lifted {
+                object: &object,
+                vals: HashMap::from([
+                    ("x".into(), 7u32.into()),
+                    ("t".into(), 0u32.into()),
+                    ("fr".into(), 0u32.into()),
+                ]),
+                widths: HashMap::from([("x".into(), 4), ("t".into(), 4), ("fr".into(), 4)]),
+                tokens: HashMap::from([(
+                    "tk".into(),
+                    [9u32.into(), 4u32.into(), 0u32.into(), 0u32.into()],
+                )]),
+                result_val: 0u32.into(),
+                tgt_width: 4,
+                depth: 0,
+                work: &mut work,
+                oracle_name: "o".into(),
+                heap_limit: 4u32.into(),
+                memory: None,
+                locations: HashSet::from(["t".into(), "fr".into()]),
+                fault_width: 4,
+                region_names: HashMap::new(),
+                in_lproc: false,
+            };
+            env.vals.remove(missing);
+            let toks =
+                ["lift.oracle_call", "@o", "tk", "(x)", "t", "fr", "()", "()"].map(str::to_string);
+            match env.exec_row(&toks, &[], &HashMap::new(), &mut HashMap::new(), &[]) {
+                Err(EvalError::Reject(error)) => {
+                    assert_eq!(error.code, "E_CERT_OBJECT");
+                    assert!(error.message.contains(missing), "{error:?}");
+                }
+                _ => panic!("missing {missing} was silently initialized by the call"),
+            }
+        }
+    }
 }
