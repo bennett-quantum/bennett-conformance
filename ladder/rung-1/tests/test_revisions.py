@@ -1,5 +1,7 @@
 """Revision-selection contract shared by both ladder gates and main-health."""
 import argparse
+import hashlib
+import json
 import importlib.util
 import os
 import sys
@@ -40,6 +42,17 @@ class RevisionCLI(unittest.TestCase):
                 with self.subTest(rung=rung):
                     output = subprocess.check_output(['bash', str(ROOT / 'ladder' / rung / 'gate.sh'), '--help'], text=True, env=env)
                     self.assertEqual(output.strip(), os.environ['TMPDIR'])
+
+    def test_recorded_default_pins_include_every_sibling(self):
+        expected = json.loads((ROOT / 'ladder/rung-1/evidence/20261101T141544.771577Z/report.json').read_text())['manifest']['pins']
+        for rung in ('rung-1', 'rung-2'):
+            with self.subTest(rung=rung):
+                pins = json.loads((ROOT / 'ladder' / rung / 'pins.json').read_text())
+                for name in ('plugin', 'vm', 'runtimes', 'arith'):
+                    self.assertEqual(pins['bennett-' + name], expected['bennett-' + name])
+                self.assertEqual(pins['bennett-isa-spec'], expected['bennett-isa-spec-review'])
+                self.assertRegex(pins['bennett-driver'], r'^[0-9a-f]{40}$')
+                self.assertNotIn('bennett-isa-spec-review', pins)
 
     def test_main_health_can_construct_the_actual_gate_command(self):
         revisions = {name: '1' * 40 for name in health.LADDER_REPOS}
@@ -85,8 +98,10 @@ class FrozenRevisions(unittest.TestCase):
                     pin = self.revisions['arith'][0 if value == 'old' else 1]
                     (repo / 'SPEC_VERSIONS.toml').write_text(
                         'dialect = "' + ('0.2.10' if value == 'old' else '0.2.13') + '"\nisa = "' + ('0.8' if value == 'old' else '0.9') + '"\n[arith]\ncommit = "' + pin + '"\n' +
-                        '\n'.join(f'llvm{m}_sha256 = "{sha(arith / f"dist/llvm{m}/bennett-arith.bc")}"'
+                        '\n'.join(f'llvm{m}_sha256 = "{hashlib.sha256(subprocess.check_output(["git", "-C", str(arith), "show", pin + f":dist/llvm{m}/bennett-arith.bc"])).hexdigest()}"'
                                   for m in (18, 23)) + '\n')
+                if name == 'plugin' and value == 'new':
+                    (repo / 'gate.toml').write_text('[siblings.\"bennett-arith\"]\nsha = \"' + pin + '\"\n[siblings.\"bennett-isa-spec\"]\nsha = \"' + self.revisions['isa-spec'][0] + '\"\n')
                 self.git(repo, 'add', '.')
                 self.git(repo, 'commit', '-qm', value)
                 destination.append(self.git(repo, 'rev-parse', 'HEAD'))
@@ -103,6 +118,12 @@ class FrozenRevisions(unittest.TestCase):
         self.commands.append((tag, argv))
         if argv[0] == 'git':
             return subprocess.check_output(argv, stderr=subprocess.PIPE)
+        layout = None
+        if argv[0] == 'env':
+            assignment = next((arg for arg in argv[1:] if arg.startswith('BENNETT_GATE_LAYOUT=')), None)
+            if assignment is not None:
+                layout = Path(assignment.split('=', 1)[1])
+            argv = argv[2:]
         if argv[0] == 'cmake' and '-S' in argv:
             # Model the plugin's configure-time requirement, before a build can run.
             import tomllib
@@ -111,7 +132,8 @@ class FrozenRevisions(unittest.TestCase):
             if 'commit' not in pins:
                 return b''  # Legacy CMake embeds paths and digests, without a gate cache.
             commit = pins['commit']
-            cache = source / '.tmp/gate/cache' / ('bennett-arith@' + commit[:12]) / 'bennett-arith'
+            self.assertIsNotNone(layout, 'plugin build must export BENNETT_GATE_LAYOUT')
+            cache = layout / 'bennett-arith'
             self.assertTrue(cache.is_dir(), 'plugin arithmetic pin must exist before CMake configures')
             self.assertEqual(self.git(cache, 'rev-parse', 'HEAD'), commit)
         if argv[0] == 'cmake' and '--build' in argv:
@@ -129,17 +151,21 @@ class FrozenRevisions(unittest.TestCase):
 
     def make_gate(self, rung, **overrides):
         module = load_gate(rung)
-        args = dict(revision_selected=True, output=str(self.workspace / (rung + '-out')), timeout=300, jobs=3,
+        args = dict(output=str(self.workspace / (rung + '-out')), timeout=300, jobs=3,
                     plugin_rev=self.revisions['plugin'][1], vm_rev=None,
                     runtimes_rev=self.revisions['runtimes'][0],
                     arith_rev=self.revisions['arith'][1],
                     isa_spec_rev=self.revisions['isa-spec'][0],
                     driver_rev=self.revisions['driver'][0],
-                    reference='/explicit/default/reference', runtimes18=None, runtimes23=None,
+                    reference=None, runtimes18=None, runtimes23=None,
                     arith18=None, arith23=None)
         args.update(overrides)
+        namespace = argparse.Namespace(**args)
+        defaults = {'bennett-' + name: revisions[0] for name, revisions in self.revisions.items()}
+        defaults['bennett-vm'] = '2' * 40
+        module.apply_recorded_pins(namespace, defaults)
         with patch.object(module, 'WORKSPACE', self.workspace):
-            gate = module.Gate(argparse.Namespace(**args))
+            gate = module.Gate(namespace)
         gate.tmp = self.workspace / (rung + '-cache')
         gate.tmp.mkdir(exist_ok=True)
         gate.command = self.command
@@ -210,13 +236,16 @@ class FrozenRevisions(unittest.TestCase):
     def test_no_revision_selection_keeps_historical_production_versions(self):
         for rung in ('rung-1', 'rung-2'):
             with self.subTest(rung=rung):
-                g = self.make_gate(rung, revision_selected=False)
+                g = self.make_gate(rung, plugin_rev=None, vm_rev=None, runtimes_rev=None, arith_rev=None, isa_spec_rev=None, driver_rev=None)
                 g.sources.prepare()
                 with patch.dict(g.plugin.__globals__, WORKSPACE=self.workspace):
                     g.plugin()
                 argv = self.production_argv(g, rung)
                 self.assertIn('-bennett-dialect=0.2.10', argv)
                 self.assertIn('-bennett-isa=0.8', argv)
+                g.build_reference()
+                self.assertEqual(g.reference_exe.read_text(), 'old')
+                self.assertEqual(g.manifest['reference_profile'], 'release')
 
     def test_selected_plugin_missing_declared_version_fails_before_build(self):
         plugin = self.workspace / 'bennett-plugin'
@@ -234,7 +263,23 @@ class FrozenRevisions(unittest.TestCase):
                     with patch.dict(g.plugin.__globals__, WORKSPACE=self.workspace):
                         with self.assertRaisesRegex(GateError, 'missing.*' + missing):
                             g.plugin()
-                    self.assertFalse(any(argv[0] == 'cmake' for tag, argv in self.commands))
+                    self.assertFalse(any('cmake' in argv for tag, argv in self.commands))
+
+    def test_non_recorded_plugin_build_exports_a_pinned_gate_layout(self):
+        g = self.make_gate('rung-2')
+        g.sources.prepare()
+        with patch.dict(g.plugin.__globals__, WORKSPACE=self.workspace):
+            g.plugin()
+        configure = next(argv for tag, argv in self.commands if tag == 'build/plugin-configure')
+        build = next(argv for tag, argv in self.commands if tag == 'build/plugin-build')
+        self.assertEqual(configure[0], 'env')
+        layout_arg = next(arg for arg in configure if arg.startswith('BENNETT_GATE_LAYOUT='))
+        self.assertIn(layout_arg, build)
+        layout = Path(layout_arg.split('=', 1)[1])
+        self.assertTrue((layout / 'bennett-plugin').is_dir())
+        for name, revision in (('arith', self.revisions['arith'][1]),
+                               ('isa-spec', self.revisions['isa-spec'][0])):
+            self.assertEqual(self.git(layout / ('bennett-' + name), 'rev-parse', 'HEAD'), revision)
 
     def test_plugin_pin_supplies_arith_when_no_arith_revision_is_given(self):
         for rung in ('rung-1', 'rung-2'):
@@ -264,10 +309,11 @@ class FrozenRevisions(unittest.TestCase):
         pins = plugin / 'SPEC_VERSIONS.toml'
         pins.write_text('\n'.join(line for line in pins.read_text().splitlines()
                                    if not line.startswith('commit =')) + '\n')
-        self.git(plugin, 'add', 'SPEC_VERSIONS.toml')
+        (plugin / 'gate.toml').unlink()
+        self.git(plugin, 'add', 'SPEC_VERSIONS.toml', 'gate.toml')
         self.git(plugin, 'commit', '-qm', 'legacy arithmetic schema')
         legacy = self.git(plugin, 'rev-parse', 'HEAD')
-        g = self.make_gate('rung-1', plugin_rev=legacy, arith_rev=None)
+        g = self.make_gate('rung-1', plugin_rev=legacy, arith_rev=self.revisions['arith'][1])
         original = g.plugin.__globals__['PINS']
         defaults = dict(original, **{'bennett-plugin': legacy, 'bennett-arith': self.revisions['arith'][1]})
         g.sources.prepare()
@@ -295,7 +341,7 @@ class FrozenRevisions(unittest.TestCase):
                 self.assertEqual(self.commands, [])
 
     def test_default_reference_is_preserved_without_revision(self):
-        g = self.make_gate('rung-1', isa_spec_rev=None)
+        g = self.make_gate('rung-1', isa_spec_rev=None, reference='/explicit/default/reference')
         self.assertEqual(g.sources.reference(), Path('/explicit/default/reference'))
         self.assertEqual(self.commands, [])
 
@@ -321,12 +367,23 @@ class RevisionConflicts(unittest.TestCase):
                 with patch.object(sys, 'argv', ['gate.py']):
                     module.main()
                 args = constructor.call_args.args[0]
-                self.assertFalse(args.revision_selected)
-                self.assertEqual(args.plugin_rev, module.PINS['bennett-plugin'] if rung == 'rung-1' else None)
-                self.assertEqual(args.vm_rev, module.PINS['bennett-vm'] if rung == 'rung-1' else None)
-                self.assertEqual(Path(args.reference), module.WORKSPACE / 'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref')
-                for name in ('runtimes_rev', 'arith_rev', 'isa_spec_rev', 'driver_rev'):
-                    self.assertIsNone(getattr(args, name))
+                self.assertFalse(args.explicit_revisions)
+                for name in ('plugin', 'vm', 'runtimes', 'arith', 'isa-spec', 'driver'):
+                    self.assertEqual(getattr(args, name.replace('-', '_') + '_rev'), module.PINS['bennett-' + name])
+                self.assertIsNone(args.reference)
+
+    def test_each_cli_revision_overrides_its_recorded_pin(self):
+        names = ('plugin', 'vm', 'runtimes', 'arith', 'isa-spec', 'driver')
+        for rung in ('rung-1', 'rung-2'):
+            module = load_gate(rung)
+            for selected in names:
+                with self.subTest(rung=rung, selected=selected), patch.object(module, 'Gate') as constructor:
+                    with patch.object(sys, 'argv', ['gate.py', '--' + selected + '-rev', 'f' * 40]):
+                        module.main()
+                    args = constructor.call_args.args[0]
+                    for name in names:
+                        self.assertEqual(getattr(args, name.replace('-', '_') + '_rev'),
+                            'f' * 40 if name == selected else module.PINS['bennett-' + name])
 
     def test_explicit_paths_conflict_with_revisions_before_any_run(self):
         pairs = [('runtimes', 'runtimes18'), ('runtimes', 'runtimes23'),

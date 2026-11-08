@@ -16,7 +16,7 @@ import tarfile
 import tomllib
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
-from revision_sources import RevisionSources, add_revision_options, validate_revision_options
+from revision_sources import RevisionSources, add_revision_options, validate_revision_options, apply_recorded_pins
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
@@ -134,15 +134,14 @@ class Gate(RecordedGate):
     def plugin(self):
         src=self.freeze('bennett-plugin',self.args.plugin_rev)
         self.sources.plugin_versions(src)
-        pins=self.sources.plugin_arith(src)
+        layout=self.sources.plugin_layout(src)
         self.plugin_build=src/'build'
-        self.command('build/plugin-configure',['cmake','-S',src,'-B',self.plugin_build])
-        self.command('build/plugin-build',['cmake','--build',self.plugin_build,'-j',self.args.jobs],timeout=1800)
+        self.command('build/plugin-configure',['env','BENNETT_GATE_LAYOUT='+str(layout),'cmake','-S',src,'-B',self.plugin_build])
+        self.command('build/plugin-build',['env','BENNETT_GATE_LAYOUT='+str(layout),'cmake','--build',self.plugin_build,'-j',self.args.jobs],timeout=1800)
         self.manifest['plugin_sha256']={str(m):sha(self.plugin_build/f'libbennett-plugin-{m}.so') for m in (18,23)}
-        arith_revision=self.args.arith_rev or (PINS['bennett-arith'] if self.args.plugin_rev==PINS['bennett-plugin'] else pins['commit'])
         self.publications={
-            'bennett-runtimes':self.sources.paths.get('bennett-runtimes') or self.freeze('bennett-runtimes',PINS['bennett-runtimes']),
-            'bennett-arith':self.sources.freeze('bennett-arith',arith_revision)}
+            'bennett-runtimes':self.sources.paths['bennett-runtimes'],
+            'bennett-arith':self.sources.freeze('bennett-arith',self.sources.arithmetic_revision(src))}
 
     def vm(self):
         repo=WORKSPACE/'bennett-vm'; rev=git(repo,'rev-parse',self.args.vm_rev)
@@ -462,11 +461,8 @@ def main():
     for m in (18,23):
         p.add_argument('--arith'+str(m));p.add_argument('--runtimes'+str(m))
     args=p.parse_args()
-    args.revision_selected=any(value is not None for name,value in vars(args).items() if name.endswith('_rev'))
-    args.plugin_rev=args.plugin_rev or PINS['bennett-plugin']
-    args.vm_rev=args.vm_rev or PINS['bennett-vm']
     validate_revision_options(p,args)
-    args.reference=args.reference or str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref')
+    apply_recorded_pins(args,PINS)
     if not 0<args.timeout<=300:p.error('corpus timeout must be in 1..300')
     return Gate(args).main()
 
