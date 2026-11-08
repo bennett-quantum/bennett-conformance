@@ -71,8 +71,8 @@ Driver checks, using the detached VM built by the gate:
 env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
   TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp \
   python3 /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-2/check_driver.py \
-  --vm "$TMPDIR/vm-13f5a9ed7482b8645c2e37e2ed95e0a7df9dfa88/target/debug/bennett-vm" \
-  --reference "$TMPDIR/bennett-isa-spec-ba7d13f76e73c2af4e035d3f51145d2fad76bd2f/target/release/bennett-isa-ref"
+  --vm /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/vm-13f5a9ed7482b8645c2e37e2ed95e0a7df9dfa88/target/debug/bennett-vm \
+  --reference /home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/bennett-isa-spec-ba7d13f76e73c2af4e035d3f51145d2fad76bd2f/target/release/bennett-isa-ref
 ```
 
 These use a published allocation control through both executors, mutate the reported restoration flags/digest to check rejection, test integer/fault/host-request result handling, and verify that a known failure remains red and blocks dependants. They do not substitute for the hashtable run.
