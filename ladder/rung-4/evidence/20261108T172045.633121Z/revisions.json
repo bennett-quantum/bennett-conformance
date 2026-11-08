@@ -1,0 +1,12 @@
+{
+  "bennett-plugin": "592c19d3b47550cbc609f9d711aa5f35d6fc43d8",
+  "bennett-vm": "99f938ccd9a2212b31d127035693642f096fa17d",
+  "bennett-runtimes": "d6a4f801d6be3ee9f3743031c2cbc30293de1e79",
+  "bennett-driver": "286040cd005b86e9731d0e7a085e88591bce582e",
+  "bennett-estimate": "923f18506ce0b4d1015a1f8e14eb1934aed4fac7",
+  "bennett-targets": "e11357d8dcd6367fb12be5a788c16930e57acc92",
+  "bennett-isa-spec": "f7cb01bca2512a4917beda0f8a4ec95428031ee8",
+  "bennett-dialect-spec": "4bca41b49eb0999449c9475cb15e78b1e83d18e2",
+  "bennett-conformance": "86219a1e60b3fa2eb3fe3773b332fd11a33469cd",
+  "bennett-arith": "cd245bcb07ad38da629d9b47f642e46e3c25cae9"
+}

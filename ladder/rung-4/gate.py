@@ -15,12 +15,12 @@ import re
 import shutil
 import subprocess
 import sys
-import tarfile
 import time
 import tomllib
 import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'common'))
-from gate_support import GateError, RecordedGate, git, sha
+from gate_support import GateError, RecordedGate, sha
+from revision_sources import FrozenSources, REPOSITORIES, select_revisions
 
 HERE = Path(__file__).resolve().parent
 CONFORMANCE = HERE.parents[1]
@@ -35,7 +35,7 @@ SQLITE_WITNESSES = ('sqlite3VdbeExec', 'memdbRead', 'sqlite3_deserialize', 'sqli
 EXECUTORS = ('reference', 'VM')
 ACCEPT = ('admission', '(a) oracle = native, fault rate zero', '(a) full tuple on D', '(a) literal step check',
           '(b) amplitudes', '(b) outcomes')
-STAGES = ('fixtures', 'SQLite source unmodified', 'independent predicate', 'plugin build', 'VM build', 'driver build', 'estimator build',
+STAGES = ('sibling revisions', 'reference build', 'fixtures', 'SQLite source unmodified', 'independent predicate', 'plugin build', 'VM build', 'driver build', 'estimator build',
           'checker build',
           'host image = native oracle = predicate', 'images agree across majors', 'musl C front end', 'runtime bitcode link', 'runtime libc closure', 'post-link LTO',
           'coherent production', 'launch artefacts and oracle shape', 'materialised comparison = native',
@@ -44,7 +44,7 @@ STAGES = ('fixtures', 'SQLite source unmodified', 'independent predicate', 'plug
           'reference reduced control (diagnostic)', 'VM reduced control (diagnostic)',
           'published Grover TU production (diagnostic)',
           'reference --mem-file (diagnostic)', 'VM --mem-file (diagnostic)',
-          'reference --state-out (diagnostic)', 'VM --state-out (diagnostic)',
+          'reference measured control (diagnostic)', 'VM measured control (diagnostic)',
           'estimator CLI (diagnostic)', 'checker CLI (diagnostic)')
 
 # ---------------------------------------------------------------- independent predicate (no SQLite)
@@ -259,6 +259,29 @@ def check_estimate(value, object_sha):
     for field in ('steps', 'heap', 'stack', 'depth'):
         assert value['budget'][field] == PINS['budget'][field], 'estimate budget differs: ' + field
 
+
+def launch_allowances(launch):
+    """ISA §9: these SQLite launches take one token per build budget, in array order."""
+    build = Path(launch)/'build.json'
+    try:
+        metadata = json.loads(build.read_text())
+    except (OSError, ValueError) as exc:
+        raise GateError(f'cannot read launch budget allowances from {build}: {exc}') from exc
+    if not isinstance(metadata, dict) or 'budgets' not in metadata:
+        raise GateError(f'missing budgets in {build}; SQLite launches hold oracle regions')
+    budgets = metadata['budgets']
+    if not isinstance(budgets, list):
+        raise GateError(f'expected budgets array in {build}; SQLite launches hold oracle regions')
+    allowances = []
+    for index, row in enumerate(budgets):
+        if not isinstance(row, dict) or 'steps' not in row:
+            raise GateError(f'missing steps allowance in budget {index} of {build}')
+        value = row['steps']
+        if type(value) not in (int, str) or not re.fullmatch(r'0|[1-9][0-9]*', str(value)):
+            raise GateError(f'invalid steps allowance in budget {index} of {build}: {value!r}')
+        allowances.append(str(value))
+    return tuple(allowances)
+
 # ---------------------------------------------------------------- the gate
 
 
@@ -275,32 +298,29 @@ class Gate(RecordedGate):
         self.rows = {m: {} for m in (18, 23)}
         self.known = json.loads((HERE/'blockers.json').read_text())
         self.images = {}
-        self.manifest = {'time_utc': datetime.now(timezone.utc).isoformat(), 'commands': [], 'pins': PINS,
+        self.manifest = {'time_utc': datetime.now(timezone.utc).isoformat(), 'commands': [], 'pins': dict(PINS), 'dialect': PINS['dialect'], 'isa': PINS['isa'],
                          'budget': PINS['budget'], 'oracle_sizes': ORACLE_SIZES, 'grover_sizes': GROVER_SIZES,
                          'estimate_size': ESTIMATE_SIZE, 'amplitude_tolerance': AMPLITUDE_TOLERANCE, 'evidence': {},
                          'environment': {k: os.environ.get(k) for k in
                                          ('DISPLAY', 'WAYLAND_DISPLAY', 'DBUS_SESSION_BUS_ADDRESS', 'BROWSER', 'TMPDIR')},
-                         'gate_sha256': sha(HERE/'gate.py'), 'shared_support_sha256': sha(HERE.parent/'common/gate_support.py'),
+                         'gate_sha256': sha(HERE/'gate.py'), 'revision_sources_sha256': sha(HERE/'revision_sources.py'), 'shared_support_sha256': sha(HERE.parent/'common/gate_support.py'),
                          'blockers_sha256': sha(HERE/'blockers.json')}
+        self.sources = FrozenSources(self, WORKSPACE)
 
     # ------------ sources
-    def freeze(self, repo, rev=None):
-        rev = git(WORKSPACE/repo, 'rev-parse', rev or PINS[repo])
-        src = self.tmp/f'{repo}-{rev}'
-        archive = self.command(f'build/{repo}-archive', ['git', '-C', WORKSPACE/repo, 'archive', rev])
-        # Publications are large; the archive is reproduced from its commit and recorded by digest.
-        (self.run/f'build/{repo}-archive.stdout').unlink()
-        self.manifest.setdefault('archive_sha256', {})[repo] = hashlib.sha256(archive).hexdigest()
-        if not src.exists():
-            src.mkdir(parents=True)
-            with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
-                tar.extractall(src, filter='data')
-        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
-            for member in tar.getmembers():
-                if member.isfile():
-                    assert (src/member.name).read_bytes() == tar.extractfile(member).read(), 'dirty source cache: '+member.name
-        self.manifest.setdefault('frozen', {})[repo] = rev
-        return src
+    def reference(self):
+        if self.args.reference is not None:
+            self.reference_exe = Path(self.args.reference).resolve()
+            self.manifest['reference_profile'] = 'explicit path'
+        else:
+            src = self.sources.paths['bennett-isa-spec']
+            target = src/'target'
+            self.command('build/reference-build', ['cargo', 'build', '--release', '--offline', '--jobs', self.args.jobs,
+                         '--manifest-path', src/'reference-interpreter/Cargo.toml', '--target-dir', target])
+            self.reference_exe = target/'release/bennett-isa-ref'
+            self.manifest['reference_profile'] = 'release'
+        assert self.reference_exe.is_file(), 'missing reference interpreter: '+str(self.reference_exe)
+        self.manifest['reference_sha256'] = sha(self.reference_exe)
 
     def fixtures(self):
         pins = json.loads((HERE/'fixtures/sha256.json').read_text())
@@ -312,11 +332,11 @@ class Gate(RecordedGate):
             ids.update(n['id'] for n in json.loads((CONFORMANCE/f'clauses/{spec}.json').read_text())['nodes'])
         assert expect['clauses'] and set(expect['clauses']) <= ids, 'missing/invalid clause tags'
         self.manifest['fixtures'] = pins
-        rev = PINS['bennett-dialect-spec']
-        self.spec = self.command('contract/dialect', ['git', '-C', WORKSPACE/'bennett-dialect-spec', 'show', rev+':spec/Bennett-Dialect-Spec.md']).decode()
+        dialect = self.sources.paths['bennett-dialect-spec']
+        self.spec = (dialect/'spec/Bennett-Dialect-Spec.md').read_text()
         self.markers = self.run/'include'
         self.markers.mkdir()
-        (self.markers/'bennett_markers.h').write_bytes(self.command('contract/markers', ['git', '-C', WORKSPACE/'bennett-dialect-spec', 'show', rev+':spec/bennett_markers.h']))
+        (self.markers/'bennett_markers.h').write_bytes((dialect/'spec/bennett_markers.h').read_bytes())
 
     def check_sqlite_tree(self, root):
         p = PINS['sqlite']
@@ -363,18 +383,22 @@ class Gate(RecordedGate):
         for m in (18, 23):
             for tool in ('clang', 'opt', 'llvm-link', 'llvm-as'):
                 self.command(f'build/llvm{m}-{tool}-version', [f'/usr/lib/llvm-{m}/bin/{tool}', '--version'])
-        src = self.freeze('bennett-plugin')
+        src = self.sources.paths['bennett-plugin']
+        layout = self.sources.plugin_layout()
+        build_env = ['env', 'BENNETT_GATE_LAYOUT='+str(layout)]
         self.plugin_build = src/'build'
-        self.command('build/plugin-configure', ['cmake', '-S', src, '-B', self.plugin_build])
-        self.command('build/plugin-build', ['cmake', '--build', self.plugin_build, '-j', self.args.jobs], timeout=1800)
+        self.command('build/plugin-configure', [*build_env, 'cmake', '-S', src, '-B', self.plugin_build])
+        self.command('build/plugin-build', [*build_env, 'cmake', '--build', self.plugin_build, '-j', self.args.jobs], timeout=1800)
         self.manifest['plugin_sha256'] = {str(m): sha(self.plugin_build/f'libbennett-plugin-{m}.so') for m in (18, 23)}
-        self.pub_runtimes = self.freeze('bennett-runtimes')
+        self.pub_runtimes = self.sources.paths['bennett-runtimes']
         self.arith_pin = tomllib.loads((src/'SPEC_VERSIONS.toml').read_text())['arith']
-        self.pub_arith = self.freeze('bennett-arith', self.arith_pin['commit'])
+        self.pub_arith = self.sources.paths['bennett-arith']
+        for m in (18, 23):
+            self.libraries(m)
 
     def cargo(self, repo, tag, binary):
-        src = self.freeze(repo)
-        self.command(tag, ['cargo', 'build', '--release', '--offline', '--manifest-path', src/'Cargo.toml', '--target-dir', src/'target'], timeout=1200)
+        src = self.sources.paths[repo]
+        self.command(tag, ['cargo', 'build', '--release', '--offline', '--jobs', self.args.jobs, '--manifest-path', src/'Cargo.toml', '--target-dir', src/'target'], timeout=1200)
         return src/'target/release'/binary
 
     def vm(self):
@@ -387,7 +411,7 @@ class Gate(RecordedGate):
 
     def estimator(self):
         self.estimate_exe = self.cargo('bennett-estimate', 'build/estimate-build', 'bennett-estimate')
-        self.targets = self.freeze('bennett-targets')
+        self.targets = self.sources.paths['bennett-targets']
         self.target = self.targets/'targets'/PINS['target']
         assert self.target.is_file(), 'missing named target '+PINS['target']
         self.manifest['estimate_sha256'] = sha(self.estimate_exe)
@@ -395,13 +419,13 @@ class Gate(RecordedGate):
 
     def checker(self):
         # The checker ships in this repository; a pinned commit, not the concurrently edited tree.
-        src = self.freeze('bennett-conformance')
-        self.command('build/checker-build', ['cargo', 'build', '--release', '--offline', '--manifest-path', src/'checker/Cargo.toml', '--target-dir', src/'target'], timeout=600)
+        src = self.sources.paths['bennett-conformance']
+        self.command('build/checker-build', ['cargo', 'build', '--release', '--offline', '--jobs', self.args.jobs, '--manifest-path', src/'checker/Cargo.toml', '--target-dir', src/'target'], timeout=600)
         self.check_exe = src/'target/release/bennett-check'
         self.manifest['checker_sha256'] = sha(self.check_exe)
 
     def executor(self, name):
-        exe = self.vm_exe if name == 'VM' else Path(self.args.reference)
+        exe = self.vm_exe if name == 'VM' else self.reference_exe
         assert exe.is_file(), 'missing executor: '+str(exe)
         self.manifest.setdefault('executor_sha256', {})[name] = sha(exe)
         return exe
@@ -475,7 +499,7 @@ class Gate(RecordedGate):
 
     def libraries(self, m):
         runtime = self.pub_runtimes/f'dist/llvm{m}/bennett-runtimes.bc'
-        expected = git(WORKSPACE/'bennett-runtimes', 'show', PINS['bennett-runtimes']+f':dist/llvm{m}/SHA256SUMS').split()[0]
+        expected = (self.pub_runtimes/f'dist/llvm{m}/SHA256SUMS').read_text().split()[0]
         assert sha(runtime) == expected, 'runtimes publication differs from pinned revision'
         arith = self.pub_arith/f'dist/llvm{m}/bennett-arith.bc'
         assert sha(arith) == self.arith_pin[f'llvm{m}_sha256'], 'arith publication differs from plugin pin'
@@ -506,8 +530,8 @@ class Gate(RecordedGate):
         b = PINS['budget']
         for n in BUILD_SIZES:
             d = self.run/str(m)/f'N{n}'
-            self.command(f'{m}/{n}-production', [self.tool(m, 'opt'), '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'), '-passes=bennett',
-                         '-bennett-dialect='+PINS['dialect'], '-bennett-isa='+PINS['isa'],
+            self.command(f'{m}/{n}-production', ['env', '-u', 'BENNETT_ARITH_BITCODE', 'BENNETT_ARITH_PINNED_ROOT='+str(self.pub_arith/'dist'), self.tool(m, 'opt'), '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'), '-passes=bennett',
+                         '-bennett-dialect='+self.manifest['dialect'], '-bennett-isa='+self.manifest['isa'],
                          f'-bennett-budget-default={b["steps"]},{b["heap"]},{b["stack"]},{b["depth"]},{b["shadow_stack"]}',
                          f'-bennett-analysis-budget-ms={lim["analysis_budget_ms"]}', f'-bennett-analysis-max-rounds={lim["analysis_max_rounds"]}',
                          '-bennett-out='+str(d/'out'), '-disable-output', d/'postlink.ll'], timeout=self.args.production_timeout)
@@ -539,7 +563,7 @@ class Gate(RecordedGate):
             harness.write_text(f'#define RUNG4_BITS {bits}\n#define RUNG4_LEN {self.images[m][n].stat().st_size}\n'+(HERE/'fixtures/native_compare.c').read_text())
             exe = d/'native-compare'
             record = d/'native-comparison.json'
-            self.command(f'{m}/{n}-driver-comparison', [self.driver_exe, '-bennett-dialect='+PINS['dialect'], '-bennett-isa='+PINS['isa'], '-bennett-out='+str(d/'comparison'),
+            self.command(f'{m}/{n}-driver-comparison', [self.driver_exe, '-bennett-dialect='+self.manifest['dialect'], '-bennett-isa='+self.manifest['isa'], '-bennett-out='+str(d/'comparison'),
                          f'--bennett-llvm-major={m}', f'--bennett-materialised={d/"out/device.bc"}', f'--bennett-runtimes={runtime}', f'--bennett-arith={arith}',
                          f'--bennett-native-input={harness}', f'--bennett-comparison-record={record}', f'--bennett-comparison-output={exe}'], timeout=600)
             value = json.loads(record.read_text())
@@ -613,10 +637,11 @@ class Gate(RecordedGate):
         for n in ORACLE_SIZES:
             bits = bits_for(n)
             obj = self.run/str(m)/f'N{n}'/'out/rung4_tuple/launch.bennett'
+            allowances = launch_allowances(obj.parent)
             table = self.tables[n]
             def one(element):
                 x, t, e = element
-                got = tuple_result(self.quiet([exe, 'run-program', obj, 'rung4_tuple', '--args', f'{x},{t},{e}', '--budget', self.budget_arg()]))
+                got = tuple_result(self.quiet([exe, 'run-program', obj, 'rung4_tuple', '--args', ','.join([str(x), str(t), str(e), *allowances]), '--budget', self.budget_arg()]))
                 want = expected_tuple(x, t, e, table[x], bits)
                 assert got == want, f'tuple mismatch N={n} (x,t,e)=({x},{t},{e}): got {got:#x}, want {want:#x}'
                 return {'x': x, 't': t, 'e': e, 'tuple': got}
@@ -641,7 +666,9 @@ class Gate(RecordedGate):
         data = self.images[m][n].read_bytes()
         a = region_exponent(len(data))
         plan = self.plans[n]
-        out = self.command(f'{m}/{name}-{n}-grover-state', [exe, 'run-program', d/'out/rung4_grover/launch.bennett', 'rung4_grover', '--state-out', state, '--budget', self.budget_arg()], timeout=self.args.sweep_timeout)
+        obj = d/'out/rung4_grover/launch.bennett'
+        allowances = launch_allowances(obj.parent)
+        out = self.command(f'{m}/{name}-{n}-grover-state', [exe, 'run-program', obj, 'rung4_grover', '--args', ','.join(allowances), '--state-out', state, '--budget', self.budget_arg()], timeout=self.args.sweep_timeout)
         self.success_only(json.loads(out))
         dump = json.loads(state.read_text(), parse_float=finite_json_number, parse_constant=finite_json_number)
         image = (data+bytes((1 << a)-len(data))).hex()
@@ -671,8 +698,9 @@ class Gate(RecordedGate):
             for x in marked or [0, (1 << bits)-1]:
                 vectors[f'select-{x}'] = draws_for(probs, bits, x)
             obj = self.run/str(m)/f'N{n}'/'out/rung4_grover/launch.bennett'
+            allowances = launch_allowances(obj.parent)
             for label, draws in vectors.items():
-                value = json.loads(self.command(f'{m}/{name}-{n}-grover-{label}', [exe, 'run-program', obj, 'rung4_grover', '--draws', ','.join(map(repr, draws)), '--budget', self.budget_arg()], timeout=self.args.sweep_timeout))
+                value = json.loads(self.command(f'{m}/{name}-{n}-grover-{label}', [exe, 'run-program', obj, 'rung4_grover', '--args', ','.join(allowances), '--draws', ','.join(map(repr, draws)), '--budget', self.budget_arg()], timeout=self.args.sweep_timeout))
                 self.success_only(value)
                 got = int(value['results'][0]['value'], 0)
                 want = predict_outcome(probs, bits, draws)
@@ -722,8 +750,8 @@ class Gate(RecordedGate):
             self.command(f'{m}/mini-{fn}', [self.tool(m, 'clang'), '-O2', '-flto', '-emit-llvm', '-I', self.markers, '-c', d/f'{fn}.c', '-o', d/f'{fn}.bc'])
         self.command(f'{m}/mini-link', [self.tool(m, 'llvm-link'), d/'db.bc', d/'tu.bc', '-o', d/'p.bc'])
         self.command(f'{m}/mini-postlink', [self.tool(m, 'opt'), '-passes=lto<O3>', '-S', d/'p.bc', '-o', d/'post.ll'])
-        self.command(f'{m}/mini-production', [self.tool(m, 'opt'), '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'), '-passes=bennett',
-                     '-bennett-dialect='+PINS['dialect'], '-bennett-isa='+PINS['isa'], '-bennett-budget-default=400,0,512,8,0', '-bennett-out='+str(d/'out'), '-disable-output', d/'post.ll'])
+        self.command(f'{m}/mini-production', ['env', '-u', 'BENNETT_ARITH_BITCODE', 'BENNETT_ARITH_PINNED_ROOT='+str(self.pub_arith/'dist'), self.tool(m, 'opt'), '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'), '-passes=bennett',
+                     '-bennett-dialect='+self.manifest['dialect'], '-bennett-isa='+self.manifest['isa'], '-bennett-budget-default=400,0,512,8,0', '-bennett-out='+str(d/'out'), '-disable-output', d/'post.ll'])
         assert (d/'out/launches.json').is_file(), 'published Grover TU produced no launches'
 
     def mem_file(self, name):
@@ -736,9 +764,24 @@ class Gate(RecordedGate):
 
     def state_out(self, name):
         exe = self.executor(name)
-        state = self.run/f'{name}-probe-state.json'
-        self.command(f'probe/{name}-state-out', [exe, 'run-cc', HERE.parent/'rung-3/fixtures/executor-control.bisa', 'effects', '--entropy', '0b1621', '--state-out', state])
-        assert state.is_file(), 'no state dump written'
+        fixture = self.sources.paths['bennett-isa-spec']/'reference-interpreter/tests/fixtures/registers.bisa'
+        observations = []
+        # The published Bell measurement has support only on 00 and 11, each with weight 1/2.
+        for draw, bits, expected in (('0.0', '00', 0), ('0.9', '11', 3)):
+            value = json.loads(self.command(f'probe/{name}-measured-control-{bits}',
+                              [exe, 'run-program', fixture, 'measurement', '--draws', draw]))
+            self.success_only(value)
+            assert value['run_state'] == 'CLOSED', 'measurement launch not closed'
+            measurements = value['measurements']
+            assert len(measurements) == 1, 'measurement control must execute exactly one measurement'
+            measured = measurements[0]
+            assert measured['bits'] == bits and measured['value'] == expected, 'measurement differs from the Bell draw rule'
+            assert value['results'] == [{'type': 'i2', 'value': str(expected)}], 'measurement result differs from readout'
+            observations.append({'draw': draw, 'measurement': measured})
+        state = {'label': 'measured Bell basis states; diagnostic only',
+                 'fixture_sha256': sha(fixture), 'observations': observations}
+        (self.run/f'{name}-probe-state.json').write_text(json.dumps(state, indent=2)+'\n')
+        self.manifest['evidence'].setdefault('reduced_measured_control', {})[name] = state
 
     def estimator_cli(self, m):
         path, _ = self.mini()
@@ -793,14 +836,17 @@ class Gate(RecordedGate):
         self.rows[23][stage] = dict(self.rows[18][stage])
 
     def main(self):
-        self.shared('fixtures', self.fixtures)
+        self.shared('sibling revisions', self.sources.prepare)
+        frozen = ('sibling revisions',)
+        self.shared('reference build', self.reference, frozen)
+        self.shared('fixtures', self.fixtures, frozen)
         self.shared('SQLite source unmodified', self.sqlite_source)
         self.shared('independent predicate', self.predicate)
-        self.shared('plugin build', self.plugin)
-        self.shared('VM build', self.vm)
-        self.shared('driver build', self.driver)
-        self.shared('estimator build', self.estimator)
-        self.shared('checker build', self.checker)
+        self.shared('plugin build', self.plugin, frozen)
+        self.shared('VM build', self.vm, frozen)
+        self.shared('driver build', self.driver, frozen)
+        self.shared('estimator build', self.estimator, frozen)
+        self.shared('checker build', self.checker, frozen)
         base = ('fixtures', 'SQLite source unmodified', 'independent predicate')
 
         def major(m):
@@ -813,7 +859,7 @@ class Gate(RecordedGate):
             self.stage(m, 'launch artefacts and oracle shape', lambda: self.artefacts(m), ('coherent production',))
             self.stage(m, 'materialised comparison = native', lambda: self.comparison(m), ('launch artefacts and oracle shape', 'runtime libc closure', 'driver build'))
             for name in EXECUTORS:
-                deps = ('launch artefacts and oracle shape', 'runtime libc closure', *(('VM build',) if name == 'VM' else ()))
+                deps = ('launch artefacts and oracle shape', 'runtime libc closure', *(('VM build',) if name == 'VM' else ('reference build',)))
                 adm = f'{name} admission'
                 self.stage(m, adm, lambda: self.admission(m, name), deps)
                 ora = f'{name} (a) oracle = native, fault rate zero'
@@ -826,10 +872,10 @@ class Gate(RecordedGate):
             self.stage(m, '(a) certificate verdict', lambda: self.certificate(m), ('reference (a) full tuple on D', 'checker build'))
             self.stage(m, '(c) resource estimate at N=2^20', lambda: self.estimate(m), ('launch artefacts and oracle shape', 'estimator build'))
             for name in EXECUTORS:
-                vmdep = ('VM build',) if name == 'VM' else ()
+                vmdep = ('VM build',) if name == 'VM' else ('reference build',)
                 self.stage(m, f'{name} reduced control (diagnostic)', lambda: self.control(name), ('fixtures', *vmdep))
                 self.stage(m, f'{name} --mem-file (diagnostic)', lambda: self.mem_file(name), (f'{name} reduced control (diagnostic)',))
-                self.stage(m, f'{name} --state-out (diagnostic)', lambda: self.state_out(name), (f'{name} reduced control (diagnostic)',))
+                self.stage(m, f'{name} measured control (diagnostic)', lambda: self.state_out(name), (f'{name} reduced control (diagnostic)',))
             self.stage(m, 'published Grover TU production (diagnostic)', lambda: self.grover_tu(m), ('fixtures', 'plugin build'))
             self.stage(m, 'estimator CLI (diagnostic)', lambda: self.estimator_cli(m), ('estimator build', 'fixtures'))
             self.stage(m, 'checker CLI (diagnostic)', lambda: self.checker_cli(m), ('checker build',))
@@ -848,13 +894,17 @@ def main():
     Path(os.environ['TMPDIR']).mkdir(parents=True, exist_ok=True)
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', help='parent for fresh timestamped run directories')
-    p.add_argument('--reference', default=str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref'))
+    for name in REPOSITORIES:
+        p.add_argument('--'+name+'-rev', help='override pins.json with a frozen bennett-'+name+' commit/ref')
+    p.add_argument('--reference', help='explicit reference binary; conflicts with --isa-spec-rev')
     p.add_argument('--timeout', type=int, default=600, help='seconds per ordinary command')
     p.add_argument('--production-timeout', type=int, default=1800, help='seconds per plugin run')
     p.add_argument('--sweep-timeout', type=int, default=7200, help='seconds per oracle element or Grover run')
     p.add_argument('--jobs', type=int, default=4)
     p.add_argument('--record', action='store_true', help='copy compact evidence into ladder/rung-4/evidence')
-    return Gate(p.parse_args()).main()
+    args = p.parse_args()
+    select_revisions(p, args, PINS)
+    return Gate(args).main()
 
 
 if __name__ == '__main__':

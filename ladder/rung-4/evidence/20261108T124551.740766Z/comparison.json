@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "unchanged_stage_verdicts_and_beads_compared": 76,
+  "differences": [],
+  "intentional_replacement": [
+    "VM --state-out (diagnostic)",
+    "reference --state-out (diagnostic)"
+  ],
+  "new_rows_pass": [
+    "sibling revisions",
+    "reference build",
+    "reference measured control (diagnostic)",
+    "VM measured control (diagnostic)"
+  ]
+}

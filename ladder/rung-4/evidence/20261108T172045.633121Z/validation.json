@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "all_ten_frozen_revisions_match_fetched_mains": true,
+  "gate_result": "FAIL",
+  "gate_exit": 1,
+  "requested_dialect": "0.2.13",
+  "requested_isa": "0.8",
+  "failure_reasons": {
+    "plugin build": "arith publication differs from plugin pin",
+    "estimator CLI (diagnostic)": "probe/estimate-cli: exit 1\nbennett-estimate: ISA 0.8 lproc signature: missing {'args', 'tokens', 'mem'}\n",
+    "checker CLI (diagnostic)": "certificate checker has no check command for rung-4 certificates: usage: bennett-check <cert.json> --object <object.bisa> [--target <t.json>] [--schedule <s.json>] [--library <cert.json>]... [--oracle-bin <path>] [--max-elements N] [--max-wires N]\n       bennett-check --from-object <object.bisa> [--target <t.json>] [--schedule <s.json>] ..."
+  },
+  "source_and_reference_rows": "PASS",
+  "measured_controls": "PASS",
+  "mem_file_probes": "PASS",
+  "hang_guard_tripped": false
+}

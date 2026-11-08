@@ -36,8 +36,11 @@ only if every row of `STAGES` in [gate.py](gate.py) passes on both LLVM majors, 
 ## 3. Pipeline stages
 
 Shared (one result for both majors): fixtures; SQLite source unmodified; independent predicate; plugin,
-VM, driver, estimator and checker builds from frozen commits (`pins.json`), each archive verified file by
-file; images agree across majors. The reference is the accepted release binary, its hash recorded.
+VM, driver, estimator and checker builds from frozen commits (`pins.json`), each source checked for a clean detached HEAD
+and its archive digest recorded; images agree across majors. The reference is built offline in release
+mode from the selected ISA commit, its profile and binary hash recorded. Every sibling pin has a
+`--<sibling>-rev` selector; no selectors means exactly the recorded pins. See README.md for the
+explicit-plugin arithmetic dependency rule and build layout.
 
 Per major, in order, each stage blocked by the stage it consumes:
 

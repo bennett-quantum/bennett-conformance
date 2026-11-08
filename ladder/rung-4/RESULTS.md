@@ -100,3 +100,119 @@ ladder/rung-4/gate.sh                    # add --record to copy evidence
 
 Pins: [pins.json](pins.json). The recorded run took about 11 minutes with builds cached, under load; acceptance
 once open is hours (DESIGN §11). Pins will need moving as beads land: that is the rung's ordinary maintenance.
+
+
+## Recorded-input reproduction after revision selectors and diagnostic repairs
+
+The no-flag run at code head `f9d2317e61d91ab05bb60beaece514fb3b7a3af8`
+completed with **FAIL, exit 1**: the recorded product frontier reproduced.
+All **76 unchanged stage verdicts and bead mappings** match the 2026-11-01
+report exactly. The required oracle, Grover and estimate rows remain blocked.
+No arithmetic digest mismatch precedes the vector-GEP witness.
+
+- [Report](evidence/20261108T124551.740766Z/report.json), [table](evidence/20261108T124551.740766Z/table.md), [raw-file inventory](evidence/20261108T124551.740766Z/raw-evidence-sha256.json)
+- [Exact invocation, head and inputs](evidence/20261108T124551.740766Z/invocation.json), [verdict comparison](evidence/20261108T124551.740766Z/comparison.json), [wall/CPU receipt](evidence/20261108T124551.740766Z/timing.json)
+
+Command: `qwait.sh '' '' -- python3 .tmp/ladder-rung4/run_recorded.py`, using
+`bennett/.tmp/orchestrator/s4/qwait.sh`. The launcher invoked
+`bash ladder/rung-4/gate.sh` with **no flags**, in user scope
+`bennett-heavy-ladder-rung4-124551` after qwait released at 2026-11-08T12:45:51Z.
+The README's 12000-second outer hang guard did not trip. Measured wall time
+304.38 s; user CPU 732.38 s; system CPU 33.73 s. The report records the
+headless job environment and the exact absolute command paths.
+
+| Check | Historical recording | Reproduction |
+|---|---|---|
+| Primary inputs | Historical sibling pins; plugin reads live arithmetic path | Every sibling resolved from pins.json, including arithmetic `0dea42d`; plugin reads the frozen publication |
+| Reference | Existing review-checkout binary | Release built from canonical ISA pin `8d9a5c6` |
+| Sibling revisions; reference build | Not separate rows | PASS on both majors |
+| Runtime libc closure | FAIL · brt-dj7 | FAIL · brt-dj7 |
+| Coherent production | FAIL · bp-1bb | FAIL · bp-1bb |
+| Other unchanged rows | Recorded PASS/FAIL/BLOCKED verdicts | All 76 verdict/bead cells match |
+| Reduced state diagnostic | Unsupported `--state-out` probes FAIL | Replaced by measured-control diagnostics: PASS for both executors on both majors |
+
+The diagnostic replacement is the intentional 5jd repair, so the whole tables
+are not identical. It uses the selected ISA revision's published Bell measurement
+launch with `run-program --draws 0.0` and `--draws 0.9`, checks observed basis
+states `00` and `11` and matching results, and labels its local state sidecar
+as measured basis states. It claims no amplitude export. The lossless readout
+remains required by the full Grover amplitude rows; the requested P3 switch
+back to `--state-out` once `bennett-vm-1wf` lands is recorded for the orchestrator.
+
+The h7y repair appends exactly the `steps` allowance from each launch's
+`build.json` budgets entry after its ordinary entry arguments. Array order,
+duplicate allowances and zero values are preserved; absent or malformed
+metadata fails. An explicitly empty array supplies zero allowances.
+Regression evidence: `python3 ladder/rung-4/check_gate.py -v` passes 46 tests;
+`python3 ladder/rung-4/check_revisions.py -v` passes 15, including the real
+main-health `ladder_argv` check against `gate.sh --help`. Red-first evidence and
+four successful focused measuring CLI calls are retained in the job's local
+`.tmp/ladder-rung4/` directory.
+
+
+## Current-main snapshot — 2026-11-08T17:20:40Z
+
+The second real run completed with **FAIL, exit 1** at harness head
+`4658ed23729021de48bbfc7b595042703a65ad2b` (code unchanged from `f9d2317`).
+All ten explicit revision selectors were consumed: the report's frozen revision
+map equals the freshly fetched origin/main snapshot exactly. The plugin's
+requested production versions were its declared dialect **0.2.13**, ISA **0.8**.
+The reference release, VM, driver, estimator and checker builds passed.
+
+- [Report](evidence/20261108T172045.633121Z/report.json), [table](evidence/20261108T172045.633121Z/table.md), [raw-file inventory](evidence/20261108T172045.633121Z/raw-evidence-sha256.json)
+- [Exact invocation and all revision flags](evidence/20261108T172045.633121Z/invocation.json), [full SHA snapshot](evidence/20261108T172045.633121Z/revisions.json), [input validation](evidence/20261108T172045.633121Z/validation.json)
+- [Arithmetic declaration versus publication hashes](evidence/20261108T172045.633121Z/arithmetic-compatibility.json), [wall/CPU receipt](evidence/20261108T172045.633121Z/timing.json)
+
+| Input | origin/main SHA captured for this run |
+|---|---|
+| bennett-plugin | `592c19d3b47550cbc609f9d711aa5f35d6fc43d8` |
+| bennett-vm | `99f938ccd9a2212b31d127035693642f096fa17d` |
+| bennett-runtimes | `d6a4f801d6be3ee9f3743031c2cbc30293de1e79` |
+| bennett-driver | `286040cd005b86e9731d0e7a085e88591bce582e` |
+| bennett-estimate | `923f18506ce0b4d1015a1f8e14eb1934aed4fac7` |
+| bennett-targets | `e11357d8dcd6367fb12be5a788c16930e57acc92` |
+| bennett-isa-spec | `f7cb01bca2512a4917beda0f8a4ec95428031ee8` |
+| bennett-dialect-spec | `4bca41b49eb0999449c9475cb15e78b1e83d18e2` |
+| bennett-conformance | `86219a1e60b3fa2eb3fe3773b332fd11a33469cd` |
+| bennett-arith | `cd245bcb07ad38da629d9b47f642e46e3c25cae9` |
+
+The slot-order command was:
+
+```sh
+/home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s4/waitfile.sh /home/tobias/Projects/bennett-workspace/bennett-plugin/.tmp/orch-gate/push-592c19d.log -- /home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s4/qwait.sh '' '' -- python3 .tmp/ladder-rung4/run_current.py
+```
+
+The push barrier released at 15:44:05Z; the required plugin push subsequently
+reported exit 0. qwait released this run at 17:20:40Z, into scope
+`bennett-heavy-ladder-rung4-172040`. The launcher fetched the ten refs inside
+that scope and invoked gate.sh with all ten `--<sibling>-rev` flags. The two
+rung-4 runs were sequential. Wall time was 224.53 s; user CPU 624.11 s; system
+CPU 26.85 s. The cited outer hang guard did not trip.
+
+The measured frontier is input compatibility, before coherent production.
+Plugin `592c19d` still declares arithmetic `5e9b450`, while arithmetic main is
+`cd245bc`; both LLVM publication digests differ. The plugin binaries built,
+then the gate's compatibility check rejected the selected publication with
+`arith publication differs from plugin pin`. Musl compilation and later
+required rows were BLOCKED. This snapshot therefore does not remeasure the
+SQLite libc or vector-GEP frontier. The default pinned run above remains
+reproducible with matching arithmetic `0dea42d`.
+
+Independent diagnostics also found:
+
+- The published `rung4-mini` object passes both executor controls, but estimator
+  `923f185` rejects its ISA 0.8 lproc signature for missing `args`, `tokens`,
+  and `mem`. This needs a parser/published-fixture compatibility disposition.
+- The checker is implemented, but its published CLI uses a certificate as the
+  first positional argument. The gate's existing `check` subcommand and its
+  malformed-certificate probe without `--object` produce usage. This existing
+  gate/checker CLI integration gap is recorded on open **bennett-conformance-51d**;
+  the raw table retains its existing attribution.
+- Both executors' `--mem-file` diagnostics and both measured-control diagnostics
+  PASS on both LLVM majors. These remain diagnostic evidence only.
+
+Cross-repository requests for arithmetic pin coordination and the estimator/
+fixture mismatch, plus the requested P3 measured-control switch once
+`bennett-vm-1wf` lands, are recorded in the job's local
+`.tmp/ladder-rung4/cross-repo-beads.md` for the orchestrator. No additional
+acceptance capability is claimed by either red run.
