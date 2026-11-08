@@ -41,7 +41,7 @@ class FrozenSources:
                               ['git', '-C', origin, 'worktree', 'add', '--detach', source, commit])
         if (not (source/'.git').is_file() or git(source, 'rev-parse', '--abbrev-ref', 'HEAD') != 'HEAD'
                 or git(source, 'rev-parse', 'HEAD') != commit
-                or git(source, 'status', '--porcelain', '--untracked-files=no')):
+                or git(source, 'status', '--porcelain', '--untracked-files=all')):
             raise GateError(f'{repo}: dirty or incorrect detached cache: {source}')
         return commit, source
 

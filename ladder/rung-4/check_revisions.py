@@ -154,6 +154,13 @@ class FrozenInputs(unittest.TestCase):
         with self.assertRaisesRegex(gate.GateError, 'dirty or incorrect detached cache'):
             self.runner.sources.freeze('bennett-runtimes', current)
 
+    def test_untracked_publication_cannot_supply_a_cache_input(self):
+        self.runner.sources.prepare()
+        source = self.runner.sources.paths['bennett-arith']
+        (source/'untracked-publication').write_text('extra input')
+        with self.assertRaisesRegex(gate.GateError, 'dirty or incorrect detached cache'):
+            self.runner.sources.freeze('bennett-arith', self.commits['arith'])
+
     def test_unknown_revision_fails_with_repository_context(self):
         with self.assertRaisesRegex(gate.GateError, 'bennett-runtimes: unknown revision'):
             self.runner.sources.freeze('bennett-runtimes', 'missing-revision')
