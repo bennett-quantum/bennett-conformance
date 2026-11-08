@@ -72,9 +72,10 @@ class DriverChecks(unittest.TestCase):
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--vm', required=True, type=Path, help='detached-worktree VM executable')
-    p.add_argument('--reference', type=Path, default=gate.WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/debug/bennett-isa-ref')
+    p.add_argument('--reference', required=True, type=Path, help='release reference built from the rung ISA pin')
+    p.add_argument('--fixture', type=Path, help='allocation control fixture; defaults to the frozen reference source tree')
     args = p.parse_args()
-    fixture = gate.WORKSPACE/'bennett-isa-spec-review/reference-interpreter/tests/fixtures/registers.bisa'
+    fixture = args.fixture or args.reference.parents[2]/'reference-interpreter/tests/fixtures/registers.bisa'
     outputs = {}
     for name, exe in [('reference',args.reference),('VM',args.vm)]:
         outputs[name] = json.loads(subprocess.check_output([str(exe),'run-program',str(fixture),'allocation','--reverse']))

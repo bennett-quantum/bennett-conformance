@@ -16,6 +16,7 @@ import tarfile
 import tomllib
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
+from revision_sources import RevisionSources, add_revision_options, validate_revision_options, apply_recorded_pins
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
@@ -24,7 +25,7 @@ PINS=json.loads((HERE/'pins.json').read_text())
 CASES={'r1_sat_add':2,'r1_gcd':2,'r1_popcount':1,'r1_sign_abs':1,'r1_lookup':1}
 NATIVE_COUNT=sum(256**n for n in CASES.values())
 BUDGET='256,0,32,32'
-STAGES=('toolchain','fixtures','plugin build','VM build','native O0 = O2','frontend',
+STAGES=('sibling revisions','reference build','toolchain','fixtures','plugin build','VM build','native O0 = O2','frontend',
         'runtime bitcode link','post-link LTO','pipeline','materialised native comparison',
         'reference admission','VM admission','reference input exhaustive = native (diagnostic)',
         'VM input exhaustive = native (diagnostic)','reference input zero faults (diagnostic)',
@@ -102,7 +103,7 @@ def check_action(v,x,t,e,native):
 class Gate(RecordedGate):
     def __init__(self,args):
         self.args=args
-        self.tmp=ROOT/'.tmp';self.tmp.mkdir(exist_ok=True)
+        self.tmp=Path(os.environ.get('TMPDIR',ROOT/'.tmp')).resolve();self.tmp.mkdir(parents=True,exist_ok=True)
         self.out=Path(args.output).resolve() if args.output else self.tmp/'rung-1'
         self.out.mkdir(parents=True,exist_ok=True)
         self.run=self.out/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ');self.run.mkdir()
@@ -115,6 +116,7 @@ class Gate(RecordedGate):
             'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py')},
             'gate_sha256':sha(HERE/'gate.py'),'shared_support_sha256':sha(HERE.parent/'common/gate_support.py')}
         self.paths={};self.entries={};self.children={};self.inapplicable={}
+        self.sources=RevisionSources(self,WORKSPACE)
 
     def freeze(self,repo,rev):
         rev=git(WORKSPACE/repo,'rev-parse',rev)
@@ -131,11 +133,15 @@ class Gate(RecordedGate):
 
     def plugin(self):
         src=self.freeze('bennett-plugin',self.args.plugin_rev)
+        self.sources.plugin_versions(src)
+        layout=self.sources.plugin_layout(src)
         self.plugin_build=src/'build'
-        self.command('build/plugin-configure',['cmake','-S',src,'-B',self.plugin_build])
-        self.command('build/plugin-build',['cmake','--build',self.plugin_build,'-j',self.args.jobs],timeout=1800)
+        self.command('build/plugin-configure',['env','BENNETT_GATE_LAYOUT='+str(layout),'cmake','-S',src,'-B',self.plugin_build])
+        self.command('build/plugin-build',['env','BENNETT_GATE_LAYOUT='+str(layout),'cmake','--build',self.plugin_build,'-j',self.args.jobs],timeout=1800)
         self.manifest['plugin_sha256']={str(m):sha(self.plugin_build/f'libbennett-plugin-{m}.so') for m in (18,23)}
-        self.publications={r:self.freeze(r,PINS[r]) for r in ('bennett-runtimes','bennett-arith')}
+        self.publications={
+            'bennett-runtimes':self.sources.paths['bennett-runtimes'],
+            'bennett-arith':self.sources.freeze('bennett-arith',self.sources.arithmetic_revision(src))}
 
     def vm(self):
         repo=WORKSPACE/'bennett-vm'; rev=git(repo,'rev-parse',self.args.vm_rev)
@@ -144,10 +150,13 @@ class Gate(RecordedGate):
         if not src.exists():self.command('build/vm-worktree',['git','-C',repo,'worktree','add','--detach',src,rev])
         assert (src/'.git').is_file() and git(src,'rev-parse','--abbrev-ref','HEAD')=='HEAD', 'VM not detached'
         assert git(src,'rev-parse','HEAD')==rev and not git(src,'status','--porcelain','--untracked-files=no'), 'VM worktree dirty or wrong HEAD'
-        self.command('build/vm-build',['cargo','build','--release','--offline','--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.command('build/vm-build',['cargo','build','--release','--offline','--jobs',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
         self.vm_exe=src/'target/release/bennett-vm'
         self.manifest['vm_profile']='release'
         self.manifest['vm_sha256']=sha(self.vm_exe)
+
+    def build_reference(self):
+        self.reference_exe=self.sources.reference()
 
     def toolchain(self,lang,m):
         tools=[f'/usr/lib/llvm-{m}/bin/{t}' for t in ('clang','opt','llvm-link','llvm-dis')]
@@ -220,7 +229,7 @@ class Gate(RecordedGate):
     def runtime_files(self,m):
         rt=Path(getattr(self.args,f'runtimes{m}',None) or self.publications['bennett-runtimes']/f'dist/llvm{m}/bennett-runtimes.bc').resolve()
         expected=sha(self.publications['bennett-runtimes']/f'dist/llvm{m}/bennett-runtimes.bc')
-        assert sha(rt)==expected, 'runtimes publication differs from 6808622'
+        assert sha(rt)==expected, 'runtimes publication differs from selected revision'
         pins=tomllib.loads((self.plugin_build.parent/'SPEC_VERSIONS.toml').read_text())['arith']
         ar=Path(getattr(self.args,f'arith{m}',None) or self.publications['bennett-arith']/f'dist/llvm{m}/bennett-arith.bc').resolve()
         assert sha(ar)==pins[f'llvm{m}_sha256'], 'arith differs from plugin SHA pin'
@@ -255,7 +264,7 @@ class Gate(RecordedGate):
         _,arith=self.runtime_files(m)
         self.command(f'{lang}/{m}/{c}/pipeline',['env','BENNETT_ARITH_BITCODE='+str(arith),f'/usr/lib/llvm-{m}/bin/opt',
             '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),'-passes=bennett',
-            '-bennett-dialect=0.2.10','-bennett-isa=0.8','-bennett-oracle='+entry,
+            '-bennett-dialect='+self.manifest['dialect'],'-bennett-isa='+self.manifest['isa'],'-bennett-oracle='+entry,
             '-bennett-scalar-shape='+('ARG(64),' if lang=='Julia' else '')+','.join(['IN(8,sext)']*CASES[c])+';tgt=8',
             '-bennett-scalar-stack='+case_budget(c).split(',')[2],
             '-bennett-out='+str(d/'out'),'-disable-output',d/'postlink.ll'])
@@ -288,12 +297,18 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         layout_flags='-Wl,--gc-sections,--build-id=none,-e,_start,--section-start=.text=0x400000'
         if layout['globals']:
             layout_flags+=',--section-start=.rodata=0x1000,--section-start=.data=0x2000'
+        linked=d/'comparison-linked.bc'
+        bitcode_argv=[f'/usr/lib/llvm-{m}/bin/llvm-link',out/'materialised.bc',rt,ar,
+            '--only-needed','-o',linked]
+        self.command(f'{lang}/{m}/{c}/native-comparison-bitcode-link',bitcode_argv)
         argv=[f'/usr/lib/llvm-{m}/bin/clang','-O2','-nostdlib','-static','-no-pie',
-            '-ffunction-sections','-fdata-sections',out/'materialised.bc',rt,ar,runner,
+            '-ffunction-sections','-fdata-sections',linked,runner,
             layout_flags,
             '-o',d/'comparison']
         (d/'native-comparison.json').write_text(json.dumps({'materialised_sha256':sha(out/'materialised.bc'),
-            'runtime_sha256':sha(rt),'arith_sha256':sha(ar),'link_argv':list(map(str,argv)),
+            'runtime_sha256':sha(rt),'arith_sha256':sha(ar),
+            'bitcode_link_argv':list(map(str,bitcode_argv)),'linked_sha256':sha(linked),
+            'link_argv':list(map(str,argv)),
             'notes':'freestanding scalar-only oracle harness; fixed non-PIE text/data, no host libc/libm'},indent=2)+'\n')
         self.command(f'{lang}/{m}/{c}/native-comparison-link',argv)
         symbols=self.command(f'{lang}/{m}/{c}/native-comparison-symbols',[f'/usr/lib/llvm-{m}/bin/llvm-nm',d/'comparison'])
@@ -307,7 +322,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         assert data==(self.folder(lang,m)/(c+'-native.bin')).read_bytes(), 'materialised native differs from O0/O2'
 
     def executor(self,name):
-        exe=self.vm_exe if name=='VM' else Path(self.args.reference)
+        exe=self.vm_exe if name=='VM' else self.reference_exe
         assert exe.is_file(), 'missing executor: '+str(exe)
         self.manifest.setdefault('executors',{})[name]={'path':str(exe),'sha256':sha(exe)}
         return exe
@@ -331,7 +346,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
             sig={'abi':'0.8','args':['token'],'bounds':[],'in':[8]*n,'kind':'action','mem':[],'mut':[8,4],'tier':'q'}
             body='action @rung1_full (t:wire[8] mut, e:wire[4] mut) ('+', '.join(f'x{i}:wire[8] in' for i in range(n))+') () (tk:token) ()\n^entry():\noracle_call @ref tk ('+', '.join('x'+str(i) for i in range(n))+') t e () ()\n'
             canonical=body.replace('@ref','@'+ref)
-            h=hashlib.sha256(('isa=0.8\nptr_width=64\n'+json.dumps(sig,sort_keys=True,separators=(',',':'))+'\n'+canonical+ref+'\n').encode()).hexdigest()
+            h=hashlib.sha256(('isa='+self.manifest['isa']+'\nptr_width=64\n'+json.dumps(sig,sort_keys=True,separators=(',',':'))+'\n'+canonical+ref+'\n').encode()).hexdigest()
             symbols[str(max(map(int,symbols))+1)]={'interface_hash':h,'kind':'action','name':'rung1_full','signature':sig}
             functions,sep,rest=tail.partition('\n\nsection ')
             wrapped.write_text(sections[0]+'section symbols\n'+json.dumps(symbols,sort_keys=True,separators=(',',':'))+'\n\nsection functions\n'+functions.rstrip()+'\n'+body.rstrip()+sep+rest)
@@ -385,8 +400,13 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         return int(any(r['status'] not in ('PASS','N/A') for stages in self.rows.values() for r in stages.values()))
 
     def main(self):
-        for s,action in [('fixtures',self.fixtures),('plugin build',self.plugin),('VM build',self.vm)]:
-            self.stage('C/18',s,action)
+        for s,action,deps in [
+            ('sibling revisions',self.sources.prepare,()),
+            ('reference build',self.build_reference,('sibling revisions',)),
+            ('fixtures',self.fixtures,()),
+            ('plugin build',self.plugin,('sibling revisions',)),
+            ('VM build',self.vm,('sibling revisions',))]:
+            self.stage('C/18',s,action,deps)
             for key in self.rows:self.rows[key][s]=dict(self.rows['C/18'][s])
         def major(pair):
             lang,m=pair;key=f'{lang}/{m}'
@@ -403,7 +423,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
             childkeys=[]
             for c in CASES:
                 child=key+'/'+c;childkeys.append(child);self.rows[child]={}
-                for s in ('fixtures','plugin build','VM build','toolchain','native O0 = O2','frontend'):
+                for s in ('sibling revisions','reference build','fixtures','plugin build','VM build','toolchain','native O0 = O2','frontend'):
                     self.rows[child][s]=dict(self.rows[key][s])
                 def stage(s,f,deps):self.stage(child,s,f,deps)
                 stage('runtime bitcode link',lambda:self.link(lang,m,c),('frontend','plugin build'))
@@ -411,7 +431,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
                 stage('pipeline',lambda:self.pipeline(lang,m,c),('post-link LTO',))
                 stage('materialised native comparison',lambda:self.comparison(lang,m,c),('pipeline','native O0 = O2'))
                 for name in ('reference','VM'):
-                    stage(name+' admission',lambda:self.admission(lang,m,c,name),('pipeline',)+(('VM build',) if name=='VM' else ()))
+                    stage(name+' admission',lambda:self.admission(lang,m,c,name),('pipeline',)+(('VM build',) if name=='VM' else ('reference build',)))
                     stage(name+' input exhaustive = native (diagnostic)',lambda:self.diagnostic(lang,m,c,name),('native O0 = O2',name+' admission'))
                     for suffix,rev in [('input zero faults (diagnostic)',False),('input byte-exact reversal (diagnostic)',True)]:
                         stage(name+' '+suffix,lambda rev=rev:self.diagnostic_summary(lang,m,c,name,rev),(name+' input exhaustive = native (diagnostic)',))
@@ -438,14 +458,17 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
 def main():
     if not __debug__:raise GateError('Python -O disables acceptance checks')
     for k in ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','PYTHONOPTIMIZE'):os.environ.pop(k,None)
-    os.environ['TMPDIR']=str(ROOT/'.tmp');Path(os.environ['TMPDIR']).mkdir(exist_ok=True)
+    os.environ.setdefault('TMPDIR',str(ROOT/'.tmp'));Path(os.environ['TMPDIR']).mkdir(parents=True,exist_ok=True)
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output');p.add_argument('--timeout',type=int,default=300);p.add_argument('--jobs',type=int,default=4)
-    p.add_argument('--plugin-rev',default=PINS['bennett-plugin']);p.add_argument('--vm-rev',default=PINS['bennett-vm'])
-    p.add_argument('--reference',default=str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref'))
+    p.add_argument('--plugin-rev');p.add_argument('--vm-rev')
+    add_revision_options(p)
+    p.add_argument('--reference')
     for m in (18,23):
         p.add_argument('--arith'+str(m));p.add_argument('--runtimes'+str(m))
     args=p.parse_args()
+    validate_revision_options(p,args)
+    apply_recorded_pins(args,PINS)
     if not 0<args.timeout<=300:p.error('corpus timeout must be in 1..300')
     return Gate(args).main()
 

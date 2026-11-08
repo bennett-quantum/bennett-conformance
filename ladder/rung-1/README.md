@@ -40,7 +40,7 @@ Run headlessly from any directory:
 runtimes `6808622`, and arith publication `249e619`. Plugin sources are archived
 and byte-verified before building; VM builds in a clean detached sibling
 worktree with `cargo build --release`, never the possibly dirty live source. Published runtime/arith archives
-are extracted from their pinned commits; the arith digest must also match the
+are resolved from clean detached trees at their pinned commits; the arith digest must also match the
 plugin's SPEC_VERSIONS.toml. Use `--arith18 /path/to/pinned.bc --arith23 ...`
 for explicit extracted publications; the SHA checks still apply. `--plugin-rev`,
 `--vm-rev`, `--reference`, `--runtimes18/23`, `--output`, and `--jobs` support
@@ -114,7 +114,7 @@ TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp python3 
 ```
 
 Rung 1 reuses `ladder/common/gate_support.py` for command evidence, failures and
-red dependency propagation. Rung 2 and rung 3 source and behaviour are unchanged.
+red dependency propagation. Rung 2 shares the revision-source helper in `revision_sources.py`.
 
 If an observed failure needs a new bead after a run, `classify_report.py
 /path/to/report.json` attaches the current blocker mappings without changing any
@@ -122,3 +122,70 @@ measured status or command. It preserves `report.unclassified.json` and records
 the raw report hash, mapping hash, UTC time and exact classification command.
 Unfiled failures make classification fail loudly. This is annotation of that
 same real run, not a rerun or a conversion of a failure to a pass.
+
+## Frozen sibling revisions
+
+Both `gate.sh` entry points accept `--plugin-rev`, `--vm-rev`,
+`--runtimes-rev`, `--driver-rev`, `--isa-spec-rev`, and `--arith-rev`.
+Runtime and arithmetic bitcode are the tracked `dist/llvm<M>/*.bc` publications
+at the selected commits, resolved in clean detached caches under `$TMPDIR`.
+`--isa-spec-rev` builds that commit's reference interpreter offline in release
+mode. Unknown revisions and dirty caches fail loudly. The report records each
+resolved commit and the reference profile/hash. Main-health supplies
+`BENNETT_GATE_WORKSPACE` as the object-source workspace for pinned siblings;
+this also resolves arithmetic when only the five health inputs are symlinked. These rungs invoke the plugin
+directly: the driver revision is frozen and recorded, with its unused-binary
+status explicit in the manifest; no driver execution is claimed.
+
+With no revision selectors, both rungs reproduce their recorded `pins.json`
+inputs, including a release reference built from the canonical ISA repository.
+No review checkout or live runtime/arithmetic distribution is required. An explicitly selected plugin uses its own declared arithmetic
+commit by default; `--arith-rev` can select another commit, whose bitcode must
+still match the plugin's digest pins. `--runtimes18/23`, `--arith18/23`, and
+`--reference` keep their explicit-path behavior and conflict with the matching
+revision option; conflicts are rejected before building anything.
+
+Revision regression checks (includes the real, read-only main-health
+`ladder_argv` implementation when run in the Bennett workspace):
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s ladder/rung-1/tests -v
+```
+
+For full rung reruns on `tobias-ThinkPad-X1-Carbon-Gen-11`, use a 12000-second
+outer hang guard, classified UNKNOWN on exit 124. The last durable rung-1
+receipt, `evidence/20261101T141544.771577Z/report.json` (2026-11-01), records
+1187.938 summed command wall seconds, a conservative upper bound on elapsed
+run time because language/major workers overlap. The outer guard exceeds 10x
+that measurement (machine factor 1). This does not change the existing
+per-command workload, budgets, or timeout options. Run one rung at a time in
+a `bennett-heavy-ladder-<rung>-<UTC time>` systemd user scope, after checking
+that no `bennett-heavy` scope exists. Record outer wall/user/system CPU seconds
+alongside the per-command receipt.
+
+Production requests the dialect and ISA versions
+declared by the frozen plugin's `SPEC_VERSIONS.toml`. Missing or empty version
+declarations fail before its build. The report records the requested versions
+and the declaration's SHA-256. With no revision selectors, the historical
+production defaults remain unchanged. Fixture clause/provenance pins continue
+to describe the original corpus; the production version fields describe the
+selected plugin invocation.
+
+The six primary pins are plugin `157d4bd`, VM `13f5a9e`, runtimes `6808622`,
+arithmetic `249e619`, reference/ISA `ba7d13f`, and driver provenance `8c6d0a8`.
+The first five are the recorded inputs in RESULTS.md and the durable evidence.
+The historical runs invoked the plugin directly, without a driver binary;
+`8c6d0a8` is the last driver commit preceding the recorded rung-2 run and is
+frozen only as unused provenance. The dialect pin describes fixture clauses.
+Each revision option overrides its primary pin. If a plugin revision is
+explicitly selected and arithmetic is not, that plugin's published arithmetic
+dependency supplies production bitcode; this is recorded as `arith_selection`.
+An explicit `--arith-rev` always controls the arithmetic input and must satisfy
+the selected plugin's digest declaration.
+
+Plugin builds receive `BENNETT_GATE_LAYOUT` pointing to a directory containing
+the plugin archive and symlinks to clean detached sources for the siblings in
+its own gate.toml (including repository aliases). Only build inputs are
+materialised; no sibling gate is run. Historical plugins without gate.toml get
+a layout containing the recorded arithmetic publication. Runtime production
+always uses the rung's selected publication, independently of plugin build pins.

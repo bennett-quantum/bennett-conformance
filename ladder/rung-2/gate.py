@@ -16,17 +16,20 @@ import tomllib
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 from gate_support import GateError, RecordedGate, git, sha
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'rung-1'))
+from revision_sources import RevisionSources, add_revision_options, validate_revision_options, apply_recorded_pins
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 HERE = Path(__file__).resolve().parent
 CONFORMANCE = HERE.parents[1]
 WORKSPACE = CONFORMANCE.parent
+PINS = json.loads((HERE / 'pins.json').read_text())
 DIALECT = '023f5a771a814270634db3be9cfde88ded69f975'
 INPUTS = (0, 1, 7, 64, 1000)
 DRIVERS = ('basic', 'grow')
 BUDGET = '10000000,1048576,65536,256'
-STAGES = ('fixtures', 'plugin build', 'VM build', 'native reference', 'C front end',
+STAGES = ('sibling revisions', 'reference build', 'fixtures', 'plugin build', 'VM build', 'native reference', 'C front end',
           'runtime bitcode link', 'post-link LTO', 'S1–S9 production', 'launch artefacts',
           'reference admission', 'VM admission', 'reference forward = native',
           'VM forward = native', 'reference byte-exact reverse', 'VM byte-exact reverse')
@@ -57,11 +60,12 @@ class Gate(RecordedGate):
         self.run.mkdir()
         self.rows = {m: {} for m in (18, 23)}
         self.manifest = {'time_utc': datetime.now(timezone.utc).isoformat(),
-                         'dialect_commit': DIALECT, 'isa': '0.8', 'budget': BUDGET,
-                         'inputs': list(INPUTS), 'drivers': list(DRIVERS), 'commands': [],
+                         'dialect_commit': DIALECT, 'dialect': '0.2.10', 'isa': '0.8', 'budget': BUDGET,
+                         'pins': dict(PINS), 'inputs': list(INPUTS), 'drivers': list(DRIVERS), 'commands': [],
                          'environment': {k: os.environ.get(k) for k in
                              ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')}}
         self.known = json.loads((HERE / 'blockers.json').read_text())
+        self.sources = RevisionSources(self, WORKSPACE)
 
     def fixtures(self):
         pins = json.loads((HERE / 'fixtures/sha256.json').read_text())
@@ -73,32 +77,44 @@ class Gate(RecordedGate):
 
     def plugin(self):
         repo = WORKSPACE / 'bennett-plugin'
-        rev = self.args.plugin_rev or git(repo, 'rev-parse', 'HEAD')
+        rev = self.args.plugin_rev
         rev = git(repo, 'rev-parse', rev)
         self.manifest['plugin_commit'] = rev
+        self.manifest.setdefault('pins', {})['bennett-plugin'] = rev
         src = self.tmp / ('rung2-plugin-' + rev)
+        archive = self.command('build/plugin-archive', ['git', '-C', repo, 'archive', rev])
         if not src.exists():
             src.mkdir()
-            archive = subprocess.check_output(['git','-C',str(repo),'archive',rev])
             with tarfile.open(fileobj=io.BytesIO(archive)) as t:
                 t.extractall(src, filter='data')
+        with tarfile.open(fileobj=io.BytesIO(archive)) as t:
+            for member in t.getmembers():
+                if member.isfile():
+                    assert (src/member.name).read_bytes() == t.extractfile(member).read(), 'dirty plugin cache: ' + member.name
+        self.sources.plugin_versions(src)
+        layout = self.sources.plugin_layout(src)
         self.plugin_build = src / 'build'
-        self.command('build/plugin-configure', ['cmake','-S',src,'-B',self.plugin_build])
-        self.command('build/plugin-build', ['cmake','--build',self.plugin_build,'-j',str(self.args.jobs)], timeout=1800)
+        self.command('build/plugin-configure', ['env','BENNETT_GATE_LAYOUT='+str(layout),'cmake','-S',src,'-B',self.plugin_build])
+        self.command('build/plugin-build', ['env','BENNETT_GATE_LAYOUT='+str(layout),'cmake','--build',self.plugin_build,'-j',str(self.args.jobs)], timeout=1800)
         self.manifest['plugin_sha256'] = {str(m):sha(self.plugin_build / f'libbennett-plugin-{m}.so') for m in (18,23)}
+        self.sources.freeze('bennett-arith', self.sources.arithmetic_revision(src))
 
     def vm(self):
         repo = WORKSPACE / 'bennett-vm'
-        rev = git(repo, 'rev-parse', self.args.vm_rev or 'HEAD')
+        rev = git(repo, 'rev-parse', self.args.vm_rev)
         self.manifest['vm_commit'] = rev
+        self.manifest.setdefault('pins', {})['bennett-vm'] = rev
         src = self.tmp / ('vm-' + rev)
         if not src.exists():
             self.command('build/vm-worktree', ['git','-C',repo,'worktree','add','--detach',src,rev])
-        assert git(src, 'rev-parse','HEAD') == rev, 'VM worktree HEAD mismatch'
+        assert git(src, 'rev-parse','HEAD') == rev and git(src, 'rev-parse','--abbrev-ref','HEAD') == 'HEAD', 'VM worktree HEAD mismatch or not detached'
         assert not git(src, 'status','--porcelain','--untracked-files=no'), 'VM worktree is dirty'
-        self.command('build/vm-build', ['cargo','build','--offline','--manifest-path',src/'Cargo.toml','--target-dir',src/'target'], timeout=600)
+        self.command('build/vm-build', ['cargo','build','--offline','--jobs',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'], timeout=600)
         self.vm_exe = src / 'target/debug/bennett-vm'
         self.manifest['vm_sha256'] = sha(self.vm_exe)
+
+    def build_reference(self):
+        self.reference_exe = self.sources.reference()
 
     def native(self, major):
         d = self.run / str(major)
@@ -124,15 +140,21 @@ class Gate(RecordedGate):
     def frontend(self, major):
         self.command(f'{major}/frontend', [f'/usr/lib/llvm-{major}/bin/clang','-O2','-flto','-emit-llvm','-c',HERE/'fixtures/hashtable_marked.c','-o',self.run/str(major)/'input.bc'])
 
-    def runtime_link(self, major):
-        runtime = Path(getattr(self.args, f'runtimes{major}') or
-                       WORKSPACE / f'bennett-runtimes/dist/llvm{major}/bennett-runtimes.bc')
-        if not runtime.is_file():
-            raise GateError(f'missing runtimes bitcode for LLVM {major}: {runtime} (dialect §19.1)')
+    def arith_file(self, major):
         pins = tomllib.loads((self.plugin_build.parent/'SPEC_VERSIONS.toml').read_text())['arith']
-        arith = Path(getattr(self.args, f'arith{major}', None) or pins[f'llvm{major}_path'])
+        source = self.sources.paths['bennett-arith']
+        default = source / f'dist/llvm{major}/bennett-arith.bc'
+        arith = Path(getattr(self.args, f'arith{major}', None) or default)
         if sha(arith) != pins[f'llvm{major}_sha256']:
             raise GateError(f'arith LLVM {major} published bitcode digest differs from plugin pin')
+        return arith
+
+    def runtime_link(self, major):
+        runtime = Path(getattr(self.args, f'runtimes{major}') or
+                       self.sources.paths['bennett-runtimes'] / f'dist/llvm{major}/bennett-runtimes.bc')
+        if not runtime.is_file():
+            raise GateError(f'missing runtimes bitcode for LLVM {major}: {runtime} (dialect §19.1)')
+        arith = self.arith_file(major)
         self.manifest.setdefault('runtimes_sha256', {})[str(major)] = sha(runtime)
         self.manifest.setdefault('arith_sha256', {})[str(major)] = sha(arith)
         self.command(f'{major}/runtime-link', [f'/usr/lib/llvm-{major}/bin/llvm-link',
@@ -144,8 +166,10 @@ class Gate(RecordedGate):
 
     def pipeline(self, major, probe=False):
         d = self.run / str(major)
-        argv = [f'/usr/lib/llvm-{major}/bin/opt', '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{major}.so'),'-passes=bennett','-bennett-dialect=0.2.10','-bennett-isa=0.8',
+        argv = [f'/usr/lib/llvm-{major}/bin/opt', '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{major}.so'),'-passes=bennett','-bennett-dialect='+self.manifest['dialect'],'-bennett-isa='+self.manifest['isa'],
                 '-bennett-budget-default='+BUDGET+',65536','-bennett-out='+str(d/('probe-out' if probe else 'out')),'-disable-output',d/('unlinked.ll' if probe else 'postlink.ll')]
+        if 'bennett-arith' in self.sources.paths or getattr(self.args, f'arith{major}', None):
+            argv = ['env', 'BENNETT_ARITH_BITCODE=' + str(self.arith_file(major).resolve()), *argv]
         self.command(f'{major}/'+('production-probe' if probe else 'production'), argv)
 
     def probe(self, major):
@@ -171,7 +195,7 @@ class Gate(RecordedGate):
     def executor(self, name):
         if name == 'VM':
             return self.vm_exe
-        exe = Path(self.args.reference)
+        exe = self.reference_exe
         if not exe.is_file():
             raise GateError('missing accepted reference executable: ' + str(exe))
         self.manifest['reference_sha256'] = sha(exe)
@@ -248,11 +272,15 @@ class Gate(RecordedGate):
         return int(any(r['status'] != 'PASS' for rows in self.rows.values() for r in rows.values()))
 
     def main(self):
+        self.stage(18,'sibling revisions',self.sources.prepare)
+        self.rows[23]['sibling revisions'] = dict(self.rows[18]['sibling revisions'])
+        self.stage(18,'reference build',self.build_reference,('sibling revisions',))
+        self.rows[23]['reference build'] = dict(self.rows[18]['reference build'])
         self.stage(18,'fixtures',self.fixtures)
         self.rows[23]['fixtures'] = dict(self.rows[18]['fixtures'])
-        self.stage(18,'plugin build',self.plugin)
+        self.stage(18,'plugin build',self.plugin,('sibling revisions',))
         self.rows[23]['plugin build'] = dict(self.rows[18]['plugin build'])
-        self.stage(18,'VM build',self.vm)
+        self.stage(18,'VM build',self.vm,('sibling revisions',))
         self.rows[23]['VM build'] = dict(self.rows[18]['VM build'])
         def run_major(m):
             self.stage(m,'native reference',lambda:self.native(m),('fixtures',))
@@ -262,7 +290,7 @@ class Gate(RecordedGate):
             self.stage(m,'S1–S9 production',lambda:self.pipeline(m),('post-link LTO','plugin build'))
             self.stage(m,'launch artefacts',lambda:self.artifacts(m),('S1–S9 production',))
             for name in ('reference','VM'):
-                self.stage(m,name+' admission',lambda:self.admission(m,name),('launch artefacts',)+(('VM build',) if name=='VM' else ()))
+                self.stage(m,name+' admission',lambda:self.admission(m,name),('launch artefacts',)+(('VM build',) if name=='VM' else ('reference build',)))
                 self.stage(m,name+' forward = native',lambda:self.execute(m,name),('native reference',name+' admission'))
                 self.stage(m,name+' byte-exact reverse',lambda:self.execute(m,name,True),(name+' forward = native',))
             if self.args.probe_unlinked:
@@ -279,17 +307,21 @@ class Gate(RecordedGate):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', help='parent for fresh timestamped evidence directories')
-    p.add_argument('--plugin-rev', help='plugin commit; defaults to HEAD at invocation')
-    p.add_argument('--vm-rev', help='VM commit; defaults to HEAD at invocation')
+    p.add_argument('--plugin-rev', help='plugin commit; defaults to pins.json')
+    p.add_argument('--vm-rev', help='VM commit; defaults to pins.json')
     p.add_argument('--runtimes18', help='published LLVM18 runtimes bitcode')
-    p.add_argument('--arith18', help='LLVM18 arith bitcode to use instead of the live sibling dist (must still match the plugin pin digest)')
-    p.add_argument('--arith23', help='LLVM23 arith bitcode to use instead of the live sibling dist (must still match the plugin pin digest)')
+    p.add_argument('--arith18', help='LLVM18 arith bitcode to use instead of the pinned publication (must still match the plugin pin digest)')
+    p.add_argument('--arith23', help='LLVM23 arith bitcode to use instead of the pinned publication (must still match the plugin pin digest)')
     p.add_argument('--runtimes23', help='published LLVM23 runtimes bitcode')
     p.add_argument('--probe-unlinked', action='store_true', help='also probe the corpus without runtimes; never substitutes for production')
-    p.add_argument('--reference', default=str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref'), help='reference interpreter binary (release build; the debug build is far too slow for the corpus, bead b-isa-spec-n8j)')
+    add_revision_options(p)
+    p.add_argument('--reference', help='reference interpreter binary (release build; the debug build is far too slow for the corpus, bead b-isa-spec-n8j)')
     p.add_argument('--timeout', type=int, default=300, help='seconds per corpus command (default 300)')
     p.add_argument('--jobs', type=int, default=4, help='plugin build parallelism')
-    return Gate(p.parse_args()).main()
+    args = p.parse_args()
+    validate_revision_options(p, args)
+    apply_recorded_pins(args, PINS)
+    return Gate(args).main()
 
 if __name__ == '__main__':
     raise SystemExit(main())
