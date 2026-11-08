@@ -259,6 +259,29 @@ def check_estimate(value, object_sha):
     for field in ('steps', 'heap', 'stack', 'depth'):
         assert value['budget'][field] == PINS['budget'][field], 'estimate budget differs: ' + field
 
+
+def launch_allowances(launch):
+    """ISA §9: these SQLite launches take one token per build budget, in array order."""
+    build = Path(launch)/'build.json'
+    try:
+        metadata = json.loads(build.read_text())
+    except (OSError, ValueError) as exc:
+        raise GateError(f'cannot read launch budget allowances from {build}: {exc}') from exc
+    if not isinstance(metadata, dict) or 'budgets' not in metadata:
+        raise GateError(f'missing budgets in {build}; SQLite launches hold oracle regions')
+    budgets = metadata['budgets']
+    if not isinstance(budgets, list) or not budgets:
+        raise GateError(f'expected nonempty budgets array in {build}; SQLite launches hold oracle regions')
+    allowances = []
+    for index, row in enumerate(budgets):
+        if not isinstance(row, dict) or 'steps' not in row:
+            raise GateError(f'missing steps allowance in budget {index} of {build}')
+        value = row['steps']
+        if type(value) not in (int, str) or not re.fullmatch(r'0|[1-9][0-9]*', str(value)):
+            raise GateError(f'invalid steps allowance in budget {index} of {build}: {value!r}')
+        allowances.append(str(value))
+    return tuple(allowances)
+
 # ---------------------------------------------------------------- the gate
 
 
@@ -614,10 +637,11 @@ class Gate(RecordedGate):
         for n in ORACLE_SIZES:
             bits = bits_for(n)
             obj = self.run/str(m)/f'N{n}'/'out/rung4_tuple/launch.bennett'
+            allowances = launch_allowances(obj.parent)
             table = self.tables[n]
             def one(element):
                 x, t, e = element
-                got = tuple_result(self.quiet([exe, 'run-program', obj, 'rung4_tuple', '--args', f'{x},{t},{e}', '--budget', self.budget_arg()]))
+                got = tuple_result(self.quiet([exe, 'run-program', obj, 'rung4_tuple', '--args', ','.join([str(x), str(t), str(e), *allowances]), '--budget', self.budget_arg()]))
                 want = expected_tuple(x, t, e, table[x], bits)
                 assert got == want, f'tuple mismatch N={n} (x,t,e)=({x},{t},{e}): got {got:#x}, want {want:#x}'
                 return {'x': x, 't': t, 'e': e, 'tuple': got}
@@ -642,7 +666,9 @@ class Gate(RecordedGate):
         data = self.images[m][n].read_bytes()
         a = region_exponent(len(data))
         plan = self.plans[n]
-        out = self.command(f'{m}/{name}-{n}-grover-state', [exe, 'run-program', d/'out/rung4_grover/launch.bennett', 'rung4_grover', '--state-out', state, '--budget', self.budget_arg()], timeout=self.args.sweep_timeout)
+        obj = d/'out/rung4_grover/launch.bennett'
+        allowances = launch_allowances(obj.parent)
+        out = self.command(f'{m}/{name}-{n}-grover-state', [exe, 'run-program', obj, 'rung4_grover', '--args', ','.join(allowances), '--state-out', state, '--budget', self.budget_arg()], timeout=self.args.sweep_timeout)
         self.success_only(json.loads(out))
         dump = json.loads(state.read_text(), parse_float=finite_json_number, parse_constant=finite_json_number)
         image = (data+bytes((1 << a)-len(data))).hex()
@@ -672,8 +698,9 @@ class Gate(RecordedGate):
             for x in marked or [0, (1 << bits)-1]:
                 vectors[f'select-{x}'] = draws_for(probs, bits, x)
             obj = self.run/str(m)/f'N{n}'/'out/rung4_grover/launch.bennett'
+            allowances = launch_allowances(obj.parent)
             for label, draws in vectors.items():
-                value = json.loads(self.command(f'{m}/{name}-{n}-grover-{label}', [exe, 'run-program', obj, 'rung4_grover', '--draws', ','.join(map(repr, draws)), '--budget', self.budget_arg()], timeout=self.args.sweep_timeout))
+                value = json.loads(self.command(f'{m}/{name}-{n}-grover-{label}', [exe, 'run-program', obj, 'rung4_grover', '--args', ','.join(allowances), '--draws', ','.join(map(repr, draws)), '--budget', self.budget_arg()], timeout=self.args.sweep_timeout))
                 self.success_only(value)
                 got = int(value['results'][0]['value'], 0)
                 want = predict_outcome(probs, bits, draws)

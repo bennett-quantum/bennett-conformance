@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import tempfile
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import gate
 
 N256_MATCHES = [50, 57, 146, 164, 210, 250]
@@ -170,6 +170,9 @@ class StateIngestion(unittest.TestCase):
         out = self.g.run / '18/N64'
         out.mkdir(parents=True)
         self.state = out / 'reference-state.json'
+        launch = out/'out/rung4_grover'
+        launch.mkdir(parents=True)
+        (launch/'build.json').write_text(json.dumps({'budgets': [{'steps': '37'}, {'steps': '11'}, {'steps': '0'}, {'steps': '37'}]}))
         image = out / 'image.bin'
         image.write_bytes(bytes(16))
         self.g.images = {18: {64: image}}
@@ -185,6 +188,13 @@ class StateIngestion(unittest.TestCase):
         self.assertLess(result['max_amplitude_error'], 1e-12)
         self.assertAlmostEqual(result['success'], plan['success'], places=12)
 
+    def test_state_argv_includes_each_declared_allowance_in_order(self):
+        self.state.write_text(json.dumps(self.dump))
+        self.g.grover_state(18, 'reference', 64)
+        argv = list(map(str, self.g.command.call_args.args[1]))
+        self.assertIn('--args', argv)
+        self.assertEqual(argv[argv.index('--args')+1], '37,11,0,37')
+
     def test_rejects_non_finite_json_numbers_anywhere(self):
         for token in ('NaN', 'Infinity', '-Infinity', '1e400', '-1e400'):
             for location in ('amplitude', 'extra field'):
@@ -197,6 +207,71 @@ class StateIngestion(unittest.TestCase):
                     self.state.write_text(json.dumps(bad).replace('"NONFINITE"', token))
                     with self.assertRaisesRegex(ValueError, 'non-finite JSON number'):
                         self.g.grover_state(18, 'reference', 64)
+
+
+class LaunchArguments(unittest.TestCase):
+    def setUp(self):
+        self.d = tempfile.TemporaryDirectory(dir=os.environ['TMPDIR'])
+        self.addCleanup(self.d.cleanup)
+        self.g = gate.Gate(args(self.d.name))
+        self.g.executor = Mock(return_value='/executor')
+        self.g.tables = {16: [0]*16}
+        self.g.plans = {16: gate.grover_plan(16)}
+        self.g.sweep = lambda tag, items, action: [action(item) for item in items]
+        self.budgets = [{'steps': '37'}, {'steps': '11'}, {'steps': '0'}, {'steps': '37'}]
+        for name in ('rung4_tuple', 'rung4_grover'):
+            launch = self.g.run/'18/N16/out'/name
+            launch.mkdir(parents=True)
+            (launch/'build.json').write_text(json.dumps({'budgets': self.budgets}))
+
+    def test_allowances_require_the_launch_build_metadata(self):
+        launch = self.g.run/'18/N16/out/rung4_tuple'
+        (launch/'build.json').unlink()
+        with self.assertRaisesRegex(gate.GateError, 'launch budget allowances.*build.json'):
+            gate.launch_allowances(launch)
+
+    def test_allowances_reject_missing_empty_or_malformed_budget_entries(self):
+        launch = self.g.run/'18/N16/out/rung4_tuple'
+        for metadata in ({}, {'budgets': None}, {'budgets': {}}, {'budgets': []},
+                         {'budgets': [{}]}, {'budgets': [None]},
+                         *({'budgets': [{'steps': value}]} for value in (None, True, -1, 1.5, '01', '+1', ''))):
+            with self.subTest(metadata=metadata):
+                (launch/'build.json').write_text(json.dumps(metadata))
+                with self.assertRaisesRegex(gate.GateError, 'budget.*build.json'):
+                    gate.launch_allowances(launch)
+        (launch/'build.json').write_text('{')
+        with self.assertRaisesRegex(gate.GateError, 'launch budget allowances.*build.json'):
+            gate.launch_allowances(launch)
+
+    def test_allowances_preserve_zero_repetitions_and_integer_values(self):
+        launch = self.g.run/'18/N16/out/rung4_tuple'
+        (launch/'build.json').write_text(json.dumps({'budgets': [{'steps': 0}, {'steps': '91'}, {'steps': 0}]}))
+        self.assertEqual(gate.launch_allowances(launch), ('0', '91', '0'))
+
+    def test_tuple_argv_appends_allowances_after_entry_arguments(self):
+        def execute(argv):
+            text = argv[argv.index('--args')+1].split(',')
+            self.assertEqual(text[3:], ['37', '11', '0', '37'])
+            x, t, e = map(int, text[:3])
+            return {'status': 'COMPLETED', 'fault': None, 'faults': [], 'host_requests': [],
+                    'run_state': 'CLOSED', 'results': [{'value': str(x | (t << 4) | (e << 5))}]}
+        self.g.quiet = Mock(side_effect=execute)
+        with patch.object(gate, 'ORACLE_SIZES', (16,)):
+            self.g.tuples(18, 'reference')
+        self.assertEqual(self.g.quiet.call_count, 16*2*16)
+
+    def test_outcome_argv_passes_allowances_without_entry_arguments(self):
+        def execute(tag, argv, **kwargs):
+            self.assertIn('--args', argv)
+            self.assertEqual(argv[argv.index('--args')+1], '37,11,0,37')
+            # Uniform four-bit register: half draws select 1111; zero draws select 0000.
+            expected = {'half': 15, 'zero': 0, 'select-0': 0, 'select-15': 15}
+            return json.dumps({'status': 'COMPLETED', 'fault': None, 'faults': [], 'host_requests': [],
+                               'results': [{'value': str(expected[tag.split('-grover-')[1]])}]}).encode()
+        self.g.command = Mock(side_effect=execute)
+        with patch.object(gate, 'GROVER_SIZES', (16,)):
+            self.g.outcomes(18, 'reference')
+        self.assertEqual(self.g.command.call_count, 4)
 
 
 class DrawPrediction(unittest.TestCase):
