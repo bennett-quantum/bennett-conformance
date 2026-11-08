@@ -279,6 +279,44 @@ class LaunchArguments(unittest.TestCase):
         self.assertEqual(self.g.command.call_count, 4)
 
 
+class ReducedMeasuredState(unittest.TestCase):
+    def setUp(self):
+        self.d = tempfile.TemporaryDirectory(dir=os.environ['TMPDIR'])
+        self.addCleanup(self.d.cleanup)
+        self.g = gate.Gate(args(self.d.name))
+        self.fixture = Path(self.d.name)/'isa/reference-interpreter/tests/fixtures/registers.bisa'
+        self.fixture.parent.mkdir(parents=True)
+        self.fixture.write_text('fn cc @measurement () (r:i2) () () ()\n^entry():\nq = qreg.new 2\nr = measure q\nret r\n')
+        self.g.sources.paths['bennett-isa-spec'] = Path(self.d.name)/'isa'
+        self.g.executor = Mock(return_value='/executor')
+
+    def measured(self, tag, argv):
+        self.assertEqual(argv[1:4], ['run-program', self.fixture, 'measurement'])
+        self.assertNotIn('--state-out', argv)
+        draw = argv[argv.index('--draws')+1]
+        bits, value = {'0.0': ('00', 0), '0.9': ('11', 3)}[draw]
+        return json.dumps({'status': 'COMPLETED', 'fault': None, 'faults': [], 'host_requests': [],
+                           'run_state': 'CLOSED', 'results': [{'type': 'i2', 'value': str(value)}],
+                           'measurements': [{'bits': bits, 'reg': 1, 'value': value}]}).encode()
+
+    def test_reduced_state_comes_from_a_measuring_launch(self):
+        self.g.command = Mock(side_effect=self.measured)
+        self.g.state_out('VM')
+        state = json.loads((self.g.run/'VM-probe-state.json').read_text())
+        self.assertEqual([r['measurement']['bits'] for r in state['observations']], ['00', '11'])
+        self.assertEqual(self.g.command.call_count, 2)
+        self.assertEqual(state['fixture_sha256'], gate.sha(self.fixture))
+
+    def test_unmeasured_or_wrong_state_is_rejected(self):
+        for measurements in ([], [{'bits': '01', 'reg': 1, 'value': 1}]):
+            with self.subTest(measurements=measurements):
+                self.g.command = Mock(return_value=json.dumps({'status': 'COMPLETED', 'fault': None,
+                    'faults': [], 'host_requests': [], 'run_state': 'CLOSED',
+                    'results': [{'type': 'i2', 'value': '0'}], 'measurements': measurements}).encode())
+                with self.assertRaisesRegex(AssertionError, 'measurement'):
+                    self.g.state_out('reference')
+
+
 class DrawPrediction(unittest.TestCase):
     def test_follows_isa_cdf_rule(self):
         # Wire 0 is measured first: outcome 0 first in lexical order, strict > on the CDF.

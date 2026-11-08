@@ -182,6 +182,12 @@ class FrozenInputs(unittest.TestCase):
         self.runner.sources.prepare()
         self.assertEqual(self.runner.manifest['pins']['bennett-arith'], self.commits['arith'])
 
+    def test_explicit_reference_still_freezes_the_isa_measuring_fixture(self):
+        self.runner.args.reference = '/explicit-reference'
+        self.runner.sources.prepare()
+        self.assertIn('bennett-isa-spec', self.runner.sources.paths)
+        self.assertEqual(self.runner.manifest['frozen']['bennett-isa-spec'], self.commits['isa-spec'])
+
     def test_reference_build_is_release_and_uses_frozen_isa_source(self):
         self.runner.sources.prepare()
         source = self.runner.sources.paths['bennett-isa-spec']

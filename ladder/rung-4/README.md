@@ -55,3 +55,11 @@ bound elapsed time because LLVM-major workers overlap. Record outer wall/user/
 system CPU seconds alongside command receipts. Existing per-command timeouts
 are unchanged pending the conformance time-policy sweep. The shell launcher
 preserves an explicit TMPDIR; headless job runs use a worktree-local directory.
+
+
+The reduced measured-control diagnostic uses the selected ISA revision's published
+`reference-interpreter/tests/fixtures/registers.bisa`, entry `measurement`, via
+`run-program --draws`. It checks both measured Bell basis states and records the
+actual measurement results. It does not require the pending lossless state export.
+The required Grover amplitude rows still require the pre-measurement readout in
+DESIGN.md. An explicit reference binary still uses the ISA pin for this fixture.

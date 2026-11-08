@@ -44,7 +44,7 @@ STAGES = ('sibling revisions', 'reference build', 'fixtures', 'SQLite source unm
           'reference reduced control (diagnostic)', 'VM reduced control (diagnostic)',
           'published Grover TU production (diagnostic)',
           'reference --mem-file (diagnostic)', 'VM --mem-file (diagnostic)',
-          'reference --state-out (diagnostic)', 'VM --state-out (diagnostic)',
+          'reference measured control (diagnostic)', 'VM measured control (diagnostic)',
           'estimator CLI (diagnostic)', 'checker CLI (diagnostic)')
 
 # ---------------------------------------------------------------- independent predicate (no SQLite)
@@ -764,9 +764,24 @@ class Gate(RecordedGate):
 
     def state_out(self, name):
         exe = self.executor(name)
-        state = self.run/f'{name}-probe-state.json'
-        self.command(f'probe/{name}-state-out', [exe, 'run-cc', HERE.parent/'rung-3/fixtures/executor-control.bisa', 'effects', '--entropy', '0b1621', '--state-out', state])
-        assert state.is_file(), 'no state dump written'
+        fixture = self.sources.paths['bennett-isa-spec']/'reference-interpreter/tests/fixtures/registers.bisa'
+        observations = []
+        # The published Bell measurement has support only on 00 and 11, each with weight 1/2.
+        for draw, bits, expected in (('0.0', '00', 0), ('0.9', '11', 3)):
+            value = json.loads(self.command(f'probe/{name}-measured-control-{bits}',
+                              [exe, 'run-program', fixture, 'measurement', '--draws', draw]))
+            self.success_only(value)
+            assert value['run_state'] == 'CLOSED', 'measurement launch not closed'
+            measurements = value['measurements']
+            assert len(measurements) == 1, 'measurement control must execute exactly one measurement'
+            measured = measurements[0]
+            assert measured['bits'] == bits and measured['value'] == expected, 'measurement differs from the Bell draw rule'
+            assert value['results'] == [{'type': 'i2', 'value': str(expected)}], 'measurement result differs from readout'
+            observations.append({'draw': draw, 'measurement': measured})
+        state = {'label': 'measured Bell basis states; diagnostic only',
+                 'fixture_sha256': sha(fixture), 'observations': observations}
+        (self.run/f'{name}-probe-state.json').write_text(json.dumps(state, indent=2)+'\n')
+        self.manifest['evidence'].setdefault('reduced_measured_control', {})[name] = state
 
     def estimator_cli(self, m):
         path, _ = self.mini()
@@ -860,7 +875,7 @@ class Gate(RecordedGate):
                 vmdep = ('VM build',) if name == 'VM' else ('reference build',)
                 self.stage(m, f'{name} reduced control (diagnostic)', lambda: self.control(name), ('fixtures', *vmdep))
                 self.stage(m, f'{name} --mem-file (diagnostic)', lambda: self.mem_file(name), (f'{name} reduced control (diagnostic)',))
-                self.stage(m, f'{name} --state-out (diagnostic)', lambda: self.state_out(name), (f'{name} reduced control (diagnostic)',))
+                self.stage(m, f'{name} measured control (diagnostic)', lambda: self.state_out(name), (f'{name} reduced control (diagnostic)',))
             self.stage(m, 'published Grover TU production (diagnostic)', lambda: self.grover_tu(m), ('fixtures', 'plugin build'))
             self.stage(m, 'estimator CLI (diagnostic)', lambda: self.estimator_cli(m), ('estimator build', 'fixtures'))
             self.stage(m, 'checker CLI (diagnostic)', lambda: self.checker_cli(m), ('checker build',))

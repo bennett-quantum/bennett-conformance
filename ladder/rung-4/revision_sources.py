@@ -69,7 +69,7 @@ class FrozenSources:
             arithmetic = versions['arith']['commit']
             self.gate.manifest['arith_selection'] = 'selected plugin published dependency'
         for name in REPOSITORIES:
-            if name == 'plugin' or (name == 'isa-spec' and self.gate.args.reference is not None):
+            if name == 'plugin':
                 continue
             revision = arithmetic if name == 'arith' else getattr(self.gate.args, name.replace('-', '_')+'_rev')
             self.freeze('bennett-'+name, revision)
