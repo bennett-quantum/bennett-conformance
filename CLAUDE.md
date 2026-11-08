@@ -34,7 +34,7 @@ The specs live in `../bennett-isa-spec/spec/Bennett-ISA-Spec.md` and
    outside their owned paths. A session that changes nothing writes nothing.
 1. FAIL FAST, FAIL LOUD. Assertions and clear errors, never silent returns or
    quiet fallbacks. Unsupported means a crash with context.
-2. ONE IMPLEMENTER PER CHANGE. Independent review is batched over several landed
+2. ONE WRITER PER PATH SET: parallel writers only on disjoint owned paths named in both briefs; whoever merges second gets the shared lines reviewed. Independent review is batched over several landed
    changes, not required per change.
    Review policy: bennett/docs/decisions/2026-11-02-code-quality-policy.md (in force 2026-11-03).
 3. RED-GREEN TDD. Write the test, watch it fail, make it pass, then refactor.
