@@ -182,3 +182,75 @@ invented, and no whole-binary lowering requirement is introduced (bennett-4ht).
 
 Previous measured results remain in
 [evidence/20261101T125405.461872Z](evidence/20261101T125405.461872Z/table.md).
+
+## Gate preparation — 2026-11-07T10:26:41Z
+
+
+**This is unit-tested gate preparation, not a new end-to-end rung pass.**
+The full rung/repository gate was deliberately not run: the orchestrator owns
+that heavy run. Implementation commit pins are unchanged, so the recorded
+arithmetic incompatibility and selected ISA0.8 R prerequisite remain red until
+coherent upstream adoption. Archived evidence above is unchanged.
+**bennett-conformance-7bx remains open.**
+
+The corpus retains hello and adds ordinary `printf_fmt.c`: `%s %d %u %x %c`,
+multiple arguments, width/precision, negative and extreme 32-bit values, zero
+precision, and a final buffered line without LF or explicit flush. Its 213 ASCII
+bytes and status 0 are a literal hand-derived table in
+`fixtures/printf_fmt.expect.json`. Source/oracle hashes are pinned. Every required
+pipeline/native/executor row covers both workloads and LLVM majors. Hello row
+names remain; formatted rows use a `printf_fmt:` prefix. Each executor has separate
+reset, saved-tape and corrupt-tape rows. A failed formatted row cannot be hidden
+by a passing hello path.
+
+`pins.json` adds version/path fields only. Selected versions drive options and
+clause graphs. The R prerequisite compares the pinned producer declarations with
+the pinned dialect publication's full compatibility unit and ISA target. The
+known ISA0.8 publication still gives BD-B-ISA7. Matching ISA0.9 producer/publication
+pairs pass the adapter; unknown/mismatched pairs fail loudly. Synthetic future
+version cases do not establish approval of any draft or producer. The existing
+igc explicit major/plugin/runtime/arith fix is retained and tested on both majors;
+historical missing-directory diagnostics also classify from isolated checkouts.
+
+The native audit accepts direct exact-input links or the documented multi-stage
+bitcode/linker-script adapter. It checks device/runtime/arith hashes and replays
+successful ordered LLVM transformations from those exact leaves. Additional
+inputs are restricted to the published generated layout constant and same-major
+pinned native-support bytes. Scripts cannot introduce file/library inputs;
+quoted archive selectors, library-search, comma/response injection and opaque
+passes fail loudly. Actual ELF shared-library/interpreter/undefined-import checks
+remain. The explicit driver work manifest is `out/native-work/manifest.json`.
+Unsupported adapter transforms fail loudly; opaque merged filenames are not proof.
+
+Red-first output: `.tmp/r3-gate/red.txt` (initial 8 tests: 7 errors, 1 failure).
+Additional negative-receipt/blocker-path regressions are captured in that job
+directory. Focused verification from the assigned checkout:
+
+```sh
+env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
+  TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3/.tmp/r3-gate/tmp \
+  timeout 60s python3 -B -m unittest discover -s ladder/rung-3/tests -v
+env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
+  TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3/.tmp/r3-gate/tmp \
+  timeout 60s python3 -B ladder/rung-3/check_gate.py
+```
+
+Results: **15 new tests PASS**, including actual tiny LLVM receipt rebuild/static
+link/exit-value checks on both majors (no skips), and **12 existing tests PASS**.
+The independent tiny closure returns 7+11=18 after a spoofed intermediate is rebuilt;
+it is not either musl workload. Negatives cover host libc in final/intermediate
+inputs, dropped runtime, substituted hashes/bytes/paths, wrong-major/untracked
+native support, script inputs and opaque options. Executor tests cover missing
+unterminated-tail output and supplied/corrupted tapes on every workload/major/
+executor. Logs: `.tmp/r3-gate/tests-green.txt` and `legacy-green.txt`.
+
+Independent fixture smoke used each major's clang with
+`-O2 -Wall -Wextra -Werror <source> -o <job-output>` and compared stdout/status
+against the literal tables: hello 13 bytes, formatted 213 bytes, status 0 on both.
+It deliberately used **host libc** solely to validate fixture/oracle consistency;
+it did not exercise the materialised native comparison, musl runtime, producer,
+reference or VM. Exact commands/results: `.tmp/r3-gate/fixture-smoke.txt`.
+
+Full formatted-musl R production, native agreement, reset and strict replay on
+both executors remain unmeasured. The orchestrator must adopt reviewed coherent
+publications and run the heavy rung gate before claiming acceptance.

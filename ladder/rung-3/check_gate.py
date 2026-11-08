@@ -110,6 +110,9 @@ class GateChecks(unittest.TestCase):
                                 '--bennett-arith='+str(arith)):
                         self.assertIn(arg, argv)
                     self.assertEqual(argv[0], '/frozen-driver')
+                    if action == 'native':
+                        self.assertIn('--bennett-native-check='+str(
+                            g.publications['bennett-runtimes']/'scripts/native-check'), argv)
 
     def test_runtime_override_is_hashed_and_forwarded(self):
         for m in (18,23):
@@ -155,6 +158,7 @@ class GateChecks(unittest.TestCase):
         (d/'out/native-comparison.json').write_text('{}')
         g.runtime_files=lambda m:(Path('/runtime.bc'),Path('/arith.bc'))
         g.driver_exe=Path('/driver')
+        g.publications={'bennett-runtimes':Path(self.tmp)/'publication'}
         # No comparison manifest may silently fall back to clang hello.c.
         with self.assertRaises((gate.GateError, KeyError, AssertionError)):
             g.native(18)
@@ -168,15 +172,15 @@ class GateChecks(unittest.TestCase):
         (out/'device.bc').write_bytes(b'materialised')
         rt=Path(self.tmp)/'runtime.bc'; ar=Path(self.tmp)/'arith.bc'
         rt.write_bytes(b'runtime'); ar.write_bytes(b'arith')
-        g.publications={'runtime':Path(self.tmp)}
+        g.publications={'bennett-runtimes':Path(self.tmp)}
         g.runtime_files=lambda m:(rt,ar)
         g.driver_exe=Path('/driver')
         g.command=lambda *a,**kw:b''
-        argv=[g.clang(18),'-nostdlib','-nostdinc','-static','--sysroot='+str(g.sysroots[18]),
+        argv=[g.clang(18),'-O2','-nostdlib','-nostdinc','-static','--sysroot='+str(g.sysroots[18]),
               str(out/'device.bc'),str(rt),str(ar),'/usr/lib/libc.a','-o',str(d/'native')]
         (out/'native-comparison.json').write_text(json.dumps({'llvm_major':18,
             'materialised_sha256':gate.sha(out/'device.bc'),'link_argv':argv}))
-        with self.assertRaisesRegex(AssertionError,'unapproved comparison input'):
+        with self.assertRaisesRegex(gate.GateError,'unapproved comparison input'):
             g.native(18)
 
     def test_command_evidence_records_nonzero_exit_and_timeout(self):
@@ -210,9 +214,9 @@ class GateChecks(unittest.TestCase):
         value={'status':'COMPLETED','fault':None,'faults':[], 'host_requests':[],
                'results':[{'type':'i32','value':'0'}], 'console_hex':b'hello, world\n'.hex(),
                'tape':[{'dev':'console','op':'write','args':[4096,13], 'bytes':b'hello, world\n'.hex()}],
-               'effect_tape_length':1}
-        g.forward_results={(18,'reference'):value}
-        g.argv_replies=lambda m:Path('/argv-replies.json')
+               'effect_tape_length':1, 'run_state':'CLOSED'}
+        g.forward_results={(18,'reference','hello'):value}
+        g.argv_replies=lambda m,workload:Path('/argv-replies.json')
         calls=[]
         g.executor=lambda name:Path('/executor')
         def command(tag, argv, **kw):
@@ -222,11 +226,12 @@ class GateChecks(unittest.TestCase):
             return json.dumps(value).encode()
         g.command=command
         g.replay(18,'reference')
+        g.replay(18,'reference',tampered=True)
         self.assertEqual(len(calls),2)
         self.assertTrue(all('--replay-tape' in c for c in calls))
         g.command=lambda *a,**kw:json.dumps(value).encode()
         with self.assertRaisesRegex(AssertionError,'accepted a tampered'):
-            g.replay(18,'reference')
+            g.replay(18,'reference',tampered=True)
 
     def setUp(self):
         self.directory=tempfile.TemporaryDirectory(dir=os.environ['TMPDIR'])
