@@ -62,6 +62,19 @@ class RevisionSources:
         self.paths[name] = source
         return source
 
+    def plugin_versions(self, plugin_source):
+        """Revision-selected production follows the selected plugin's declaration."""
+        if not self.gate.args.revision_selected:
+            return
+        declaration = plugin_source / 'SPEC_VERSIONS.toml'
+        versions = tomllib.loads(declaration.read_text())
+        for name in ('dialect', 'isa'):
+            version = versions.get(name)
+            if not isinstance(version, str) or not version.strip():
+                raise GateError(f'selected plugin declaration {declaration}: missing {name} version')
+            self.gate.manifest[name] = version
+        self.gate.manifest['plugin_version_declaration_sha256'] = sha(declaration)
+
     def plugin_arith(self, plugin_source):
         """Provide the plugin's declared build input before CMake configures it."""
         pins = tomllib.loads((plugin_source / 'SPEC_VERSIONS.toml').read_text())['arith']

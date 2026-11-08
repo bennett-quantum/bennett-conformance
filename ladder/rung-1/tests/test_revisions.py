@@ -84,7 +84,7 @@ class FrozenRevisions(unittest.TestCase):
                     arith = self.workspace / 'bennett-arith'
                     pin = self.revisions['arith'][0 if value == 'old' else 1]
                     (repo / 'SPEC_VERSIONS.toml').write_text(
-                        '[arith]\ncommit = "' + pin + '"\n' +
+                        'dialect = "' + ('0.2.10' if value == 'old' else '0.2.13') + '"\nisa = "' + ('0.8' if value == 'old' else '0.9') + '"\n[arith]\ncommit = "' + pin + '"\n' +
                         '\n'.join(f'llvm{m}_sha256 = "{sha(arith / f"dist/llvm{m}/bennett-arith.bc")}"'
                                   for m in (18, 23)) + '\n')
                 self.git(repo, 'add', '.')
@@ -129,7 +129,7 @@ class FrozenRevisions(unittest.TestCase):
 
     def make_gate(self, rung, **overrides):
         module = load_gate(rung)
-        args = dict(output=str(self.workspace / (rung + '-out')), timeout=300, jobs=3,
+        args = dict(revision_selected=True, output=str(self.workspace / (rung + '-out')), timeout=300, jobs=3,
                     plugin_rev=self.revisions['plugin'][1], vm_rev=None,
                     runtimes_rev=self.revisions['runtimes'][0],
                     arith_rev=self.revisions['arith'][1],
@@ -179,6 +179,62 @@ class FrozenRevisions(unittest.TestCase):
                 self.assertIn('--release', cargo)
                 self.assertIn('--offline', cargo)
                 self.assertEqual(cargo[cargo.index('--jobs') + 1], '3')
+
+    def production_argv(self, gate, rung):
+        if rung == 'rung-1':
+            directory = gate.folder('C', 18) / 'r1_popcount/out'
+            directory.mkdir(parents=True)
+            for name in ('ref.bennett', 'materialised.bc'):
+                (directory / name).write_text('argv-test output placeholder')
+            gate.pipeline('C', 18, 'r1_popcount')
+        else:
+            gate.pipeline(18)
+        return self.commands[-1][1]
+
+    def test_production_requests_selected_frozen_plugin_versions(self):
+        for rung in ('rung-1', 'rung-2'):
+            with self.subTest(rung=rung):
+                g = self.make_gate(rung)
+                # A dirty live declaration must never replace the selected commit.
+                declaration = self.workspace / 'bennett-plugin/SPEC_VERSIONS.toml'
+                declaration.write_text(declaration.read_text().replace('0.2.13', '9.9.9'))
+                g.sources.prepare()
+                with patch.dict(g.plugin.__globals__, WORKSPACE=self.workspace):
+                    g.plugin()
+                argv = self.production_argv(g, rung)
+                self.assertIn('-bennett-dialect=0.2.13', argv)
+                self.assertIn('-bennett-isa=0.9', argv)
+                self.assertEqual(g.manifest['dialect'], '0.2.13')
+                self.assertEqual(g.manifest['isa'], '0.9')
+
+    def test_no_revision_selection_keeps_historical_production_versions(self):
+        for rung in ('rung-1', 'rung-2'):
+            with self.subTest(rung=rung):
+                g = self.make_gate(rung, revision_selected=False)
+                g.sources.prepare()
+                with patch.dict(g.plugin.__globals__, WORKSPACE=self.workspace):
+                    g.plugin()
+                argv = self.production_argv(g, rung)
+                self.assertIn('-bennett-dialect=0.2.10', argv)
+                self.assertIn('-bennett-isa=0.8', argv)
+
+    def test_selected_plugin_missing_declared_version_fails_before_build(self):
+        plugin = self.workspace / 'bennett-plugin'
+        original = (plugin / 'SPEC_VERSIONS.toml').read_text()
+        for missing in ('dialect', 'isa'):
+            for rung in ('rung-1', 'rung-2'):
+                with self.subTest(rung=rung, missing=missing):
+                    declaration = plugin / 'SPEC_VERSIONS.toml'
+                    declaration.write_text('\n'.join(line for line in original.splitlines()
+                        if not line.startswith(missing + ' =')) + '\n')
+                    self.git(plugin, 'add', 'SPEC_VERSIONS.toml')
+                    self.git(plugin, 'commit', '--allow-empty', '-qm', 'missing ' + missing)
+                    g = self.make_gate(rung, plugin_rev=self.git(plugin, 'rev-parse', 'HEAD'))
+                    self.commands.clear()
+                    with patch.dict(g.plugin.__globals__, WORKSPACE=self.workspace):
+                        with self.assertRaisesRegex(GateError, 'missing.*' + missing):
+                            g.plugin()
+                    self.assertFalse(any(argv[0] == 'cmake' for tag, argv in self.commands))
 
     def test_plugin_pin_supplies_arith_when_no_arith_revision_is_given(self):
         for rung in ('rung-1', 'rung-2'):
@@ -265,6 +321,7 @@ class RevisionConflicts(unittest.TestCase):
                 with patch.object(sys, 'argv', ['gate.py']):
                     module.main()
                 args = constructor.call_args.args[0]
+                self.assertFalse(args.revision_selected)
                 self.assertEqual(args.plugin_rev, module.PINS['bennett-plugin'] if rung == 'rung-1' else None)
                 self.assertEqual(args.vm_rev, module.PINS['bennett-vm'] if rung == 'rung-1' else None)
                 self.assertEqual(Path(args.reference), module.WORKSPACE / 'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref')

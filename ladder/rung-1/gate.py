@@ -133,6 +133,7 @@ class Gate(RecordedGate):
 
     def plugin(self):
         src=self.freeze('bennett-plugin',self.args.plugin_rev)
+        self.sources.plugin_versions(src)
         pins=self.sources.plugin_arith(src)
         self.plugin_build=src/'build'
         self.command('build/plugin-configure',['cmake','-S',src,'-B',self.plugin_build])
@@ -264,7 +265,7 @@ class Gate(RecordedGate):
         _,arith=self.runtime_files(m)
         self.command(f'{lang}/{m}/{c}/pipeline',['env','BENNETT_ARITH_BITCODE='+str(arith),f'/usr/lib/llvm-{m}/bin/opt',
             '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),'-passes=bennett',
-            '-bennett-dialect=0.2.10','-bennett-isa=0.8','-bennett-oracle='+entry,
+            '-bennett-dialect='+self.manifest['dialect'],'-bennett-isa='+self.manifest['isa'],'-bennett-oracle='+entry,
             '-bennett-scalar-shape='+('ARG(64),' if lang=='Julia' else '')+','.join(['IN(8,sext)']*CASES[c])+';tgt=8',
             '-bennett-scalar-stack='+case_budget(c).split(',')[2],
             '-bennett-out='+str(d/'out'),'-disable-output',d/'postlink.ll'])
@@ -340,7 +341,7 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
             sig={'abi':'0.8','args':['token'],'bounds':[],'in':[8]*n,'kind':'action','mem':[],'mut':[8,4],'tier':'q'}
             body='action @rung1_full (t:wire[8] mut, e:wire[4] mut) ('+', '.join(f'x{i}:wire[8] in' for i in range(n))+') () (tk:token) ()\n^entry():\noracle_call @ref tk ('+', '.join('x'+str(i) for i in range(n))+') t e () ()\n'
             canonical=body.replace('@ref','@'+ref)
-            h=hashlib.sha256(('isa=0.8\nptr_width=64\n'+json.dumps(sig,sort_keys=True,separators=(',',':'))+'\n'+canonical+ref+'\n').encode()).hexdigest()
+            h=hashlib.sha256(('isa='+self.manifest['isa']+'\nptr_width=64\n'+json.dumps(sig,sort_keys=True,separators=(',',':'))+'\n'+canonical+ref+'\n').encode()).hexdigest()
             symbols[str(max(map(int,symbols))+1)]={'interface_hash':h,'kind':'action','name':'rung1_full','signature':sig}
             functions,sep,rest=tail.partition('\n\nsection ')
             wrapped.write_text(sections[0]+'section symbols\n'+json.dumps(symbols,sort_keys=True,separators=(',',':'))+'\n\nsection functions\n'+functions.rstrip()+'\n'+body.rstrip()+sep+rest)
@@ -455,12 +456,15 @@ def main():
     os.environ.setdefault('TMPDIR',str(ROOT/'.tmp'));Path(os.environ['TMPDIR']).mkdir(parents=True,exist_ok=True)
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output');p.add_argument('--timeout',type=int,default=300);p.add_argument('--jobs',type=int,default=4)
-    p.add_argument('--plugin-rev',default=PINS['bennett-plugin']);p.add_argument('--vm-rev',default=PINS['bennett-vm'])
+    p.add_argument('--plugin-rev');p.add_argument('--vm-rev')
     add_revision_options(p)
     p.add_argument('--reference')
     for m in (18,23):
         p.add_argument('--arith'+str(m));p.add_argument('--runtimes'+str(m))
     args=p.parse_args()
+    args.revision_selected=any(value is not None for name,value in vars(args).items() if name.endswith('_rev'))
+    args.plugin_rev=args.plugin_rev or PINS['bennett-plugin']
+    args.vm_rev=args.vm_rev or PINS['bennett-vm']
     validate_revision_options(p,args)
     args.reference=args.reference or str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref')
     if not 0<args.timeout<=300:p.error('corpus timeout must be in 1..300')

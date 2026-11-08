@@ -161,3 +161,11 @@ per-command workload, budgets, or timeout options. Run one rung at a time in
 a `bennett-heavy-ladder-<rung>-<UTC time>` systemd user scope, after checking
 that no `bennett-heavy` scope exists. Record outer wall/user/system CPU seconds
 alongside the per-command receipt.
+
+With any `--*-rev` selector, production requests the dialect and ISA versions
+declared by the frozen plugin's `SPEC_VERSIONS.toml`. Missing or empty version
+declarations fail before its build. The report records the requested versions
+and the declaration's SHA-256. With no revision selectors, the historical
+production defaults remain unchanged. Fixture clause/provenance pins continue
+to describe the original corpus; the production version fields describe the
+selected plugin invocation.

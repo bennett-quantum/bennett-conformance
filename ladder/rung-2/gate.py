@@ -59,7 +59,7 @@ class Gate(RecordedGate):
         self.run.mkdir()
         self.rows = {m: {} for m in (18, 23)}
         self.manifest = {'time_utc': datetime.now(timezone.utc).isoformat(),
-                         'dialect_commit': DIALECT, 'isa': '0.8', 'budget': BUDGET,
+                         'dialect_commit': DIALECT, 'dialect': '0.2.10', 'isa': '0.8', 'budget': BUDGET,
                          'inputs': list(INPUTS), 'drivers': list(DRIVERS), 'commands': [],
                          'environment': {k: os.environ.get(k) for k in
                              ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')}}
@@ -90,6 +90,7 @@ class Gate(RecordedGate):
             for member in t.getmembers():
                 if member.isfile():
                     assert (src/member.name).read_bytes() == t.extractfile(member).read(), 'dirty plugin cache: ' + member.name
+        self.sources.plugin_versions(src)
         pins = self.sources.plugin_arith(src)
         self.plugin_build = src / 'build'
         self.command('build/plugin-configure', ['cmake','-S',src,'-B',self.plugin_build])
@@ -169,7 +170,7 @@ class Gate(RecordedGate):
 
     def pipeline(self, major, probe=False):
         d = self.run / str(major)
-        argv = [f'/usr/lib/llvm-{major}/bin/opt', '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{major}.so'),'-passes=bennett','-bennett-dialect=0.2.10','-bennett-isa=0.8',
+        argv = [f'/usr/lib/llvm-{major}/bin/opt', '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{major}.so'),'-passes=bennett','-bennett-dialect='+self.manifest['dialect'],'-bennett-isa='+self.manifest['isa'],
                 '-bennett-budget-default='+BUDGET+',65536','-bennett-out='+str(d/('probe-out' if probe else 'out')),'-disable-output',d/('unlinked.ll' if probe else 'postlink.ll')]
         if 'bennett-arith' in self.sources.paths or getattr(self.args, f'arith{major}', None):
             argv = ['env', 'BENNETT_ARITH_BITCODE=' + str(self.arith_file(major).resolve()), *argv]
@@ -322,6 +323,7 @@ def main():
     p.add_argument('--timeout', type=int, default=300, help='seconds per corpus command (default 300)')
     p.add_argument('--jobs', type=int, default=4, help='plugin build parallelism')
     args = p.parse_args()
+    args.revision_selected = any(value is not None for name, value in vars(args).items() if name.endswith('_rev'))
     validate_revision_options(p, args)
     args.reference = args.reference or str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref')
     return Gate(args).main()
