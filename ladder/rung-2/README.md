@@ -75,7 +75,10 @@ mode. `--driver-rev` freezes and records driver provenance: the gate continues
 to invoke the plugin directly and does not claim to execute a driver binary.
 `--arith-rev` selects frozen arithmetic publications, still checked against the
 plugin's digest pins. When `--plugin-rev` is supplied, its declared arithmetic
-commit supplies the default bitcode, avoiding live arithmetic paths.
+commit supplies the default bitcode, avoiding live arithmetic paths. Older
+plugin publications with only path/digest pins require `--arith-rev` or both
+explicit arithmetic paths when selected with `--plugin-rev`. Selected arithmetic
+is passed to both the bitcode linker and the production plugin.
 Without these selectors, the existing HEAD plugin/VM, live runtime and plugin
 arithmetic paths, and accepted review reference defaults remain unchanged.
 Explicit `--runtimes18/23`, `--arith18/23`, and `--reference` paths conflict

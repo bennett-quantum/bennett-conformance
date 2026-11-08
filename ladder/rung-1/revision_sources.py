@@ -65,6 +65,12 @@ class RevisionSources:
     def plugin_arith(self, plugin_source):
         """Provide the plugin's declared build input before CMake configures it."""
         pins = tomllib.loads((plugin_source / 'SPEC_VERSIONS.toml').read_text())['arith']
+        if 'commit' not in pins:
+            # Historical plugin publications embed only paths and digests.
+            # They do not query the gate cache during CMake configuration.
+            if (plugin_source / 'gate.toml').exists():
+                raise GateError('plugin gate pin requires an arithmetic commit in SPEC_VERSIONS.toml')
+            return pins
         commit, source = self.detached('bennett-arith', pins['commit'])
         cache = plugin_source / '.tmp/gate/cache' / ('bennett-arith@' + commit[:12]) / 'bennett-arith'
         if cache.is_symlink():

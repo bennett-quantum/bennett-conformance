@@ -96,7 +96,11 @@ class Gate(RecordedGate):
         self.command('build/plugin-build', ['cmake','--build',self.plugin_build,'-j',str(self.args.jobs)], timeout=1800)
         self.manifest['plugin_sha256'] = {str(m):sha(self.plugin_build / f'libbennett-plugin-{m}.so') for m in (18,23)}
         if self.args.arith_rev or self.args.plugin_rev:
-            self.sources.freeze('bennett-arith', self.args.arith_rev or pins['commit'])
+            revision = self.args.arith_rev or pins.get('commit')
+            if revision is not None:
+                self.sources.freeze('bennett-arith', revision)
+            elif not (self.args.arith18 and self.args.arith23):
+                raise GateError('selected legacy plugin has no arithmetic commit; provide --arith-rev or both --arith18 and --arith23')
 
     def vm(self):
         repo = WORKSPACE / 'bennett-vm'
@@ -139,17 +143,21 @@ class Gate(RecordedGate):
     def frontend(self, major):
         self.command(f'{major}/frontend', [f'/usr/lib/llvm-{major}/bin/clang','-O2','-flto','-emit-llvm','-c',HERE/'fixtures/hashtable_marked.c','-o',self.run/str(major)/'input.bc'])
 
+    def arith_file(self, major):
+        pins = tomllib.loads((self.plugin_build.parent/'SPEC_VERSIONS.toml').read_text())['arith']
+        source = self.sources.paths.get('bennett-arith')
+        default = source / f'dist/llvm{major}/bennett-arith.bc' if source else pins[f'llvm{major}_path']
+        arith = Path(getattr(self.args, f'arith{major}', None) or default)
+        if sha(arith) != pins[f'llvm{major}_sha256']:
+            raise GateError(f'arith LLVM {major} published bitcode digest differs from plugin pin')
+        return arith
+
     def runtime_link(self, major):
         runtime = Path(getattr(self.args, f'runtimes{major}') or
                        self.sources.paths.get('bennett-runtimes', WORKSPACE/'bennett-runtimes') / f'dist/llvm{major}/bennett-runtimes.bc')
         if not runtime.is_file():
             raise GateError(f'missing runtimes bitcode for LLVM {major}: {runtime} (dialect §19.1)')
-        pins = tomllib.loads((self.plugin_build.parent/'SPEC_VERSIONS.toml').read_text())['arith']
-        source = self.sources.paths.get('bennett-arith')
-        default_arith = source / f'dist/llvm{major}/bennett-arith.bc' if source else pins[f'llvm{major}_path']
-        arith = Path(getattr(self.args, f'arith{major}', None) or default_arith)
-        if sha(arith) != pins[f'llvm{major}_sha256']:
-            raise GateError(f'arith LLVM {major} published bitcode digest differs from plugin pin')
+        arith = self.arith_file(major)
         self.manifest.setdefault('runtimes_sha256', {})[str(major)] = sha(runtime)
         self.manifest.setdefault('arith_sha256', {})[str(major)] = sha(arith)
         self.command(f'{major}/runtime-link', [f'/usr/lib/llvm-{major}/bin/llvm-link',
@@ -163,6 +171,8 @@ class Gate(RecordedGate):
         d = self.run / str(major)
         argv = [f'/usr/lib/llvm-{major}/bin/opt', '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{major}.so'),'-passes=bennett','-bennett-dialect=0.2.10','-bennett-isa=0.8',
                 '-bennett-budget-default='+BUDGET+',65536','-bennett-out='+str(d/('probe-out' if probe else 'out')),'-disable-output',d/('unlinked.ll' if probe else 'postlink.ll')]
+        if 'bennett-arith' in self.sources.paths or getattr(self.args, f'arith{major}', None):
+            argv = ['env', 'BENNETT_ARITH_BITCODE=' + str(self.arith_file(major).resolve()), *argv]
         self.command(f'{major}/'+('production-probe' if probe else 'production'), argv)
 
     def probe(self, major):

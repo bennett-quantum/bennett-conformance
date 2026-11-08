@@ -107,7 +107,10 @@ class FrozenRevisions(unittest.TestCase):
             # Model the plugin's configure-time requirement, before a build can run.
             import tomllib
             source = Path(argv[argv.index('-S') + 1])
-            commit = tomllib.loads((source / 'SPEC_VERSIONS.toml').read_text())['arith']['commit']
+            pins = tomllib.loads((source / 'SPEC_VERSIONS.toml').read_text())['arith']
+            if 'commit' not in pins:
+                return b''  # Legacy CMake embeds paths and digests, without a gate cache.
+            commit = pins['commit']
             cache = source / '.tmp/gate/cache' / ('bennett-arith@' + commit[:12]) / 'bennett-arith'
             self.assertTrue(cache.is_dir(), 'plugin arithmetic pin must exist before CMake configures')
             self.assertEqual(self.git(cache, 'rev-parse', 'HEAD'), commit)
@@ -167,6 +170,11 @@ class FrozenRevisions(unittest.TestCase):
                     self.assertEqual(runtime.read_text(), 'oldruntimes' + str(major))
                     self.assertEqual(arith.read_text(), 'newarith' + str(major))
                     self.assertNotEqual(runtime.parent.parent.parent, self.workspace / 'bennett-runtimes')
+                if rung == 'rung-2':
+                    g.pipeline(18)
+                    argv = self.commands[-1][1]
+                    selected = g.sources.paths['bennett-arith'] / 'dist/llvm18/bennett-arith.bc'
+                    self.assertEqual(argv[:2], ['env', 'BENNETT_ARITH_BITCODE=' + str(selected)])
                 cargo = next(argv for tag, argv in self.commands if tag == 'build/reference-build')
                 self.assertIn('--release', cargo)
                 self.assertIn('--offline', cargo)
@@ -194,6 +202,24 @@ class FrozenRevisions(unittest.TestCase):
             sources = g.sources.__class__(g, nested)
             source = sources.freeze('bennett-arith', self.revisions['arith'][1])
         self.assertEqual((source / 'version').read_text(), 'new')
+
+    def test_historical_plugin_without_commit_pin_still_supports_rung1_defaults(self):
+        plugin = self.workspace / 'bennett-plugin'
+        pins = plugin / 'SPEC_VERSIONS.toml'
+        pins.write_text('\n'.join(line for line in pins.read_text().splitlines()
+                                   if not line.startswith('commit =')) + '\n')
+        self.git(plugin, 'add', 'SPEC_VERSIONS.toml')
+        self.git(plugin, 'commit', '-qm', 'legacy arithmetic schema')
+        legacy = self.git(plugin, 'rev-parse', 'HEAD')
+        g = self.make_gate('rung-1', plugin_rev=legacy, arith_rev=None)
+        original = g.plugin.__globals__['PINS']
+        defaults = dict(original, **{'bennett-plugin': legacy, 'bennett-arith': self.revisions['arith'][1]})
+        g.sources.prepare()
+        with patch.dict(g.plugin.__globals__, WORKSPACE=self.workspace, PINS=defaults):
+            g.plugin()
+        runtime, arith = g.runtime_files(18)
+        self.assertEqual(runtime.read_text(), 'oldruntimes18')
+        self.assertEqual(arith.read_text(), 'newarith18')
 
     def test_cached_sources_are_rechecked_and_dirty_cache_is_rejected(self):
         g = self.make_gate('rung-1')
