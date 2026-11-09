@@ -45,3 +45,27 @@ fn huge_balanced_loop_counts_do_not_unroll_source_predicates() {
     let object = Object::parse(&text).unwrap();
     assert_eq!(object.function("a").unwrap().bounds[0].to_string(), count);
 }
+
+#[test]
+fn zero_trip_loop_must_preserve_the_entire_predicate_stack() {
+    // ISA §4.6 requires the body to preserve its entry stack (see §3.5),
+    // independently of the trip count. Equal depth alone is insufficient.
+    for (entry, body, exit) in [
+        ("", "qpred c", ""),
+        ("qpred c\n", "qunpred c", "\nqunpred c"),
+        ("qpred c\n", "qunpred c\nqpred t", "\nqunpred c"),
+    ] {
+        let text = source(body)
+            .trim_end()
+            .replace("qloop 2 {", &format!("{entry}qloop 0 {{"))
+            .replace("bounds {2}", "bounds {0}")
+            .replace(r#""bounds":[2]"#, r#""bounds":[0]"#)
+            + exit
+            + "\n";
+        let error = Object::parse(&text).expect_err("unbalanced zero-trip body admitted");
+        assert!(
+            error.contains("loop body altered predicate stack"),
+            "{error}"
+        );
+    }
+}
