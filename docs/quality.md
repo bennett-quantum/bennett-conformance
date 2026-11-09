@@ -64,12 +64,21 @@ and static launch-copy template validation without runtime attestation. Expected
 values include the published 9/25 leakage of the rational native X model and
 the exact phase-sensitive identity `(-X)(-X)=I`. No floats enter these checks.
 
-The full checker run after the ISA re-pin is **red** (16 unit tests passed;
-327 integration tests passed, one failed; 36.11 s wall): the existing generated
-lexical differential test observes `qpred c` in a loop accepted and proved by
-this checker but rejected by the newly pinned interpreter (`loop body altered
-predicate stack`). This adjacent source-admission finding is tracked as
-`bennett-conformance-3jt`; the test and oracle remain unchanged. Supported
+The loop predicate-stack admission repair is **green**: `cargo test --offline
+--manifest-path checker/Cargo.toml --no-fail-fast -- --nocapture` passes 17 unit
+and 330 integration tests, zero failed or ignored. The base run reproduced
+`qpred c` in a zero-trip loop receiving an unrestricted four-tuple proof while
+the pinned interpreter rejected it. ISA §4.6 requires a loop body to leave the
+predicate stack exactly as at entry and refers to §3.5; admission now enforces
+that rule even at zero trips. A focused unit regression failed before the fix.
+New interpreter-backed cases reject three imbalance classes without proof and
+retain four balanced classes (including entry pop/re-push), each at counts
+0–3. The unchanged lexical generator runs 3,331 candidates with zero
+disagreements; its seeds, count and pinned oracle are unchanged. Rung-4's
+`python3 -B ladder/rung-4/check_gate.py -v` passes all 56 tests. Only the owned
+`admission/predicates.rs` and `admission/wires.rs` structural rows were refreshed:
+one additional unit test and a two-line clause citation; wire cognitive mass
+decreased by one. No new coverage measurement is claimed. Supported
 preparation checks do not implement the missing realised-oracle construction,
 all source-adjoint/cleanup/memory expansions or every native-model variety.
 Those paths retain explicit unchecked/unestablished results. No passing rung-4
@@ -266,12 +275,12 @@ operation and is never invoked by the gate.
 "checker/src/object/admission/calls.rs": [15, 9, 5, 1, 0, 6, 1, 101, 103, 2, 0],
 "checker/src/object/admission/classical.rs": [4, 4, 0, 0, 0, 0, 0, 47, 31, 0, 0],
 "checker/src/object/admission/operations.rs": [11, 6, 5, 0, 0, 5, 0, 78, 73, 3, 0],
-"checker/src/object/admission/predicates.rs": [3, 3, 0, 0, 0, 0, 0, 28, 14, 0, 0],
+"checker/src/object/admission/predicates.rs": [4, 4, 0, 0, 0, 0, 0, 28, 15, 0, 0],
 "checker/src/object/admission/procedures.rs": [4, 4, 0, 0, 0, 0, 0, 49, 29, 0, 0],
 "checker/src/object/admission/scalars.rs": [20, 16, 3, 1, 0, 4, 1, 213, 132, 1, 0],
 "checker/src/object/admission/syntax.rs": [2, 0, 1, 1, 0, 2, 1, 119, 71, 0, 0],
 "checker/src/object/admission/views.rs": [4, 4, 0, 0, 0, 0, 0, 48, 38, 0, 0],
-"checker/src/object/admission/wires.rs": [20, 17, 3, 0, 0, 3, 0, 98, 101, 1, 0],
+"checker/src/object/admission/wires.rs": [20, 17, 3, 0, 0, 3, 0, 100, 100, 1, 0],
 "checker/src/object/lexical.rs": [2, 1, 1, 0, 0, 1, 0, 88, 80, 0, 0],
 "checker/src/object/signatures.rs": [5, 4, 0, 1, 0, 1, 1, 152, 60, 0, 0],
 "checker/src/rat.rs": [37, 36, 1, 0, 0, 1, 0, 69, 65, 6, 0],
