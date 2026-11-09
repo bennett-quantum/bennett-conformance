@@ -128,7 +128,13 @@ fn unknown_verdict_states_fail_loud() {
 struct Scratch(std::path::PathBuf);
 impl Scratch {
     fn new() -> Self {
-        let root = std::env::temp_dir().join(format!("checker-cli-{}", std::process::id()));
+        use std::sync::atomic::{AtomicU64, Ordering};
+        static NEXT: AtomicU64 = AtomicU64::new(0);
+        let root = std::env::temp_dir().join(format!(
+            "checker-cli-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
         std::fs::create_dir(&root).unwrap();
         Self(root)
     }
@@ -171,5 +177,72 @@ fn cli_rejected_io_utf8_and_embedded_errors_have_distinct_exit_contracts() {
         assert_eq!(out.status.code(), Some(3));
         assert!(out.stdout.is_empty());
         assert!(String::from_utf8(out.stderr).unwrap().contains(message));
+    }
+}
+
+#[test]
+fn cli_fixed_image_slice_reports_exact_evidence_and_checks_producer_label() {
+    use crate::{common::*, fixed_images};
+    use bennett_cert_checker::{json::Value, object::Object};
+
+    let scratch = Scratch::new();
+    for label in ["evidence", "proof", "proof_relative_to_image"] {
+        let mut inputs = fixed_images::fixture(1, 2, "09");
+        fixed_images::claim_mut(&mut inputs, |claim| {
+            set(claim, "label", Value::Str(label.into()));
+            let Value::Obj(fields) = claim else { panic!() };
+            let domain = fields.get_mut("domain").unwrap();
+            let Value::Obj(fields) = domain else { panic!() };
+            fields.remove("fixed_regions");
+            fields.insert(
+                "regions".into(),
+                json(r#"[{"name":"r","cells":[{"index":0,"lo":1,"hi":1},{"index":1,"lo":2,"hi":2}]}]"#),
+            );
+        });
+        let hash = Object::parse(&inputs.object_text)
+            .unwrap()
+            .symbol("a")
+            .unwrap()
+            .closure_hash
+            .clone()
+            .unwrap();
+        let cert = scratch.write("image.json", &inputs.cert_bytes);
+        let obj = scratch.write("image.bisa", inputs.object_text.as_bytes());
+        let out = bin().arg(cert).arg("--object").arg(obj).output().unwrap();
+        assert!(out.stderr.is_empty());
+        let text = std::str::from_utf8(&out.stdout).unwrap();
+        assert_eq!(text.lines().count(), 1);
+        let report = json(text);
+        let claim = &report
+            .get("regions")
+            .unwrap()
+            .get(&hash)
+            .unwrap()
+            .get("claims")
+            .unwrap()
+            .as_arr()
+            .unwrap()[0];
+        // t has four values, c two; the two 2-bit cells are fixed at [1,2].
+        // Thus n=8, unrestricted |D|=4*2*4*4=128, n/|D|=1/16.
+        assert_eq!(claim.get("elements").unwrap().as_str(), Some("8"));
+        assert_eq!(
+            claim.get("covered_fraction").unwrap().as_str(),
+            Some("1/16")
+        );
+        if label == "evidence" {
+            assert_eq!(claim.get("outcome").unwrap().as_str(), Some("evidence"));
+            assert_eq!(out.status.code(), Some(0));
+            assert_eq!(report.get("overall").unwrap().as_str(), Some("verified"));
+        } else {
+            assert_eq!(out.status.code(), Some(1));
+            assert_eq!(claim.get("outcome").unwrap().as_str(), Some("reject"));
+            assert!(claim
+                .get("errors")
+                .unwrap()
+                .as_arr()
+                .unwrap()
+                .iter()
+                .any(|error| error.get("code").unwrap().as_str() == Some("E_CERT_COVERAGE_LABEL")));
+        }
     }
 }

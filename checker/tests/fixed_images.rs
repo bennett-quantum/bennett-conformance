@@ -8,7 +8,7 @@ use bennett_cert_checker::{
     sha256_hex,
 };
 use common::*;
-fn fixture(a: u32, w: u32, image: &str) -> Inputs {
+pub(super) fn fixture(a: u32, w: u32, image: &str) -> Inputs {
     let address = if a == 0 { "()" } else { "c" };
     let source=format!("perm_action @a (t:wire[{w}] mut) (c:wire in) (r:region[{a},{w}] in) () ()\n^entry():\nd = qload r {address}\nqxor d t\nqunload r {address} d");
     let sig = format!(
@@ -105,7 +105,7 @@ fn fixture(a: u32, w: u32, image: &str) -> Inputs {
     inputs.cert_bytes = jcs(&cert).unwrap();
     inputs
 }
-fn claim_mut(inputs: &mut Inputs, f: impl FnOnce(&mut Value)) {
+pub(super) fn claim_mut(inputs: &mut Inputs, f: impl FnOnce(&mut Value)) {
     let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
     let Value::Obj(top) = &mut cert else { panic!() };
     let Value::Obj(regions) = top.get_mut("regions").unwrap() else {

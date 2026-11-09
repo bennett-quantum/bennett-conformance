@@ -2,11 +2,14 @@
 """Rung-4 gate glue tests: synthetic values never count as acceptance."""
 import argparse
 import cmath
+from copy import deepcopy
+from decimal import Decimal
 import json
 import math
 import os
 from pathlib import Path
 import re
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
@@ -465,6 +468,135 @@ class StandIns(unittest.TestCase):
 
     def tearDown(self):
         self.d.cleanup()
+
+
+class CheckerIntegration(unittest.TestCase):
+    def setUp(self):
+        self.d = tempfile.TemporaryDirectory(dir=os.environ['TMPDIR'])
+        self.addCleanup(self.d.cleanup)
+        self.g = gate.Gate(args(self.d.name))
+        self.g.check_exe = Path(self.d.name)/'bennett-check'
+        self.hash = '1' * 64
+        # Deliberately put another successful claim before the indexed oracle claim.
+        self.certificate = {'bindings': {'schedule_hash': '2' * 64}, 'regions': {self.hash: {
+            'verification': {'oracle': 1},
+            'claims': [{'kind': 'structural'}, {'kind': 'exhaustive', 'expected': 'oracle',
+                'subject': {'closure_hash': self.hash, 'variant': 'forward', 'inherited_controls': 0,
+                            'schedule_hash': '2' * 64}}]}}}
+        self.report = {'overall': 'verified', 'errors': [], 'unchecked_items': [],
+            'regions': {self.hash: {'name': 'ref', 'errors': [], 'unchecked_items': [],
+                'claims': [{'index': 0, 'kind': 'structural', 'outcome': 'accept', 'errors': []},
+                           {'index': 1, 'kind': 'exhaustive', 'outcome': 'evidence', 'errors': [],
+                            'elements': '512', 'covered_fraction': '1/340282366920938463463374607431768211456'}]}}}
+
+    def test_certificate_row_uses_published_cli_and_indexed_ref_claim(self):
+        d = self.g.run/'18/N16/out/rung4_tuple'
+        d.mkdir(parents=True)
+        (d/'certificate.json').write_text(json.dumps(self.certificate))
+        image = self.g.run/'image.bin'
+        image.write_bytes(bytes(16))
+        self.g.images = {18: {16: image}}
+        self.g.command = Mock(return_value=json.dumps(self.report).encode())
+        with patch.object(gate, 'ORACLE_SIZES', (16,)):
+            self.g.certificate(18)
+        self.assertEqual(self.g.command.call_args.args[1],
+                         [self.g.check_exe, d/'certificate.json', '--object', d/'oracle-0/ref.bennett'])
+        evidence = self.g.manifest['evidence']['certificate']['18']['16']
+        self.assertEqual(evidence['covered_fraction'], '1/340282366920938463463374607431768211456')
+        self.assertEqual(evidence['verdict'], 'evidence')
+        self.assertEqual(evidence['closure_hash'], self.hash)
+        self.assertEqual(evidence['claim_index'], 1)
+
+    def test_report_cannot_substitute_another_claim_or_hide_unchecked_work(self):
+        for mutate in (
+            lambda r: r.update(overall='unchecked'),
+            lambda r: r['errors'].append({'message': 'rejected binding'}),
+            lambda r: r['unchecked_items'].append('unverified schedule'),
+            lambda r: r['regions'][self.hash].update(name='other'),
+            lambda r: r['regions'][self.hash]['unchecked_items'].append('preparation missing'),
+            lambda r: r['regions'][self.hash]['errors'].append({'message': 'bad frame'}),
+            lambda r: r['regions'][self.hash]['claims'][1].update(index=0),
+            lambda r: r['regions'][self.hash]['claims'][1].update(kind='sampled'),
+            lambda r: r['regions'][self.hash]['claims'][1].update(outcome='proof_relative_to_image'),
+            lambda r: r['regions'][self.hash]['claims'][1]['errors'].append({'message': 'bad label'}),
+            lambda r: r['regions'][self.hash]['claims'].pop(),
+        ):
+            report = deepcopy(self.report)
+            mutate(report)
+            with self.subTest(report=report), self.assertRaises((AssertionError, gate.GateError)):
+                gate.checker_claim(report, self.certificate)
+        self.certificate['regions'][self.hash]['verification']['oracle'] = None
+        with self.assertRaises((AssertionError, gate.GateError)):
+            gate.checker_claim(self.report, self.certificate)
+
+    def test_reference_table_or_wrong_subject_cannot_replace_the_realised_oracle(self):
+        for mutate in (
+            lambda c: c.update(kind='sampled'),
+            lambda c: c.update(expected={'table': []}),
+            lambda c: c['subject'].update(variant='adjoint'),
+            lambda c: c['subject'].update(closure_hash='3' * 64),
+            lambda c: c['subject'].update(inherited_controls=1),
+            lambda c: c['subject'].update(schedule_hash='3' * 64),
+        ):
+            certificate = deepcopy(self.certificate)
+            mutate(certificate['regions'][self.hash]['claims'][1])
+            with self.subTest(certificate=certificate), self.assertRaises(AssertionError):
+                gate.checker_claim(self.report, certificate)
+
+    def test_exact_fraction_accepts_reduction_and_rejects_wrong_or_float_values(self):
+        for ratio in ('1/340282366920938463463374607431768211456',
+                      '512/174224571863520493293247799005065324265472'):
+            gate.check_certificate_verdict({'verdict': 'evidence', 'elements': 512,
+                                           'covered_fraction': ratio}, 512, 4)
+        for field, bad in (('covered_fraction', '1/1'), ('covered_fraction', '1/0'),
+                           ('covered_fraction', '2/340282366920938463463374607431768211456'),
+                           ('covered_fraction', 2.0 ** -128), ('covered_fraction', '2.938735877055719e-39'),
+                           ('covered_fraction', '0.0'), ('elements', 512.0), ('elements', True)):
+            value = {'verdict': 'evidence', 'elements': 512,
+                     'covered_fraction': '1/340282366920938463463374607431768211456', field: bad}
+            with self.subTest(field=field, bad=bad), self.assertRaises(AssertionError):
+                gate.check_certificate_verdict(value, 512, 4)
+
+    def test_float_replay_count_cannot_pass_integer_equality(self):
+        with self.assertRaisesRegex(AssertionError, 'element count'):
+            gate.check_certificate_verdict({'verdict': 'evidence', 'elements': 512.0,
+                'covered_fraction': '512/174224571863520493293247799005065324265472'}, 512, 4)
+
+    def test_exact_fraction_supports_the_real_image_width_without_float_underflow(self):
+        # 2^(8*2^16): N=1024's image storage, beyond Python's default decimal-digit cap.
+        denominator = format(Decimal(1 << (8 << 16)), 'f')
+        gate.check_certificate_verdict({'verdict': 'evidence', 'elements': '32768',
+                                       'covered_fraction': '1/' + denominator}, 32768, 16)
+        with self.assertRaisesRegex(AssertionError, 'fraction'):
+            gate.check_certificate_verdict({'verdict': 'evidence', 'elements': '32768',
+                                           'covered_fraction': '1/' + denominator[:-1] + '7'}, 32768, 16)
+
+    def test_malformed_certificate_probe_uses_an_object_and_requires_a_rejection(self):
+        obj = self.g.run/'rung4-mini.bennett'
+        obj.write_text('probe object')
+        self.g.mini = Mock(return_value=(obj, []))
+        rejected = {'overall': 'rejected', 'errors': [{'code': 'E_CERT_SCHEMA', 'message': 'missing versions'}],
+                    'unchecked_items': [], 'regions': {}}
+        completed = subprocess.CompletedProcess([], 1, json.dumps(rejected).encode(), b'')
+        with patch.object(gate.subprocess, 'run', return_value=completed) as run:
+            self.g.checker_cli(18)
+        self.assertEqual(run.call_args.args[0],
+                         list(map(str, [self.g.check_exe, self.g.run/'probe-bogus-certificate.json', '--object', obj])))
+        for code, out in ((0, rejected), (2, rejected), (3, rejected), (1, {}),
+                          (1, {**rejected, 'overall': 'verified'}), (1, {**rejected, 'errors': []}),
+                          (1, {**rejected, 'errors': 'not implemented'}),
+                          (1, {**rejected, 'errors': [{}]})):
+            completed = subprocess.CompletedProcess([], code, json.dumps(out).encode(), b'')
+            with self.subTest(code=code, out=out), patch.object(gate.subprocess, 'run', return_value=completed):
+                with self.assertRaises(gate.GateError):
+                    self.g.checker_cli(18)
+        for completed in (subprocess.CompletedProcess([], 1, b'not JSON', b''),
+                          subprocess.CompletedProcess([], 1, b'[]', b'')):
+            with patch.object(gate.subprocess, 'run', return_value=completed), self.assertRaises(gate.GateError):
+                self.g.checker_cli(18)
+        with patch.object(gate.subprocess, 'run', side_effect=subprocess.TimeoutExpired('checker', self.g.args.sweep_timeout)):
+            with self.assertRaisesRegex(gate.GateError, 'UNKNOWN'):
+                self.g.checker_cli(18)
 
 
 class Blockers(unittest.TestCase):

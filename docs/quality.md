@@ -33,12 +33,27 @@ Builds require at least 6 GB available RAM and one-minute load below 8.
 | Quality-floor checkpoint, warm cache | 286 passed, 0 failed, 0 ignored | 28.23 s |
 | Canonical-admission repair | 291 passed, 0 failed, 0 ignored | 26.05 s |
 | Whole-object source admission | 330 passed, 0 failed, 0 ignored | 44.39 s |
+| Rung-4 checker CLI integration | 331 passed, 0 failed, 0 ignored | 40.29 s |
 
 The consolidation run includes its profile rebuild; the final timing uses a warm cache. Every integration case is included in
 `tests/conformance.rs`; no slow tests or exclusions were needed. The two added
 cases cover selected borrow-frame admission as explicit unchecked, malformed
 frame fields and invocation bindings. Complete borrow-frame semantics remain an
 unresolved obligation, with no proof/count/coverage assigned.
+
+The rung-4 integration checkpoint ran `cargo test --offline --manifest-path
+checker/Cargo.toml -j4 --no-fail-fast -- --test-threads=4` with the pinned ISA
+environment above: 16 unit and 315 integration tests passed. The CLI slice test
+derives eight tuples and coverage 1/16 from a two-cell image, checks JSON output,
+and rejects producer requests for either proof label. `python3 -B
+ladder/rung-4/check_gate.py -v` passed 56 tests, including published CLI arguments,
+indexed oracle-claim selection, rejection/unchecked propagation, exact reduced
+and unreduced fractions, float rejection, and the N=1024 image denominator.
+The real malformed-certificate probe returns exit 1 with a JSON diagnostic.
+These are integration checks, not a passing SQLite launch verdict: realised
+oracle reconstruction remains unchecked and executable image-preparation
+encoding is pending publication/adoption (`bennett-isa-spec-rqn`). The gate keeps
+its required evidence label and all (a), (b), (c) acceptance rows.
 
 The inherited nested-loop, qif-lifetime, sampled-table, signed-literal,
 large-shift, whole-bundle MCX, lexical and recompute-cleanup regressions all pass.
@@ -263,7 +278,7 @@ operation and is never invoked by the gate.
 "ladder/rung-3/contract.py": [1, 1, 0, 0, 0, 0, 0, 20, 14, 0, 0],
 "ladder/rung-3/gate.py": [33, 33, 0, 0, 0, 0, 0, 36, 97, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 70, 0, 0],
-"ladder/rung-4/gate.py": [81, 81, 0, 0, 0, 0, 0, 48, 197, 2, 0],
+"ladder/rung-4/gate.py": [82, 82, 0, 0, 0, 0, 0, 48, 218, 2, 0],
 "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],
 "scripts/quality_ratchet.py": [10, 10, 0, 0, 0, 0, 0, 37, 101, 0, 0],
 "suite/run.py": [14, 13, 1, 0, 0, 1, 0, 65, 189, 1, 0],
