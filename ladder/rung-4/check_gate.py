@@ -46,6 +46,32 @@ class Independent(unittest.TestCase):
         self.assertTrue(all(n <= 1 << 8 for n in gate.GROVER_SIZES))
 
 
+class IdealEstimateTarget(unittest.TestCase):
+    def test_clause_c_selects_ideal_target(self):
+        self.assertEqual(gate.PINS['target'], 'ideal-quantum-circuit.json')
+
+    def test_clause_c_design_names_standard_quantum_circuit_model(self):
+        design = (gate.HERE/'DESIGN.md').read_text().split('## 6. Clause (c)', 1)[1].split('## 7.', 1)[0]
+        text = ' '.join(design.split())
+        self.assertIn('an ideal quantum circuit with ideal logical qubits, implementing the standard quantum circuit model', text)
+        self.assertIn('`ideal-quantum-circuit.json`', text)
+
+    def test_estimator_resolves_selected_frozen_target(self):
+        with tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as tmp:
+            runner = gate.Gate(args(tmp))
+            publication = Path(tmp)/'frozen-targets'
+            target = publication/'targets/ideal-quantum-circuit.json'
+            target.parent.mkdir(parents=True)
+            target.write_text('{}\n')
+            executable = Path(tmp)/'bennett-estimate'
+            executable.write_bytes(b'estimator fixture')
+            runner.sources.paths['bennett-targets'] = publication
+            runner.cargo = Mock(return_value=executable)
+            runner.estimator()
+            self.assertEqual(runner.target, target)
+            self.assertEqual(runner.manifest['target_sha256'], gate.sha(target))
+
+
 class GroverPlan(unittest.TestCase):
     def test_iterations_and_probability(self):
         p = gate.grover_plan(256, 8)

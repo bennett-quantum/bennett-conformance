@@ -139,13 +139,16 @@ No sampled frequency stands in for a probability, and no run with a smaller data
 
 Input is the actual `rung4_grover` launch object, compiled with the real 33.5 MB image, A = 25 and
 k = 7, not a scaled-up smaller N. Run `bennett-estimate <object> --target <file>` with the pinned named
-target (`superconducting-grid-illustrative.json` from `bennett-targets`, whose numbers are illustrative,
-said so in its provenance file). The output must name the target, carry a label (exact, bound, etc.),
+target (`ideal-quantum-circuit.json` from `bennett-targets`): an ideal quantum circuit with ideal logical
+qubits, implementing the standard quantum circuit model. The output must name the target, carry a label (exact, bound, etc.),
 bind the object's SHA-256, report the budget tuple equal to `pins.json`, and report the padded cost.
 RESULTS.md quotes the label as it stands, including whether the figure is the reference construction
 (REPORT §7: ~1.3e19 Toffoli per oracle call) or structure-recovered (~4e7, b-isa-spec-r51). The rung
 asks for the padded cost under the budget; the gate does not require a small number, and does not
 accept a small number with no sound label.
+
+Any capacity shortfall on `superconducting-grid-illustrative.json` is a separate illustrative target
+row; it does not replace the ideal-target padded estimate required by (c).
 
 The M = 1 worst case (k = 804) is a closed-form scaling of the per-iteration cost; it is reported as such.
 
