@@ -254,3 +254,461 @@ reference or VM. Exact commands/results: `.tmp/r3-gate/fixture-smoke.txt`.
 Full formatted-musl R production, native agreement, reset and strict replay on
 both executors remain unmeasured. The orchestrator must adopt reviewed coherent
 publications and run the heavy rung gate before claiming acceptance.
+
+
+## Pushed-main promotion run — 2026-11-09T10:30:35Z
+
+**Rung 3 remains BLOCKED.** The full, unchanged rung gate executed on both LLVM
+majors. Each major has **12 PASS / 4 FAIL / 28 BLOCKED** rows. Both ordinary musl
+front ends pass for hello (13-byte oracle) and formatted printf (213-byte oracle).
+The first required failure is still **`arith publication differs from plugin pin`**.
+No materialised native comparison, musl ISA object admission, executor output,
+reset, saved-tape replay or corrupt-tape rejection ran. Passing isolated device
+controls and replay API probes does not satisfy either workload's required rows.
+The runtimes variadic checker re-land is pinned; this earlier publication boundary
+prevents measuring it in the full rung. No input, oracle or acceptance condition
+was reduced. **bennett-conformance-7bx stays open; the orchestrator owns acceptance.**
+
+The implementation checkpoint is `1c0b514`, backed up to `wip/r3-promote`.
+The selected contract is **dialect 0.3-r1 / ISA 0.9**, with mapping 0.3,
+normaliser 0.2.8 and saved-tape-v1. This is the accepted classical R profile,
+not whole-0.3 grading. Current pushed mains were queried using
+`git -C <sibling> ls-remote origin main` immediately before execution and again
+after it; **no pin moved**. Both reference-source keys identify the same ISA main.
+The pending plugin/arith pushes had not published newer mains at the final
+observation. Observations: [before](evidence/20261109T102407.573477Z/origin-before-run.json),
+[after](evidence/20261109T102407.573477Z/origin-after-run.json).
+
+| Input | Pushed main |
+|---|---|
+| bennett-plugin | `abe5557977e9e9a38d8922aff69cbfc638995798` |
+| bennett-vm | `83b5f7f0248fe1c36ebfe3acd7fb187ed301affa` |
+| bennett-runtimes | `40f243e2a2128eb61d0d2ab4786aa082a8e2c90f` |
+| bennett-driver | `8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b` |
+| bennett-arith | `cd245bcb07ad38da629d9b47f642e46e3c25cae9` |
+| bennett-isa-spec | `695cb4b7c330742820c6b315337a260e56de8bce` |
+| bennett-isa-spec-review | `695cb4b7c330742820c6b315337a260e56de8bce` |
+| bennett-dialect-spec | `830bd7f2a328556af983f2c3aa4c75ef9eb29b65` |
+
+The run builds the reference from ISA `695cb4b`, rather than trusting an existing
+binary. Its SHA-256 is `5893350323915fea5b7b36c97565e8dc2f2e3b08b63bc549c718fa626487b232`.
+Both native headers/sysroots are from the archived runtime pin. Plugin CMake's
+published pin resolver receives a link used to read to the main checkout's verified
+gate cache; selected runtime/arith publications remain separately archived and
+hash checked. VM is the gate's clean detached dependency worktree under this job.
+
+### Execution receipt
+
+Exact command (working directory is the assigned worktree):
+
+```sh
+/usr/bin/python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py
+```
+
+Detached unit: `bennett-conf-r3-promote.service`, invocation
+`587b7e07ed014808aa210b393b1a9c77`, launched with `systemd-run --user`,
+`--setenv=PATH="$PATH" --setenv=HOME="$HOME"`, desktop variables unset and
+TMPDIR/CARGO_TARGET_DIR inside `.tmp/r3-promote/`. The harness calls the actual
+unabridged `Gate.main`; acceptance methods and dependencies are unchanged.
+It records each command through wait4 and confines temporary sources/builds.
+The job-local [guard table](evidence/20261109T102407.573477Z/hang-guards.json) cites named Spiral receipts
+at a margin of at least 10x. Conformance has no durable class table: follow-up
+**bennett-conformance-ji0** owns that infrastructure gap. Guard trips are UNKNOWN
+exit 124; **none tripped**. Eight build workers were derived from nproc/MemAvailable
+with headroom; launch admission had about 52 GiB available and load 17 < 64/2.
+
+Result: **exit 1, 160.084968 s wall,
+590.707025 s unit CPU, 5403381760 bytes peak memory**.
+All **60 executed gate commands** have argv, wall, CPU, exit and peak-RSS receipts;
+all subprocesses exit 0. The gate exits 1 because its publication assertions fail,
+not because a subprocess failed. The unexecuted rows have no fabricated command
+receipt. No full repository push gate or sibling gate was run.
+[Unit receipt](evidence/20261109T102407.573477Z/receipt.json), [command receipts](evidence/20261109T102407.573477Z/command-receipts.json),
+[unaltered raw report](evidence/20261109T102407.573477Z/report.json),
+[complete per-row table](evidence/20261109T102407.573477Z/table.md),
+[raw evidence hash inventory](evidence/20261109T102407.573477Z/raw-evidence-sha256.json).
+Raw sources, command outputs and gate log remain locally under
+`.tmp/r3-promote/runs/20261109T102407.573477Z/` and `.tmp/r3-promote/gate.log`.
+Only structured evidence is published; no log/transcript/progress/scratch file
+is included in the backup branch.
+
+### Complete executed table
+
+The report's historical recognizer labels the mismatch **bp-mq6**. Its current
+passive export marks that bead **closed** for the earlier publication. A **new
+plugin follow-up or reopen** is requested in
+`.tmp/r3-promote/cross-repo-beads.md#plugin-arith-main`; every FAIL and dependent
+BLOCKED row below belongs to that request, not an assertion that bp-mq6 is open.
+[Ownership disposition](evidence/20261109T102407.573477Z/ownership.md).
+
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures | PASS | PASS |
+| plugin build | PASS | PASS |
+| VM build | PASS | PASS |
+| driver build | PASS | PASS |
+| R contract (prerequisite) | PASS | PASS |
+| musl C front end | PASS | PASS |
+| runtime bitcode link | FAIL · bp-mq6 | FAIL · bp-mq6 |
+| post-link LTO | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| reversible production | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| launch artefacts | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| native comparison | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| reference admission | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| reference forward = native | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| reference reset | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| reference tape replay | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| reference corrupt-tape rejection | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| VM admission | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| VM forward = native | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| VM reset | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| VM tape replay | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| VM corrupt-tape rejection | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: musl C front end | PASS | PASS |
+| printf_fmt: runtime bitcode link | FAIL · bp-mq6 | FAIL · bp-mq6 |
+| printf_fmt: post-link LTO | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: reversible production | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: launch artefacts | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: native comparison | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: reference admission | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: reference forward = native | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: reference reset | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: reference tape replay | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: reference corrupt-tape rejection | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: VM admission | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: VM forward = native | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: VM reset | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: VM tape replay | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| printf_fmt: VM corrupt-tape rejection | BLOCKED · bp-mq6 | BLOCKED · bp-mq6 |
+| runtime libc/console audit (diagnostic) | FAIL · bp-mq6 | FAIL · bp-mq6 |
+| R-mode probe (diagnostic) | PASS | PASS |
+| driver probe (diagnostic) | FAIL · bp-mq6 | FAIL · bp-mq6 |
+| reference device/reset control (diagnostic) | PASS | PASS |
+| reference replay API (diagnostic) | PASS | PASS |
+| VM device/reset control (diagnostic) | PASS | PASS |
+| VM replay API (diagnostic) | PASS | PASS |
+
+### Determining failure and owner
+
+For **each** LLVM major, the failing rows are `runtime bitcode link`,
+`printf_fmt: runtime bitcode link`, `runtime libc/console audit (diagnostic)`
+and `driver probe (diagnostic)`. Each exact output is:
+
+```text
+arith publication differs from plugin pin
+```
+
+Determining sentence: pushed plugin `abe5557` expects arithmetic `5e9b450`,
+while pushed arithmetic `cd245bc` publishes different bytes on both majors.
+This is the same-major publication-identity boundary of accepted dialect
+0.3-r1 §§19.1/19.9. The determining execution command is the full gate command
+above; `runtime_files` asserts before llvm-link/nm/driver, so there is **no failed
+runtime-link command**, no current missing-symbol verdict and no current driver
+failure to assign to another owner. [Each failing row, exact command/output and
+completion condition](evidence/20261109T102407.573477Z/failures.json).
+
+| Major | Producer expected SHA-256 | Selected publication SHA-256 |
+|---|---|---|
+| 18 | `a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff` | `053d820087cdb91f851d2505c6eb37d117ec3041a614f1c53d23d47a93423d92` |
+| 23 | `8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79` | `b08ca7c535aa4475452b7a82e4d82847c667fef8dc019affb914a327ade590c5` |
+
+The selected hashes match their pinned arithmetic SHA256SUMS. Exact independent
+inspection argv/output: [publication determination](evidence/20261109T102407.573477Z/publication-pins.json)
+and command receipts `publication-hashes` / `producer-pins`. Owning repository:
+**bennett-plugin**; follow-up/reopen request linked above. Fixed means verify and
+explicitly re-pin the required pushed publication and compiled digests, verify
+the materialised L/CC closure, then re-pin current pushed mains and execute this
+entire unchanged matrix. Selecting old arithmetic or removing the check would
+hide the integration failure. No sibling repository or bead database was edited.
+
+The selected R prerequisite and isolated R-mode probes now PASS. Historical
+ISA0.8 typed-fault recognizers remain documented in blockers.json, without being
+reported as current failures or implying general migration closure.
+
+### Gate interface changes and focused checks
+
+[Exact patch listing every changed glue line](evidence/20261109T102407.573477Z/gate-glue.patch):
+`contract.py` adds the §1.7 profile branch and validates the producer's separate
+`profiles.r_contract` identity, published acceptance paragraph, ISA, map,
+normaliser and replay identity. `gate.py` changes only the two fixture-graph
+selection lines to select the rung-owned graph for the new profile. The graph
+was generated by `clauses/clausegraph.py build --spec DLT --version 0.3-r1
+--file .tmp/r3-promote/dialect.md --xspec clauses/ISA-0.9.json
+--out-dir ladder/rung-3/clauses`; its source hash matches the pinned publication.
+This graph lists clauses of the full document; it grades no additional scope.
+
+Red-first profile regression is `.tmp/r3-promote/profile-red.txt`. Exact focused
+commands executed through the local guard/receipt harness:
+
+```sh
+python3 -B -m unittest discover -s ladder/rung-3/tests -v
+python3 -B ladder/rung-3/check_gate.py
+python3 -B scripts/quality_ratchet.py
+```
+
+Results: **24 focused tests PASS** (including real tiny LLVM18/23 receipt/native
+adapter checks), **12 legacy checks PASS**, **quality ratchet PASS**. Those
+small fixtures are glue tests, not musl acceptance. The only baseline rows changed
+are `ladder/rung-3/contract.py` and `ladder/rung-3/gate.py`; all other baseline
+values and litter allowances are unchanged. [Scoped diff receipt](evidence/20261109T102407.573477Z/quality-diff.patch).
+Earlier RESULTS sections and evidence directories remain unchanged.
+
+
+## Final archived-interface verification — 2026-11-09T10:37:31Z
+
+The final code checkpoint **`4c9d9ce`** (backed up to `wip/r3-promote`) was
+executed in a second detached unit after moving the archived plugin's published
+pin-cache setup from the job harness into `Gate.plugin`. This is a new code tree;
+the earlier tree had no PASS receipt. The exact same **44 rows × both majors**
+produce **12 PASS / 4 FAIL / 28 BLOCKED per major**. **Rung acceptance remains
+BLOCKED**, with no materialised-native, musl executor/reset/strict-replay result.
+Both source/oracle workloads and every required dependency are unchanged.
+
+All eight pushed mains were rechecked **immediately before this final run** and
+after it; none changed from the full pin table above. This includes the still
+pending plugin/arith publications. [Final pins](evidence/20261109T103340.064773Z/pins.json),
+[before](evidence/20261109T103340.064773Z/origin-before-run.json), [after](evidence/20261109T103340.064773Z/origin-after-run.json).
+The R-contract prerequisite, both front ends and isolated executor controls pass.
+All eight failing row instances still output exactly:
+`arith publication differs from plugin pin`.
+They are owned by the **new plugin follow-up/reopen request for closed bp-mq6**
+in `.tmp/r3-promote/cross-repo-beads.md#plugin-arith-main`, not an open historical
+bead. The full determining sentence, original hash values, exact top-level
+command/output and completion criterion above remain applicable to every failure.
+[Per-row failures and owners](evidence/20261109T103340.064773Z/failures.json),
+[publication inspection](evidence/20261109T103340.064773Z/publication-pins.json).
+
+Exact command remains:
+
+```sh
+/usr/bin/python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py
+```
+
+Unit `bennett-conf-r3-promote-final.service`, invocation
+`68dde8cbba62453b8364fb86a3d8d040`, with the same explicit PATH/HOME/headless/local
+environment and job class table, returns **exit 1, 4.146480 s wall,
+4.506025 s CPU**. All **59 gate subprocesses exit 0**
+and have exact argv/wall/CPU/exit/RSS receipts. Immutable sources and build outputs
+were reused and verified. No guard tripped. Systemd reports no unit MemoryPeak
+for this short cached run; individual command RSS is recorded and the earlier
+cold-build peak remains available. Admission used that measured peak plus 6 GiB
+headroom (about 54 GiB available, load 11.85 < 32).
+[Final receipt](evidence/20261109T103340.064773Z/receipt.json), [raw report](evidence/20261109T103340.064773Z/report.json),
+[per-command receipts](evidence/20261109T103340.064773Z/command-receipts.json),
+[complete per-row table](evidence/20261109T103340.064773Z/table.md),
+[evidence inventory](evidence/20261109T103340.064773Z/raw-evidence-sha256.json).
+
+The cache-adapter regression first failed because the archived source had no
+`.tmp/gate/cache` symlink (`.tmp/r3-promote/cache-red.txt`). It now passes after
+`Gate.plugin` checks the published cache directory, creates the archive's cache
+parent/link and rejects a different link target. CMake's existing pin resolver
+still validates exact pinned HEADs and publication bytes. [Cumulative patch
+listing every gate-glue line](evidence/20261109T103340.064773Z/gate-glue.patch) records the profile branch,
+profile validator, graph selection and these **seven added cache-adapter lines**.
+No acceptance method, fixture, oracle, arithmetic check, budget or row was relaxed.
+
+Final focused verification:
+`python3 -B -m unittest discover -s ladder/rung-3/tests -v` — **25 PASS**, no skips
+(1.806 s); the 12 legacy checks remain PASS; the structural ratchet remains PASS.
+Only the two owned rung-3 baseline rows changed; every other value and litter
+allowance remains unchanged. [Cumulative quality diff](evidence/20261109T103340.064773Z/quality-diff.patch).
+**7bx remains open**. No sibling repo fix, sibling/full push gate, main push,
+acceptance closure or public log/scratch/progress publication occurred.
+
+
+## arith-rev 5e9b450 (the plugin's pinned arith), not arith main
+
+Recorded 2026-11-09T17:26:28Z. **The full rung gate is red: 21 PASS / 3 FAIL / 20 BLOCKED
+per major (44 rows each).** The orchestrator explicitly authorized this consistent
+publication variant. It does **not** establish acceptance at arithmetic main
+`19fb8b5`; that variant still waits on **bennett-plugin-eph**. Earlier all-main
+mismatch observations and all historical evidence above are retained unchanged.
+**bennett-conformance-7bx stays open; the orchestrator decides acceptance.**
+
+Hello now passes frontend, runtime/arith link, LTO, reversible production,
+launch artefacts and actual object admission/hash in **both executors on both
+majors**. Its materialised native comparison fails at the driver's contract-version
+check. Consequently no required forward equality, reset, saved-tape replay or
+corrupt-tape rejection is measured. Formatted printf passes frontend/link/LTO,
+then the real producer exhausts its analysis allowance on each major. Its full
+213-byte oracle, signed/unsigned extremes, width/precision and final buffered
+unterminated line remain required. No workload, oracle, budget or acceptance
+method was changed. Passing isolated device/reset/replay diagnostics cannot
+satisfy either corpus workload.
+
+### Selected inputs and publication proof
+
+Pin checkpoint: `f0aec3b0a5a28e507d09c26f84daa02edffa7b55`, backed up to
+`wip/r3-promote`. These are pushed mains observed by `git -C <sibling> ls-remote
+origin main`, except the explicit arithmetic exception. Both remote observations
+agree; no sibling main moved across this execution.
+[Before](evidence/20261109T171853.561083Z/origin-before-run.json),
+[after](evidence/20261109T171853.561083Z/origin-after-run.json).
+
+| Input | Selected commit |
+|---|---|
+| bennett-plugin | `1bfe6613624bfd004b5dff649f9e4db8e1b07a44` |
+| bennett-vm | `83b5f7f0248fe1c36ebfe3acd7fb187ed301affa` |
+| bennett-runtimes | `20ee8b10f9dfa58493b379c556b0a4a3aa5263c4` |
+| bennett-driver | `bcd4e038d8663e319abfd7003216a4585cfcbc2b` |
+| bennett-arith | `5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab` |
+| bennett-isa-spec | `64434934f7f9eaadbffebe34ce9734e33a7ced53` |
+| bennett-isa-spec-review | `64434934f7f9eaadbffebe34ce9734e33a7ced53` |
+| bennett-dialect-spec | `687284fa28a79c536b3885cabec3adf5de26e031` |
+
+Contract remains **dialect0.3-r1 / ISA0.9 / mapping0.3 / normaliser0.2.8 /
+saved-tape-v1**. Both selected arithmetic bitcode digests were checked against
+the selected plugin's `SPEC_VERSIONS.toml` and arithmetic `SHA256SUMS` **before
+execution**: LLVM18 `a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff`;
+LLVM23 `8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79`.
+[Publication proof](evidence/20261109T171853.561083Z/publication-pins.json).
+Runtime headers/publications are archived from their pin; the reference is built
+from pinned ISA6443493. Plugin CMake independently consumes its published verified
+pin cache. No sibling source was fixed.
+
+### Executed command and receipts
+
+Working directory: `/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote`.
+The unchanged full gate was invoked as:
+
+```sh
+/usr/bin/python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py
+```
+
+Detached unit `bennett-conf-r3-arith5e9.service`, invocation
+`1342fe07e5d84f8b8d5661af5f08c7dd`, was launched with `systemd-run --user
+--setenv=PATH="$PATH" --setenv=HOME="$HOME"`; exact launch argv are in
+[launch.json](evidence/20261109T171853.561083Z/launch.json).
+Desktop variables were unset; TMPDIR/CARGO_TARGET_DIR are job-local. Eight build
+workers were derived from64threads/MemAvailable with6GiB headroom for concurrent
+jobs. Admission required the recorded cold-run peak plus6GiB and load<32; it
+passed. Existing cited Spiral short/moderate/long/eternal guards bound every
+command and the whole run; **none tripped**. The durable guard-table gap remains
+bennett-conformance-ji0.
+
+Result: **exit1, 220.167322s wall, 700.166137s
+unit CPU, 5418496000 bytes peak memory**. All **91 executed
+commands** have argv/wall/CPU/exit/RSS receipts. Six subprocesses exit1 (the six
+actual FAIL row instances below); all others exit0. Blocked rows were not run.
+[Receipt](evidence/20261109T171853.561083Z/receipt.json),
+[commands](evidence/20261109T171853.561083Z/command-receipts.json),
+[raw report](evidence/20261109T171853.561083Z/report.json),
+[raw table](evidence/20261109T171853.561083Z/table.md),
+[raw file hashes](evidence/20261109T171853.561083Z/raw-evidence-sha256.json).
+Raw local run: `.tmp/r3-promote/runs/20261109T171853.561083Z/`; full local unit output:
+`.tmp/r3-promote/arith5e9/gate.log`. No logs, transcripts, scratch/progress files
+or binaries are included in this public evidence package. No full repository
+push gate or sibling gate was run.
+
+### Every measured row and owner
+
+The original raw report/table preserve UNFILED values. The separate
+[classified report](evidence/20261109T171853.561083Z/classified/report.json)
+and [table](evidence/20261109T171853.561083Z/classified/table.md)
+attach ownership using the updated registry; they re-execute no commands and
+preserve every status, error, pin, argv and exit. `request-driver-r-contract`
+labels a **new cross-repo bead request**, not an existing bead. Its request is
+`.tmp/r3-promote/cross-repo-beads.md#driver-r-contract`; **bp-owg** is an existing
+open plugin task (passive export), with evidence update requested at `#bp-owg-rung3`.
+The driver failure inherits to hello execution/reset/replay rows; the formatted
+production failure inherits to all its downstream rows.
+
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures | PASS | PASS |
+| plugin build | PASS | PASS |
+| VM build | PASS | PASS |
+| driver build | PASS | PASS |
+| R contract (prerequisite) | PASS | PASS |
+| musl C front end | PASS | PASS |
+| runtime bitcode link | PASS | PASS |
+| post-link LTO | PASS | PASS |
+| reversible production | PASS | PASS |
+| launch artefacts | PASS | PASS |
+| native comparison | FAIL · request-driver-r-contract | FAIL · request-driver-r-contract |
+| reference admission | PASS | PASS |
+| reference forward = native | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| reference reset | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| reference tape replay | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| reference corrupt-tape rejection | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM admission | PASS | PASS |
+| VM forward = native | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM reset | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM tape replay | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM corrupt-tape rejection | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| printf_fmt: musl C front end | PASS | PASS |
+| printf_fmt: runtime bitcode link | PASS | PASS |
+| printf_fmt: post-link LTO | PASS | PASS |
+| printf_fmt: reversible production | FAIL · bp-owg | FAIL · bp-owg |
+| printf_fmt: launch artefacts | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: native comparison | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference admission | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference forward = native | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference reset | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference tape replay | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference corrupt-tape rejection | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM admission | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM forward = native | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM reset | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM tape replay | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM corrupt-tape rejection | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| runtime libc/console audit (diagnostic) | PASS | PASS |
+| R-mode probe (diagnostic) | PASS | PASS |
+| driver probe (diagnostic) | FAIL · request-driver-r-contract | FAIL · request-driver-r-contract |
+| reference device/reset control (diagnostic) | PASS | PASS |
+| reference replay API (diagnostic) | PASS | PASS |
+| VM device/reset control (diagnostic) | PASS | PASS |
+| VM replay API (diagnostic) | PASS | PASS |
+
+### Determining failures
+
+Every FAIL row below has its **complete exact argv and output**, determining
+sentence, command exit/wall/CPU and owning bead/request in
+[failures.json](evidence/20261109T171853.561083Z/failures.json).
+The command tag identifies the exact argv entry in command-receipts.json.
+
+| LLVM | Failing row | Command tag | Owner | Exact determining diagnostic |
+|---|---|---|---|---|
+| 18 | native comparison | `18/hello/driver-comparison` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+| 18 | printf_fmt: reversible production | `18/printf_fmt/production` | bp-owg (plugin) | `bennett: analysis-resource: §5.2 PT2 budget exhausted at AV(%153) in @__bennett_rt_vfs_io; compiler resource allowance: thread CPU milliseconds at   %153 = getelementptr inbounds i8, ptr %144, i64 %152` |
+| 18 | driver probe (diagnostic) | `18/driver-probe` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+| 23 | native comparison | `23/hello/driver-comparison` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+| 23 | printf_fmt: reversible production | `23/printf_fmt/production` | bp-owg (plugin) | `bennett: analysis-resource: §5.2 PT6 budget exhausted at AV(%189) in @tatan; compiler resource allowance: thread CPU milliseconds at   %189 = load i512, ptr %11, align 16, !noalias !78` |
+| 23 | driver probe (diagnostic) | `23/driver-probe` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+
+Driver determination: pushed driverbcd4e03 rejects the explicitly accepted
+0.3-r1/ISA0.9 contract at its **arguments stage**. Its embedded legacy BD-B-ISA7
+message is not evidence of an ISA0.9 spec defect. Completion requires explicit
+driver/native-comparison adoption of the selected contract and retained exact
+publication/materialised/static-link audit; downgrading conformance flags would
+not satisfy acceptance. Formatted-production determination: the full ordinary
+source exits1 with §5.2 analysis-resource on each major (LLVM18 PT2/VFS GEP;
+LLVM23 PT6/tatan i512 load). This is an observed compiler resource frontier,
+not a host guard trip or an established internal root cause. bp-owg completion
+still requires full unchanged printf materialisation, exact native/executor
+agreement and reset/replay on both majors. No sibling fix or scope reduction was
+attempted.
+
+### Scoped verification
+
+`python3 -B -m unittest discover -s ladder/rung-3/tests -v`: **25 PASS**,
+no skips (including real tiny LLVM18/23 native-receipt adapter checks), before
+execution at the selected pins. These are glue checks, not corpus acceptance.
+No new gate glue or acceptance-check line changed relative to db38cf2;
+[glue disposition](evidence/20261109T171853.561083Z/gate-glue-changes.json).
+`docs/quality.md` is unchanged by this continuation; the required cumulative
+`git diff f1b75cc..HEAD -- docs/quality.md` receipt changes only the predecessor's
+two owned rung-3 rows:
+[quality diff](evidence/20261109T171853.561083Z/quality-diff.patch).
+The full gate is not green and no acceptance closure is claimed.
+
+Final evidence validation (2026-11-09T17:28:07Z): `python3 -B ladder/rung-3/check_gate.py` —
+**12 PASS** after the ownership update; `python3 -B scripts/quality_ratchet.py` —
+**PASS**. All three focused invocations have guarded wall/CPU/exit receipts in
+[focused-check-receipts.json](evidence/20261109T171853.561083Z/focused-check-receipts.json).
+[Integrity validation](evidence/20261109T171853.561083Z/integrity.json) verifies all **246 raw file hashes**,
+byte-identical raw report/table, unchanged historical directories and RESULTS
+prefix, all44rows per major, exact failure/status preservation in the ownership
+classification, complete command receipts and headless/job-local environment.
+Only pins, this append, blocker ownership and the new evidence directory changed
+in this continuation. **Rung acceptance remains BLOCKED.**

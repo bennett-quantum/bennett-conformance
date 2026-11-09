@@ -99,6 +99,13 @@ class Gate(RecordedGate):
                 self.command(f'build/llvm{m}-{tool}-version',[f'/usr/lib/llvm-{m}/bin/{tool}','--version'])
         src=self.freeze('bennett-plugin',self.args.plugin_rev)
         self.plugin_build=src/'build'
+        cache=src/'.tmp/gate/cache'
+        published_cache=WORKSPACE/'bennett-plugin/.tmp/gate/cache'
+        assert published_cache.is_dir(), 'missing verified plugin pin cache: '+str(published_cache)
+        cache.parent.mkdir(parents=True,exist_ok=True)
+        if not cache.exists():
+            cache.symlink_to(published_cache,target_is_directory=True)
+        assert cache.resolve()==published_cache.resolve(), 'archived plugin pin cache differs'
         self.command('build/plugin-configure',['cmake','-S',src,'-B',self.plugin_build])
         self.command('build/plugin-build',['cmake','--build',self.plugin_build,'-j',self.args.jobs],timeout=1800)
         self.manifest['plugin_sha256']={str(m):sha(self.plugin_build/f'libbennett-plugin-{m}.so') for m in (18,23)}
@@ -134,7 +141,8 @@ class Gate(RecordedGate):
         expect=json.loads((HERE/'fixtures/expect.json').read_text())
         ids=set()
         for spec in (f'DLT-{self.contract[0]}',f'ISA-{self.contract[1]}'):
-            ids.update(n['id'] for n in json.loads((CONFORMANCE/f'clauses/{spec}.json').read_text())['nodes'])
+            graph = PINS.get('dialect_clause_graph', f'clauses/{spec}.json') if spec.startswith('DLT-') else f'clauses/{spec}.json'
+            ids.update(n['id'] for n in json.loads((CONFORMANCE/graph).read_text())['nodes'])
         assert expect['clauses'] and set(expect['clauses'])<=ids, 'missing/invalid clause tags'
         for workload in WORKLOADS:
             assert workload+'.c' in pins, 'unhashed workload: '+workload

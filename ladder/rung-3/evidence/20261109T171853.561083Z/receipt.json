@@ -1,0 +1,54 @@
+{
+  "label": "arith-rev 5e9b450 (the plugin's pinned arith), not arith main",
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+  ],
+  "cwd": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote",
+  "head": "f0aec3b0a5a28e507d09c26f84daa02edffa7b55",
+  "exit": 1,
+  "wall_seconds": 220.167322,
+  "cpu_seconds": 700.166137,
+  "unit": {
+    "RuntimeMaxUSec": "3d 17h 43min 20s",
+    "Result": "exit-code",
+    "ExecMainStartTimestamp": "Mon 2026-11-09 18:18:53 CET",
+    "ExecMainStartTimestampMonotonic": "35768948291",
+    "ExecMainExitTimestamp": "Mon 2026-11-09 18:22:37 CET",
+    "ExecMainExitTimestampMonotonic": "35989115613",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "1",
+    "MemoryPeak": "5418496000",
+    "CPUUsageNSec": "700166137000",
+    "ActiveState": "failed",
+    "SubState": "failed",
+    "InvocationID": "1342fe07e5d84f8b8d5661af5f08c7dd"
+  },
+  "unit_memory_peak_bytes": 5418496000,
+  "guarded_outer_command": {
+    "tag": "arith5e9-gate",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "exit": 1,
+    "elapsed_seconds": 220.1255746149982,
+    "cpu_seconds": 699.1282659999999,
+    "user_seconds": 663.738533,
+    "system_seconds": 35.389733,
+    "max_rss_kib": 1413408,
+    "guard_class": "eternal",
+    "timeout_seconds": 323000,
+    "verdict": "EXIT",
+    "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-gate.stdout",
+    "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-gate.stderr"
+  },
+  "command_count": 91,
+  "command_cpu_seconds": 695.207311,
+  "raw_run": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T171853.561083Z",
+  "harness_sha256": "daf533608ab9825c9dc80714fa4f42681787e3746f30a803f1b0f6d3e2e2c6c5",
+  "raw_gate_log_sha256": "2ce1a4751947649d9cf5ce06556e6fc2db91515d9ae95c84b3cfd70dfad28b17",
+  "instrumentation": "Full unabridged Gate.main; unchanged acceptance methods, workloads, oracles and dependencies; wait4 wall/CPU/exit/RSS per command. Archived pinned headers/publications and reference build. Outer eternal-class guard plus per-command guards; no host-libc comparator or reduced input."
+}

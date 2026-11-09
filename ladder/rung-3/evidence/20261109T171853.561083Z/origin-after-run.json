@@ -1,0 +1,89 @@
+{
+  "observed_utc": "2026-11-09T17:24:01Z",
+  "mains": {
+    "bennett-plugin": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+        "ls-remote",
+        "origin",
+        "main"
+      ],
+      "output": "1bfe6613624bfd004b5dff649f9e4db8e1b07a44\trefs/heads/main\n",
+      "sha": "1bfe6613624bfd004b5dff649f9e4db8e1b07a44"
+    },
+    "bennett-vm": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-vm",
+        "ls-remote",
+        "origin",
+        "main"
+      ],
+      "output": "83b5f7f0248fe1c36ebfe3acd7fb187ed301affa\trefs/heads/main\n",
+      "sha": "83b5f7f0248fe1c36ebfe3acd7fb187ed301affa"
+    },
+    "bennett-runtimes": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+        "ls-remote",
+        "origin",
+        "main"
+      ],
+      "output": "20ee8b10f9dfa58493b379c556b0a4a3aa5263c4\trefs/heads/main\n",
+      "sha": "20ee8b10f9dfa58493b379c556b0a4a3aa5263c4"
+    },
+    "bennett-driver": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-driver",
+        "ls-remote",
+        "origin",
+        "main"
+      ],
+      "output": "bcd4e038d8663e319abfd7003216a4585cfcbc2b\trefs/heads/main\n",
+      "sha": "bcd4e038d8663e319abfd7003216a4585cfcbc2b"
+    },
+    "bennett-arith": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-arith",
+        "ls-remote",
+        "origin",
+        "main"
+      ],
+      "output": "19fb8b55d28f22f8cfe191082f2b16d4d890f9da\trefs/heads/main\n",
+      "sha": "19fb8b55d28f22f8cfe191082f2b16d4d890f9da"
+    },
+    "bennett-isa-spec": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-isa-spec",
+        "ls-remote",
+        "origin",
+        "main"
+      ],
+      "output": "64434934f7f9eaadbffebe34ce9734e33a7ced53\trefs/heads/main\n",
+      "sha": "64434934f7f9eaadbffebe34ce9734e33a7ced53"
+    },
+    "bennett-dialect-spec": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-dialect-spec",
+        "ls-remote",
+        "origin",
+        "main"
+      ],
+      "output": "687284fa28a79c536b3885cabec3adf5de26e031\trefs/heads/main\n",
+      "sha": "687284fa28a79c536b3885cabec3adf5de26e031"
+    }
+  }
+}

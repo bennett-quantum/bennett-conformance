@@ -1,0 +1,122 @@
+[
+  {
+    "repo": "bennett-plugin",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "abe5557977e9e9a38d8922aff69cbfc638995798\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "abe5557977e9e9a38d8922aff69cbfc638995798"
+  },
+  {
+    "repo": "bennett-vm",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-vm",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "83b5f7f0248fe1c36ebfe3acd7fb187ed301affa\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "83b5f7f0248fe1c36ebfe3acd7fb187ed301affa"
+  },
+  {
+    "repo": "bennett-runtimes",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f"
+  },
+  {
+    "repo": "bennett-driver",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-driver",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b"
+  },
+  {
+    "repo": "bennett-arith",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-arith",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "cd245bcb07ad38da629d9b47f642e46e3c25cae9\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "cd245bcb07ad38da629d9b47f642e46e3c25cae9"
+  },
+  {
+    "repo": "bennett-isa-spec",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-isa-spec",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "695cb4b7c330742820c6b315337a260e56de8bce\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "695cb4b7c330742820c6b315337a260e56de8bce"
+  },
+  {
+    "repo": "bennett-isa-spec-review",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-isa-spec-review",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "695cb4b7c330742820c6b315337a260e56de8bce\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "695cb4b7c330742820c6b315337a260e56de8bce"
+  },
+  {
+    "repo": "bennett-dialect-spec",
+    "argv": [
+      "git",
+      "-C",
+      "/home/tobias/Projects/bennett-workspace/bennett-dialect-spec",
+      "ls-remote",
+      "origin",
+      "main"
+    ],
+    "exit": 0,
+    "stdout": "830bd7f2a328556af983f2c3aa4c75ef9eb29b65\trefs/heads/main\n",
+    "stderr": "",
+    "sha": "830bd7f2a328556af983f2c3aa4c75ef9eb29b65"
+  }
+]

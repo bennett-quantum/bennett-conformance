@@ -1,0 +1,15 @@
+{
+  "base": "db38cf2",
+  "head": "f0aec3b0a5a28e507d09c26f84daa02edffa7b55",
+  "new_glue_lines": [],
+  "diff_command": [
+    "git",
+    "diff",
+    "db38cf2..f0aec3b0a5a28e507d09c26f84daa02edffa7b55",
+    "--",
+    "ladder/rung-3/gate.py",
+    "ladder/rung-3/contract.py",
+    "ladder/rung-3/native_audit.py"
+  ],
+  "diff": ""
+}
