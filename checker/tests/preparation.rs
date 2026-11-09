@@ -177,12 +177,28 @@ fn logical_occurrences_require_full_terminal_coordinates_and_linked_symbols() {
 }
 
 fn logical_fixture() -> Inputs {
+    logical_fixture_with_layout(true)
+}
+fn logical_fixture_with_layout(layout: bool) -> Inputs {
     let functions="action @root (t:wire mut) () () () ()\n^entry():\nqregion r 0 8 @img\naction_call @a (t) () (r) ()\naction @a (t:wire mut) () (m:region[0,8] in) () ()\n^entry():\nx t\nx t\n\nsection data\nimg 01\n\nsection devices\n{\"models\":{},\"services\":{}}";
+    let functions = if layout {
+        format!("{functions}\n\nsection layout\n{{\"A_tab\":0,\"H\":4,\"S_cells\":0,\"globals\":{{}},\"heap_base\":1,\"heap_limit_max\":0,\"interface_regions\":{{}},\"null_size\":1,\"ptr_width\":32}}")
+    } else {
+        functions.into()
+    };
     let signatures = r#"{"root":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"},"a":{"abi":"0.9","args":[],"bounds":[],"in":[],"kind":"action","mem":[{"A":0,"W":8,"role":"in"}],"mut":[1],"tier":"q"},"img":{"abi":"0.9","kind":"data","size":1,"tier":"-"}}"#;
-    let claim = json(&format!(
+    logical_fixture_from_source(
+        &functions,
+        signatures,
+        json(r#"{"args":[],"budget":["0","0","0","0"]}"#),
+    )
+}
+fn logical_fixture_from_source(functions: &str, signatures: &str, invocation: Value) -> Inputs {
+    let mut claim = json(&format!(
         r#"{{"kind":"exhaustive","label":"proof_relative_to_image","invocation":{{"args":[],"budget":["0","0","0","0"]}},"domain":{{"fixed_regions":[{{"name":"m","A":0,"W":8,"image":"01","sha256":"{}"}}],"bundles":[{{"name":"t","width":1,"lo":0,"hi":1}}],"borrowed":[],"regions":[]}},"expected":{{"table":[{{"before":{{"bundles":["0"],"borrowed":[],"regions":[["1"]]}},"after":{{"bundles":["0"],"borrowed":[],"regions":[["1"]]}}}},{{"before":{{"bundles":["1"],"borrowed":[],"regions":[["1"]]}},"after":{{"bundles":["1"],"borrowed":[],"regions":[["1"]]}}}}]}}}}"#,
         bennett_cert_checker::sha256_hex(&[1])
     ));
+    set(&mut claim, "invocation", invocation.clone());
     let (mut inputs, callee) = standalone(functions, signatures, "a", vec![claim]);
     let (root_inputs, root) = standalone(functions, signatures, "root", vec![]);
     let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
@@ -195,6 +211,11 @@ fn logical_fixture() -> Inputs {
     let Value::Obj(fields) = &mut cert else {
         panic!()
     };
+    set(
+        fields.get_mut("bindings").unwrap(),
+        "invocation",
+        invocation.clone(),
+    );
     set(
         fields.get_mut("regions").unwrap(),
         &root,
@@ -209,6 +230,11 @@ fn logical_fixture() -> Inputs {
     let base = controlled();
     let mut schedule = json(std::str::from_utf8(base.schedule_bytes.as_ref().unwrap()).unwrap());
     set(&mut schedule, "entries", json("[]"));
+    if let Some(aliases) = invocation.get("token_aliases") {
+        let mut bindings = schedule.get("bindings").unwrap().clone();
+        set(&mut bindings, "token_aliases", aliases.clone());
+        set(&mut schedule, "bindings", bindings);
+    }
     let mut target = json(std::str::from_utf8(base.target_bytes.as_ref().unwrap()).unwrap());
     set(
         &mut target,
@@ -273,6 +299,7 @@ fn logical_fixture() -> Inputs {
         r#"{{"closure_hash":"{callee}","claim":0,"context_key":[],"invocation":{{"args":[],"budget":["0","0","0","0"]}},"images":[],"witness":{{}},"restoration":{{"kind":"matrix_units"}}}}"#
     ));
     set(&mut entry, "context_key", key);
+    set(&mut entry, "invocation", invocation);
     set(&mut entry, "images", images);
     set(&mut entry, "witness", witness);
     attach(&mut inputs, descriptor(vec![entry]));
@@ -281,6 +308,7 @@ fn logical_fixture() -> Inputs {
 #[test]
 fn logical_preparation_reconstructs_the_real_prefix_and_checks_exact_restoration() {
     let inputs = logical_fixture();
+    assert_oracle_admitted(&inputs);
     let report = check_certificate(&inputs);
     assert!(codes(&report).is_empty(), "{report:?}");
     let value = report.to_value();
@@ -290,6 +318,138 @@ fn logical_preparation_reconstructs_the_real_prefix_and_checks_exact_restoration
         Some("established"),
         "{report:?}"
     );
+}
+fn assert_oracle_admitted(inputs: &Inputs) {
+    let oracle = crate::lexical_differential::Oracle::new();
+    let checked = oracle.run("check", &inputs.object_text);
+    assert!(
+        checked.status.success(),
+        "positive preparation fixture rejected: {}",
+        String::from_utf8_lossy(&checked.stderr)
+    );
+}
+#[test]
+fn nested_claim_invocation_must_match_the_attachment_and_reached_call() {
+    let mut inputs = logical_fixture();
+    assert_oracle_admitted(&inputs);
+    let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else { panic!() };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        panic!()
+    };
+    for record in regions.values_mut() {
+        let Value::Obj(record) = record else { panic!() };
+        let Value::Arr(claims) = record.get_mut("claims").unwrap() else {
+            panic!()
+        };
+        for claim in claims {
+            set(
+                claim,
+                "invocation",
+                json(r#"{"args":[],"budget":["1","0","0","0"]}"#),
+            );
+        }
+    }
+    inputs.cert_bytes = jcs(&cert).unwrap();
+    let report = check_certificate(&inputs);
+    assert!(codes(&report).contains(&"E_CERT_PREPARATION"), "{report:?}");
+    assert_eq!(
+        report.preparation[0].get("applicability").unwrap().as_str(),
+        Some("rejected")
+    );
+}
+#[test]
+fn nested_claim_arguments_and_token_identities_must_match_the_actual_use() {
+    let functions="action @root (t:wire mut) () () (n:i1, p:token, q:token) ()\n^entry():\nqregion r 0 8 @img\naction_call @a (t) () (r) (n, p, q)\naction @a (t:wire mut) () (m:region[0,8] in) (n:i1, p:token, q:token) ()\n^entry():\nx t\nx t\n\nsection data\nimg 01\n\nsection devices\n{\"models\":{},\"services\":{}}\n\nsection layout\n{\"A_tab\":0,\"H\":4,\"S_cells\":0,\"globals\":{},\"heap_base\":1,\"heap_limit_max\":0,\"interface_regions\":{},\"null_size\":1,\"ptr_width\":32}";
+    let signatures = r#"{"root":{"abi":"0.9","args":["i1","token","token"],"bounds":[],"in":[],"kind":"action","mem":[],"mut":[1],"tier":"q"},"a":{"abi":"0.9","args":["i1","token","token"],"bounds":[],"in":[],"kind":"action","mem":[{"A":0,"W":8,"role":"in"}],"mut":[1],"tier":"q"},"img":{"abi":"0.9","kind":"data","size":1,"tier":"-"}}"#;
+    let invocation = json(
+        r#"{"args":["0",["1","0","0","0"],["1","0","0","0"]],"budget":["0","0","0","0"],"token_aliases":[0,1]}"#,
+    );
+    let inputs = logical_fixture_from_source(functions, signatures, invocation.clone());
+    assert_oracle_admitted(&inputs);
+    let valid = check_certificate(&inputs);
+    assert!(codes(&valid).is_empty(), "{valid:?}");
+    assert_eq!(
+        valid.preparation[0].get("applicability").unwrap().as_str(),
+        Some("established")
+    );
+    for (key, value) in [
+        ("args", json(r#"["1",["1","0","0","0"],["1","0","0","0"]]"#)),
+        ("token_aliases", json("[0,0]")),
+    ] {
+        let mut input = inputs.clone();
+        let mut changed = invocation.clone();
+        set(&mut changed, key, value);
+        let mut cert = json(std::str::from_utf8(&input.cert_bytes).unwrap());
+        let Value::Obj(top) = &mut cert else { panic!() };
+        let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+            panic!()
+        };
+        for record in regions.values_mut() {
+            let Value::Obj(record) = record else { panic!() };
+            let Value::Arr(claims) = record.get_mut("claims").unwrap() else {
+                panic!()
+            };
+            for claim in claims {
+                set(claim, "invocation", changed.clone());
+            }
+        }
+        input.cert_bytes = jcs(&cert).unwrap();
+        let report = check_certificate(&input);
+        assert!(
+            codes(&report).contains(&"E_CERT_PREPARATION"),
+            "{key}: {report:?}"
+        );
+        assert_eq!(
+            report.preparation[0].get("applicability").unwrap().as_str(),
+            Some("rejected")
+        );
+    }
+}
+#[test]
+fn memory_interface_without_layout_cannot_receive_proof_or_applicability() {
+    let original = logical_fixture_with_layout(false);
+    let oracle = crate::lexical_differential::Oracle::new();
+    let checked = oracle.run("check", &original.object_text);
+    assert!(!checked.status.success());
+    assert!(
+        String::from_utf8_lossy(&checked.stderr).contains("§7.2: memory or lprocs require layout")
+    );
+    for preparation in [true, false] {
+        let mut inputs = original.clone();
+        if !preparation {
+            let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+            let Value::Obj(top) = &mut cert else { panic!() };
+            let Value::Obj(bindings) = top.get_mut("bindings").unwrap() else {
+                panic!()
+            };
+            bindings.remove("preparation");
+            inputs.cert_bytes = jcs(&cert).unwrap();
+        }
+        let report = check_certificate(&inputs);
+        assert_eq!(report.overall, "rejected", "{report:?}");
+        assert!(
+            report
+                .errors
+                .iter()
+                .any(|e| e.code == "E_CERT_OBJECT" && e.section == "§7.2"),
+            "{report:?}"
+        );
+        assert!(
+            report
+                .regions
+                .iter()
+                .all(|r| r.claims.iter().all(|(_, c)| c.outcome == "reject")),
+            "{report:?}"
+        );
+        assert!(
+            report
+                .preparation
+                .iter()
+                .all(|p| p.get("applicability").unwrap().as_str() != Some("established")),
+            "{report:?}"
+        );
+    }
 }
 #[test]
 fn stale_public_leaf_address_rejects_instead_of_becoming_an_unchecked_premise() {
@@ -387,6 +547,7 @@ fn realised_prefix_leakage_refutes_applicability_without_erasing_the_conditional
         r#"[[[["3","5"],["0","1"]],[["4","5"],["0","1"]]],[[["4","5"],["0","1"]],[["-3","5"],["0","1"]]]]"#,
         1,
     );
+    assert_oracle_admitted(&inputs);
     let report = check_certificate(&inputs);
     assert!(codes(&report).contains(&"E_CERT_PREPARATION"), "{report:?}");
     assert!(
@@ -406,6 +567,7 @@ fn positive_advertised_epsilon_does_not_preclude_exact_image_preparation() {
         r#"[[[["0","1"],["0","1"]],[["-1","1"],["0","1"]]],[[["-1","1"],["0","1"]],[["0","1"],["0","1"]]]]"#,
         2,
     );
+    assert_oracle_admitted(&inputs);
     let report = check_certificate(&inputs);
     assert!(codes(&report).is_empty(), "{report:?}");
     let value = report.to_value();

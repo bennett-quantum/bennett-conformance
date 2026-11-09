@@ -200,6 +200,33 @@ pub(crate) fn check(
     libraries: &[Value],
     verdict: &mut Verdict,
 ) {
+    // §7.2 is an object-wide premise, including when no attachment is supplied.
+    // This phase runs after replay, so invalidate every provisional claim before
+    // publishing a verdict for an object with an inadmissible memory interface.
+    if docs.object.layout.is_none()
+        && docs.object.symbols.iter().any(|symbol| {
+            symbol
+                .signature
+                .get("mem")
+                .and_then(Value::as_arr)
+                .is_some_and(|slots| !slots.is_empty())
+        })
+    {
+        let error = crate::cert::rej(
+            "E_CERT_OBJECT",
+            "§7.2",
+            "object.layout",
+            "memory interface slots require layout",
+        );
+        for region in &mut verdict.regions {
+            region.establishes.clear();
+            for (_, claim) in &mut region.claims {
+                *claim = crate::cert::ClaimOutcome::rejected(vec![error.clone()]);
+            }
+        }
+        verdict.errors.push(error);
+        return;
+    }
     let Some(descriptor) = cert.get("bindings").and_then(|b| b.get("preparation")) else {
         return;
     };

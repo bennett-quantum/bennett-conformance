@@ -57,6 +57,13 @@ independent executable applicability checks. The gate keeps its required
 evidence label and all (a), (b), (c) acceptance rows.
 
 The image-preparation adoption checkpoint adds 13 focused tests, all passing.
+The review repair raises that set to 16: nested claim arguments, budgets and
+token identities must match the attachment and independently reached call;
+memory interfaces without layout receive no proof, even without a preparation
+descriptor. Positive logical/model fixtures are checked by the pinned interpreter.
+The full checker suite passes 17 unit and 333 integration tests; the unchanged
+differential has 3,331 candidates and zero disagreements. Only the preparation
+`logical.rs` and `mod.rs` baseline rows change for these additional checks.
 They cover full binding/address validation, exact realised-prefix factorisation,
 conditional full-tuple restoration, rational native-model leakage, exact image
 preservation at positive advertised epsilon, earlier restoration claim scope,
@@ -263,9 +270,9 @@ operation and is never invoked by the gate.
 "checker/src/matrix.rs": [26, 26, 0, 0, 0, 0, 0, 36, 65, 1, 0],
 "checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 537, 1, 0],
 "checker/src/preparation/launch.rs": [1, 0, 0, 1, 0, 1, 1, 122, 30, 0, 0],
-"checker/src/preparation/mod.rs": [7, 4, 3, 0, 0, 3, 0, 62, 38, 1, 0],
+"checker/src/preparation/mod.rs": [7, 4, 3, 0, 0, 3, 0, 88, 43, 1, 0],
 "checker/src/preparation/schema.rs": [12, 10, 2, 0, 0, 2, 0, 57, 55, 4, 0],
-"checker/src/preparation/logical.rs": [8, 6, 2, 0, 0, 2, 0, 74, 82, 0, 0],
+"checker/src/preparation/logical.rs": [8, 6, 2, 0, 0, 2, 0, 80, 86, 0, 0],
 "checker/src/construction/mod.rs": [9, 8, 1, 0, 0, 1, 0, 53, 13, 2, 0],
 "checker/src/construction/source.rs": [2, 0, 1, 1, 0, 2, 1, 225, 84, 0, 0],
 "checker/src/construction/state.rs": [5, 4, 1, 0, 0, 1, 0, 67, 49, 0, 0],

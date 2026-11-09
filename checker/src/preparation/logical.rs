@@ -219,22 +219,22 @@ pub(super) fn check(
         ));
     }
     let (at, call) = matches[0];
-    let hash = docs
+    let symbol = docs
         .object
         .symbol(&call.context.symbol)
-        .and_then(|s| s.closure_hash.as_deref());
-    if hash != get(entry, "closure_hash")?.as_str() {
+        .ok_or_else(|| invalid("reached subject absent"))?;
+    if symbol.closure_hash.as_deref() != get(entry, "closure_hash")?.as_str() {
         return Err(invalid("context reaches another closure"));
     }
+    let iface = docs
+        .object
+        .interface(&symbol.name)
+        .map_err(Error::Unavailable)?;
     let supplied = crate::cert::parse_invocation_for_kind(
         get(entry, "invocation")?,
-        &docs
-            .object
-            .interface(&call.context.symbol)
-            .map_err(Error::Unavailable)?
-            .args,
+        &iface.args,
         &docs.object,
-        &docs.object.symbol(&call.context.symbol).unwrap().kind,
+        &symbol.kind,
         "bindings.preparation.invocation",
     )
     .map_err(Error::Rejected)?;
@@ -243,6 +243,20 @@ pub(super) fn check(
         || supplied.token_aliases != call.context.invocation.token_aliases
     {
         return Err(invalid("nested attachment invocation differs from independently forwarded arguments/budget/token identities"));
+    }
+    let claimed = crate::cert::parse_invocation_for_kind(
+        get(claim, "invocation")?,
+        &iface.args,
+        &docs.object,
+        &symbol.kind,
+        "claim.invocation",
+    )
+    .map_err(Error::Rejected)?;
+    if claimed.args != supplied.args
+        || claimed.budget != supplied.budget
+        || claimed.token_aliases != supplied.token_aliases
+    {
+        return Err(invalid("claim invocation differs from attachment and independently reached arguments/budget/token identities"));
     }
     let subject = get(claim, "subject")?;
     if get(subject, "variant")?.as_str() != Some("forward")
