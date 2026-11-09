@@ -44,13 +44,13 @@ pub(crate) struct Gate {
     pub(crate) controls: Vec<usize>,
     pub(crate) targets: Vec<usize>,
     pub(crate) path: Vec<Value>,
-    generated: u64,
-    angle_bits: Option<u64>,
-    adjoint: bool,
-    template_leaf: bool,
-    requested_share: Option<Rat>,
+    pub(crate) generated: u64,
+    pub(crate) angle_bits: Option<u64>,
+    pub(crate) adjoint: bool,
+    pub(crate) template_leaf: bool,
+    pub(crate) requested_share: Option<Rat>,
 }
-fn resolve_angle(text: &str, context: &Context, object: &Object) -> Result<u64> {
+pub(crate) fn resolve_angle(text: &str, context: &Context, object: &Object) -> Result<u64> {
     let bad = |message: String| {
         ClaimOutcome::rejected(vec![rej(
             "E_CERT_OBJECT",
@@ -139,12 +139,12 @@ fn element(hash: &str, block: &str, ordinal: usize, iteration: &[u64]) -> Value 
     ]))
 }
 
-struct SourceRow {
-    tokens: Vec<String>,
-    block: String,
-    ordinal: usize,
-    iteration: Vec<u64>,
-    generated: u64,
+pub(crate) struct SourceRow {
+    pub(crate) tokens: Vec<String>,
+    pub(crate) block: String,
+    pub(crate) ordinal: usize,
+    pub(crate) iteration: Vec<u64>,
+    pub(crate) generated: u64,
 }
 fn static_size(stmts: &[Stmt]) -> usize {
     stmts
@@ -201,7 +201,7 @@ fn emit_row(
     });
     Ok(())
 }
-fn expand_rows(
+pub(crate) fn expand_rows(
     stmts: &[Stmt],
     block: &str,
     mut ordinal: usize,
@@ -252,7 +252,7 @@ fn expand_rows(
     }
     Ok(())
 }
-fn prefixes<'a>(
+pub(crate) fn prefixes<'a>(
     mut tokens: &'a [String],
     controls: &mut Vec<usize>,
     wires: &HashMap<String, Vec<usize>>,
@@ -275,7 +275,7 @@ fn prefixes<'a>(
         }
     }
 }
-fn bundle(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<Vec<usize>> {
+pub(crate) fn bundle(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<Vec<usize>> {
     if let Some((name, index)) = name.strip_suffix(']').and_then(|s| s.split_once('[')) {
         let index = crate::eval::literal_wire_index(index).ok_or_else(|| {
             ClaimOutcome::rejected(vec![rej(
@@ -307,7 +307,7 @@ fn bundle(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<Vec<usize>>
         )])
     })
 }
-fn one_wire(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<usize> {
+pub(crate) fn one_wire(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<usize> {
     let b = bundle(name, wires)?;
     if b.len() != 1 {
         return Err(ClaimOutcome::rejected(vec![rej(
@@ -319,7 +319,11 @@ fn one_wire(name: &str, wires: &HashMap<String, Vec<usize>>) -> Result<usize> {
     }
     Ok(b[0])
 }
-fn child_invocation(tokens: &[String], parent: &Context, object: &Object) -> Result<Invocation> {
+pub(crate) fn child_invocation(
+    tokens: &[String],
+    parent: &Context,
+    object: &Object,
+) -> Result<Invocation> {
     let f = object
         .function(&parent.symbol)
         .ok_or_else(|| ClaimOutcome::unchecked("parent action has no body"))?;

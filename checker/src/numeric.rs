@@ -668,12 +668,15 @@ pub fn validate_path_element(el: &Value, object: &Object, path: &str, errs: &mut
     match el.get("point").and_then(Value::as_str) {
         Some(p @ ("$construct" | "$step" | "$commit" | "$release")) => {
             if let Some(s) = &sym {
-                if s.kind != "oracle" {
+                let valid = s.kind == "oracle"
+                    || matches!(p, "$construct" | "$release")
+                        && matches!(s.kind.as_str(), "action" | "perm_action");
+                if !valid {
                     errs.push(rej(
                         "E_CERT_SCHEDULE_BINDING",
                         "§11",
                         format!("{path}.point"),
-                        format!("pseudo-point {p} is only legal in an oracle"),
+                        format!("pseudo-point {p} is not legal for {}", s.kind),
                     ));
                 }
             }

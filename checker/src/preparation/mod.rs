@@ -5,6 +5,7 @@ use crate::domain::FixedRegion;
 use crate::json::{jcs, s, Value};
 use std::collections::BTreeMap;
 mod launch;
+mod logical;
 mod schema;
 use schema::{array, get, hash, index, keys};
 
@@ -134,6 +135,7 @@ fn attachment(
     cert: &Value,
     docs: &LoadedDocs,
     libraries: &[Value],
+    inputs: &Inputs,
 ) -> Result<String> {
     let fields = [
         "closure_hash",
@@ -176,17 +178,22 @@ fn attachment(
         .collect();
     schema::witness(get(entry, "witness")?, &docs.object, &names)?;
     schema::restoration(get(entry, "restoration")?, ci)?;
-    concrete_invocation(entry, claim, symbol, docs)?;
-    match get(get(entry,"witness")?,"kind")?.as_str() {
-        Some("launch_copy")=>launch::check(entry,cert,docs,libraries,&bound),
-        Some("logical")=>Err(Error::Unavailable("logical preparation occurrence/lifetime resolution and the complete realised prefix have not been reconstructed; applicability unestablished".into())),
-        _=>unreachable!("witness kind was validated"),
+    if get(entry, "context_key")?
+        .as_arr()
+        .is_some_and(|v| v.is_empty())
+    {
+        concrete_invocation(entry, claim, symbol, docs)?;
+    }
+    match get(get(entry, "witness")?, "kind")?.as_str() {
+        Some("launch_copy") => launch::check(entry, cert, docs, libraries, &bound),
+        Some("logical") => logical::check(entry, claim, docs, inputs, &bound),
+        _ => unreachable!("witness kind was validated"),
     }
 }
 pub(crate) fn check(
     cert: &Value,
     docs: &LoadedDocs,
-    _inputs: &Inputs,
+    inputs: &Inputs,
     libraries: &[Value],
     verdict: &mut Verdict,
 ) {
@@ -214,7 +221,7 @@ pub(crate) fn check(
                 return Err(invalid("attachments must be sorted by closure, numeric claim and JCS context, with no duplicate triple"));
             }
             previous = Some(key);
-            let outcome = attachment(entry, cert, docs, libraries);
+            let outcome = attachment(entry, cert, docs, libraries, inputs);
             let (status, reason) = match &outcome {
                 Ok(reason) => ("established", reason.clone()),
                 Err(Error::Unavailable(reason)) => ("unestablished", reason.clone()),
