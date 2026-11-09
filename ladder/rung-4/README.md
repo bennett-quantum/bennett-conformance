@@ -45,8 +45,10 @@ Revision regressions, including read-only main-health `ladder_argv` compatibilit
 PYTHONDONTWRITEBYTECODE=1 python3 ladder/rung-4/check_revisions.py -v
 ```
 
-Full runs require an empty `bennett-heavy` slot and a systemd user scope named
-`bennett-heavy-ladder-rung4-<UTC time>`. On
+Full runs execute detached in a systemd user unit named
+`bennett-ladder-rung4-<UTC time>`. Gates in different repositories may run concurrently;
+never run two gates for this repository at once. Admit a run only when available memory
+is at least its recorded peak RSS plus 6 GB and load is below half the hardware threads. On
 `tobias-ThinkPad-X1-Carbon-Gen-11`, use a 12000-second outer hang guard (machine
 factor 1), with exit 124 reported as UNKNOWN. This exceeds ten times the
 1109.026 summed command wall seconds in the recorded 2026-11-01 report
