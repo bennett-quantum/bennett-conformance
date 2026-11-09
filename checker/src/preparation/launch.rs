@@ -17,8 +17,10 @@ pub(super) fn check(
                 "launch manifest was not supplied; applicability unestablished".into(),
             )
         })?;
-    let version = get(manifest, "version")?.as_str();
-    if version != Some("bennett.image-launch/1") {
+    let version = get(manifest, "version")?
+        .as_str()
+        .ok_or_else(|| invalid("launch manifest version must be a string"))?;
+    if version != "bennett.image-launch/1" {
         return Err(Error::Unavailable(
             "unsupported launch manifest version; applicability unestablished".into(),
         ));
@@ -76,8 +78,34 @@ pub(super) fn check(
         schema::uint(get(copy, "A")?)?;
         schema::uint(get(copy, "W")?)?;
         hash(get(copy, "sha256")?)?;
+        let context = get(copy, "context_key")?;
+        let symbol = if array(context)?.is_empty() {
+            docs.object
+                .symbol_by_closure(&docs.root_closure)
+                .ok_or_else(|| invalid("launch root is absent"))?
+        } else {
+            return Err(Error::Unavailable("nested launch-copy context resolution remains unavailable; applicability unestablished".into()));
+        };
+        let iface = docs
+            .object
+            .interface(&symbol.name)
+            .map_err(Error::Unavailable)?;
+        let slot = index(get(copy, "mem_slot")?)?;
+        let region = iface
+            .regions
+            .get(slot)
+            .ok_or_else(|| invalid("launch copy mem slot is absent from its reached subject"))?;
+        let mut raw = copy.as_obj().expect("validated copy object").clone();
+        raw.remove("context_key");
+        raw.remove("mem_slot");
+        raw.insert("name".into(), s(&region.name));
+        super::images(&Value::Arr(vec![Value::Obj(raw)]), &iface, true)?;
     }
-    for (slot, image) in array(get(witness, "copy_indices")?)?.iter().zip(images) {
+    for ((slot, image), raw) in array(get(witness, "copy_indices")?)?
+        .iter()
+        .zip(images)
+        .zip(array(get(entry, "images")?)?)
+    {
         let copy = copies
             .get(index(slot)?)
             .ok_or_else(|| invalid("copy index is out of range"))?;
@@ -86,10 +114,6 @@ pub(super) fn check(
         {
             return Err(invalid("selected copy names another context or mem slot"));
         }
-        let raw = array(get(entry, "images")?)?
-            .iter()
-            .find(|v| v.get("sha256").and_then(Value::as_str) == Some(image.sha256.as_str()))
-            .ok_or_else(|| invalid("selected image missing"))?;
         for key in ["A", "W", "image", "sha256"] {
             if get(copy, key)? != get(raw, key)? {
                 return Err(invalid(format!("selected launch copy has different {key}")));

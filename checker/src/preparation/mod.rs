@@ -6,6 +6,7 @@ use crate::json::{jcs, s, Value};
 use std::collections::BTreeMap;
 mod launch;
 mod logical;
+mod restoration;
 mod schema;
 use schema::{array, get, hash, index, keys};
 
@@ -136,6 +137,7 @@ fn attachment(
     docs: &LoadedDocs,
     libraries: &[Value],
     inputs: &Inputs,
+    reports: &[crate::cert::RegionReport],
 ) -> Result<String> {
     let fields = [
         "closure_hash",
@@ -178,6 +180,7 @@ fn attachment(
         .collect();
     schema::witness(get(entry, "witness")?, &docs.object, &names)?;
     schema::restoration(get(entry, "restoration")?, ci)?;
+    restoration::check(entry, claim, claims, &bound, &iface, docs, reports)?;
     if get(entry, "context_key")?
         .as_arr()
         .is_some_and(|v| v.is_empty())
@@ -221,7 +224,7 @@ pub(crate) fn check(
                 return Err(invalid("attachments must be sorted by closure, numeric claim and JCS context, with no duplicate triple"));
             }
             previous = Some(key);
-            let outcome = attachment(entry, cert, docs, libraries, inputs);
+            let outcome = attachment(entry, cert, docs, libraries, inputs, &verdict.regions);
             let (status, reason) = match &outcome {
                 Ok(reason) => ("established", reason.clone()),
                 Err(Error::Unavailable(reason)) => ("unestablished", reason.clone()),

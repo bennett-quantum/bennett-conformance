@@ -2,9 +2,9 @@
 
 ISA inputs and the neutral-suite binary share gate pin
 `b472bac28d9f69037d2cf89763c8c9603e7e4fb4`. Tests validate the detached
-gate-cache HEAD and never read a live sibling. The pin was materialized and
-its release interpreter built with the pinned gate tool's `verify` command
-against the main checkout and job commit dc5e2e2.
+gate-cache HEAD and never read a live sibling. The current pin was materialized
+and its release interpreter built with gate tool `a630f38` using `verify`
+against the main checkout and pin-update commit `59dacc9`.
 
 ## Reproduction environment
 
@@ -51,9 +51,29 @@ indexed oracle-claim selection, rejection/unchecked propagation, exact reduced
 and unreduced fractions, float rejection, and the N=1024 image denominator.
 The real malformed-certificate probe returns exit 1 with a JSON diagnostic.
 These are integration checks, not a passing SQLite launch verdict: realised
-oracle reconstruction remains unchecked and executable image-preparation
-encoding is pending publication/adoption (`bennett-isa-spec-rqn`). The gate keeps
-its required evidence label and all (a), (b), (c) acceptance rows.
+oracle reconstruction remains unchecked. The published image-preparation
+encoding is now pinned and decoded; supported logical action prefixes have
+independent executable applicability checks. The gate keeps its required
+evidence label and all (a), (b), (c) acceptance rows.
+
+The image-preparation adoption checkpoint adds 13 focused tests, all passing.
+They cover full binding/address validation, exact realised-prefix factorisation,
+conditional full-tuple restoration, rational native-model leakage, exact image
+preservation at positive advertised epsilon, earlier restoration claim scope,
+and static launch-copy template validation without runtime attestation. Expected
+values include the published 9/25 leakage of the rational native X model and
+the exact phase-sensitive identity `(-X)(-X)=I`. No floats enter these checks.
+
+The full checker run after the ISA re-pin is **red** (16 unit tests passed;
+327 integration tests passed, one failed; 36.11 s wall): the existing generated
+lexical differential test observes `qpred c` in a loop accepted and proved by
+this checker but rejected by the newly pinned interpreter (`loop body altered
+predicate stack`). This adjacent source-admission finding is tracked as
+`bennett-conformance-3jt`; the test and oracle remain unchanged. Supported
+preparation checks do not implement the missing realised-oracle construction,
+all source-adjoint/cleanup/memory expansions or every native-model variety.
+Those paths retain explicit unchecked/unestablished results. No passing rung-4
+SQLite certificate verdict is claimed.
 
 The inherited nested-loop, qif-lifetime, sampled-table, signed-literal,
 large-shift, whole-bundle MCX, lexical and recompute-cleanup regressions all pass.
@@ -233,13 +253,14 @@ operation and is never invoked by the gate.
 "checker/src/main.rs": [2, 1, 0, 1, 0, 1, 1, 147, 43, 0, 0],
 "checker/src/matrix.rs": [26, 26, 0, 0, 0, 0, 0, 36, 65, 1, 0],
 "checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 537, 1, 0],
-"checker/src/preparation/launch.rs": [1, 0, 1, 0, 0, 1, 0, 98, 26, 0, 0],
+"checker/src/preparation/launch.rs": [1, 0, 0, 1, 0, 1, 1, 122, 30, 0, 0],
 "checker/src/preparation/mod.rs": [7, 4, 3, 0, 0, 3, 0, 62, 38, 1, 0],
 "checker/src/preparation/schema.rs": [12, 10, 2, 0, 0, 2, 0, 57, 55, 4, 0],
 "checker/src/preparation/logical.rs": [8, 6, 2, 0, 0, 2, 0, 74, 82, 0, 0],
 "checker/src/construction/mod.rs": [9, 8, 1, 0, 0, 1, 0, 53, 13, 2, 0],
 "checker/src/construction/source.rs": [2, 0, 1, 1, 0, 2, 1, 225, 84, 0, 0],
 "checker/src/construction/state.rs": [5, 4, 1, 0, 0, 1, 0, 67, 49, 0, 0],
+"checker/src/preparation/restoration.rs": [1, 0, 1, 0, 0, 1, 0, 57, 11, 0, 0],
 "checker/src/object.rs": [41, 30, 7, 4, 0, 11, 4, 172, 482, 6, 0],
 "checker/src/object/admission.rs": [6, 5, 1, 0, 0, 1, 0, 86, 23, 1, 0],
 "checker/src/object/admission/calls.rs": [15, 9, 5, 1, 0, 6, 1, 101, 103, 2, 0],

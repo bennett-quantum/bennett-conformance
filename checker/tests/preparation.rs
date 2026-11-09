@@ -418,3 +418,93 @@ fn positive_advertised_epsilon_does_not_preclude_exact_image_preparation() {
         "{report:?}"
     );
 }
+
+#[test]
+fn reference_only_restoration_claim_cannot_discharge_a_realised_map() {
+    let mut inputs = logical_fixture();
+    let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else { panic!() };
+    let Value::Obj(regions) = top.get_mut("regions").unwrap() else {
+        panic!()
+    };
+    for region in regions.values_mut() {
+        let Value::Obj(region) = region else { panic!() };
+        let Value::Arr(claims) = region.get_mut("claims").unwrap() else {
+            panic!()
+        };
+        if !claims.is_empty() {
+            claims.push(claims[0].clone());
+        }
+    }
+    let Value::Obj(bindings) = top.get_mut("bindings").unwrap() else {
+        panic!()
+    };
+    let Value::Obj(preparation) = bindings.get_mut("preparation").unwrap() else {
+        panic!()
+    };
+    let Value::Arr(entries) = preparation.get_mut("entries").unwrap() else {
+        panic!()
+    };
+    set(&mut entries[0], "claim", json("1"));
+    set(
+        &mut entries[0],
+        "restoration",
+        json(r#"{"kind":"claim","claim":0}"#),
+    );
+    inputs.cert_bytes = jcs(&cert).unwrap();
+    let report = check_certificate(&inputs);
+    assert!(codes(&report).contains(&"E_CERT_PREPARATION"), "{report:?}");
+}
+
+fn launch_template(mut inputs: Inputs, unselected_bad_copy: bool) -> Inputs {
+    let mut entry = attachment(&inputs);
+    let cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+    let mut bindings = cert.get("bindings").unwrap().clone();
+    let Value::Obj(fields) = &mut bindings else {
+        panic!()
+    };
+    fields.remove("reference_program_hash");
+    set(&mut bindings, "target_hash", Value::Str("0".repeat(64)));
+    set(&mut bindings, "schedule_hash", Value::Str("0".repeat(64)));
+    set(
+        &mut bindings,
+        "invocation",
+        json(r#"{"args":[],"budget":["0","0","0","0"]}"#),
+    );
+    let image = &entry.get("images").unwrap().as_arr().unwrap()[0];
+    let mut copy = image.clone();
+    let Value::Obj(fields) = &mut copy else {
+        panic!()
+    };
+    fields.remove("name");
+    set(&mut copy, "context_key", json("[]"));
+    set(&mut copy, "mem_slot", json("0"));
+    let mut copies = vec![copy.clone()];
+    if unselected_bad_copy {
+        set(&mut copy, "mem_slot", json("1"));
+        copies.push(copy);
+    }
+    let mut manifest = json(r#"{"version":"bennett.image-launch/1","bindings":{},"copies":[]}"#);
+    set(&mut manifest, "bindings", bindings);
+    set(&mut manifest, "copies", Value::Arr(copies));
+    let bytes = jcs(&manifest).unwrap();
+    let wanted = bennett_cert_checker::sha256_hex(&bytes);
+    inputs.libraries.push(bytes);
+    let mut witness = entry.get("witness").unwrap().clone();
+    set(&mut witness, "manifest_hash", Value::Str(wanted));
+    set(&mut entry, "witness", witness);
+    attach(&mut inputs, descriptor(vec![entry]));
+    inputs
+}
+#[test]
+fn valid_static_launch_template_still_requires_runtime_copy_association() {
+    let report = check_certificate(&launch_template(fixed_images::fixture(1, 2, "09"), false));
+    assert!(codes(&report).is_empty(), "{report:?}");
+    assert_eq!(report.overall, "unchecked");
+    assert!(encode(&report.to_value()).contains("cannot be attested by a static checker"));
+}
+#[test]
+fn every_launch_copy_is_validated_even_when_not_selected_by_this_attachment() {
+    let report = check_certificate(&launch_template(fixed_images::fixture(1, 2, "09"), true));
+    assert!(codes(&report).contains(&"E_CERT_PREPARATION"), "{report:?}");
+}
