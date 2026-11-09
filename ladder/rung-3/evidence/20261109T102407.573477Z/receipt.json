@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+  ],
+  "cwd": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote",
+  "head": "1c0b5140a398f90d9c8d5d3650ced0c5efbd59b4",
+  "exit": 1,
+  "wall_seconds": 160.084968,
+  "cpu_seconds": 590.707025,
+  "max_rss_bytes": 5403381760,
+  "unit": {
+    "RuntimeMaxUSec": "3d 17h 43min 20s",
+    "Result": "exit-code",
+    "ExecMainStartTimestamp": "Mon 2026-11-09 11:24:07 CET",
+    "ExecMainExitTimestamp": "Mon 2026-11-09 11:26:47 CET",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "1",
+    "ExecStart": "{ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py ; ignore_errors=no ; start_time=[Mon 2026-11-09 11:24:07 CET] ; stop_time=[Mon 2026-11-09 11:26:47 CET] ; pid=682279 ; code=exited ; status=1 }",
+    "MemoryPeak": "5403381760",
+    "CPUUsageNSec": "590707025000",
+    "Id": "bennett-conf-r3-promote.service",
+    "InvocationID": "587b7e07ed014808aa210b393b1a9c77"
+  },
+  "unit_monotonic_usec": {
+    "ExecMainStartTimestampMonotonic": 11281628321,
+    "ExecMainExitTimestampMonotonic": 11441713289
+  },
+  "command_count": 60,
+  "command_cpu_seconds": 585.895087,
+  "command_wall_seconds_sum": 158.2208895559943,
+  "raw_run": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T102407.573477Z",
+  "packaged_utc": "2026-11-09T10:28:53Z",
+  "raw_gate_log_sha256": "587114b07db7ed06edc07dba5a5b5d173bbbfa692e52e9928f2d3265c6128922",
+  "harness_sha256": "c4cbacfed7edf8b6357def0dc02c66a9062116695b64bf47f31929e03ba1c2d3",
+  "instrumentation": "Unabridged Gate.main, overridden command runner only for wait4 CPU/wall/exit/process-tree guard receipts; temp roots, cache linkage, immutable sysroots and pinned reference build are job-local execution setup. Acceptance methods unchanged.",
+  "public_evidence_policy": "Structured receipts, reports, publication hashes and per-row errors only. Logs, scratch scripts and progress remain local.",
+  "tracking": "Raw bp-mq6 classifier refers to a closed historical bead. New plugin follow-up/reopen requested in .tmp/r3-promote/cross-repo-beads.md#plugin-arith-main; acceptance bead 7bx stays open."
+}

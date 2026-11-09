@@ -99,6 +99,13 @@ class Gate(RecordedGate):
                 self.command(f'build/llvm{m}-{tool}-version',[f'/usr/lib/llvm-{m}/bin/{tool}','--version'])
         src=self.freeze('bennett-plugin',self.args.plugin_rev)
         self.plugin_build=src/'build'
+        cache=src/'.tmp/gate/cache'
+        published_cache=WORKSPACE/'bennett-plugin/.tmp/gate/cache'
+        assert published_cache.is_dir(), 'missing verified plugin pin cache: '+str(published_cache)
+        cache.parent.mkdir(parents=True,exist_ok=True)
+        if not cache.exists():
+            cache.symlink_to(published_cache,target_is_directory=True)
+        assert cache.resolve()==published_cache.resolve(), 'archived plugin pin cache differs'
         self.command('build/plugin-configure',['cmake','-S',src,'-B',self.plugin_build])
         self.command('build/plugin-build',['cmake','--build',self.plugin_build,'-j',self.args.jobs],timeout=1800)
         self.manifest['plugin_sha256']={str(m):sha(self.plugin_build/f'libbennett-plugin-{m}.so') for m in (18,23)}

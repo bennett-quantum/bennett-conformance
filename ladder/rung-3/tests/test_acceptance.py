@@ -138,6 +138,26 @@ class AcceptanceTests(unittest.TestCase):
             with self.assertRaisesRegex(gate.GateError, 'contract'):
                 gate.validate_contract(pins, producer, spec)
 
+    def test_archived_plugin_reads_verified_pin_cache(self):
+        source = self.root/'archive'
+        source.mkdir()
+        workspace = self.root/'workspace'
+        cache = workspace/'bennett-plugin/.tmp/gate/cache'
+        cache.mkdir(parents=True)
+        self.g.args.plugin_rev = 'frozen-plugin'
+        self.g.freeze = lambda repo, rev: source
+        def command(tag, argv, **kwargs):
+            if tag == 'build/plugin-configure':
+                archive_cache = source/'.tmp/gate/cache'
+                self.assertTrue(archive_cache.is_symlink())
+                self.assertEqual(archive_cache.resolve(), cache)
+                raise gate.GateError('configured archive cache verified')
+            return b''
+        self.g.command = command
+        with patch.object(gate, 'WORKSPACE', workspace):
+            with self.assertRaisesRegex(gate.GateError, 'configured archive cache verified'):
+                self.g.plugin()
+
     def test_selected_versions_reach_production_and_driver_probe(self):
         self.g.contract = ('0.2.15', '0.9')
         self.g.plugin_build = self.root/'plugin/build'
