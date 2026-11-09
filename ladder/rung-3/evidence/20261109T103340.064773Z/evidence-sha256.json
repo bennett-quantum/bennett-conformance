@@ -1,0 +1,17 @@
+{
+  "blockers-used.json": "56c6e89f8872fe6a9495d3603839c6661d7897a01a8b7b1dbc4249f3d33dde19",
+  "command-receipts.json": "0d6d70f18b1adcceacffee8a4cabd67dc3eedb709abf2e4d85f38cb993d00673",
+  "failures.json": "11efa217dfeb54fee3a18b5b0eef1f6e46c0e45a1a8397190e3011787c421d88",
+  "gate-glue.patch": "b3ef9017bd05c8be87322f470b8a0f52161e1dd140e98ecb1c57c89eb8915410",
+  "hang-guards.json": "305e50e01735fd9db4b660a147607a1ec0a6a1a78992851f5cc3bc70080b1caa",
+  "origin-after-run.json": "21a0c3ca129ade69f63f0b561660bd7a4264ef7a3c9162316af70b8a991bda6f",
+  "origin-before-run.json": "e32af3753cae30743aa02dace5f4d5bc66cfb3aa89a9535feef01cb26b0058ef",
+  "ownership.md": "c4cb21b0a42b9325422eff1231b48ad9dc9b71d94751a0d1e0a561d19364098a",
+  "pins.json": "3639072d2a2fd968f33ef2d98e3ec2baaaf23310658412d45c3444fed8ac9576",
+  "publication-pins.json": "0744ff023728af40c57db3ff542c2fa8b7ed07b9cb485b323e17512a202ca7b9",
+  "quality-diff.patch": "8812d7cbc2fc9e314bfe0475a4b56db4f1479503dc1f3bbbe8b1acc83150bbbf",
+  "raw-evidence-sha256.json": "107c0bcda7df004154c3a1c2efd129807e2fe2fc5ce2d2b75a4b474b283de51d",
+  "receipt.json": "1b80fa2df614f8e33aba294039b80d5f62e3ef2d9841384ea128f0c64bef65e6",
+  "report.json": "f26086b346da66c9ed0f339029dd0be3f7bbb69b8e1539d722c7c864fd64f0a3",
+  "table.md": "390f4a921172c3859a08c1d3c9576938e30c558929264fab10fb1d240dc3ffc9"
+}

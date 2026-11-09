@@ -452,3 +452,65 @@ small fixtures are glue tests, not musl acceptance. The only baseline rows chang
 are `ladder/rung-3/contract.py` and `ladder/rung-3/gate.py`; all other baseline
 values and litter allowances are unchanged. [Scoped diff receipt](evidence/20261109T102407.573477Z/quality-diff.patch).
 Earlier RESULTS sections and evidence directories remain unchanged.
+
+
+## Final archived-interface verification — 2026-11-09T10:37:31Z
+
+The final code checkpoint **`4c9d9ce`** (backed up to `wip/r3-promote`) was
+executed in a second detached unit after moving the archived plugin's published
+pin-cache setup from the job harness into `Gate.plugin`. This is a new code tree;
+the earlier tree had no PASS receipt. The exact same **44 rows × both majors**
+produce **12 PASS / 4 FAIL / 28 BLOCKED per major**. **Rung acceptance remains
+BLOCKED**, with no materialised-native, musl executor/reset/strict-replay result.
+Both source/oracle workloads and every required dependency are unchanged.
+
+All eight pushed mains were rechecked **immediately before this final run** and
+after it; none changed from the full pin table above. This includes the still
+pending plugin/arith publications. [Final pins](evidence/20261109T103340.064773Z/pins.json),
+[before](evidence/20261109T103340.064773Z/origin-before-run.json), [after](evidence/20261109T103340.064773Z/origin-after-run.json).
+The R-contract prerequisite, both front ends and isolated executor controls pass.
+All eight failing row instances still output exactly:
+`arith publication differs from plugin pin`.
+They are owned by the **new plugin follow-up/reopen request for closed bp-mq6**
+in `.tmp/r3-promote/cross-repo-beads.md#plugin-arith-main`, not an open historical
+bead. The full determining sentence, original hash values, exact top-level
+command/output and completion criterion above remain applicable to every failure.
+[Per-row failures and owners](evidence/20261109T103340.064773Z/failures.json),
+[publication inspection](evidence/20261109T103340.064773Z/publication-pins.json).
+
+Exact command remains:
+
+```sh
+/usr/bin/python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py
+```
+
+Unit `bennett-conf-r3-promote-final.service`, invocation
+`68dde8cbba62453b8364fb86a3d8d040`, with the same explicit PATH/HOME/headless/local
+environment and job class table, returns **exit 1, 4.146480 s wall,
+4.506025 s CPU**. All **59 gate subprocesses exit 0**
+and have exact argv/wall/CPU/exit/RSS receipts. Immutable sources and build outputs
+were reused and verified. No guard tripped. Systemd reports no unit MemoryPeak
+for this short cached run; individual command RSS is recorded and the earlier
+cold-build peak remains available. Admission used that measured peak plus 6 GiB
+headroom (about 54 GiB available, load 11.85 < 32).
+[Final receipt](evidence/20261109T103340.064773Z/receipt.json), [raw report](evidence/20261109T103340.064773Z/report.json),
+[per-command receipts](evidence/20261109T103340.064773Z/command-receipts.json),
+[complete per-row table](evidence/20261109T103340.064773Z/table.md),
+[evidence inventory](evidence/20261109T103340.064773Z/raw-evidence-sha256.json).
+
+The cache-adapter regression first failed because the archived source had no
+`.tmp/gate/cache` symlink (`.tmp/r3-promote/cache-red.txt`). It now passes after
+`Gate.plugin` checks the published cache directory, creates the archive's cache
+parent/link and rejects a different link target. CMake's existing pin resolver
+still validates exact pinned HEADs and publication bytes. [Cumulative patch
+listing every gate-glue line](evidence/20261109T103340.064773Z/gate-glue.patch) records the profile branch,
+profile validator, graph selection and these **seven added cache-adapter lines**.
+No acceptance method, fixture, oracle, arithmetic check, budget or row was relaxed.
+
+Final focused verification:
+`python3 -B -m unittest discover -s ladder/rung-3/tests -v` — **25 PASS**, no skips
+(1.806 s); the 12 legacy checks remain PASS; the structural ratchet remains PASS.
+Only the two owned rung-3 baseline rows changed; every other value and litter
+allowance remains unchanged. [Cumulative quality diff](evidence/20261109T103340.064773Z/quality-diff.patch).
+**7bx remains open**. No sibling repo fix, sibling/full push gate, main push,
+acceptance closure or public log/scratch/progress publication occurred.

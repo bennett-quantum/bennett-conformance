@@ -1,0 +1,154 @@
+[
+  {
+    "major": 18,
+    "row": "runtime bitcode link",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  },
+  {
+    "major": 18,
+    "row": "printf_fmt: runtime bitcode link",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  },
+  {
+    "major": 18,
+    "row": "runtime libc/console audit (diagnostic)",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  },
+  {
+    "major": 18,
+    "row": "driver probe (diagnostic)",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  },
+  {
+    "major": 23,
+    "row": "runtime bitcode link",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  },
+  {
+    "major": 23,
+    "row": "printf_fmt: runtime bitcode link",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  },
+  {
+    "major": 23,
+    "row": "runtime libc/console audit (diagnostic)",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  },
+  {
+    "major": 23,
+    "row": "driver probe (diagnostic)",
+    "determining_sentence": "arith publication differs from plugin pin",
+    "execution_argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+    ],
+    "execution_exit": 1,
+    "output": "arith publication differs from plugin pin",
+    "owner_repo": "bennett-plugin",
+    "historical_bead": "bp-mq6",
+    "historical_bead_status": "closed in passive export",
+    "current_request": ".tmp/r3-promote/cross-repo-beads.md#plugin-arith-main",
+    "command_boundary": "runtime_files assertion before llvm-link/nm/driver; no failed subprocess exists for this row",
+    "published_contract": "0.3-r1 \u00a7\u00a71.7,19.1,19.9 / ISA0.9",
+    "completion": "Verified producer publication repin; refresh consumer pushed mains and execute full unchanged matrix."
+  }
+]
