@@ -1,7 +1,7 @@
 # Checker quality measurement
 
 ISA inputs and the neutral-suite binary share gate pin
-`3b1090790d82a00ac95d30b8da6b42d1d7a9f5d1`. Tests validate the detached
+`b472bac28d9f69037d2cf89763c8c9603e7e4fb4`. Tests validate the detached
 gate-cache HEAD and never read a live sibling. The pin was materialized and
 its release interpreter built with the pinned gate tool's `verify` command
 against the main checkout and job commit dc5e2e2.
@@ -12,7 +12,7 @@ against the main checkout and job commit dc5e2e2.
 unset DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
 export TMPDIR="$PWD/.tmp/quality-checker/tmp"
 export CARGO_TARGET_DIR="$PWD/.tmp/quality-checker/target"
-export BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec"
+export BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@b472bac28d9f/bennett-isa-spec"
 export BENNETT_ISA_BINARY="$BENNETT_ISA_SPEC/reference-interpreter/target/release/bennett-isa-ref"
 mkdir -p "$TMPDIR"
 free -g
@@ -212,7 +212,7 @@ operation and is never invoked by the gate.
 "checker-replay/checker_replay/replay.py": [48, 45, 2, 1, 0, 3, 1, 104, 530, 2, 0],
 "checker-replay/checker_replay/synthetic.py": [18, 17, 0, 1, 0, 1, 1, 109, 79, 2, 0],
 "checker/src/accounting.rs": [15, 9, 3, 3, 0, 6, 3, 183, 169, 2, 0],
-"checker/src/cert.rs": [30, 23, 4, 1, 2, 7, 3, 507, 508, 7, 0],
+"checker/src/cert.rs": [31, 24, 4, 1, 2, 7, 3, 484, 507, 7, 0],
 "checker/src/coherent.rs": [10, 9, 0, 1, 0, 1, 1, 142, 94, 2, 0],
 "checker/src/coverage.rs": [5, 4, 0, 1, 0, 1, 1, 112, 24, 2, 0],
 "checker/src/decimal_limits.rs": [9, 7, 2, 0, 0, 2, 0, 95, 275, 1, 0],
@@ -233,6 +233,9 @@ operation and is never invoked by the gate.
 "checker/src/main.rs": [2, 1, 0, 1, 0, 1, 1, 147, 43, 0, 0],
 "checker/src/matrix.rs": [26, 26, 0, 0, 0, 0, 0, 36, 65, 1, 0],
 "checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 535, 1, 0],
+"checker/src/preparation/launch.rs": [1, 0, 1, 0, 0, 1, 0, 98, 26, 0, 0],
+"checker/src/preparation/mod.rs": [7, 4, 3, 0, 0, 3, 0, 62, 37, 1, 0],
+"checker/src/preparation/schema.rs": [12, 10, 2, 0, 0, 2, 0, 57, 55, 4, 0],
 "checker/src/object.rs": [41, 30, 7, 4, 0, 11, 4, 172, 482, 6, 0],
 "checker/src/object/admission.rs": [6, 5, 1, 0, 0, 1, 0, 86, 23, 1, 0],
 "checker/src/object/admission/calls.rs": [15, 9, 5, 1, 0, 6, 1, 101, 103, 2, 0],
@@ -316,7 +319,7 @@ the ratchet and its self-tests passed. All 15 tagged test names occur as success
 executions in that checkpoint output.
 
 With `BENNETT_ISA_BINARY` set to the release binary under
-`.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec/reference-interpreter`:
+`.tmp/gate/cache/bennett-isa-spec@b472bac28d9f/bennett-isa-spec/reference-interpreter`:
 
 ```sh
 timeout 120 python3 -B -I -m unittest discover -s clauses/tests

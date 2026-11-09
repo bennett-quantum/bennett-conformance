@@ -6,7 +6,7 @@ use num_bigint::BigUint;
 use num_traits::{One, ToPrimitive, Zero};
 use std::collections::HashSet;
 
-pub(super) fn resolve(domain: &Value, iface: &Interface) -> Result<Vec<FixedRegion>, ResolveError> {
+pub(crate) fn resolve(domain: &Value, iface: &Interface) -> Result<Vec<FixedRegion>, ResolveError> {
     let Some(value) = domain.get("fixed_regions") else {
         return Ok(vec![]);
     };

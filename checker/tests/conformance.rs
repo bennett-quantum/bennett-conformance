@@ -28,6 +28,7 @@ mod native_models;
 mod numerical;
 mod parallel;
 mod pin_environment;
+mod preparation;
 mod procedures;
 mod published_certificates;
 mod replay;

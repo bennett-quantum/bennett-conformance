@@ -12,6 +12,7 @@ use num_traits::{One, Zero};
 use std::collections::HashSet;
 use std::str::FromStr;
 mod fixed_images;
+pub(crate) use fixed_images::resolve as resolve_fixed_images;
 
 /// Host cap on bits per domain element / full-domain bit size. Larger legal
 /// domains resolve as HostLimit, never as ill-formed (K75).

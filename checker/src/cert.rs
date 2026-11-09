@@ -139,6 +139,7 @@ pub struct RegionReport {
 
 #[derive(Debug, Default)]
 pub struct Verdict {
+    pub preparation: Vec<Value>,
     pub overall: String, // verified | rejected | unchecked
     pub establishes: Vec<String>,
     pub errors: Vec<Reject>,
@@ -160,6 +161,9 @@ impl Verdict {
     pub fn to_value(&self) -> Value {
         let mut m = BTreeMap::new();
         m.insert("checker".into(), s(CHECKER_NAME));
+        if !self.preparation.is_empty() {
+            m.insert("preparation".into(), Value::Arr(self.preparation.clone()));
+        }
         m.insert("overall".into(), s(&self.overall));
         m.insert(
             "establishes".into(),
@@ -914,6 +918,7 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
                 "closure_hash",
                 "reference_program_hash",
                 "dialect_mapping_version",
+                "preparation",
                 "target_hash",
                 "schedule_hash",
                 "invocation",
@@ -1262,6 +1267,7 @@ pub fn check_certificate(inputs: &Inputs) -> Verdict {
     }
 
     crate::accounting::check(&cert, &docs, inputs, &mut verdict);
+    crate::preparation::check(&cert, &docs, inputs, &libraries, &mut verdict);
 
     verdict.establishes.push(
         "hash bindings were recomputed from the supplied documents (§9.2 object/symbol identity, SHA-256 of JCS target/schedule bytes, params_hash); producer-stated hashes were never trusted".into(),
