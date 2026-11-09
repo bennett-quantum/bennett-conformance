@@ -134,7 +134,8 @@ class Gate(RecordedGate):
         expect=json.loads((HERE/'fixtures/expect.json').read_text())
         ids=set()
         for spec in (f'DLT-{self.contract[0]}',f'ISA-{self.contract[1]}'):
-            ids.update(n['id'] for n in json.loads((CONFORMANCE/f'clauses/{spec}.json').read_text())['nodes'])
+            graph = PINS.get('dialect_clause_graph', f'clauses/{spec}.json') if spec.startswith('DLT-') else f'clauses/{spec}.json'
+            ids.update(n['id'] for n in json.loads((CONFORMANCE/graph).read_text())['nodes'])
         assert expect['clauses'] and set(expect['clauses'])<=ids, 'missing/invalid clause tags'
         for workload in WORKLOADS:
             assert workload+'.c' in pins, 'unhashed workload: '+workload

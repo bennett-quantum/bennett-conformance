@@ -59,29 +59,25 @@ Defaults are immutable commits in [pins.json](pins.json), not moving HEADs:
 
 | Input | Commit |
 |---|---|
-| Dialect 0.2.10 | `023f5a771a814270634db3be9cfde88ded69f975` |
-| Plugin | `0ac61808d6cb24406489c95824220170875b93a5` |
-| VM | `c26a4fd5b04996ddf470837dcf81f0181401ee08` |
-| Driver | `54d32fa9d80d81cfbd6b300e43c7518c01dd1bcf` |
-| Runtimes | `248e468ca505c684bbf254e52eb8148f1e530c83` |
-| Arith | `5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab` |
-| ISA-spec inspection checkout | `997d70000eefba6e56ce0e4b1559a02757d15006` |
-| Accepted reference checkout | `ba7d13f76e73c2af4e035d3f51145d2fad76bd2f` |
+| Dialect 0.3-r1 | `830bd7f2a328556af983f2c3aa4c75ef9eb29b65` |
+| Plugin | `abe5557977e9e9a38d8922aff69cbfc638995798` |
+| VM | `83b5f7f0248fe1c36ebfe3acd7fb187ed301affa` |
+| Driver | `8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b` |
+| Runtimes | `40f243e2a2128eb61d0d2ab4786aa082a8e2c90f` |
+| Arith | `cd245bcb07ad38da629d9b47f642e46e3c25cae9` |
+| ISA 0.9 / reference source | `695cb4b7c330742820c6b315337a260e56de8bce` |
 
-The selected contract remains **dialect 0.2.10 / ISA 0.8**. `pins.json` now
-declares `dialect`, `isa` and `dialect_spec_path` alongside the unchanged commit
-pins. These versions drive plugin/driver options, clause graphs and the report.
-The R prerequisite compares them with the selected plugin's pinned
-`SPEC_VERSIONS.toml` and the pinned dialect publication's full version/ISA target.
-An unknown ISA or mismatched declaration fails loudly. The selected ISA0.8
-publication still requires `BD-B-ISA7`; an explicitly pinned, matching ISA0.9
-R-contract publication can pass this prerequisite. This prepares adoption; it
-does not select a newer implementation, approve a draft, or prove R execution.
-The reference
-executable defaults to
-`../bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref`.
-Its actual binary hash is recorded; checkout identity alone is not a binary hash.
-The gate does not rebuild or alter that checkout.
+The selected contract is **dialect 0.3-r1 / ISA 0.9**, the council-accepted
+classical R profile in the pinned `spec/Bennett-Dialect-Spec-0.3-draft.md` §1.7.
+The remaining 0.3 draft is ungraded. The producer's `[profiles.r_contract]`
+declares this identity independently of its legacy 0.2.x default. Mapping 0.3,
+normaliser 0.2.8 and saved-tape-v1 are checked as part of the selected profile.
+The full dialect clause graph under `clauses/` in this rung was generated from
+that pinned publication; inclusion of a clause does not grade the rest of 0.3.
+Implementation pins are the pushed mains observed on 2026-11-09; the exact
+remote observations and execution result are appended to RESULTS.md.
+The reference executable can be selected with `--reference`; the promotion
+run builds it from the pinned ISA source and records its binary hash.
 
 Plugin and driver builds use verified Git archives under `.tmp/rung3-<repo>-<sha>/`.
 Runtime/arith bitcode also comes from archived pinned commits, avoiding concurrent
@@ -89,8 +85,8 @@ publication edits; runtime SHA256SUMS and the plugin's arith SHA pins are checke
 Every driver invocation explicitly selects the LLVM major and these archived
 plugin/runtime/arith paths; an archived driver's sibling-relative defaults cannot
 locate them. `--runtimes18/23` overrides select an explicit runtime file whose hash
-is recorded. The current plugin/arith pins disagree, so publication checks fail
-before linking; see [RESULTS.md](RESULTS.md) and bp-mq6. The gate preserves that
+is recorded. Publication checks compare the selected arithmetic bytes against the plugin's
+compiled publication pin; any mismatch remains a failure (bp-mq6). The gate preserves that
 failure instead of substituting older arithmetic or bypassing its hash check.
 VM builds offline in a clean **detached** `.tmp/vm-<sha>` worktree, never in its
 potentially dirty sibling tree. `--plugin-rev`, `--vm-rev`, `--driver-rev` override

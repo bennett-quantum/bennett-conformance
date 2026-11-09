@@ -11,6 +11,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
@@ -102,6 +103,29 @@ class AcceptanceTests(unittest.TestCase):
                 with self.assertRaisesRegex(gate.GateError, 'unknown or mismatched R contract'):
                     gate.validate_contract(pins, producer, unrelated)
 
+    def test_accepted_r_profile_has_independent_identity(self):
+        pins = {'dialect': '0.3-r1', 'isa': '0.9', 'mapping': '0.3',
+                'normaliser': '0.2.8', 'replay': 'saved-tape-v1'}
+        producer = ('dialect="0.2.13"\nisa="0.8"\n[profiles.r_contract]\n'
+                    'dialect="0.3-r1"\nisa="0.9"\nmapping="0.3"\n'
+                    'normaliser="0.2.8"\nreplay="saved-tape-v1"')
+        spec = ('**Versioning.** Dialect 0.3: norm 0.2.8, map 0.3, asm 0.2; targets ISA 0.9.\n\n'
+                '### 1.7 Classical R-contract profile (council-accepted)\n\n'
+                '`0.3-r1` names a full dialect compatibility identity under §23 for the classical\n'
+                'R-contract slice of this draft targeting ISA 0.9.')
+        self.assertEqual(gate.validate_contract(pins, producer, spec), ('0.3-r1', '0.9'))
+        for bad_spec in (spec.replace('council-accepted', 'ungraded'),
+                         spec.replace('`0.3-r1` names', '`0.3-r2` names'),
+                         spec.replace('targets ISA 0.9', 'targets ISA 0.8')):
+            with self.subTest(spec=bad_spec), self.assertRaisesRegex(gate.GateError, 'contract'):
+                gate.validate_contract(pins, producer, bad_spec)
+        for field in ('dialect', 'isa', 'mapping', 'normaliser', 'replay'):
+            bad_pins = dict(pins, **{field: 'unknown'})
+            with self.subTest(field=field), self.assertRaisesRegex(gate.GateError, 'contract'):
+                gate.validate_contract(bad_pins, producer, spec)
+        with self.assertRaisesRegex(gate.GateError, 'contract'):
+            gate.validate_contract(pins, 'dialect="0.3-r1"\nisa="0.9"', spec)
+
     def test_contract_mismatch_in_publication_or_producer_is_loud(self):
         pins = {'dialect':'0.2.15', 'isa':'0.9'}
         for producer, spec in (
@@ -146,8 +170,9 @@ class AcceptanceTests(unittest.TestCase):
                     b'On ISA 0.8 a module has verdict blocked:BD-B-ISA7' if tag.endswith('dialect')
                     else b'dialect="0.2.10"\nisa="0.8"')
         self.g.command = command
-        with self.assertRaisesRegex(gate.GateError, 'BD-B-ISA7'):
-            self.g.isa_contract()
+        with patch.dict(gate.PINS, dialect='0.2.10', isa='0.8'):
+            with self.assertRaisesRegex(gate.GateError, 'BD-B-ISA7'):
+                self.g.isa_contract()
         self.assertEqual(calls[1][-1], 'frozen-producer:SPEC_VERSIONS.toml')
 
     def test_blockers_recognize_workload_paths_in_any_checkout(self):
