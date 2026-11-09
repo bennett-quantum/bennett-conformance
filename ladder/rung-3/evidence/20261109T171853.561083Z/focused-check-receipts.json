@@ -1,0 +1,64 @@
+[
+  {
+    "tag": "arith5e9-focused",
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "ladder/rung-3/tests",
+      "-v"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 2.5511578750010813,
+    "cpu_seconds": 2.586787,
+    "user_seconds": 1.156653,
+    "system_seconds": 1.430134,
+    "max_rss_kib": 97808,
+    "guard_class": "short",
+    "timeout_seconds": 340,
+    "verdict": "EXIT",
+    "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-focused.stdout",
+    "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-focused.stderr"
+  },
+  {
+    "tag": "arith5e9-legacy",
+    "argv": [
+      "python3",
+      "-B",
+      "ladder/rung-3/check_gate.py"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.3988545250031166,
+    "cpu_seconds": 0.401368,
+    "user_seconds": 0.17274,
+    "system_seconds": 0.228628,
+    "max_rss_kib": 33332,
+    "guard_class": "short",
+    "timeout_seconds": 340,
+    "verdict": "EXIT",
+    "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-legacy.stdout",
+    "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-legacy.stderr"
+  },
+  {
+    "tag": "arith5e9-quality",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/quality_ratchet.py"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 1.1455104319975362,
+    "cpu_seconds": 1.14229,
+    "user_seconds": 0.9793689999999999,
+    "system_seconds": 0.16292099999999998,
+    "max_rss_kib": 29756,
+    "guard_class": "short",
+    "timeout_seconds": 340,
+    "verdict": "EXIT",
+    "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-quality.stdout",
+    "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/arith5e9-quality.stderr"
+  }
+]

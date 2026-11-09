@@ -1,0 +1,51 @@
+{
+  "machine": "Spiral",
+  "machine_config_factor": 1,
+  "trip_exit": 124,
+  "trip_verdict": "UNKNOWN",
+  "classes": {
+    "short": {
+      "seconds": 340,
+      "measured_seconds": 34,
+      "machine": "Spiral",
+      "date": "2026-11-08T09:50:18Z",
+      "evidence": "/home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s3-gate/profile.json",
+      "command_receipt": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/gate/records/86219a1e60b3fa2eb3fe3773b332fd11a33469cd.json",
+      "scope": "complete gate, conservative upper measurement for individual rung commands"
+    },
+    "moderate": {
+      "seconds": 1020,
+      "measured_seconds": 102,
+      "machine": "Spiral",
+      "date": "2026-11-08T09:41:36Z",
+      "evidence": "/home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s3-gate/profile.json",
+      "command_receipt": "/home/tobias/Projects/bennett-workspace/bennett-driver/.tmp/gate/records/286040cd005b86e9731d0e7a085e88591bce582e.json",
+      "scope": "complete gate, conservative upper measurement for individual rung commands"
+    },
+    "long": {
+      "seconds": 30940,
+      "measured_seconds": 3094,
+      "machine": "Spiral",
+      "date": "2026-11-08T09:40:21Z",
+      "evidence": "/home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s3-gate/profile.json",
+      "command_receipt": "/home/tobias/Projects/bennett-workspace/bennett-plugin/.tmp/gate/records/2319890511cdd2fa46b8c4cc748b52877408be6f.json",
+      "scope": "complete gate, conservative upper measurement for individual rung commands"
+    },
+    "eternal": {
+      "seconds": 323000,
+      "basis": "ten times sum of short/moderate/long command classes; whole rung orchestration guard"
+    }
+  },
+  "resource_admission": {
+    "nproc": 64,
+    "mem_available_kib": 61827624,
+    "load1": 1.3876953125,
+    "jobs": 8,
+    "recorded_peak_rss_bytes": 5403381760,
+    "peak_receipt": "ladder/rung-3/evidence/20261109T102407.573477Z/receipt.json",
+    "headroom_gib": 6,
+    "derivation": "min(nproc/8, (MemAvailable-6GiB)/6GiB per worker); headroom for concurrent children and gates",
+    "observed_utc": "2026-11-09T17:18:02Z"
+  },
+  "limitation": "No durable repository class table; temporary table uses existing Spiral gate receipts, not a per-rung benchmark. File conformance follow-up."
+}

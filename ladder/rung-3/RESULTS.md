@@ -514,3 +514,201 @@ Only the two owned rung-3 baseline rows changed; every other value and litter
 allowance remains unchanged. [Cumulative quality diff](evidence/20261109T103340.064773Z/quality-diff.patch).
 **7bx remains open**. No sibling repo fix, sibling/full push gate, main push,
 acceptance closure or public log/scratch/progress publication occurred.
+
+
+## arith-rev 5e9b450 (the plugin's pinned arith), not arith main
+
+Recorded 2026-11-09T17:26:28Z. **The full rung gate is red: 21 PASS / 3 FAIL / 20 BLOCKED
+per major (44 rows each).** The orchestrator explicitly authorized this consistent
+publication variant. It does **not** establish acceptance at arithmetic main
+`19fb8b5`; that variant still waits on **bennett-plugin-eph**. Earlier all-main
+mismatch observations and all historical evidence above are retained unchanged.
+**bennett-conformance-7bx stays open; the orchestrator decides acceptance.**
+
+Hello now passes frontend, runtime/arith link, LTO, reversible production,
+launch artefacts and actual object admission/hash in **both executors on both
+majors**. Its materialised native comparison fails at the driver's contract-version
+check. Consequently no required forward equality, reset, saved-tape replay or
+corrupt-tape rejection is measured. Formatted printf passes frontend/link/LTO,
+then the real producer exhausts its analysis allowance on each major. Its full
+213-byte oracle, signed/unsigned extremes, width/precision and final buffered
+unterminated line remain required. No workload, oracle, budget or acceptance
+method was changed. Passing isolated device/reset/replay diagnostics cannot
+satisfy either corpus workload.
+
+### Selected inputs and publication proof
+
+Pin checkpoint: `f0aec3b0a5a28e507d09c26f84daa02edffa7b55`, backed up to
+`wip/r3-promote`. These are pushed mains observed by `git -C <sibling> ls-remote
+origin main`, except the explicit arithmetic exception. Both remote observations
+agree; no sibling main moved across this execution.
+[Before](evidence/20261109T171853.561083Z/origin-before-run.json),
+[after](evidence/20261109T171853.561083Z/origin-after-run.json).
+
+| Input | Selected commit |
+|---|---|
+| bennett-plugin | `1bfe6613624bfd004b5dff649f9e4db8e1b07a44` |
+| bennett-vm | `83b5f7f0248fe1c36ebfe3acd7fb187ed301affa` |
+| bennett-runtimes | `20ee8b10f9dfa58493b379c556b0a4a3aa5263c4` |
+| bennett-driver | `bcd4e038d8663e319abfd7003216a4585cfcbc2b` |
+| bennett-arith | `5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab` |
+| bennett-isa-spec | `64434934f7f9eaadbffebe34ce9734e33a7ced53` |
+| bennett-isa-spec-review | `64434934f7f9eaadbffebe34ce9734e33a7ced53` |
+| bennett-dialect-spec | `687284fa28a79c536b3885cabec3adf5de26e031` |
+
+Contract remains **dialect0.3-r1 / ISA0.9 / mapping0.3 / normaliser0.2.8 /
+saved-tape-v1**. Both selected arithmetic bitcode digests were checked against
+the selected plugin's `SPEC_VERSIONS.toml` and arithmetic `SHA256SUMS` **before
+execution**: LLVM18 `a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff`;
+LLVM23 `8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79`.
+[Publication proof](evidence/20261109T171853.561083Z/publication-pins.json).
+Runtime headers/publications are archived from their pin; the reference is built
+from pinned ISA6443493. Plugin CMake independently consumes its published verified
+pin cache. No sibling source was fixed.
+
+### Executed command and receipts
+
+Working directory: `/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote`.
+The unchanged full gate was invoked as:
+
+```sh
+/usr/bin/python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py
+```
+
+Detached unit `bennett-conf-r3-arith5e9.service`, invocation
+`1342fe07e5d84f8b8d5661af5f08c7dd`, was launched with `systemd-run --user
+--setenv=PATH="$PATH" --setenv=HOME="$HOME"`; exact launch argv are in
+[launch.json](evidence/20261109T171853.561083Z/launch.json).
+Desktop variables were unset; TMPDIR/CARGO_TARGET_DIR are job-local. Eight build
+workers were derived from64threads/MemAvailable with6GiB headroom for concurrent
+jobs. Admission required the recorded cold-run peak plus6GiB and load<32; it
+passed. Existing cited Spiral short/moderate/long/eternal guards bound every
+command and the whole run; **none tripped**. The durable guard-table gap remains
+bennett-conformance-ji0.
+
+Result: **exit1, 220.167322s wall, 700.166137s
+unit CPU, 5418496000 bytes peak memory**. All **91 executed
+commands** have argv/wall/CPU/exit/RSS receipts. Six subprocesses exit1 (the six
+actual FAIL row instances below); all others exit0. Blocked rows were not run.
+[Receipt](evidence/20261109T171853.561083Z/receipt.json),
+[commands](evidence/20261109T171853.561083Z/command-receipts.json),
+[raw report](evidence/20261109T171853.561083Z/report.json),
+[raw table](evidence/20261109T171853.561083Z/table.md),
+[raw file hashes](evidence/20261109T171853.561083Z/raw-evidence-sha256.json).
+Raw local run: `.tmp/r3-promote/runs/20261109T171853.561083Z/`; full local unit output:
+`.tmp/r3-promote/arith5e9/gate.log`. No logs, transcripts, scratch/progress files
+or binaries are included in this public evidence package. No full repository
+push gate or sibling gate was run.
+
+### Every measured row and owner
+
+The original raw report/table preserve UNFILED values. The separate
+[classified report](evidence/20261109T171853.561083Z/classified/report.json)
+and [table](evidence/20261109T171853.561083Z/classified/table.md)
+attach ownership using the updated registry; they re-execute no commands and
+preserve every status, error, pin, argv and exit. `request-driver-r-contract`
+labels a **new cross-repo bead request**, not an existing bead. Its request is
+`.tmp/r3-promote/cross-repo-beads.md#driver-r-contract`; **bp-owg** is an existing
+open plugin task (passive export), with evidence update requested at `#bp-owg-rung3`.
+The driver failure inherits to hello execution/reset/replay rows; the formatted
+production failure inherits to all its downstream rows.
+
+| Stage | LLVM 18 | LLVM 23 |
+|---|---|---|
+| fixtures | PASS | PASS |
+| plugin build | PASS | PASS |
+| VM build | PASS | PASS |
+| driver build | PASS | PASS |
+| R contract (prerequisite) | PASS | PASS |
+| musl C front end | PASS | PASS |
+| runtime bitcode link | PASS | PASS |
+| post-link LTO | PASS | PASS |
+| reversible production | PASS | PASS |
+| launch artefacts | PASS | PASS |
+| native comparison | FAIL · request-driver-r-contract | FAIL · request-driver-r-contract |
+| reference admission | PASS | PASS |
+| reference forward = native | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| reference reset | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| reference tape replay | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| reference corrupt-tape rejection | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM admission | PASS | PASS |
+| VM forward = native | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM reset | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM tape replay | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| VM corrupt-tape rejection | BLOCKED · request-driver-r-contract | BLOCKED · request-driver-r-contract |
+| printf_fmt: musl C front end | PASS | PASS |
+| printf_fmt: runtime bitcode link | PASS | PASS |
+| printf_fmt: post-link LTO | PASS | PASS |
+| printf_fmt: reversible production | FAIL · bp-owg | FAIL · bp-owg |
+| printf_fmt: launch artefacts | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: native comparison | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference admission | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference forward = native | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference reset | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference tape replay | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: reference corrupt-tape rejection | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM admission | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM forward = native | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM reset | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM tape replay | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| printf_fmt: VM corrupt-tape rejection | BLOCKED · bp-owg | BLOCKED · bp-owg |
+| runtime libc/console audit (diagnostic) | PASS | PASS |
+| R-mode probe (diagnostic) | PASS | PASS |
+| driver probe (diagnostic) | FAIL · request-driver-r-contract | FAIL · request-driver-r-contract |
+| reference device/reset control (diagnostic) | PASS | PASS |
+| reference replay API (diagnostic) | PASS | PASS |
+| VM device/reset control (diagnostic) | PASS | PASS |
+| VM replay API (diagnostic) | PASS | PASS |
+
+### Determining failures
+
+Every FAIL row below has its **complete exact argv and output**, determining
+sentence, command exit/wall/CPU and owning bead/request in
+[failures.json](evidence/20261109T171853.561083Z/failures.json).
+The command tag identifies the exact argv entry in command-receipts.json.
+
+| LLVM | Failing row | Command tag | Owner | Exact determining diagnostic |
+|---|---|---|---|---|
+| 18 | native comparison | `18/hello/driver-comparison` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+| 18 | printf_fmt: reversible production | `18/printf_fmt/production` | bp-owg (plugin) | `bennett: analysis-resource: §5.2 PT2 budget exhausted at AV(%153) in @__bennett_rt_vfs_io; compiler resource allowance: thread CPU milliseconds at   %153 = getelementptr inbounds i8, ptr %144, i64 %152` |
+| 18 | driver probe (diagnostic) | `18/driver-probe` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+| 23 | native comparison | `23/hello/driver-comparison` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+| 23 | printf_fmt: reversible production | `23/printf_fmt/production` | bp-owg (plugin) | `bennett: analysis-resource: §5.2 PT6 budget exhausted at AV(%189) in @tatan; compiler resource allowance: thread CPU milliseconds at   %189 = load i512, ptr %11, align 16, !noalias !78` |
+| 23 | driver probe (diagnostic) | `23/driver-probe` | driver-r-contract request (driver) | `bennett-driver: BD-E-VERSION: required dialect 0.2.13 (or explicit historical 0.2.10) and ISA 0.8` |
+
+Driver determination: pushed driverbcd4e03 rejects the explicitly accepted
+0.3-r1/ISA0.9 contract at its **arguments stage**. Its embedded legacy BD-B-ISA7
+message is not evidence of an ISA0.9 spec defect. Completion requires explicit
+driver/native-comparison adoption of the selected contract and retained exact
+publication/materialised/static-link audit; downgrading conformance flags would
+not satisfy acceptance. Formatted-production determination: the full ordinary
+source exits1 with §5.2 analysis-resource on each major (LLVM18 PT2/VFS GEP;
+LLVM23 PT6/tatan i512 load). This is an observed compiler resource frontier,
+not a host guard trip or an established internal root cause. bp-owg completion
+still requires full unchanged printf materialisation, exact native/executor
+agreement and reset/replay on both majors. No sibling fix or scope reduction was
+attempted.
+
+### Scoped verification
+
+`python3 -B -m unittest discover -s ladder/rung-3/tests -v`: **25 PASS**,
+no skips (including real tiny LLVM18/23 native-receipt adapter checks), before
+execution at the selected pins. These are glue checks, not corpus acceptance.
+No new gate glue or acceptance-check line changed relative to db38cf2;
+[glue disposition](evidence/20261109T171853.561083Z/gate-glue-changes.json).
+`docs/quality.md` is unchanged by this continuation; the required cumulative
+`git diff f1b75cc..HEAD -- docs/quality.md` receipt changes only the predecessor's
+two owned rung-3 rows:
+[quality diff](evidence/20261109T171853.561083Z/quality-diff.patch).
+The full gate is not green and no acceptance closure is claimed.
+
+Final evidence validation (2026-11-09T17:28:07Z): `python3 -B ladder/rung-3/check_gate.py` —
+**12 PASS** after the ownership update; `python3 -B scripts/quality_ratchet.py` —
+**PASS**. All three focused invocations have guarded wall/CPU/exit receipts in
+[focused-check-receipts.json](evidence/20261109T171853.561083Z/focused-check-receipts.json).
+[Integrity validation](evidence/20261109T171853.561083Z/integrity.json) verifies all **246 raw file hashes**,
+byte-identical raw report/table, unchanged historical directories and RESULTS
+prefix, all44rows per major, exact failure/status preservation in the ownership
+classification, complete command receipts and headless/job-local environment.
+Only pins, this append, blocker ownership and the new evidence directory changed
+in this continuation. **Rung acceptance remains BLOCKED.**
