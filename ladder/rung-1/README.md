@@ -95,7 +95,8 @@ interface wire using `reverse`'s forward and restored sparse basis states.
 The reference is pinned to `c3df1d32f1ad3139dc863a90085604061ef483de` for
 its published `reference-interpreter/BATCH-REVERSE.md` interface. Full-D runs
 use `reverse-action-batch` when the selected executor advertises that command;
-the same decoder automatically consumes the VM mirror when available. A VM
+the VM is pinned to `058dc2229bf7cabb25f10b16d816b6802a92a9fe`, whose mirror
+uses that same interface and independent decoder. A VM
 without it retains the original single-case worker. The reference must expose
 the pinned batch interface; it cannot silently fall back to the timeout path.
 
@@ -109,6 +110,8 @@ Sizes and concurrency are execution choices, not domain limits.
 
 The independent binary consumer binds the admitted object/action hashes,
 fixed token arguments/aliases, physical layout, rank order and endpoints. It
+requires the default alias binding (`null`) for the wrapper's single token,
+matching its original invocation without an optional alias CLI flag. It
 checks every complete forward tuple against target XOR native, unchanged
 fault/input values, exact reversed tuple and zero padding. All seven exact
 phase, preservation, cleanup and full-state restoration flags must be set.
@@ -213,9 +216,10 @@ production defaults remain unchanged. Fixture clause/provenance pins continue
 to describe the original corpus; the production version fields describe the
 selected plugin invocation.
 
-The six primary pins are plugin `157d4bd`, VM `13f5a9e`, runtimes `6808622`,
+The six primary pins are plugin `157d4bd`, VM `058dc22`, runtimes `6808622`,
 arithmetic `249e619`, reference/ISA `c3df1d3`, and driver provenance `8c6d0a8`.
-The historical evidence retains its original reference `ba7d13f`; its bytes and
+The historical evidence retains its original VM `13f5a9e` and reference
+`ba7d13f`; its bytes and
 results are unchanged by this explicit consumer migration.
 The historical runs invoked the plugin directly, without a driver binary;
 `8c6d0a8` is the last driver commit preceding the recorded rung-2 run and is

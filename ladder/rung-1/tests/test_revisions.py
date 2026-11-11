@@ -49,7 +49,9 @@ class RevisionCLI(unittest.TestCase):
             with self.subTest(rung=rung):
                 pins = json.loads((ROOT / 'ladder' / rung / 'pins.json').read_text())
                 for name in ('plugin', 'vm', 'runtimes', 'arith'):
-                    self.assertEqual(pins['bennett-' + name], expected['bennett-' + name])
+                    self.assertEqual(pins['bennett-' + name],
+                        '058dc2229bf7cabb25f10b16d816b6802a92a9fe' if rung == 'rung-1' and name == 'vm'
+                        else expected['bennett-' + name])
                 self.assertEqual(pins['bennett-isa-spec'],
                     'c3df1d32f1ad3139dc863a90085604061ef483de' if rung == 'rung-1'
                     else expected['bennett-isa-spec-review'])

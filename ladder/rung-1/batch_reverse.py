@@ -56,7 +56,7 @@ def expected_header(identity, arity, budget, lo, hi):
     return {'type':'header', 'format':FORMAT, 'encoding':'binary', 'action':'rung1_full',
             'adjoint':False, 'object_hash':identity['object_hash'],
             'interface_hash':symbol['interface_hash'], 'closure_hash':symbol.get('closure_hash'),
-            'args':['token:'+budget], 'token_aliases':[0], 'domain_bits':bits,
+            'args':['token:'+budget], 'token_aliases':None, 'domain_bits':bits,
             'record_bytes':2+2*((bits+7)//8), 'mode':'range', 'lo':str(lo), 'hi':str(hi),
             'rank_order':[*range(2,2+arity),0,1], 'components':components}
 
@@ -174,8 +174,10 @@ def execute_shard(executor, obj, identity, native, arity, budget, lo, hi, eviden
     require(sha(obj) == object_sha256, 'object bytes changed after interface admission')
     evidence = Path(evidence)
     evidence.parent.mkdir(parents=True, exist_ok=True)
+    # The wrapper has exactly one token: the default partition is unambiguous
+    # and matches its original single-case invocation on both published CLIs.
     argv = [str(executor),'reverse-action-batch',str(obj),'rung1_full','--range',f'{lo}..{hi}',
-            '--format','binary','--arg','token:'+budget,'--token-aliases','[0]']
+            '--format','binary','--arg','token:'+budget]
     receipt = {'argv':argv, 'lo':lo, 'hi':hi, 'complete':False,
                'executor_sha256':executor_sha256, 'object_sha256':object_sha256,
                'native_sha256':hashlib.sha256(native).hexdigest(), 'budget':budget}
