@@ -1,10 +1,10 @@
 # Checker quality measurement
 
 ISA inputs and the neutral-suite binary share gate pin
-`3b1090790d82a00ac95d30b8da6b42d1d7a9f5d1`. Tests validate the detached
-gate-cache HEAD and never read a live sibling. The pin was materialized and
-its release interpreter built with the pinned gate tool's `verify` command
-against the main checkout and job commit dc5e2e2.
+`b472bac28d9f69037d2cf89763c8c9603e7e4fb4`. Tests validate the detached
+gate-cache HEAD and never read a live sibling. The current pin was materialized
+and its release interpreter built with gate tool `a630f38` using `verify`
+against the main checkout and pin-update commit `59dacc9`.
 
 ## Reproduction environment
 
@@ -12,7 +12,7 @@ against the main checkout and job commit dc5e2e2.
 unset DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
 export TMPDIR="$PWD/.tmp/quality-checker/tmp"
 export CARGO_TARGET_DIR="$PWD/.tmp/quality-checker/target"
-export BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec"
+export BENNETT_ISA_SPEC="$PWD/.tmp/gate/cache/bennett-isa-spec@b472bac28d9f/bennett-isa-spec"
 export BENNETT_ISA_BINARY="$BENNETT_ISA_SPEC/reference-interpreter/target/release/bennett-isa-ref"
 mkdir -p "$TMPDIR"
 free -g
@@ -33,12 +33,63 @@ Builds require at least 6 GB available RAM and one-minute load below 8.
 | Quality-floor checkpoint, warm cache | 286 passed, 0 failed, 0 ignored | 28.23 s |
 | Canonical-admission repair | 291 passed, 0 failed, 0 ignored | 26.05 s |
 | Whole-object source admission | 330 passed, 0 failed, 0 ignored | 44.39 s |
+| Rung-4 checker CLI integration | 331 passed, 0 failed, 0 ignored | 40.29 s |
 
 The consolidation run includes its profile rebuild; the final timing uses a warm cache. Every integration case is included in
 `tests/conformance.rs`; no slow tests or exclusions were needed. The two added
 cases cover selected borrow-frame admission as explicit unchecked, malformed
 frame fields and invocation bindings. Complete borrow-frame semantics remain an
 unresolved obligation, with no proof/count/coverage assigned.
+
+The rung-4 integration checkpoint ran `cargo test --offline --manifest-path
+checker/Cargo.toml -j4 --no-fail-fast -- --test-threads=4` with the pinned ISA
+environment above: 16 unit and 315 integration tests passed. The CLI slice test
+derives eight tuples and coverage 1/16 from a two-cell image, checks JSON output,
+and rejects producer requests for either proof label. `python3 -B
+ladder/rung-4/check_gate.py -v` passed 56 tests, including published CLI arguments,
+indexed oracle-claim selection, rejection/unchecked propagation, exact reduced
+and unreduced fractions, float rejection, and the N=1024 image denominator.
+The real malformed-certificate probe returns exit 1 with a JSON diagnostic.
+These are integration checks, not a passing SQLite launch verdict: realised
+oracle reconstruction remains unchecked. The published image-preparation
+encoding is now pinned and decoded; supported logical action prefixes have
+independent executable applicability checks. The gate keeps its required
+evidence label and all (a), (b), (c) acceptance rows.
+
+The image-preparation adoption checkpoint adds 13 focused tests, all passing.
+The review repair raises that set to 16: nested claim arguments, budgets and
+token identities must match the attachment and independently reached call;
+memory interfaces without layout receive no proof, even without a preparation
+descriptor. Positive logical/model fixtures are checked by the pinned interpreter.
+The full checker suite passes 17 unit and 333 integration tests; the unchanged
+differential has 3,331 candidates and zero disagreements. Only the preparation
+`logical.rs` and `mod.rs` baseline rows change for these additional checks.
+They cover full binding/address validation, exact realised-prefix factorisation,
+conditional full-tuple restoration, rational native-model leakage, exact image
+preservation at positive advertised epsilon, earlier restoration claim scope,
+and static launch-copy template validation without runtime attestation. Expected
+values include the published 9/25 leakage of the rational native X model and
+the exact phase-sensitive identity `(-X)(-X)=I`. No floats enter these checks.
+
+The loop predicate-stack admission repair is **green**: `cargo test --offline
+--manifest-path checker/Cargo.toml --no-fail-fast -- --nocapture` passes 17 unit
+and 330 integration tests, zero failed or ignored. The base run reproduced
+`qpred c` in a zero-trip loop receiving an unrestricted four-tuple proof while
+the pinned interpreter rejected it. ISA §4.6 requires a loop body to leave the
+predicate stack exactly as at entry and refers to §3.5; admission now enforces
+that rule even at zero trips. A focused unit regression failed before the fix.
+New interpreter-backed cases reject three imbalance classes without proof and
+retain four balanced classes (including entry pop/re-push), each at counts
+0–3. The unchanged lexical generator runs 3,331 candidates with zero
+disagreements; its seeds, count and pinned oracle are unchanged. Rung-4's
+`python3 -B ladder/rung-4/check_gate.py -v` passes all 56 tests. Only the owned
+`admission/predicates.rs` and `admission/wires.rs` structural rows were refreshed:
+one additional unit test and a two-line clause citation; wire cognitive mass
+decreased by one. No new coverage measurement is claimed. Supported
+preparation checks do not implement the missing realised-oracle construction,
+all source-adjoint/cleanup/memory expansions or every native-model variety.
+Those paths retain explicit unchecked/unestablished results. No passing rung-4
+SQLite certificate verdict is claimed.
 
 The inherited nested-loop, qif-lifetime, sampled-table, signed-literal,
 large-shift, whole-bundle MCX, lexical and recompute-cleanup regressions all pass.
@@ -197,7 +248,7 @@ operation and is never invoked by the gate.
 "checker-replay/checker_replay/replay.py": [48, 45, 2, 1, 0, 3, 1, 104, 530, 2, 0],
 "checker-replay/checker_replay/synthetic.py": [18, 17, 0, 1, 0, 1, 1, 109, 79, 2, 0],
 "checker/src/accounting.rs": [15, 9, 3, 3, 0, 6, 3, 183, 169, 2, 0],
-"checker/src/cert.rs": [30, 23, 4, 1, 2, 7, 3, 507, 508, 7, 0],
+"checker/src/cert.rs": [31, 24, 4, 1, 2, 7, 3, 484, 507, 7, 0],
 "checker/src/coherent.rs": [10, 9, 0, 1, 0, 1, 1, 142, 94, 2, 0],
 "checker/src/coverage.rs": [5, 4, 0, 1, 0, 1, 1, 112, 24, 2, 0],
 "checker/src/decimal_limits.rs": [9, 7, 2, 0, 0, 2, 0, 95, 275, 1, 0],
@@ -217,18 +268,26 @@ operation and is never invoked by the gate.
 "checker/src/lifted_memory.rs": [24, 22, 1, 1, 0, 2, 1, 204, 90, 4, 0],
 "checker/src/main.rs": [2, 1, 0, 1, 0, 1, 1, 147, 43, 0, 0],
 "checker/src/matrix.rs": [26, 26, 0, 0, 0, 0, 0, 36, 65, 1, 0],
-"checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 535, 1, 0],
+"checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 537, 1, 0],
+"checker/src/preparation/launch.rs": [1, 0, 0, 1, 0, 1, 1, 122, 30, 0, 0],
+"checker/src/preparation/mod.rs": [7, 4, 3, 0, 0, 3, 0, 88, 43, 1, 0],
+"checker/src/preparation/schema.rs": [13, 11, 2, 0, 0, 2, 0, 57, 59, 4, 0],
+"checker/src/preparation/logical.rs": [8, 6, 2, 0, 0, 2, 0, 80, 86, 0, 0],
+"checker/src/construction/mod.rs": [9, 8, 1, 0, 0, 1, 0, 53, 13, 2, 0],
+"checker/src/construction/source.rs": [2, 0, 1, 1, 0, 2, 1, 225, 84, 0, 0],
+"checker/src/construction/state.rs": [5, 4, 1, 0, 0, 1, 0, 67, 49, 0, 0],
+"checker/src/preparation/restoration.rs": [1, 0, 1, 0, 0, 1, 0, 57, 11, 0, 0],
 "checker/src/object.rs": [41, 30, 7, 4, 0, 11, 4, 172, 482, 6, 0],
 "checker/src/object/admission.rs": [6, 5, 1, 0, 0, 1, 0, 86, 23, 1, 0],
 "checker/src/object/admission/calls.rs": [15, 9, 5, 1, 0, 6, 1, 101, 103, 2, 0],
 "checker/src/object/admission/classical.rs": [4, 4, 0, 0, 0, 0, 0, 47, 31, 0, 0],
 "checker/src/object/admission/operations.rs": [11, 6, 5, 0, 0, 5, 0, 78, 73, 3, 0],
-"checker/src/object/admission/predicates.rs": [3, 3, 0, 0, 0, 0, 0, 28, 14, 0, 0],
+"checker/src/object/admission/predicates.rs": [4, 4, 0, 0, 0, 0, 0, 28, 15, 0, 0],
 "checker/src/object/admission/procedures.rs": [4, 4, 0, 0, 0, 0, 0, 49, 29, 0, 0],
 "checker/src/object/admission/scalars.rs": [20, 16, 3, 1, 0, 4, 1, 213, 132, 1, 0],
 "checker/src/object/admission/syntax.rs": [2, 0, 1, 1, 0, 2, 1, 119, 71, 0, 0],
 "checker/src/object/admission/views.rs": [4, 4, 0, 0, 0, 0, 0, 48, 38, 0, 0],
-"checker/src/object/admission/wires.rs": [20, 17, 3, 0, 0, 3, 0, 98, 101, 1, 0],
+"checker/src/object/admission/wires.rs": [20, 17, 3, 0, 0, 3, 0, 100, 100, 1, 0],
 "checker/src/object/lexical.rs": [2, 1, 1, 0, 0, 1, 0, 88, 80, 0, 0],
 "checker/src/object/signatures.rs": [5, 4, 0, 1, 0, 1, 1, 152, 60, 0, 0],
 "checker/src/rat.rs": [37, 36, 1, 0, 0, 1, 0, 69, 65, 6, 0],
@@ -263,7 +322,7 @@ operation and is never invoked by the gate.
 "ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
 "ladder/rung-3/gate.py": [36, 36, 0, 0, 0, 0, 0, 30, 96, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 70, 0, 0],
-"ladder/rung-4/gate.py": [81, 81, 0, 0, 0, 0, 0, 48, 197, 2, 0],
+"ladder/rung-4/gate.py": [82, 82, 0, 0, 0, 0, 0, 48, 218, 2, 0],
 "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],
 "scripts/quality_ratchet.py": [10, 10, 0, 0, 0, 0, 0, 37, 101, 0, 0],
 "suite/run.py": [14, 13, 1, 0, 0, 1, 0, 65, 189, 1, 0],
@@ -301,7 +360,7 @@ the ratchet and its self-tests passed. All 15 tagged test names occur as success
 executions in that checkpoint output.
 
 With `BENNETT_ISA_BINARY` set to the release binary under
-`.tmp/gate/cache/bennett-isa-spec@3b1090790d82/bennett-isa-spec/reference-interpreter`:
+`.tmp/gate/cache/bennett-isa-spec@b472bac28d9f/bennett-isa-spec/reference-interpreter`:
 
 ```sh
 timeout 120 python3 -B -I -m unittest discover -s clauses/tests
@@ -387,6 +446,10 @@ The export contains no .git or gate cache. BENNETT_ISA_SPEC and
 BENNETT_ISA_BINARY remain the explicit detached gate-pin paths shown above.
 Exact final-head results are recorded in the job resume evidence; the
 orchestrator owns the full isolated push gate and independent review.
+
+Preparation uint decoding enforces the §8.3 number/string boundary for the
+§12.3 records. Its schema baseline includes the encoding check and a boundary
+regression; the general replay-domain decoder is unchanged.
 
 ## Rung-3 diagnostic input fixture
 

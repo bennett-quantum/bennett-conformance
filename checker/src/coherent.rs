@@ -14,31 +14,31 @@ use num_traits::{One, Zero};
 use std::collections::HashSet;
 
 #[derive(Clone, Default, PartialEq, Eq)]
-struct Amp {
+pub(crate) struct Amp {
     // Each pair denotes a + b sqrt(2).
-    re: [Rat; 2],
-    im: [Rat; 2],
+    pub(crate) re: [Rat; 2],
+    pub(crate) im: [Rat; 2],
 }
 impl Amp {
-    fn one() -> Self {
+    pub(crate) fn one() -> Self {
         Self {
             re: [Rat::one(), Rat::zero()],
             ..Self::default()
         }
     }
-    fn add(&self, rhs: &Self) -> Self {
+    pub(crate) fn add(&self, rhs: &Self) -> Self {
         Self {
             re: std::array::from_fn(|i| &self.re[i] + &rhs.re[i]),
             im: std::array::from_fn(|i| &self.im[i] + &rhs.im[i]),
         }
     }
-    fn neg(&self) -> Self {
+    pub(crate) fn neg(&self) -> Self {
         Self {
             re: std::array::from_fn(|i| -&self.re[i]),
             im: std::array::from_fn(|i| -&self.im[i]),
         }
     }
-    fn mul(&self, rhs: &Self) -> Self {
+    pub(crate) fn mul(&self, rhs: &Self) -> Self {
         fn product(a: &[Rat; 2], b: &[Rat; 2]) -> [Rat; 2] {
             [
                 &a[0] * &b[0] + Rat::from_integer(2.into()) * &a[1] * &b[1],
@@ -54,7 +54,7 @@ impl Amp {
             im: std::array::from_fn(|i| &ri[i] + &ir[i]),
         }
     }
-    fn is_zero(&self) -> bool {
+    pub(crate) fn is_zero(&self) -> bool {
         self.re.iter().chain(&self.im).all(Zero::is_zero)
     }
 }

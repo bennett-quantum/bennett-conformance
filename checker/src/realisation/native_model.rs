@@ -342,7 +342,7 @@ fn bounded(value: Rat) -> Result<Rat> {
     Ok(value)
 }
 
-pub(super) fn matrix(docs: &LoadedDocs, gate: &Gate, wires: usize, p: u32) -> Result<Matrix> {
+pub(crate) fn matrix(docs: &LoadedDocs, gate: &Gate, wires: usize, p: u32) -> Result<Matrix> {
     let entry = native(docs, gate)?;
     let Some(model) = entry.get("realisation_model") else {
         return gate_matrix(gate, wires, p);

@@ -5,6 +5,7 @@ import argparse
 import cmath
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from decimal import Decimal
 import hashlib
 import io
 import json
@@ -244,11 +245,43 @@ def check_coverage(value):
     walk(value)
 
 
+def checker_claim(report, certificate):
+    """Select the certificate's oracle verification index in the checker's real report."""
+    assert report['overall'] == 'verified', 'checker left certificate obligations rejected or unchecked'
+    assert report['errors'] == [] and report['unchecked_items'] == [], 'checker left global obligations unresolved'
+    refs = [(h, r) for h, r in report['regions'].items() if r.get('name') == 'ref']
+    assert len(refs) == 1, 'checker must identify exactly one ref closure'
+    closure_hash, region = refs[0]
+    assert region['errors'] == [] and region['unchecked_items'] == [], 'checker left ref obligations unresolved'
+    record = certificate['regions'][closure_hash]
+    index = record['verification']['oracle']
+    assert type(index) is int and 0 <= index < len(record['claims']), 'missing oracle verification claim index'
+    claim = record['claims'][index]
+    assert claim['kind'] == 'exhaustive', 'oracle certificate must enumerate the domain, never sample it'
+    assert claim['expected'] == 'oracle', 'oracle verification must check the realised oracle relation'
+    subject = claim['subject']
+    assert subject['closure_hash'] == closure_hash and subject['variant'] == 'forward' and subject['inherited_controls'] == 0, 'wrong oracle subject'
+    assert subject['schedule_hash'] == certificate['bindings']['schedule_hash'], 'oracle verification must bind the realised schedule'
+    assert index < len(region['claims']), 'checker omitted the oracle claim'
+    checked = region['claims'][index]
+    assert type(checked['index']) is int and checked['index'] == index, 'checker claim index differs'
+    assert checked['kind'] == 'exhaustive' and checked['errors'] == [], 'oracle claim not successfully checked'
+    assert checked['outcome'] == 'evidence', 'fixed-region claim must be labelled evidence, got ' + str(checked['outcome'])
+    return {'closure_hash': closure_hash, 'claim_index': index, 'verdict': checked['outcome'],
+            'elements': checked['elements'], 'covered_fraction': checked['covered_fraction']}
+
+
 def check_certificate_verdict(value, elements, a):
-    """ISA §12.2 K74: a domain fixing the image is a strict slice: never `proof`; exactly n/|D|."""
+    """ISA §12.2: the required evidence covers exactly n/|D|, including image cells in D."""
     assert value['verdict'] == 'evidence', 'fixed-region claim must be labelled evidence, got ' + str(value['verdict'])
-    assert value['elements'] == elements, 'checker replayed a different element count'
-    assert value['covered_fraction'] == f'{elements}/{elements * 2 ** (8 << a)}', 'covered fraction wrong'
+    count = value['elements']
+    assert type(count) in (int, str) and str(count) == str(elements), 'checker replayed a different element count'
+    fraction = value['covered_fraction']
+    assert isinstance(fraction, str) and re.fullmatch(r'(0|[1-9][0-9]*)/([1-9][0-9]*)', fraction), 'covered fraction must be an exact rational string'
+    # Decimal-to-int is exact and accepts the real image's denominator beyond
+    # Python's decimal-string digit cap. No binary float or decimal arithmetic.
+    numerator, denominator = (int(Decimal(part)) for part in fraction.split('/'))
+    assert numerator * (1 << (8 << a)) == denominator, 'covered fraction wrong'
 
 
 def check_estimate(value, object_sha):
@@ -711,8 +744,9 @@ class Gate(RecordedGate):
             d = self.run/str(m)/f'N{n}'/'out/rung4_tuple'
             bits = bits_for(n)
             a = region_exponent(self.images[m][n].stat().st_size)
-            out = self.command(f'{m}/{n}-checker', [self.check_exe, 'check', d/'certificate.json', '--object', d/'oracle-0/ref.bennett'], timeout=self.args.sweep_timeout)
-            verdict = json.loads(out)
+            out = self.command(f'{m}/{n}-checker', [self.check_exe, d/'certificate.json', '--object', d/'oracle-0/ref.bennett'], timeout=self.args.sweep_timeout)
+            report = json.loads(out)
+            verdict = checker_claim(report, json.loads((d/'certificate.json').read_text()))
             check_certificate_verdict(verdict, domain_size(bits), a)
             self.manifest['evidence'].setdefault('certificate', {}).setdefault(str(m), {})[str(n)] = verdict
 
@@ -793,14 +827,29 @@ class Gate(RecordedGate):
         assert 'padded' in value, 'estimator reports no padded cost'
 
     def checker_cli(self, m):
-        # A malformed certificate must be a checker rejection (exit 1 with a diagnosis), not "not implemented".
+        # Exercise certificate admission with the published positional CLI and a real object.
         bogus = self.run/'probe-bogus-certificate.json'
-        bogus.write_text('{}\n')
-        p = subprocess.run(list(map(str, [self.check_exe, 'check', bogus])), stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+        bogus.write_text('{}')
+        obj, _ = self.mini()
+        argv = list(map(str, [self.check_exe, bogus, '--object', obj]))
+        started = time.monotonic()
+        try:
+            p = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=self.args.sweep_timeout)
+        except subprocess.TimeoutExpired as exc:
+            raise GateError('certificate checker malformed-certificate probe timed out (UNKNOWN)') from exc
+        self.manifest['commands'].append({'tag': 'probe/checker-cli', 'argv': argv, 'exit': p.returncode,
+            'elapsed_seconds': round(time.monotonic()-started, 3), 'timeout_seconds': self.args.sweep_timeout})
         text = (p.stdout+p.stderr).decode(errors='replace')
         (self.run/'probe-checker.txt').write_text(f'exit {p.returncode}\n{text}')
-        if re.search(r'not (yet )?implemented|usage', text, re.I):
-            raise GateError('certificate checker has no check command for rung-4 certificates: '+text.strip()[:300])
+        try:
+            report = json.loads(p.stdout)
+        except ValueError as exc:
+            raise GateError('certificate checker returned no JSON rejection: '+text.strip()[:300]) from exc
+        if p.returncode != 1 or not isinstance(report, dict) or report.get('overall') != 'rejected':
+            raise GateError(f'certificate checker must reject the malformed certificate with exit 1 and diagnostics; got exit {p.returncode}: '+text.strip()[:300])
+        errors = report.get('errors')
+        if not isinstance(errors, list) or not any(isinstance(e, dict) and e.get('code') and e.get('message') for e in errors):
+            raise GateError('certificate checker rejection has no diagnostic: '+text.strip()[:300])
 
     # ------------ reporting
     def finish(self):

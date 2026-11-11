@@ -10,6 +10,7 @@
 mod accounting;
 pub mod cert;
 mod coherent;
+mod construction;
 mod coverage;
 mod decimal_limits;
 pub mod domain;
@@ -23,6 +24,7 @@ mod lifted_memory;
 pub mod matrix;
 pub mod numeric;
 pub mod object;
+mod preparation;
 pub mod rat;
 pub mod realisation;
 pub mod sampler;

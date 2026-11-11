@@ -312,8 +312,10 @@ impl<'a> Action<'a> {
                             self.wires = wires;
                             self.predicates = predicates;
                         }
+                        // §4.6 (see §3.5): the body leaves the stack exactly
+                        // as at entry, including when the loop has zero trips.
                         require(
-                            count.is_zero() || self.predicates == frame.predicates,
+                            self.predicates == frame.predicates,
                             "§3.5/§4.6",
                             "loop body altered predicate stack",
                         )?;

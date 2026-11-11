@@ -34,8 +34,8 @@ name = "quality baseline ratchet"
 argv = ["sh", "-c", "python3 -B scripts/quality_ratchet.py --self-test && python3 -B scripts/quality_ratchet.py"]
 
 [siblings."bennett-isa-spec"]
-sha = "3b1090790d82a00ac95d30b8da6b42d1d7a9f5d1"
-note = "Published ISA 0.9 including K84/K89/K91; tests and neutral suite share this pin"
+sha = "b472bac28d9f69037d2cf89763c8c9603e7e4fb4"
+note = "Published ISA 0.9 with closed image preparation/process domains and native models; shared test and neutral-suite pin"
 
 [[siblings."bennett-isa-spec".build]]
 name = "reference interpreter (release)"

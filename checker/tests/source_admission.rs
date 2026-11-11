@@ -165,3 +165,94 @@ fn indexed_and_scalar_controlled_calls_remain_verified() {
         assert_eq!(verdict.regions[0].claims[0].1.outcome, "proof");
     }
 }
+
+fn predicate_loop_inputs(
+    oracle: &Oracle,
+    count: u32,
+    entry: &str,
+    body: &str,
+    exit: &str,
+) -> Inputs {
+    let mut base = saved("canonical");
+    let text = base
+        .object_text
+        .trim_end()
+        .replace("cx c t", body)
+        .replace("qloop 2 {", &format!("{entry}qloop {count} {{"))
+        .replace("bounds {2}", &format!("bounds {{{count}}}"))
+        .replace(r#""bounds":[2]"#, &format!(r#""bounds":[{count}]"#))
+        + exit
+        + "\n";
+    base.cert_bytes = String::from_utf8(base.cert_bytes)
+        .unwrap()
+        .replace(r#""bounds":[2]"#, &format!(r#""bounds":[{count}]"#))
+        .into_bytes();
+    candidate_inputs(&base, oracle.bound_candidate(&text))
+}
+
+#[test]
+fn loop_predicate_imbalances_are_rejected_without_proof_even_at_zero_trips() {
+    let oracle = Oracle::new();
+    // ISA §4.6: a body leaves the stack exactly as at entry, citing §3.5.
+    for count in 0..=3 {
+        for (entry, body, exit) in [
+            ("", "qpred c", ""),
+            ("qpred c\n", "qunpred c", "\nqunpred c"),
+            ("qpred c\n", "qunpred c\nqpred t", "\nqunpred c"),
+        ] {
+            let input = predicate_loop_inputs(&oracle, count, entry, body, exit);
+            let checked = oracle.run("check", &input.object_text);
+            assert!(!checked.status.success(), "{count}: {body}");
+            let diagnostic = String::from_utf8_lossy(&checked.stderr);
+            assert!(
+                diagnostic.contains("§3.5: loop body altered predicate stack"),
+                "{count}: {body}: {diagnostic}"
+            );
+            let verdict = check_certificate(&input);
+            assert_eq!(verdict.overall, "rejected", "{count}: {body}: {verdict:?}");
+            assert!(codes(&verdict).contains(&"E_CERT_OBJECT"), "{verdict:?}");
+            assert!(
+                !verdict
+                    .regions
+                    .iter()
+                    .flat_map(|r| &r.claims)
+                    .any(|(_, c)| c.outcome == "proof"),
+                "{verdict:?}"
+            );
+        }
+    }
+}
+
+#[test]
+fn balanced_loop_predicates_remain_admitted_and_verified_at_every_trip_count() {
+    let oracle = Oracle::new();
+    // Exact restoration admits both nested pushes and a pop/re-push of entry
+    // predicates; the spec does not require the entry stack to stay untouched.
+    for count in 0..=3 {
+        for (entry, body, exit) in [
+            ("", "qpred c\nx t\nx t\nqunpred c", ""),
+            ("qpred c\n", "qpred c\nqunpred c", "\nqunpred c"),
+            ("qpred c\n", "qunpred c\nqpred c", "\nqunpred c"),
+            (
+                "qpred c\nqpred t\n",
+                "qunpred t\nqunpred c\nqpred c\nqpred t",
+                "\nqunpred t\nqunpred c",
+            ),
+        ] {
+            let input = predicate_loop_inputs(&oracle, count, entry, body, exit);
+            let checked = oracle.run("check", &input.object_text);
+            assert!(
+                checked.status.success(),
+                "{count}: {body}: {}",
+                String::from_utf8_lossy(&checked.stderr)
+            );
+            assert!(Object::parse(&input.object_text).is_ok(), "{count}: {body}");
+            let verdict = check_certificate(&input);
+            assert_eq!(verdict.overall, "verified", "{count}: {body}: {verdict:?}");
+            assert_eq!(
+                verdict.regions[0].claims[0].1.outcome, "proof",
+                "{verdict:?}"
+            );
+        }
+    }
+}
