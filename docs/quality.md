@@ -270,7 +270,7 @@ operation and is never invoked by the gate.
 "checker/src/matrix.rs": [26, 26, 0, 0, 0, 0, 0, 36, 65, 1, 0],
 "checker/src/numeric.rs": [20, 8, 5, 6, 1, 12, 7, 330, 537, 1, 0],
 "checker/src/preparation/launch.rs": [1, 0, 0, 1, 0, 1, 1, 122, 30, 0, 0],
-"checker/src/preparation/mod.rs": [7, 4, 3, 0, 0, 3, 0, 88, 43, 1, 0],
+"checker/src/preparation/mod.rs": [7, 4, 3, 0, 0, 3, 0, 88, 46, 1, 0],
 "checker/src/preparation/schema.rs": [13, 11, 2, 0, 0, 2, 0, 57, 59, 4, 0],
 "checker/src/preparation/logical.rs": [8, 6, 2, 0, 0, 2, 0, 80, 86, 0, 0],
 "checker/src/construction/mod.rs": [9, 8, 1, 0, 0, 1, 0, 53, 13, 2, 0],
@@ -449,7 +449,9 @@ orchestrator owns the full isolated push gate and independent review.
 
 Preparation uint decoding enforces the §8.3 number/string boundary for the
 §12.3 records. Its schema baseline includes the encoding check and a boundary
-regression; the general replay-domain decoder is unchanged.
+regression. Attachment image A/W dimensions use the same strict decoder
+before image resolution; the preparation module baseline includes this
+boundary check. The general replay-domain decoder is unchanged.
 
 ## Rung-3 diagnostic input fixture
 

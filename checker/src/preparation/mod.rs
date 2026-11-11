@@ -29,6 +29,12 @@ fn images(
     canonical: bool,
 ) -> Result<Vec<FixedRegion>> {
     let values = array(v)?;
+    if canonical {
+        for image in values {
+            schema::uint(get(image, "A")?)?;
+            schema::uint(get(image, "W")?)?;
+        }
+    }
     let domain = Value::Obj(BTreeMap::from([("fixed_regions".into(), v.clone())]));
     let resolved = crate::domain::resolve_fixed_images(&domain, iface).map_err(|e| match e {
         crate::fault::ResolveError::Reject(e) => invalid(e.message),
