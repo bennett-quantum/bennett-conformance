@@ -3,7 +3,7 @@
   "isa": "0.9",
   "dialect_spec_path": "spec/Bennett-Dialect-Spec-0.3-draft.md",
   "bennett-plugin": "6f1d93c9f7bc93cbbef0b9adb101b69695336095",
-  "bennett-vm": "c23740bc90cffbf6354ff28c4f9d8b36e2daaf91",
+  "bennett-vm": "290c41bc9bc658b4b19c85c3e3f113895e8f82da",
   "bennett-runtimes": "7559e3bb40e824352ba6afaa5ed37e6a9860faf3",
   "bennett-driver": "a907ff5712f302c47574c4fb8eb746d7a210404c",
   "bennett-arith": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
