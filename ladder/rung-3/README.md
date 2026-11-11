@@ -61,7 +61,7 @@ Defaults are immutable commits in [pins.json](pins.json), not moving HEADs:
 |---|---|---|
 | Dialect 0.3-r1 | `ba4e3243056100db1eb347e5ee0a8ab4bea1e429` | Pushed dialect main; publishes the accepted classical R profile and its ISA 0.9 compatibility identity. |
 | Plugin | `6f1d93c9f7bc93cbbef0b9adb101b69695336095` | Pushed producer main; emits ISA 0.9 throughout the selected R-contract object. |
-| VM | `c23740bc90cffbf6354ff28c4f9d8b36e2daaf91` | Pushed executor main, including region lifetime support. |
+| VM | `290c41bc9bc658b4b19c85c3e3f113895e8f82da` | Pushed executor main at the ladder launch; adopts the 0.9 headers and explicit ABI family providers, retaining region lifetime support. |
 | Driver | `a907ff5712f302c47574c4fb8eb746d7a210404c` | Pushed driver main; accepts the R contract and requires an explicit native-support publication. |
 | Runtimes | `7559e3bb40e824352ba6afaa5ed37e6a9860faf3` | Pushed runtime main; supplies the frozen musl headers, runtime, native-support bitcode and native-check adapter. |
 | Arith | `5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab` | Exact arithmetic publication declared and hash-pinned by the selected plugin. Current arith main `2670e894c77745275f9bffb92aa80e7c7c805c27` has different bitcode; substituting it would fail the required producer digest check. |
