@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py"
+  ],
+  "cwd": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote",
+  "head": "4c9d9ce922170cee9da21b991c9adab8fb62b048",
+  "exit": 1,
+  "wall_seconds": 4.14648,
+  "cpu_seconds": 4.506025,
+  "unit": {
+    "RuntimeMaxUSec": "3d 17h 43min 20s",
+    "Result": "exit-code",
+    "ExecMainStartTimestamp": "Mon 2026-11-09 11:33:39 CET",
+    "ExecMainStartTimestampMonotonic": "11854116184",
+    "ExecMainExitTimestamp": "Mon 2026-11-09 11:33:44 CET",
+    "ExecMainExitTimestampMonotonic": "11858262664",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "1",
+    "ExecStart": "{ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 -B /home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/run.py ; ignore_errors=no ; start_time=[Mon 2026-11-09 11:33:39 CET] ; stop_time=[Mon 2026-11-09 11:33:44 CET] ; pid=801598 ; code=exited ; status=1 }",
+    "MemoryPeak": "[not set]",
+    "CPUUsageNSec": "4506025000",
+    "Id": "bennett-conf-r3-promote-final.service",
+    "InvocationID": "68dde8cbba62453b8364fb86a3d8d040"
+  },
+  "unit_memory_peak_bytes": null,
+  "memory_note": "systemd reports MemoryPeak=[not set] for this short cached run; individual command wait4 max_rss_kib is recorded. Initial cold-build receipt measured 5403381760 bytes.",
+  "command_count": 59,
+  "command_cpu_seconds": 2.8159359999999998,
+  "raw_run": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z",
+  "harness_sha256": "daf533608ab9825c9dc80714fa4f42681787e3746f30a803f1b0f6d3e2e2c6c5",
+  "raw_gate_log_sha256": "119bed7bbc0ff7fe51d23f9d90c5218f129403787ff374b532eb82ecc6bcee7f",
+  "instrumentation": "Actual unabridged Gate.main with wait4 command receipts/guards and job-local temp/build locations. Archived-cache interface is now supplied by gate.py. Pinned archived sysroots and rebuilt/verified reference selected explicitly. Source/build cache reuse, not reduced inputs.",
+  "tracking": "Historical bp-mq6 is closed; current plugin follow-up/reopen requested in .tmp/r3-promote/cross-repo-beads.md#plugin-arith-main. 7bx stays open."
+}

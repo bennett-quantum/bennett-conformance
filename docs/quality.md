@@ -319,8 +319,8 @@ operation and is never invoked by the gate.
 "ladder/rung-1/input_worker.py": [1, 1, 0, 0, 0, 0, 0, 6, 0, 0, 0],
 "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
 "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
-"ladder/rung-3/contract.py": [1, 1, 0, 0, 0, 0, 0, 20, 14, 0, 0],
-"ladder/rung-3/gate.py": [33, 33, 0, 0, 0, 0, 0, 36, 97, 0, 0],
+"ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
+"ladder/rung-3/gate.py": [36, 36, 0, 0, 0, 0, 0, 30, 96, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 70, 0, 0],
 "ladder/rung-4/gate.py": [82, 82, 0, 0, 0, 0, 0, 48, 218, 2, 0],
 "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],
@@ -450,3 +450,26 @@ orchestrator owns the full isolated push gate and independent review.
 Preparation uint decoding enforces the §8.3 number/string boundary for the
 §12.3 records. Its schema baseline includes the encoding check and a boundary
 regression; the general replay-domain decoder is unchanged.
+
+## Rung-3 diagnostic input fixture
+
+The console R fixture now declares the musl triple and DataLayout emitted by
+both installed Clang 18 and 23 frontends. The pinned dialect publication
+`687284fa28a79c536b3885cabec3adf5de26e031`,
+`spec/Bennett-Dialect-Spec-0.3-draft.md` §1.7 includes §19.8 in the
+accepted `0.3-r1` profile; §19.8 requires each input's target declarations.
+Both frontends emit identical headers, so the existing shared fixture serves
+both majors. Its console payload, effect call and zero return are unchanged.
+
+```sh
+python3 -B -m unittest discover -s ladder/rung-3/tests -p test_effect_console_fixture.py -v
+```
+
+This self-check ran four tests: the unchanged `84f8ecb` fixture failed the
+target check for both majors; the updated fixture passes all four. The checks
+compare declarations against each real frontend, verify the IR with each LLVM
+major, retain the literal console body and validate the fixture manifest hash.
+The isolated driver probes using `9809c88176c96a047887136562795f4ab259c41b`
+both advance past target admission and exit 1 at the plugin diagnostic
+`§19.2 argv/envp byte storage in R launch (milestone 4) at ptr %1`.
+This is fixture evidence; no full rung-3 run or acceptance claim follows.

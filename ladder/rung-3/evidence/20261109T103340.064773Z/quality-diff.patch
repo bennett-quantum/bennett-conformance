@@ -1,0 +1,15 @@
+diff --git a/docs/quality.md b/docs/quality.md
+index 2ca6db6..ddf2609 100644
+--- a/docs/quality.md
++++ b/docs/quality.md
+@@ -260,8 +260,8 @@ operation and is never invoked by the gate.
+ "ladder/rung-1/input_worker.py": [1, 1, 0, 0, 0, 0, 0, 6, 0, 0, 0],
+ "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
+ "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
+-"ladder/rung-3/contract.py": [1, 1, 0, 0, 0, 0, 0, 20, 14, 0, 0],
+-"ladder/rung-3/gate.py": [33, 33, 0, 0, 0, 0, 0, 36, 97, 0, 0],
++"ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
++"ladder/rung-3/gate.py": [36, 36, 0, 0, 0, 0, 0, 30, 96, 0, 0],
+ "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 70, 0, 0],
+ "ladder/rung-4/gate.py": [81, 81, 0, 0, 0, 0, 0, 48, 197, 2, 0],
+ "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],

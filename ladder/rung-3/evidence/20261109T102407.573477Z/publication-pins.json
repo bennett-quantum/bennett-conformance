@@ -1,0 +1,66 @@
+{
+  "producer": {
+    "commit": "abe5557977e9e9a38d8922aff69cbfc638995798",
+    "arith": {
+      "commit": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
+      "llvm18_path": ".tmp/gate/cache/bennett-arith@5e9b4509f3ee/bennett-arith/dist/llvm18/bennett-arith.bc",
+      "llvm18_sha256": "a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff",
+      "llvm23_path": ".tmp/gate/cache/bennett-arith@5e9b4509f3ee/bennett-arith/dist/llvm23/bennett-arith.bc",
+      "llvm23_sha256": "8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79"
+    }
+  },
+  "selected": {
+    "18": {
+      "commit": "cd245bcb07ad38da629d9b47f642e46e3c25cae9",
+      "sha256": "053d820087cdb91f851d2505c6eb37d117ec3041a614f1c53d23d47a93423d92",
+      "path": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-arith-cd245bcb07ad38da629d9b47f642e46e3c25cae9/dist/llvm18/bennett-arith.bc"
+    },
+    "23": {
+      "commit": "cd245bcb07ad38da629d9b47f642e46e3c25cae9",
+      "sha256": "b08ca7c535aa4475452b7a82e4d82847c667fef8dc019affb914a327ade590c5",
+      "path": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-arith-cd245bcb07ad38da629d9b47f642e46e3c25cae9/dist/llvm23/bennett-arith.bc"
+    }
+  },
+  "inspection": [
+    {
+      "tag": "publication-hashes",
+      "argv": [
+        "sha256sum",
+        ".tmp/r3-promote/sources/rung3-bennett-arith-cd245bcb07ad38da629d9b47f642e46e3c25cae9/dist/llvm18/bennett-arith.bc",
+        ".tmp/r3-promote/sources/rung3-bennett-arith-cd245bcb07ad38da629d9b47f642e46e3c25cae9/dist/llvm23/bennett-arith.bc"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.005479551999087562,
+      "cpu_seconds": 0.002904,
+      "user_seconds": 0.0,
+      "system_seconds": 0.002904,
+      "max_rss_kib": 12700,
+      "guard_class": "short",
+      "timeout_seconds": 340,
+      "verdict": "EXIT",
+      "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/publication-hashes.stdout",
+      "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/publication-hashes.stderr"
+    },
+    {
+      "tag": "producer-pins",
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+        "show",
+        "abe5557977e9e9a38d8922aff69cbfc638995798:SPEC_VERSIONS.toml"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.0038090779999038205,
+      "cpu_seconds": 0.002727,
+      "user_seconds": 0.0,
+      "system_seconds": 0.002727,
+      "max_rss_kib": 12688,
+      "guard_class": "short",
+      "timeout_seconds": 340,
+      "verdict": "EXIT",
+      "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/producer-pins.stdout",
+      "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/producer-pins.stderr"
+    }
+  ]
+}

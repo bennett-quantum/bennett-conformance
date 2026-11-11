@@ -1,0 +1,1979 @@
+{
+  "manifest": {
+    "time_utc": "2026-11-09T10:33:40.068370+00:00",
+    "commands": [
+      {
+        "tag": "inspection/git-0",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "rev-parse",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004677375998653588,
+        "cpu_seconds": 0.0024159999999999997,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0024159999999999997,
+        "max_rss_kib": 20988,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-0.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-0.stderr"
+      },
+      {
+        "tag": "build/bennett-runtimes-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "archive",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.05769699799930095,
+        "cpu_seconds": 0.042610999999999996,
+        "user_seconds": 0.03099,
+        "system_seconds": 0.011621,
+        "max_rss_kib": 20988,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-runtimes-archive.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-runtimes-archive.stderr"
+      },
+      {
+        "tag": "inspection/git-1",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec",
+          "rev-parse",
+          "695cb4b7c330742820c6b315337a260e56de8bce"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003521581000313745,
+        "cpu_seconds": 0.00259,
+        "user_seconds": 0.00259,
+        "system_seconds": 0.0,
+        "max_rss_kib": 35324,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-1.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-1.stderr"
+      },
+      {
+        "tag": "build/bennett-isa-spec-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-isa-spec",
+          "archive",
+          "695cb4b7c330742820c6b315337a260e56de8bce"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.14618333500038716,
+        "cpu_seconds": 0.121015,
+        "user_seconds": 0.040338,
+        "system_seconds": 0.080677,
+        "max_rss_kib": 35324,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-isa-spec-archive.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-isa-spec-archive.stderr"
+      },
+      {
+        "tag": "build/reference-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--offline",
+          "--release",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-isa-spec-695cb4b7c330742820c6b315337a260e56de8bce/reference-interpreter/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference",
+          "-j",
+          "8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.02821188800044183,
+        "cpu_seconds": 0.025859999999999998,
+        "user_seconds": 0.01724,
+        "system_seconds": 0.00862,
+        "max_rss_kib": 45400,
+        "guard_class": "long",
+        "timeout_seconds": 30940,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/reference-build.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/reference-build.stderr"
+      },
+      {
+        "tag": "build/llvm18-clang-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.02393696000035561,
+        "cpu_seconds": 0.023142999999999997,
+        "user_seconds": 0.009257,
+        "system_seconds": 0.013885999999999999,
+        "max_rss_kib": 69740,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm18-clang-version.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm18-clang-version.stderr"
+      },
+      {
+        "tag": "build/llvm18-opt-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.01856022399988433,
+        "cpu_seconds": 0.017891999999999998,
+        "user_seconds": 0.0,
+        "system_seconds": 0.017891999999999998,
+        "max_rss_kib": 54896,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm18-opt-version.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm18-opt-version.stderr"
+      },
+      {
+        "tag": "build/llvm18-llvm-link-version",
+        "argv": [
+          "/usr/lib/llvm-18/bin/llvm-link",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.016949213000771124,
+        "cpu_seconds": 0.016325,
+        "user_seconds": 0.0040809999999999996,
+        "system_seconds": 0.012244,
+        "max_rss_kib": 47580,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm18-llvm-link-version.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm18-llvm-link-version.stderr"
+      },
+      {
+        "tag": "build/llvm23-clang-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.018037421001281473,
+        "cpu_seconds": 0.017244,
+        "user_seconds": 0.008622,
+        "system_seconds": 0.008622,
+        "max_rss_kib": 73896,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm23-clang-version.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm23-clang-version.stderr"
+      },
+      {
+        "tag": "build/llvm23-opt-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.01634590900175681,
+        "cpu_seconds": 0.015653999999999998,
+        "user_seconds": 0.007826999999999999,
+        "system_seconds": 0.007826999999999999,
+        "max_rss_kib": 56764,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm23-opt-version.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm23-opt-version.stderr"
+      },
+      {
+        "tag": "build/llvm23-llvm-link-version",
+        "argv": [
+          "/usr/lib/llvm-23/bin/llvm-link",
+          "--version"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.013105587999234558,
+        "cpu_seconds": 0.012516,
+        "user_seconds": 0.0041719999999999995,
+        "system_seconds": 0.008343999999999999,
+        "max_rss_kib": 51488,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm23-llvm-link-version.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/llvm23-llvm-link-version.stderr"
+      },
+      {
+        "tag": "inspection/git-2",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+          "rev-parse",
+          "abe5557977e9e9a38d8922aff69cbfc638995798"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.002755018000243581,
+        "cpu_seconds": 0.0021249999999999997,
+        "user_seconds": 0.0021249999999999997,
+        "system_seconds": 0.0,
+        "max_rss_kib": 45400,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-2.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-2.stderr"
+      },
+      {
+        "tag": "build/bennett-plugin-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+          "archive",
+          "abe5557977e9e9a38d8922aff69cbfc638995798"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.02570497200031241,
+        "cpu_seconds": 0.022435,
+        "user_seconds": 0.014957,
+        "system_seconds": 0.007477999999999999,
+        "max_rss_kib": 45400,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-plugin-archive.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-plugin-archive.stderr"
+      },
+      {
+        "tag": "build/plugin-configure",
+        "argv": [
+          "cmake",
+          "-S",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-plugin-abe5557977e9e9a38d8922aff69cbfc638995798",
+          "-B",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-plugin-abe5557977e9e9a38d8922aff69cbfc638995798/build"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.057700786001078086,
+        "cpu_seconds": 0.052289999999999996,
+        "user_seconds": 0.039217999999999996,
+        "system_seconds": 0.013071999999999999,
+        "max_rss_kib": 45400,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/plugin-configure.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/plugin-configure.stderr"
+      },
+      {
+        "tag": "build/plugin-build",
+        "argv": [
+          "cmake",
+          "--build",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-plugin-abe5557977e9e9a38d8922aff69cbfc638995798/build",
+          "-j",
+          "8"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.2546245670000644,
+        "cpu_seconds": 0.398902,
+        "user_seconds": 0.189294,
+        "system_seconds": 0.209608,
+        "max_rss_kib": 45400,
+        "guard_class": "long",
+        "timeout_seconds": 30940,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/plugin-build.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/plugin-build.stderr"
+      },
+      {
+        "tag": "inspection/git-3",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "rev-parse",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0031454199997824617,
+        "cpu_seconds": 0.0023109999999999997,
+        "user_seconds": 0.0023109999999999997,
+        "system_seconds": 0.0,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-3.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-3.stderr"
+      },
+      {
+        "tag": "build/bennett-runtimes-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "archive",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.04954852500122797,
+        "cpu_seconds": 0.040175,
+        "user_seconds": 0.024104999999999998,
+        "system_seconds": 0.01607,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-runtimes-archive.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-runtimes-archive.stderr"
+      },
+      {
+        "tag": "inspection/git-4",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-arith",
+          "rev-parse",
+          "cd245bcb07ad38da629d9b47f642e46e3c25cae9"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0033357219999743393,
+        "cpu_seconds": 0.0025499999999999997,
+        "user_seconds": 0.0025499999999999997,
+        "system_seconds": 0.0,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-4.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-4.stderr"
+      },
+      {
+        "tag": "build/bennett-arith-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-arith",
+          "archive",
+          "cd245bcb07ad38da629d9b47f642e46e3c25cae9"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.05300494699986302,
+        "cpu_seconds": 0.040484,
+        "user_seconds": 0.020242,
+        "system_seconds": 0.020242,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-arith-archive.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-arith-archive.stderr"
+      },
+      {
+        "tag": "inspection/git-5",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-vm",
+          "rev-parse",
+          "83b5f7f0248fe1c36ebfe3acd7fb187ed301affa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0034547220002423273,
+        "cpu_seconds": 0.0026219999999999998,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0026219999999999998,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-5.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-5.stderr"
+      },
+      {
+        "tag": "inspection/git-6",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003198620999683044,
+        "cpu_seconds": 0.0025139999999999997,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0025139999999999997,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-6.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-6.stderr"
+      },
+      {
+        "tag": "build/vm-head",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.016101705001347,
+        "cpu_seconds": 0.015566,
+        "user_seconds": 0.011675,
+        "system_seconds": 0.003891,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/vm-head.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/vm-head.stderr"
+      },
+      {
+        "tag": "inspection/git-7",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa",
+          "rev-parse",
+          "--abbrev-ref",
+          "HEAD"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0036553240006469423,
+        "cpu_seconds": 0.0028409999999999998,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0028409999999999998,
+        "max_rss_kib": 88812,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-7.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-7.stderr"
+      },
+      {
+        "tag": "build/vm-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.025230364999515587,
+        "cpu_seconds": 0.024252999999999997,
+        "user_seconds": 0.008084,
+        "system_seconds": 0.016169,
+        "max_rss_kib": 88812,
+        "guard_class": "long",
+        "timeout_seconds": 30940,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/vm-build.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/vm-build.stderr"
+      },
+      {
+        "tag": "inspection/git-8",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-driver",
+          "rev-parse",
+          "8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003624724000474089,
+        "cpu_seconds": 0.0027619999999999997,
+        "user_seconds": 0.0027619999999999997,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-8.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-8.stderr"
+      },
+      {
+        "tag": "build/bennett-driver-archive",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-driver",
+          "archive",
+          "8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011349274000167497,
+        "cpu_seconds": 0.009948,
+        "user_seconds": 0.009948,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-driver-archive.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/bennett-driver-archive.stderr"
+      },
+      {
+        "tag": "build/driver-build",
+        "argv": [
+          "cargo",
+          "build",
+          "--offline",
+          "--manifest-path",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-driver-8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b/Cargo.toml",
+          "--target-dir",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-driver-8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b/target"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.02249574699999357,
+        "cpu_seconds": 0.021616,
+        "user_seconds": 0.017293,
+        "system_seconds": 0.004323,
+        "max_rss_kib": 131540,
+        "guard_class": "long",
+        "timeout_seconds": 30940,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/driver-build.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/build/driver-build.stderr"
+      },
+      {
+        "tag": "contract/dialect",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-dialect-spec",
+          "show",
+          "830bd7f2a328556af983f2c3aa4c75ef9eb29b65:spec/Bennett-Dialect-Spec-0.3-draft.md"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008687057001225185,
+        "cpu_seconds": 0.0063419999999999995,
+        "user_seconds": 0.0031709999999999998,
+        "system_seconds": 0.0031709999999999998,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/contract/dialect.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/contract/dialect.stderr"
+      },
+      {
+        "tag": "contract/producer",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-plugin",
+          "show",
+          "abe5557977e9e9a38d8922aff69cbfc638995798:SPEC_VERSIONS.toml"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0036721239994221833,
+        "cpu_seconds": 0.002887,
+        "user_seconds": 0.002887,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/contract/producer.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/contract/producer.stderr"
+      },
+      {
+        "tag": "23/hello/frontend",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm23/musl-sysroot/include",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/hello.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.03110430299966538,
+        "cpu_seconds": 0.029379000000000002,
+        "user_seconds": 0.016788,
+        "system_seconds": 0.012591,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/hello/frontend.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/hello/frontend.stderr"
+      },
+      {
+        "tag": "18/hello/frontend",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm18/musl-sysroot/include",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/hello.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.03384502100016107,
+        "cpu_seconds": 0.03138,
+        "user_seconds": 0.011767,
+        "system_seconds": 0.019613,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/hello/frontend.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/hello/frontend.stderr"
+      },
+      {
+        "tag": "inspection/git-9",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm23/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004290728000341915,
+        "cpu_seconds": 0.00356,
+        "user_seconds": 0.00356,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-9.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-9.stderr"
+      },
+      {
+        "tag": "inspection/git-10",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm18/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004375729000457795,
+        "cpu_seconds": 0.0030859999999999998,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0030859999999999998,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-10.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-10.stderr"
+      },
+      {
+        "tag": "23/printf_fmt/frontend",
+        "argv": [
+          "/usr/lib/llvm-23/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm23/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm23/musl-sysroot/include",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/printf_fmt.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/printf_fmt/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.03305301599903032,
+        "cpu_seconds": 0.03172,
+        "user_seconds": 0.019825,
+        "system_seconds": 0.011895,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/printf_fmt/frontend.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/printf_fmt/frontend.stderr"
+      },
+      {
+        "tag": "18/printf_fmt/frontend",
+        "argv": [
+          "/usr/lib/llvm-18/bin/clang",
+          "--target=x86_64-unknown-linux-musl",
+          "--sysroot=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm18/musl-sysroot",
+          "-nostdinc",
+          "-isystem",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm18/musl-sysroot/include",
+          "-O2",
+          "-flto",
+          "-emit-llvm",
+          "-c",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/printf_fmt.c",
+          "-o",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/printf_fmt/input.bc"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.03265731399915239,
+        "cpu_seconds": 0.032173,
+        "user_seconds": 0.008043,
+        "system_seconds": 0.02413,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/printf_fmt/frontend.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/printf_fmt/frontend.stderr"
+      },
+      {
+        "tag": "inspection/git-11",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm23/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004198526999971364,
+        "cpu_seconds": 0.003015,
+        "user_seconds": 0.0,
+        "system_seconds": 0.003015,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-11.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-11.stderr"
+      },
+      {
+        "tag": "inspection/git-12",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm18/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0033770219997677486,
+        "cpu_seconds": 0.002149,
+        "user_seconds": 0.0,
+        "system_seconds": 0.002149,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-12.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-12.stderr"
+      },
+      {
+        "tag": "inspection/git-13",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm23/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0038543250011571217,
+        "cpu_seconds": 0.002779,
+        "user_seconds": 0.0,
+        "system_seconds": 0.002779,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-13.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-13.stderr"
+      },
+      {
+        "tag": "inspection/git-14",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm18/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003923226000551949,
+        "cpu_seconds": 0.002538,
+        "user_seconds": 0.0,
+        "system_seconds": 0.002538,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-14.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-14.stderr"
+      },
+      {
+        "tag": "23/hello/mode-probe",
+        "argv": [
+          "/usr/lib/llvm-23/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-plugin-abe5557977e9e9a38d8922aff69cbfc638995798/build/libbennett-plugin-23.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.3-r1",
+          "-bennett-isa=0.9",
+          "--bennett-tier=reversible",
+          "--bennett-entry=main",
+          "-bennett-budget-default=10000000,1048576,65536,256,65536",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/probe-out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/effect-console-r.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.7912171749994741,
+        "cpu_seconds": 0.7857129999999999,
+        "user_seconds": 0.6580849999999999,
+        "system_seconds": 0.127628,
+        "max_rss_kib": 168680,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/hello/mode-probe.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/hello/mode-probe.stderr"
+      },
+      {
+        "tag": "inspection/git-15",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm23/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0035965229999419535,
+        "cpu_seconds": 0.002835,
+        "user_seconds": 0.002835,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-15.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-15.stderr"
+      },
+      {
+        "tag": "23/reference-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004038925000713789,
+        "cpu_seconds": 0.00333,
+        "user_seconds": 0.0,
+        "system_seconds": 0.00333,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-control-check.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-control-check.stderr"
+      },
+      {
+        "tag": "23/reference-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0029905190003773896,
+        "cpu_seconds": 0.002639,
+        "user_seconds": 0.0,
+        "system_seconds": 0.002639,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-control-forward.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-control-forward.stderr"
+      },
+      {
+        "tag": "23/reference-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0030358200001501245,
+        "cpu_seconds": 0.002663,
+        "user_seconds": 0.002663,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-control-reset.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-control-reset.stderr"
+      },
+      {
+        "tag": "18/hello/mode-probe",
+        "argv": [
+          "/usr/lib/llvm-18/bin/opt",
+          "-load-pass-plugin=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-plugin-abe5557977e9e9a38d8922aff69cbfc638995798/build/libbennett-plugin-18.so",
+          "-passes=bennett",
+          "-bennett-dialect=0.3-r1",
+          "-bennett-isa=0.9",
+          "--bennett-tier=reversible",
+          "--bennett-entry=main",
+          "-bennett-budget-default=10000000,1048576,65536,256,65536",
+          "-bennett-out=/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/probe-out",
+          "-disable-output",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/effect-console-r.ll"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.8197665579991735,
+        "cpu_seconds": 0.818434,
+        "user_seconds": 0.670717,
+        "system_seconds": 0.147717,
+        "max_rss_kib": 165944,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/hello/mode-probe.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/hello/mode-probe.stderr"
+      },
+      {
+        "tag": "inspection/git-16",
+        "argv": [
+          "git",
+          "-C",
+          "/home/tobias/Projects/bennett-workspace/bennett-runtimes",
+          "show",
+          "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f:dist/llvm18/SHA256SUMS"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.00385732499853475,
+        "cpu_seconds": 0.000326,
+        "user_seconds": 0.0,
+        "system_seconds": 0.000326,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-16.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/inspection/git-16.stderr"
+      },
+      {
+        "tag": "23/reference-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.005361434999940684,
+        "cpu_seconds": 0.003152,
+        "user_seconds": 0.0,
+        "system_seconds": 0.003152,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-replay-probe.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/reference-replay-probe.stderr"
+      },
+      {
+        "tag": "18/reference-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004128526999920723,
+        "cpu_seconds": 0.003462,
+        "user_seconds": 0.003462,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-control-check.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-control-check.stderr"
+      },
+      {
+        "tag": "18/reference-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.003082819001065218,
+        "cpu_seconds": 0.0027099999999999997,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0027099999999999997,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-control-forward.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-control-forward.stderr"
+      },
+      {
+        "tag": "18/reference-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.0028590179990715114,
+        "cpu_seconds": 0.002547,
+        "user_seconds": 0.002547,
+        "system_seconds": 0.0,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-control-reset.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-control-reset.stderr"
+      },
+      {
+        "tag": "18/reference-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target/reference/release/bennett-isa-ref",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.004123827000512392,
+        "cpu_seconds": 0.003407,
+        "user_seconds": 0.0,
+        "system_seconds": 0.003407,
+        "max_rss_kib": 131540,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-replay-probe.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/reference-replay-probe.stderr"
+      },
+      {
+        "tag": "23/VM-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.009310858999015181,
+        "cpu_seconds": 0.008376,
+        "user_seconds": 0.004188,
+        "system_seconds": 0.004188,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-control-check.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-control-check.stderr"
+      },
+      {
+        "tag": "23/VM-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.018664417999389116,
+        "cpu_seconds": 0.011604,
+        "user_seconds": 0.007736,
+        "system_seconds": 0.003868,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-control-forward.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-control-forward.stderr"
+      },
+      {
+        "tag": "18/VM-control-check",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "check",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.008769361000304343,
+        "cpu_seconds": 0.007788,
+        "user_seconds": 0.003894,
+        "system_seconds": 0.003894,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-control-check.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-control-check.stderr"
+      },
+      {
+        "tag": "23/VM-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.016418826999142766,
+        "cpu_seconds": 0.015808,
+        "user_seconds": 0.015808,
+        "system_seconds": 0.0,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-control-reset.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-control-reset.stderr"
+      },
+      {
+        "tag": "18/VM-control-forward",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.011196949999430217,
+        "cpu_seconds": 0.010803,
+        "user_seconds": 0.007202,
+        "system_seconds": 0.003601,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-control-forward.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-control-forward.stderr"
+      },
+      {
+        "tag": "18/VM-control-reset",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "reverse",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.015368932999990648,
+        "cpu_seconds": 0.014861999999999998,
+        "user_seconds": 0.011146999999999999,
+        "system_seconds": 0.003715,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-control-reset.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-control-reset.stderr"
+      },
+      {
+        "tag": "23/VM-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.01935871100067743,
+        "cpu_seconds": 0.011906999999999997,
+        "user_seconds": 0.007937999999999999,
+        "system_seconds": 0.0039689999999999994,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-replay-probe.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/23/VM-replay-probe.stderr"
+      },
+      {
+        "tag": "18/VM-replay-probe",
+        "argv": [
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/vm-83b5f7f0248fe1c36ebfe3acd7fb187ed301affa/target/debug/bennett-vm",
+          "run-cc",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/ladder/rung-3/fixtures/executor-control.bisa",
+          "effects",
+          "--entropy",
+          "0b1621",
+          "--replay-tape",
+          "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-control-tape.json"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.012908140999570605,
+        "cpu_seconds": 0.011902,
+        "user_seconds": 0.007935,
+        "system_seconds": 0.003967,
+        "max_rss_kib": 233588,
+        "guard_class": "moderate",
+        "timeout_seconds": 1020,
+        "verdict": "EXIT",
+        "stdout": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-replay-probe.stdout",
+        "stderr": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/runs/20261109T103340.064773Z/18/VM-replay-probe.stderr"
+      }
+    ],
+    "pins": {
+      "dialect": "0.3-r1",
+      "isa": "0.9",
+      "dialect_spec_path": "spec/Bennett-Dialect-Spec-0.3-draft.md",
+      "bennett-plugin": "abe5557977e9e9a38d8922aff69cbfc638995798",
+      "bennett-vm": "83b5f7f0248fe1c36ebfe3acd7fb187ed301affa",
+      "bennett-runtimes": "40f243e2a2128eb61d0d2ab4786aa082a8e2c90f",
+      "bennett-driver": "8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b",
+      "bennett-arith": "cd245bcb07ad38da629d9b47f642e46e3c25cae9",
+      "bennett-isa-spec": "695cb4b7c330742820c6b315337a260e56de8bce",
+      "bennett-isa-spec-review": "695cb4b7c330742820c6b315337a260e56de8bce",
+      "bennett-dialect-spec": "830bd7f2a328556af983f2c3aa4c75ef9eb29b65",
+      "mapping": "0.3",
+      "normaliser": "0.2.8",
+      "replay": "saved-tape-v1",
+      "dialect_clause_graph": "ladder/rung-3/clauses/DLT-0.3-r1.json"
+    },
+    "dialect": "0.3-r1",
+    "isa": "0.9",
+    "budget": "10000000,1048576,65536,256",
+    "environment": {
+      "DISPLAY": null,
+      "WAYLAND_DISPLAY": null,
+      "DBUS_SESSION_BUS_ADDRESS": null,
+      "BROWSER": null,
+      "TMPDIR": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/tmp",
+      "CARGO_TARGET_DIR": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/target",
+      "CARGO_BUILD_JOBS": "8"
+    },
+    "sysroots": {
+      "18": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm18/musl-sysroot",
+      "23": "/home/tobias/Projects/bennett-workspace/bennett-conformance-job-r3-promote/.tmp/r3-promote/sources/rung3-bennett-runtimes-40f243e2a2128eb61d0d2ab4786aa082a8e2c90f/dist/llvm23/musl-sysroot"
+    },
+    "gate_sha256": "84a68cfb1efb9047e52955df27ca24e5ee56200ff8c3c826b295b3ade6724c75",
+    "native_audit_sha256": "92bdcf54482f71837a53163d4abf994cb8251b502bb233fa491050ad6b40a3d0",
+    "shared_support_sha256": "6d048b4ad212469e4ff964e4729615f0ceb81345157520108fc74827d7012981",
+    "blockers_sha256": "56c6e89f8872fe6a9495d3603839c6661d7897a01a8b7b1dbc4249f3d33dde19",
+    "execution_harness_sha256": "daf533608ab9825c9dc80714fa4f42681787e3746f30a803f1b0f6d3e2e2c6c5",
+    "guard_table": {
+      "machine": "Spiral",
+      "machine_config_factor": 1,
+      "trip_exit": 124,
+      "trip_verdict": "UNKNOWN",
+      "classes": {
+        "short": {
+          "seconds": 340,
+          "measured_seconds": 34,
+          "machine": "Spiral",
+          "date": "2026-11-08T09:50:18Z",
+          "evidence": "/home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s3-gate/profile.json",
+          "command_receipt": "/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp/gate/records/86219a1e60b3fa2eb3fe3773b332fd11a33469cd.json",
+          "scope": "complete gate, conservative upper measurement for individual rung commands"
+        },
+        "moderate": {
+          "seconds": 1020,
+          "measured_seconds": 102,
+          "machine": "Spiral",
+          "date": "2026-11-08T09:41:36Z",
+          "evidence": "/home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s3-gate/profile.json",
+          "command_receipt": "/home/tobias/Projects/bennett-workspace/bennett-driver/.tmp/gate/records/286040cd005b86e9731d0e7a085e88591bce582e.json",
+          "scope": "complete gate, conservative upper measurement for individual rung commands"
+        },
+        "long": {
+          "seconds": 30940,
+          "measured_seconds": 3094,
+          "machine": "Spiral",
+          "date": "2026-11-08T09:40:21Z",
+          "evidence": "/home/tobias/Projects/bennett-workspace/bennett/.tmp/orchestrator/s3-gate/profile.json",
+          "command_receipt": "/home/tobias/Projects/bennett-workspace/bennett-plugin/.tmp/gate/records/2319890511cdd2fa46b8c4cc748b52877408be6f.json",
+          "scope": "complete gate, conservative upper measurement for individual rung commands"
+        },
+        "eternal": {
+          "seconds": 323000,
+          "basis": "ten times sum of short/moderate/long command classes; whole rung orchestration guard"
+        }
+      },
+      "resource_admission": {
+        "nproc": 64,
+        "mem_available_kib": 56271672,
+        "load1": 8.88818359375,
+        "jobs": 8,
+        "reserved_rss_gib": 4,
+        "headroom_gib": 6
+      },
+      "limitation": "No durable repository class table; temporary table uses existing Spiral gate receipts, not a per-rung benchmark. File conformance follow-up."
+    },
+    "checkout": "4c9d9ce922170cee9da21b991c9adab8fb62b048",
+    "reference_source_sha": "695cb4b7c330742820c6b315337a260e56de8bce",
+    "reference_sha256": "5893350323915fea5b7b36c97565e8dc2f2e3b08b63bc549c718fa626487b232",
+    "fixtures": {
+      "hello.c": "845f417ae66e126b060ce675793ad9525d9ec02d378585d73358b114740e5112",
+      "effect-console-r.ll": "c58a54dd90ec02edac4fe7b171be303faab496b3563bce63c54a101dd0d1bd04",
+      "executor-control.bisa": "b8d9aab471f0d17191452f849e4052aa6afd0ea878316ba9db9f36126510a467",
+      "printf_fmt.c": "43354304198eeb8a317f2a00220a277efa9f637d02a02b61a8b2909613833d52",
+      "printf_fmt.expect.json": "9580dcaa3735cc30ac726dd1a8a62f89b42c4135865b7aece24c5bf7372a2362"
+    },
+    "plugin_sha256": {
+      "18": "d606a63edabb54f93faecf647eb37bd9b0377b8a1ad89842adc4f84133e91749",
+      "23": "627bad8fcdad00a26a7b1fdee96df3ad6f274b0eead9f0893ffd268ceee62fcf"
+    },
+    "vm_sha256": "1e22e7bd66b2b3d1c9ee9d51b0e77ae71087aec1a42866c5416b3f22fcf7a500",
+    "driver_sha256": "8240556c793c0ccb5478e2c9f4579a2e7913dff3c07181d87d436504cb4acea5",
+    "musl_stdio_sha256": {
+      "23": "36dda63d91161ecdd42755393bc7ff827dbfe82e512b630d2f2386c1acb8dbfa",
+      "18": "36dda63d91161ecdd42755393bc7ff827dbfe82e512b630d2f2386c1acb8dbfa"
+    },
+    "executor_sha256": {
+      "reference": "5893350323915fea5b7b36c97565e8dc2f2e3b08b63bc549c718fa626487b232",
+      "VM": "1e22e7bd66b2b3d1c9ee9d51b0e77ae71087aec1a42866c5416b3f22fcf7a500"
+    }
+  },
+  "stages": {
+    "18": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "R contract (prerequisite)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime bitcode link": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "post-link LTO": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires runtime bitcode link"
+      },
+      "reversible production": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires post-link LTO, plugin build, R contract (prerequisite)"
+      },
+      "launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reversible production"
+      },
+      "native comparison": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, driver build"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts"
+      },
+      "reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, reference admission"
+      },
+      "reference reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference forward = native"
+      },
+      "reference tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference reset"
+      },
+      "reference corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference tape replay"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, VM build"
+      },
+      "VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, VM admission"
+      },
+      "VM reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM forward = native"
+      },
+      "VM tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM reset"
+      },
+      "VM corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM tape replay"
+      },
+      "printf_fmt: musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "printf_fmt: runtime bitcode link": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "printf_fmt: post-link LTO": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: runtime bitcode link"
+      },
+      "printf_fmt: reversible production": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: post-link LTO, plugin build, R contract (prerequisite)"
+      },
+      "printf_fmt: launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reversible production"
+      },
+      "printf_fmt: native comparison": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: launch artefacts, driver build"
+      },
+      "printf_fmt: reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: launch artefacts"
+      },
+      "printf_fmt: reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: native comparison, printf_fmt: reference admission"
+      },
+      "printf_fmt: reference reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reference forward = native"
+      },
+      "printf_fmt: reference tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reference reset"
+      },
+      "printf_fmt: reference corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reference tape replay"
+      },
+      "printf_fmt: VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: launch artefacts, VM build"
+      },
+      "printf_fmt: VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: native comparison, printf_fmt: VM admission"
+      },
+      "printf_fmt: VM reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: VM forward = native"
+      },
+      "printf_fmt: VM tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: VM reset"
+      },
+      "printf_fmt: VM corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: VM tape replay"
+      },
+      "runtime libc/console audit (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "R-mode probe (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver probe (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "reference device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "reference replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      }
+    },
+    "23": {
+      "fixtures": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "plugin build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver build": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "R contract (prerequisite)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "runtime bitcode link": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "post-link LTO": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires runtime bitcode link"
+      },
+      "reversible production": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires post-link LTO, plugin build, R contract (prerequisite)"
+      },
+      "launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reversible production"
+      },
+      "native comparison": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, driver build"
+      },
+      "reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts"
+      },
+      "reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, reference admission"
+      },
+      "reference reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference forward = native"
+      },
+      "reference tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference reset"
+      },
+      "reference corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires reference tape replay"
+      },
+      "VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires launch artefacts, VM build"
+      },
+      "VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires native comparison, VM admission"
+      },
+      "VM reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM forward = native"
+      },
+      "VM tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM reset"
+      },
+      "VM corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires VM tape replay"
+      },
+      "printf_fmt: musl C front end": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "printf_fmt: runtime bitcode link": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "printf_fmt: post-link LTO": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: runtime bitcode link"
+      },
+      "printf_fmt: reversible production": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: post-link LTO, plugin build, R contract (prerequisite)"
+      },
+      "printf_fmt: launch artefacts": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reversible production"
+      },
+      "printf_fmt: native comparison": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: launch artefacts, driver build"
+      },
+      "printf_fmt: reference admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: launch artefacts"
+      },
+      "printf_fmt: reference forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: native comparison, printf_fmt: reference admission"
+      },
+      "printf_fmt: reference reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reference forward = native"
+      },
+      "printf_fmt: reference tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reference reset"
+      },
+      "printf_fmt: reference corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: reference tape replay"
+      },
+      "printf_fmt: VM admission": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: launch artefacts, VM build"
+      },
+      "printf_fmt: VM forward = native": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: native comparison, printf_fmt: VM admission"
+      },
+      "printf_fmt: VM reset": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: VM forward = native"
+      },
+      "printf_fmt: VM tape replay": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: VM reset"
+      },
+      "printf_fmt: VM corrupt-tape rejection": {
+        "status": "BLOCKED",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "Not run; requires printf_fmt: VM tape replay"
+      },
+      "runtime libc/console audit (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "R-mode probe (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "driver probe (diagnostic)": {
+        "status": "FAIL",
+        "beads": [
+          "bp-mq6"
+        ],
+        "error": "arith publication differs from plugin pin"
+      },
+      "reference device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "reference replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM device/reset control (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      },
+      "VM replay API (diagnostic)": {
+        "status": "PASS",
+        "beads": [],
+        "error": ""
+      }
+    }
+  }
+}

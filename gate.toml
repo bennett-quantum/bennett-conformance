@@ -1,8 +1,12 @@
 # Push-gate pins (bennett/tools/gate_README.md). Siblings resolve only to these commits.
 schema = 1
 repo = "bennett-conformance"
-tool_sha = "a630f3861426b8b08bcb0725abd2f5cd5dd70a06"
+tool_sha = "822aaeffab369114e1a719a7b887a0192b22d386"
 timeout_s = 14400
+
+# Paths no check reads; changing only these reuses a PASS receipt (bennett/tools/gate_README.md).
+[receipt]
+non_product = [".beads/", "worklog/", "CLAUDE.md", "AGENTS.md"]
 
 [env]
 BENNETT_ISA_SPEC = "{sibling:bennett-isa-spec}"

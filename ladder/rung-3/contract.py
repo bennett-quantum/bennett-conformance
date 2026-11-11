@@ -17,6 +17,8 @@ def validate_contract(pins, producer_text, spec):
                         if p.startswith('**Versioning.**')), '')
     versioning = re.search(r'\*\*Versioning\.\*\* Dialect ([\d.]+):.*?targets ISA ([\d.]+)\.',
                            declaration, flags=re.S)
+    if pair[0] == '0.3-r1':
+        return validate_r_profile(pins, producer, spec, declaration, versioning)
     if pair[1] not in ('0.8', '0.9') or not versioning or pair != versioning.groups() or pair != declared:
         raise GateError(f'unknown or mismatched R contract: pins {pair}, producer {declared}, '
                         f'publication {versioning.groups() if versioning else "undeclared"}')
@@ -25,3 +27,21 @@ def validate_contract(pins, producer_text, spec):
             raise GateError('unknown ISA-0.8 R contract: missing §11.5/17.6 prerequisite')
         raise GateError('BD-B-ISA7: dialect §11.5/17.6 blocks every ISA-0.8 whole-program R entry; typed pre-instruction budget fault requires ISA-7')
     return pair
+
+
+def validate_r_profile(pins, producer, spec, declaration, versioning):
+    """Dialect §1.7 publishes a profile separately from the legacy default track."""
+    profile = producer.get('profiles', {}).get('r_contract', {})
+    expected = {'dialect': '0.3-r1', 'isa': '0.9', 'mapping': '0.3',
+                'normaliser': '0.2.8', 'replay': 'saved-tape-v1'}
+    for field, value in expected.items():
+        if pins.get(field) != value or profile.get(field) != value:
+            raise GateError('unknown or mismatched R contract profile: '+field)
+    published = re.search(
+        r'^### 1\.7 Classical R-contract profile \(council-accepted\)\n+'
+        r'`0\.3-r1` names a full dialect compatibility identity under §23 for the classical\s+'
+        r'R-contract slice of this draft targeting ISA 0\.9\.', spec, flags=re.M)
+    if (not published or not versioning or versioning.groups() != ('0.3', '0.9')
+            or not re.search(r'\bnorm 0\.2\.8, map 0\.3,', declaration)):
+        raise GateError('unknown or mismatched R contract profile publication')
+    return pins['dialect'], pins['isa']

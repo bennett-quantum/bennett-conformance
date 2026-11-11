@@ -1,0 +1,34 @@
+{
+  "plugin_rev": "1bfe6613624bfd004b5dff649f9e4db8e1b07a44",
+  "arith_rev": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
+  "arith_main": "19fb8b55d28f22f8cfe191082f2b16d4d890f9da",
+  "label": "arith-rev 5e9b450 (the plugin's pinned arith), not arith main",
+  "majors": {
+    "18": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-arith",
+        "show",
+        "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab:dist/llvm18/bennett-arith.bc"
+      ],
+      "actual_sha256": "a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff",
+      "plugin_expected_sha256": "a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff",
+      "publication_SHA256SUMS": "a027f16991c06f39eb1305f28da0b1504651791bdd3533888171aa54e704f7ff  bennett-arith.bc\n7a4ed56aa83cf6f89c8264f8cb0eb97866f1c80695c590bdfd846d52d2882ba3  manifest.json\n",
+      "verdict": "PASS"
+    },
+    "23": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/tobias/Projects/bennett-workspace/bennett-arith",
+        "show",
+        "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab:dist/llvm23/bennett-arith.bc"
+      ],
+      "actual_sha256": "8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79",
+      "plugin_expected_sha256": "8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79",
+      "publication_SHA256SUMS": "8216b27231c36d750c326bbaef384011a1bdf7f7dbb717b8b8f5167551163f79  bennett-arith.bc\n1cb48278eb3878ccd59359cbe7ba246fabe34f20f2cabacb7d0a8f7ada83d61d  manifest.json\n",
+      "verdict": "PASS"
+    }
+  }
+}

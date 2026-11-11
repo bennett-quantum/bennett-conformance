@@ -1,0 +1,17 @@
+{
+  "dialect": "0.3-r1",
+  "isa": "0.9",
+  "dialect_spec_path": "spec/Bennett-Dialect-Spec-0.3-draft.md",
+  "bennett-plugin": "1bfe6613624bfd004b5dff649f9e4db8e1b07a44",
+  "bennett-vm": "83b5f7f0248fe1c36ebfe3acd7fb187ed301affa",
+  "bennett-runtimes": "20ee8b10f9dfa58493b379c556b0a4a3aa5263c4",
+  "bennett-driver": "bcd4e038d8663e319abfd7003216a4585cfcbc2b",
+  "bennett-arith": "5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab",
+  "bennett-isa-spec": "64434934f7f9eaadbffebe34ce9734e33a7ced53",
+  "bennett-isa-spec-review": "64434934f7f9eaadbffebe34ce9734e33a7ced53",
+  "bennett-dialect-spec": "687284fa28a79c536b3885cabec3adf5de26e031",
+  "mapping": "0.3",
+  "normaliser": "0.2.8",
+  "replay": "saved-tape-v1",
+  "dialect_clause_graph": "ladder/rung-3/clauses/DLT-0.3-r1.json"
+}

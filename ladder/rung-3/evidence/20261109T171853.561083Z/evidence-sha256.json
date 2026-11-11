@@ -1,0 +1,21 @@
+{
+  "classified/report.json": "88fb6c95632b5d1301b9ce3791483f4131c12b0f501eb15624c184e2c0bfc8f4",
+  "classified/table.md": "a4e4e9d65c96888b5ee70ec4865692d4776aa0347e28613c6513f8c8b01dc485",
+  "command-receipts.json": "5e962b204d14bc41a0f07a8ee442372ba0152d3480ba8ea884f74d80f342c3d4",
+  "failures.json": "f51aa5ec680c0806c2e13ee7520752b28537a4d2a67fe5cd486ebd1d850feb37",
+  "focused-check-receipts.json": "a0bcbc1c50691dd238c7b642278f123f3e000d3a9635b8aece65336f3cb022d0",
+  "gate-glue-changes.json": "a877ec0e7efa15ab0afbf986fe1824f62bbcde609636f7b668f1f07d098e227a",
+  "hang-guards.json": "40ef941caa8306804fe9e8d74902ceb76205781826e529adc84f5d11d0076584",
+  "integrity.json": "fe2ce03c841a5a54a8e842d06f44e8f85d2f14bcb0c7eca96e2d983c5449985e",
+  "launch.json": "4f7205729defa57bd8f5c8dff5988e6ae57c12282517a9293f7bee2ab520a32e",
+  "origin-after-run.json": "720c0acba0c30b7effafac347c98dfe42786d178c98c961e302f0312a83ae69a",
+  "origin-before-run.json": "9bf24eff10e6062454fd43b22f057831fd146e426ac5fa6049069afe24d07e29",
+  "ownership.md": "01e26db3a7b5869931aa0471c020de0b3ee7ab3c019ff01e98325cbc972ddb7a",
+  "pins.json": "c49f5d2663bc996554133b69c89618c10bf8c54238ee4bf801a253530efc57cd",
+  "publication-pins.json": "52be8bbba8daf946eb8ad2943ad63219539fca9646387f5f655732581a9d93fc",
+  "quality-diff.patch": "8812d7cbc2fc9e314bfe0475a4b56db4f1479503dc1f3bbbe8b1acc83150bbbf",
+  "raw-evidence-sha256.json": "949f8490fc37a820b955fc1e96c9b782edff1fb53a0201fabaf9ab735041a6db",
+  "receipt.json": "f61a4eaba4216e6d187fe55bac5428929b595c1ee06ea9c0d1f670fd67601d29",
+  "report.json": "8ab90ce52a7c732c8bba81871f7f74df4f895867c564a89b69ab4aa79ac963f3",
+  "table.md": "e50e6e1b4817736552d3801f16ab8aa6f4be69538854f2eb83c76726bcfa3e63"
+}

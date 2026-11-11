@@ -1,0 +1,24 @@
+{
+  "verdict": "PASS",
+  "raw_file_count": 246,
+  "command_count": 91,
+  "failed_commands": 6,
+  "rows_per_major": 44,
+  "per_major": {
+    "PASS": 21,
+    "FAIL": 3,
+    "BLOCKED": 20
+  },
+  "checks": [
+    "RESULTS prefix equals db38cf2",
+    "historical run directories unchanged",
+    "raw report/table byte-identical",
+    "all raw file SHA256 verified",
+    "classified status/error/manifest unchanged",
+    "every non-PASS row has ownership",
+    "headless environment and job-local temp/target",
+    "quality diff only predecessor owned rows",
+    "every new RESULTS evidence link resolves"
+  ],
+  "utc": "2026-11-09T17:27:20Z"
+}
