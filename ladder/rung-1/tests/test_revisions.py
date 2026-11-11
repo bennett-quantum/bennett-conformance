@@ -50,7 +50,9 @@ class RevisionCLI(unittest.TestCase):
                 pins = json.loads((ROOT / 'ladder' / rung / 'pins.json').read_text())
                 for name in ('plugin', 'vm', 'runtimes', 'arith'):
                     self.assertEqual(pins['bennett-' + name], expected['bennett-' + name])
-                self.assertEqual(pins['bennett-isa-spec'], expected['bennett-isa-spec-review'])
+                self.assertEqual(pins['bennett-isa-spec'],
+                    'c3df1d32f1ad3139dc863a90085604061ef483de' if rung == 'rung-1'
+                    else expected['bennett-isa-spec-review'])
                 self.assertRegex(pins['bennett-driver'], r'^[0-9a-f]{40}$')
                 self.assertNotIn('bennett-isa-spec-review', pins)
 

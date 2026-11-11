@@ -5,12 +5,21 @@ import itertools
 import json
 from pathlib import Path
 import subprocess
+import sys
 from gate import inputs, domain, check_action
 from progress import write_summary
 p=argparse.ArgumentParser(description=__doc__)
 for key in ('executor','object','native','evidence','budget'):p.add_argument('--'+key,required=True)
 p.add_argument('--arity',required=True,type=int)
+p.add_argument('--range', help='half-open rank shard using reverse-action-batch/1')
+p.add_argument('--identity')
+p.add_argument('--executor-sha256')
+p.add_argument('--object-sha256')
+p.add_argument('--timeout',type=float,default=300)
 a=p.parse_args();native=Path(a.native).read_bytes();evidence=Path(a.evidence)
+if a.range is not None:
+    import batch_reverse
+    sys.exit(batch_reverse.cli(a,p,native))
 summary={'cases':0,'faults':0,'reversed':0,'domain':domain(a.arity)}
 with evidence.open('w') as log:
     for index,x in enumerate(inputs(a.arity)):

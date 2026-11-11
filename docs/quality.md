@@ -314,8 +314,9 @@ operation and is never invoked by the gate.
 "harness/tools/extract_vm_differential.py": [3, 3, 0, 0, 0, 0, 0, 30, 62, 0, 0],
 "ladder/common/gate_support.py": [4, 4, 0, 0, 0, 0, 0, 21, 17, 2, 0],
 "ladder/rung-1/classify_report.py": [4, 4, 0, 0, 0, 0, 0, 27, 68, 0, 0],
+"ladder/rung-1/batch_reverse.py": [15, 15, 0, 0, 0, 0, 0, 30, 44, 1, 0],
 "ladder/rung-1/full_domain_worker.py": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-"ladder/rung-1/gate.py": [39, 38, 1, 0, 0, 1, 0, 55, 159, 2, 0],
+"ladder/rung-1/gate.py": [42, 41, 1, 0, 0, 1, 0, 55, 168, 2, 0],
 "ladder/rung-1/input_worker.py": [1, 1, 0, 0, 0, 0, 0, 6, 0, 0, 0],
 "ladder/rung-1/progress.py": [1, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0],
 "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
@@ -491,3 +492,12 @@ Rung 4 supports a diagnostic selection that records all full-SQLite rows as
 not run and never reports full acceptance. Its gate baseline includes the
 selection branch and explicit stage guard; regression tests assert that the
 excluded SQLite methods cannot execute and the default gate stays complete.
+
+Rung-1 full-D execution can use the published streamed action-reversal
+interface. The new independent consumer validates binary framing, pinned
+identities and invocation/layout, every forward/native and reversed tuple,
+all phase/preservation/cleanup flags, padding, footer, process success and
+exact shard coverage. Process lifetime and UNKNOWN timeout cleanup have
+separate bounded helpers. The gate baseline includes range scheduling and
+capability dispatch; no domain, native comparison or reversal assertion is
+removed. New-module baseline metrics include its file-hash helper.

@@ -13,10 +13,13 @@ import re
 import subprocess
 import sys
 import tarfile
+import threading
 import tomllib
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
 from revision_sources import RevisionSources, add_revision_options, validate_revision_options, apply_recorded_pins
+import batch_reverse
+from progress import write_summary
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
@@ -113,9 +116,10 @@ class Gate(RecordedGate):
             'pins':dict(PINS),'dialect':'0.2.10','isa':'0.8','budget':BUDGET,
             'domain':{c:domain(n) for c,n in CASES.items()},'case_budgets':{c:case_budget(c) for c in CASES},
             'environment':{k:os.environ.get(k) for k in ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
-            'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py','progress.py')},
+            'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py','progress.py','batch_reverse.py')},
             'gate_sha256':sha(HERE/'gate.py'),'shared_support_sha256':sha(HERE.parent/'common/gate_support.py')}
         self.paths={};self.entries={};self.children={};self.inapplicable={}
+        self.batch_capabilities={};self.batch_lock=threading.Lock()
         self.sources=RevisionSources(self,WORKSPACE)
 
     def freeze(self,repo,rev):
@@ -351,7 +355,8 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
             symbols[str(max(map(int,symbols))+1)]={'interface_hash':h,'kind':'action','name':'rung1_full','signature':sig}
             functions,sep,rest=tail.partition('\n\nsection ')
             wrapped.write_text(sections[0]+'section symbols\n'+json.dumps(symbols,sort_keys=True,separators=(',',':'))+'\n\nsection functions\n'+functions.rstrip()+'\n'+body.rstrip()+sep+rest)
-        self.command(f'{lang}/{m}/{c}/{name}-full-D-check',[self.executor(name),'check',wrapped])
+        identity=json.loads(self.command(f'{lang}/{m}/{c}/{name}-full-D-check',[self.executor(name),'check',wrapped]))
+        write_summary(self.folder(lang,m)/c/(name+'-full-D-identity.json'),identity)
         # A boundary tuple demonstrates the adapter; exhaustive acceptance is a
         # separate bounded worker over the entire product, never this probe.
         value=json.loads(self.command(f'{lang}/{m}/{c}/{name}-full-D-interface',[self.executor(name),'reverse',wrapped,'rung1_full',
@@ -359,15 +364,64 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         check_action(value,(255,)*CASES[c],255,15,(self.folder(lang,m)/(c+'-native.bin')).read_bytes()[-1])
 
     def exhaustive_D(self,lang,m,c,name):
+        if self.batch_available(name):
+            return self.batch_domain(lang,m,c,name)
+        if name=='reference':
+            raise GateError('pinned reference lacks the published reverse-action-batch interface')
         self.command(f'{lang}/{m}/{c}/{name}-full-D-exhaustive',[
             sys.executable,HERE/'full_domain_worker.py','--executor',self.executor(name),
             '--object',self.obj(lang,m,c).with_name('full-domain.bennett'),
             '--native',self.folder(lang,m)/(c+'-native.bin'),'--arity',CASES[c],
             '--evidence',self.folder(lang,m)/c/(name+'-full-D.jsonl'),'--budget',case_budget(c)])
 
+    def batch_available(self,name):
+        with self.batch_lock:
+            if name not in self.batch_capabilities:
+                help_text=self.command(f'build/{name}-batch-help',[self.executor(name),'--help']).decode()
+                available=any(' reverse-action-batch ' in line for line in help_text.splitlines())
+                self.batch_capabilities[name]=available
+                self.manifest.setdefault('batch_capabilities',{})[name]=available
+            return self.batch_capabilities[name]
+
+    def batch_domain(self,lang,m,c,name):
+        total=domain(CASES[c])['cases']
+        # 16 workers measured ~714k cases/s. These execution shards leave ample
+        # room below 300s; unary shards are smaller for uncached memory helpers.
+        shards=batch_reverse.ranges(total,1 << (16 if CASES[c]==1 else 20))
+        root=self.folder(lang,m)/c
+        evidence=root/(name+'-full-D-shards');evidence.mkdir(exist_ok=True)
+        obj=self.obj(lang,m,c).with_name('full-domain.bennett')
+        executable=self.executor(name);executable_hash=sha(executable);object_hash=sha(obj)
+        def one(bounds):
+            lo,hi=bounds;receipt=evidence/f'{lo}-{hi}.json'
+            self.command(f'{lang}/{m}/{c}/{name}-full-D-{lo}-{hi}',[
+                sys.executable,HERE/'full_domain_worker.py','--executor',executable,'--object',obj,
+                '--native',self.folder(lang,m)/(c+'-native.bin'),'--arity',CASES[c],
+                '--evidence',receipt,'--budget',case_budget(c),'--range',f'{lo}..{hi}',
+                '--identity',root/(name+'-full-D-identity.json'),
+                '--executor-sha256',executable_hash,'--object-sha256',object_hash,'--timeout',self.args.timeout])
+            return json.loads(receipt.read_text())
+        summary={'cases':0,'faults':0,'reversed':0,'domain':domain(CASES[c]),'complete':False,'transport':batch_reverse.FORMAT,'shards':[]}
+        summary_path=root/(name+'-full-D-summary.json')
+        write_summary(summary_path,summary)
+        pool=ThreadPoolExecutor(max_workers=getattr(self.args,'full_d_jobs',16))
+        try:
+            for receipt in pool.map(one,shards):
+                summary['shards'].append(receipt)
+                summary['cases']+=receipt['cases'];summary['reversed']+=receipt['cases']
+                write_summary(summary_path,summary)
+        finally:
+            pool.shutdown(wait=True,cancel_futures=True)
+        batch_reverse.coverage(summary['shards'],total)
+        summary['complete']=True
+        write_summary(summary_path,summary)
+
     def domain_summary(self,lang,m,c,name):
         v=json.loads((self.folder(lang,m)/c/(name+'-full-D-summary.json')).read_text())
         assert v['cases']==domain(CASES[c])['cases'] and v['faults']==0 and v['reversed']==v['cases']
+        if v.get('transport')==batch_reverse.FORMAT:
+            assert v['complete'] is True
+            batch_reverse.coverage(v['shards'],domain(CASES[c])['cases'])
 
     def diagnostic(self,lang,m,c,name):
         # Bounded worker records every exact child command and response, flushing
@@ -462,6 +516,7 @@ def main():
     os.environ.setdefault('TMPDIR',str(ROOT/'.tmp'));Path(os.environ['TMPDIR']).mkdir(parents=True,exist_ok=True)
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output');p.add_argument('--timeout',type=int,default=300);p.add_argument('--jobs',type=int,default=4)
+    p.add_argument('--full-d-jobs',type=int,default=16,help='concurrent complete range checks; each retains --timeout')
     p.add_argument('--plugin-rev');p.add_argument('--vm-rev')
     add_revision_options(p)
     p.add_argument('--reference')
@@ -471,6 +526,7 @@ def main():
     validate_revision_options(p,args)
     apply_recorded_pins(args,PINS)
     if not 0<args.timeout<=300:p.error('corpus timeout must be in 1..300')
+    if args.full_d_jobs<=0:p.error('full-D jobs must be positive')
     return Gate(args).main()
 
 if __name__=='__main__':raise SystemExit(main())

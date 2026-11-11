@@ -92,6 +92,31 @@ No sampling or target/fault structural shortcut counts as exhaustion.
 emitted oracle and its unchanged closure hashes. The adapter's content hash is
 computed using ISA §9.2; both executors independently admit it. It exposes every
 interface wire using `reverse`'s forward and restored sparse basis states.
+The reference is pinned to `c3df1d32f1ad3139dc863a90085604061ef483de` for
+its published `reference-interpreter/BATCH-REVERSE.md` interface. Full-D runs
+use `reverse-action-batch` when the selected executor advertises that command;
+the same decoder automatically consumes the VM mirror when available. A VM
+without it retains the original single-case worker. The reference must expose
+the pinned batch interface; it cannot silently fall back to the timeout path.
+
+Each binary domain is partitioned into 256 contiguous 2^20-tuple commands;
+unary domains use 16 contiguous 2^16-tuple commands. `--full-d-jobs` defaults
+to 16 concurrent checker/executor pairs. Every command keeps the existing
+`--timeout` (at most 300 seconds); a language's full-D row aggregates these
+completed commands, with no larger timeout substituted for a command. Shards
+must cover exactly `[0, |D|)` without gaps, overlaps or incomplete prefixes.
+Sizes and concurrency are execution choices, not domain limits.
+
+The independent binary consumer binds the admitted object/action hashes,
+fixed token arguments/aliases, physical layout, rank order and endpoints. It
+checks every complete forward tuple against target XOR native, unchanged
+fault/input values, exact reversed tuple and zero padding. All seven exact
+phase, preservation, cleanup and full-state restoration flags must be set.
+Canonical header/footer framing, counts, zero failed cases, EOF and process
+success are mandatory. Stream digests and compact range receipts retain the
+proof of checked coverage without writing gigabytes of per-case JSON. A
+watchdog kills/reaps a failed or timed-out child; timeout remains UNKNOWN.
+
 Input-only diagnostics use the oracle retained-history reversal CLI and compare
 its full machine snapshot (including memory), clean inverse frames and native
 payload on every source input. **Those diagnostics cannot pass full-D rows.**
@@ -101,8 +126,9 @@ row is the conjunction of its functions; individual results remain in report.jso
 
 Every invocation owns `.tmp/rung-1/<UTC timestamp>/`. `report.json` records pins,
 versions, exact argv, status, command limits/timings, hashes, per-function rows
-and propagated bead IDs. Per-command stdout/stderr and per-input JSONL retain
-results and exact executor commands; partial summaries survive a timeout.
+and propagated bead IDs. Batch shard receipts additionally record ordered stream
+digests, complete metadata and coverage; legacy workers retain per-input JSONL.
+Partial summaries survive a timeout and never establish full-D acceptance.
 `table.md` is the stage table, and `.tmp/rung-1/latest` points to the latest
 completed report. [RESULTS.md](RESULTS.md) records the real run;
 [blockers.json](blockers.json) lists measured blockers in pipeline order.
@@ -142,8 +168,9 @@ this also resolves arithmetic when only the five health inputs are symlinked. Th
 directly: the driver revision is frozen and recorded, with its unused-binary
 status explicit in the manifest; no driver execution is claimed.
 
-With no revision selectors, both rungs reproduce their recorded `pins.json`
-inputs, including a release reference built from the canonical ISA repository.
+With no revision selectors, both rungs select `pins.json`, including a release
+reference built from the canonical ISA repository. Rung 1 now selects `c3df1d3`
+for the batch transport; rung 2 retains its historical reference pin.
 No review checkout or live runtime/arithmetic distribution is required. An explicitly selected plugin uses its own declared arithmetic
 commit by default; `--arith-rev` can select another commit, whose bitcode must
 still match the plugin's digest pins. `--runtimes18/23`, `--arith18/23`, and
@@ -187,8 +214,9 @@ to describe the original corpus; the production version fields describe the
 selected plugin invocation.
 
 The six primary pins are plugin `157d4bd`, VM `13f5a9e`, runtimes `6808622`,
-arithmetic `249e619`, reference/ISA `ba7d13f`, and driver provenance `8c6d0a8`.
-The first five are the recorded inputs in RESULTS.md and the durable evidence.
+arithmetic `249e619`, reference/ISA `c3df1d3`, and driver provenance `8c6d0a8`.
+The historical evidence retains its original reference `ba7d13f`; its bytes and
+results are unchanged by this explicit consumer migration.
 The historical runs invoked the plugin directly, without a driver binary;
 `8c6d0a8` is the last driver commit preceding the recorded rung-2 run and is
 frozen only as unused provenance. The dialect pin describes fixture clauses.
