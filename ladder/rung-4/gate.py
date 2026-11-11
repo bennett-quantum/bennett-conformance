@@ -47,6 +47,8 @@ STAGES = ('sibling revisions', 'reference build', 'fixtures', 'SQLite source unm
           'reference --mem-file (diagnostic)', 'VM --mem-file (diagnostic)',
           'reference measured control (diagnostic)', 'VM measured control (diagnostic)',
           'estimator CLI (diagnostic)', 'checker CLI (diagnostic)')
+SQLITE_STAGES = STAGES[STAGES.index('host image = native oracle = predicate'):
+                       STAGES.index('reference reduced control (diagnostic)')]
 
 # ---------------------------------------------------------------- independent predicate (no SQLite)
 FIRST = 'Ada Brian Carmen Dmitri Elena Frank Grace Hans Ingrid Juan Kenji Lena Morgan Nadia Oscar Priya'.split()
@@ -339,6 +341,16 @@ class Gate(RecordedGate):
                          'gate_sha256': sha(HERE/'gate.py'), 'revision_sources_sha256': sha(HERE/'revision_sources.py'), 'shared_support_sha256': sha(HERE.parent/'common/gate_support.py'),
                          'blockers_sha256': sha(HERE/'blockers.json')}
         self.sources = FrozenSources(self, WORKSPACE)
+        self.excluded_rows = set(SQLITE_STAGES) if getattr(args, 'diagnostics_only', False) else set()
+        self.manifest['selection'] = {'mode': 'diagnostics-only' if self.excluded_rows else 'full',
+                                      'excluded_rows': [s for s in STAGES if s in self.excluded_rows]}
+
+    def stage(self, major, name, action, deps=()):
+        if name in self.excluded_rows:
+            self.rows[major][name] = {'status': 'NOT RUN', 'beads': [],
+                'error': 'Excluded by --diagnostics-only; full SQLite acceptance remains required.'}
+            return
+        super().stage(major, name, action, deps)
 
     # ------------ sources
     def reference(self):
@@ -943,6 +955,8 @@ def main():
     Path(os.environ['TMPDIR']).mkdir(parents=True, exist_ok=True)
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', help='parent for fresh timestamped run directories')
+    p.add_argument('--diagnostics-only', action='store_true',
+                   help='exclude full SQLite execution/acceptance cells; retain them as NOT RUN, never full-rung acceptance')
     for name in REPOSITORIES:
         p.add_argument('--'+name+'-rev', help='override pins.json with a frozen bennett-'+name+' commit/ref')
     p.add_argument('--reference', help='explicit reference binary; conflicts with --isa-spec-rev')
