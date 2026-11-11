@@ -31,7 +31,7 @@ CORPUS_STAGES = ('musl C front end',
 def workload_stage(workload, stage):
     return stage if workload == 'hello' else workload+': '+stage
 
-STAGES = ('fixtures', 'plugin build', 'VM build', 'driver build', 'R contract (prerequisite)',
+STAGES = ('fixtures', 'plugin build', 'VM build', 'driver build', 'reference build', 'R contract (prerequisite)',
           *(workload_stage(w,s) for w in WORKLOADS for s in CORPUS_STAGES),
           'runtime libc/console audit (diagnostic)', 'R-mode probe (diagnostic)',
           'driver probe (diagnostic)',
@@ -42,7 +42,8 @@ class Gate(RecordedGate):
     def __init__(self, args):
         self.args=args
         self.contract=PINS['dialect'],PINS['isa']
-        self.tmp=CONFORMANCE/'.tmp'
+        self.tmp=Path(os.environ.get('TMPDIR',CONFORMANCE/'.tmp')).resolve()
+        self.tmp.mkdir(parents=True,exist_ok=True)
         self.out=Path(args.output).resolve() if args.output else self.tmp/'rung-3'
         self.out.mkdir(parents=True, exist_ok=True)
         self.run=self.out/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')
@@ -55,7 +56,8 @@ class Gate(RecordedGate):
         self.stages=STAGES
         self.forward_results={}
         self.sysroots={m:Path(getattr(args,f'sysroot{m}',None) or
-                         WORKSPACE/f'bennett-runtimes/dist/llvm{m}/musl-sysroot').resolve() for m in (18,23)}
+                         self.tmp/('rung3-bennett-runtimes-'+PINS['bennett-runtimes'])/
+                         f'dist/llvm{m}/musl-sysroot').resolve() for m in (18,23)}
         self.manifest={'time_utc':datetime.now(timezone.utc).isoformat(), 'commands':[],
                        'pins':dict(PINS), 'dialect':self.contract[0], 'isa':self.contract[1], 'budget':BUDGET,
                        'environment':{k:os.environ.get(k) for k in
@@ -133,6 +135,22 @@ class Gate(RecordedGate):
         self.command('build/driver-build',['cargo','build','--offline','--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
         self.driver_exe=src/'target/debug/bennett-driver'
         self.manifest['driver_sha256']=sha(self.driver_exe)
+
+    def reference(self):
+        override=getattr(self.args,'reference',None)
+        if override:
+            self.reference_exe=Path(override).resolve()
+        else:
+            src=self.freeze('bennett-isa-spec',self.args.isa_spec_rev)
+            self.command('build/reference-build',['cargo','build','--offline','--release',
+                '--jobs',str(self.args.jobs),'--manifest-path',src/'reference-interpreter/Cargo.toml',
+                '--target-dir',src/'target'],timeout=600)
+            self.reference_exe=src/'target/release/bennett-isa-ref'
+        if not self.reference_exe.is_file():
+            raise GateError('missing reference executable: '+str(self.reference_exe))
+        self.manifest['reference']={'selection':'explicit binary' if override else 'pinned source',
+            'path':str(self.reference_exe),'sha256':sha(self.reference_exe),
+            'profile':'explicit' if override else 'release'}
 
     def fixtures(self):
         pins=json.loads((HERE/'fixtures/sha256.json').read_text())
@@ -238,6 +256,7 @@ class Gate(RecordedGate):
             '-bennett-out='+str(work),
             '--bennett-sysroot='+str(self.sysroots[m]),
             '--bennett-native-check='+str(self.publications['bennett-runtimes']/'scripts/native-check'),
+            '--bennett-native-support='+str(self.publications['bennett-runtimes']/f'dist/llvm{m}/musl-sysroot/lib/native-support.bc'),
             '--bennett-comparison-record='+str(out/'native-comparison.json'),
             '--bennett-comparison-output='+str(d/'native')])
         if not (out/'native-comparison.json').is_file():
@@ -257,7 +276,7 @@ class Gate(RecordedGate):
         (d/'native.stdout').write_bytes(output)
 
     def executor(self,name):
-        exe=self.vm_exe if name=='VM' else Path(self.args.reference)
+        exe=self.vm_exe if name=='VM' else self.reference_exe
         assert exe.is_file(), 'missing executor: '+str(exe)
         self.manifest.setdefault('executor_sha256',{})[name]=sha(exe)
         return exe
@@ -397,7 +416,7 @@ class Gate(RecordedGate):
         return int(any(r['status']!='PASS' for row in self.rows.values() for r in row.values()))
 
     def main(self):
-        for stage,action in [('fixtures',self.fixtures),('plugin build',self.plugin),('VM build',self.vm),('driver build',self.driver)]:
+        for stage,action in [('fixtures',self.fixtures),('plugin build',self.plugin),('VM build',self.vm),('driver build',self.driver),('reference build',self.reference)]:
             self.stage(18,stage,action)
             self.rows[23][stage]=dict(self.rows[18][stage])
         self.stage(18,'R contract (prerequisite)',self.isa_contract)
@@ -405,14 +424,14 @@ class Gate(RecordedGate):
         def major(m):
             for workload in WORKLOADS:
                 row=lambda name:workload_stage(workload,name)
-                self.stage(m,row('musl C front end'),lambda:self.frontend(m,workload),('fixtures',))
+                self.stage(m,row('musl C front end'),lambda:self.frontend(m,workload),('fixtures','plugin build'))
                 self.stage(m,row('runtime bitcode link'),lambda:self.runtime_link(m,workload),(row('musl C front end'),'plugin build'))
                 self.stage(m,row('post-link LTO'),lambda:self.postlink(m,workload),(row('runtime bitcode link'),))
                 self.stage(m,row('reversible production'),lambda:self.pipeline(m,workload=workload),(row('post-link LTO'),'plugin build','R contract (prerequisite)'))
                 self.stage(m,row('launch artefacts'),lambda:self.artifacts(m,workload),(row('reversible production'),))
                 self.stage(m,row('native comparison'),lambda:self.native(m,workload),(row('launch artefacts'),'driver build'))
                 for name in ('reference','VM'):
-                    self.stage(m,row(name+' admission'),lambda:self.admission(m,name,workload),(row('launch artefacts'),)+(('VM build',) if name=='VM' else ()))
+                    self.stage(m,row(name+' admission'),lambda:self.admission(m,name,workload),(row('launch artefacts'),)+(('VM build',) if name=='VM' else ('reference build',)))
                     self.stage(m,row(name+' forward = native'),lambda:self.execute(m,name,workload=workload),(row('native comparison'),row(name+' admission')))
                     self.stage(m,row(name+' reset'),lambda:self.execute(m,name,True,workload=workload),(row(name+' forward = native'),))
                     self.stage(m,row(name+' tape replay'),lambda:self.replay(m,name,workload=workload),(row(name+' reset'),))
@@ -421,7 +440,7 @@ class Gate(RecordedGate):
             self.stage(m,'R-mode probe (diagnostic)',lambda:self.pipeline(m,True),('fixtures','plugin build'))
             self.stage(m,'driver probe (diagnostic)',lambda:self.driver_probe(m),('driver build','fixtures','plugin build'))
             for name in ('reference','VM'):
-                self.stage(m,name+' device/reset control (diagnostic)',lambda:self.control(m,name),('fixtures',)+(('VM build',) if name=='VM' else ()))
+                self.stage(m,name+' device/reset control (diagnostic)',lambda:self.control(m,name),('fixtures',)+(('VM build',) if name=='VM' else ('reference build',)))
                 self.stage(m,name+' replay API (diagnostic)',lambda:self.replay_probe(m,name),(name+' device/reset control (diagnostic)',))
         with ThreadPoolExecutor(max_workers=2) as pool:
             list(pool.map(major,(18,23)))
@@ -433,16 +452,16 @@ def main():
         raise GateError('Python optimisation disables acceptance assertions; run gate.sh without -O')
     for key in ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','PYTHONOPTIMIZE'):
         os.environ.pop(key,None)
-    os.environ['TMPDIR']=str(CONFORMANCE/'.tmp')
-    Path(os.environ['TMPDIR']).mkdir(exist_ok=True)
+    os.environ.setdefault('TMPDIR',str(CONFORMANCE/'.tmp'))
+    Path(os.environ['TMPDIR']).mkdir(parents=True,exist_ok=True)
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',help='parent for fresh timestamped run directories')
-    for short,repo in [('plugin','bennett-plugin'),('vm','bennett-vm'),('driver','bennett-driver')]:
+    for short,repo in [('plugin','bennett-plugin'),('vm','bennett-vm'),('driver','bennett-driver'),('isa-spec','bennett-isa-spec')]:
         p.add_argument('--'+short+'-rev',default=PINS[repo],help='frozen commit (default: pins.json)')
     for m in (18,23):
         p.add_argument('--sysroot'+str(m),help='Bennett musl sysroot with include/ and lib/; never host headers')
         p.add_argument('--runtimes'+str(m),help='explicit major-matched runtime publication override; hash recorded')
-    p.add_argument('--reference',default=str(WORKSPACE/'bennett-isa-spec-review/reference-interpreter/target/release/bennett-isa-ref'))
+    p.add_argument('--reference',help='explicit binary override; default builds the frozen ISA reference offline in release mode')
     p.add_argument('--timeout',type=int,default=300)
     p.add_argument('--jobs',type=int,default=4)
     args=p.parse_args()

@@ -45,7 +45,7 @@ class AcceptanceTests(unittest.TestCase):
 
     def test_every_workload_runs_both_executors_and_majors(self):
         calls = []
-        for method in ('fixtures', 'plugin', 'vm', 'driver', 'frontend', 'runtime_link',
+        for method in ('fixtures', 'plugin', 'vm', 'driver', 'reference', 'frontend', 'runtime_link',
                        'postlink', 'pipeline', 'artifacts', 'native', 'admission',
                        'execute', 'replay', 'runtime_audit', 'driver_probe',
                        'isa_contract', 'control', 'replay_probe'):

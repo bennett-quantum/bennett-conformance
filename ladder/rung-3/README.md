@@ -38,10 +38,10 @@ env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
   /home/tobias/Projects/bennett-workspace/bennett-conformance/ladder/rung-3/gate.sh
 ```
 
-`gate.sh --help` describes overrides. The wrapper and Python entry point force
-TMPDIR to this repository's `.tmp` and unset desktop variables. Each corpus
-command has a host timeout of at most 300 seconds; plugin/VM/driver build limits
-are 1800/600/600 seconds. No network, push, display or LLVM view pass is used.
+`gate.sh --help` describes overrides. The wrapper and Python entry point preserve a supplied repository-local
+TMPDIR, default to this repository's `.tmp`, and unset desktop variables. Each corpus
+command has a host timeout of at most 300 seconds; plugin/VM/driver/reference build limits
+are 1800/600/600/600 seconds. No network, push, display or LLVM view pass is used.
 Dependencies: LLVM 18 and 23 at `/usr/lib/llvm-<M>/bin`, CMake, Git, Python 3.12+,
 Rust/Cargo with cached dependencies, a C++ compiler, and readelf. No service starts.
 
@@ -57,15 +57,15 @@ in [blockers.json](blockers.json). The conformance tracking bead is
 
 Defaults are immutable commits in [pins.json](pins.json), not moving HEADs:
 
-| Input | Commit |
-|---|---|
-| Dialect 0.3-r1 | `830bd7f2a328556af983f2c3aa4c75ef9eb29b65` |
-| Plugin | `abe5557977e9e9a38d8922aff69cbfc638995798` |
-| VM | `83b5f7f0248fe1c36ebfe3acd7fb187ed301affa` |
-| Driver | `8b1b4a1814ce3c99f4357d2e11f048b1ff2a090b` |
-| Runtimes | `40f243e2a2128eb61d0d2ab4786aa082a8e2c90f` |
-| Arith | `cd245bcb07ad38da629d9b47f642e46e3c25cae9` |
-| ISA 0.9 / reference source | `695cb4b7c330742820c6b315337a260e56de8bce` |
+| Input | Commit | Reason |
+|---|---|---|
+| Dialect 0.3-r1 | `ba4e3243056100db1eb347e5ee0a8ab4bea1e429` | Pushed dialect main; publishes the accepted classical R profile and its ISA 0.9 compatibility identity. |
+| Plugin | `6f1d93c9f7bc93cbbef0b9adb101b69695336095` | Pushed producer main; emits ISA 0.9 throughout the selected R-contract object. |
+| VM | `c23740bc90cffbf6354ff28c4f9d8b36e2daaf91` | Pushed executor main, including region lifetime support. |
+| Driver | `a907ff5712f302c47574c4fb8eb746d7a210404c` | Pushed driver main; accepts the R contract and requires an explicit native-support publication. |
+| Runtimes | `7559e3bb40e824352ba6afaa5ed37e6a9860faf3` | Pushed runtime main; supplies the frozen musl headers, runtime, native-support bitcode and native-check adapter. |
+| Arith | `5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab` | Exact arithmetic publication declared and hash-pinned by the selected plugin. Current arith main `2670e894c77745275f9bffb92aa80e7c7c805c27` has different bitcode; substituting it would fail the required producer digest check. |
+| ISA 0.9 / reference source | `aaa8f1887ef68541ba9ddb07dfbb223b93fe7b1e` | Pushed ISA main with the 0.9 headers and K86–K92 reference checks; builds the reference actually used by this rung. |
 
 The selected contract is **dialect 0.3-r1 / ISA 0.9**, the council-accepted
 classical R profile in the pinned `spec/Bennett-Dialect-Spec-0.3-draft.md` §1.7.
@@ -74,10 +74,14 @@ declares this identity independently of its legacy 0.2.x default. Mapping 0.3,
 normaliser 0.2.8 and saved-tape-v1 are checked as part of the selected profile.
 The full dialect clause graph under `clauses/` in this rung was generated from
 that pinned publication; inclusion of a clause does not grade the rest of 0.3.
-Implementation pins are the pushed mains observed on 2026-11-09; the exact
-remote observations and execution result are appended to RESULTS.md.
-The reference executable can be selected with `--reference`; the promotion
-run builds it from the pinned ISA source and records its binary hash.
+Implementation pins were observed on pushed mains on 2026-11-11; arithmetic
+remains the exact publication required by the producer. The default reference
+is built offline in release mode from the frozen canonical ISA repository at
+`--isa-spec-rev` (default: the ISA pin). The report records the effective source
+commit, executable path, binary hash and build profile. `--reference` selects
+an explicit binary override and records that selection and its hash. No live
+review-checkout executable is selected implicitly. A failed reference build
+blocks its admission and diagnostic consumers through a separate build row.
 
 Plugin and driver builds use verified Git archives under `.tmp/rung3-<repo>-<sha>/`.
 Runtime/arith bitcode also comes from archived pinned commits, avoiding concurrent
@@ -90,16 +94,16 @@ compiled publication pin; any mismatch remains a failure (bp-mq6). The gate pres
 failure instead of substituting older arithmetic or bypassing its hash check.
 VM builds offline in a clean **detached** `.tmp/vm-<sha>` worktree, never in its
 potentially dirty sibling tree. `--plugin-rev`, `--vm-rev`, `--driver-rev` override
-those revisions explicitly; `--reference` overrides the binary. All effective
+those revisions explicitly; `--isa-spec-rev` selects the frozen reference source. All effective
 revisions, binary/library hashes, tool versions and commands are recorded.
 
 ## Required pipeline
 
-1. Check fixtures and build the frozen plugin (both majors), VM and driver.
+1. Check fixtures and build the frozen plugin (both majors), VM, driver and reference.
 2. Compile each ordinary corpus source with `clang -O2 -flto -emit-llvm`, target
    `x86_64-unknown-linux-musl`, explicit `--sysroot`, `-nostdinc`, and only the musl
    include directory. Default consumer layout is
-   `bennett-runtimes/dist/llvm<M>/musl-sysroot/{include,lib}`; this filename/layout
+   the frozen runtime publication's `dist/llvm<M>/musl-sysroot/{include,lib}`; this filename/layout
    is configurable via `--sysroot18/23`, not specified by the dialect. There is no
    fallback to host stdio.h or the legality checker's small seeds.
 3. Link program + same-major runtimes + arith using llvm-link --only-needed,
@@ -134,6 +138,7 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
 * The native stage requests the frozen driver with `--bennett-materialised`,
   `--bennett-llvm-major`, `--bennett-plugin`, `--bennett-runtimes`, `--bennett-arith`,
   `--bennett-sysroot`, the frozen runtime `--bennett-native-check`,
+  and the same-major frozen runtime `--bennett-native-support`,
   `--bennett-comparison-record` and
   `--bennett-comparison-output`, explicit `-bennett-out=out/native-work`, and the
   selected versions/R mode/entry. `out/native-comparison.json` must contain
