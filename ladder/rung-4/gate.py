@@ -47,8 +47,9 @@ STAGES = ('sibling revisions', 'reference build', 'fixtures', 'SQLite source unm
           'reference --mem-file (diagnostic)', 'VM --mem-file (diagnostic)',
           'reference measured control (diagnostic)', 'VM measured control (diagnostic)',
           'estimator CLI (diagnostic)', 'checker CLI (diagnostic)')
-SQLITE_STAGES = STAGES[STAGES.index('host image = native oracle = predicate'):
-                       STAGES.index('reference reduced control (diagnostic)')]
+SQLITE_STAGES = ('SQLite source unmodified',
+                *STAGES[STAGES.index('host image = native oracle = predicate'):
+                        STAGES.index('reference reduced control (diagnostic)')])
 
 # ---------------------------------------------------------------- independent predicate (no SQLite)
 FIRST = 'Ada Brian Carmen Dmitri Elena Frank Grace Hans Ingrid Juan Kenji Lena Morgan Nadia Oscar Priya'.split()

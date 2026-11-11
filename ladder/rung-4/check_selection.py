@@ -29,7 +29,7 @@ class SelectionTests(unittest.TestCase):
 
     def test_diagnostic_selection_does_not_execute_sqlite_or_claim_acceptance(self):
         runner, calls, result = self.run_gate(True)
-        for method in ('host', 'frontend', 'runtime_link', 'postlink', 'closure', 'production',
+        for method in ('sqlite_source', 'host', 'frontend', 'runtime_link', 'postlink', 'closure', 'production',
                        'artefacts', 'comparison', 'admission', 'oracle_runs', 'tuples', 'step_checks',
                        'amplitudes', 'outcomes', 'certificate', 'estimate', 'images_agree'):
             self.assertNotIn(method, calls, method)
@@ -40,7 +40,7 @@ class SelectionTests(unittest.TestCase):
         self.assertEqual(result, 1)
         for major in (18, 23):
             self.assertEqual(set(runner.rows[major]), set(gate.STAGES))
-            for stage in ('coherent production', 'reference (a) full tuple on D',
+            for stage in ('SQLite source unmodified', 'coherent production', 'reference (a) full tuple on D',
                           'VM (b) amplitudes', '(a) certificate verdict', '(c) resource estimate at N=2^20'):
                 self.assertEqual(runner.rows[major][stage]['status'], 'NOT RUN')
         report = json.loads((runner.run/'report.json').read_text())
