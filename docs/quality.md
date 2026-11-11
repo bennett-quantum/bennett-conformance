@@ -323,7 +323,7 @@ operation and is never invoked by the gate.
 "ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
 "ladder/rung-3/gate.py": [37, 37, 0, 0, 0, 0, 0, 30, 100, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 70, 0, 0],
-"ladder/rung-4/gate.py": [82, 82, 0, 0, 0, 0, 0, 48, 218, 2, 0],
+"ladder/rung-4/gate.py": [83, 83, 0, 0, 0, 0, 0, 48, 222, 2, 0],
 "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],
 "scripts/quality_ratchet.py": [10, 10, 0, 0, 0, 0, 0, 37, 101, 0, 0],
 "suite/run.py": [14, 13, 1, 0, 0, 1, 0, 65, 189, 1, 0],
@@ -486,3 +486,8 @@ Rung-1 progress publication writes a complete sibling file before atomic rename.
 The new four-line publisher is shared by both workers and included in their
 recorded implementation hashes. Interruption tests kill each actual worker
 during checkpoint writing and require the previous complete record to survive.
+
+Rung 4 supports a diagnostic selection that records all full-SQLite rows as
+not run and never reports full acceptance. Its gate baseline includes the
+selection branch and explicit stage guard; regression tests assert that the
+excluded SQLite methods cannot execute and the default gate stays complete.

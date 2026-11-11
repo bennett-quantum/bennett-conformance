@@ -12,6 +12,16 @@ is expected. [DESIGN.md](DESIGN.md) says what each clause means and which shortc
 `TMPDIR=<repo>/.tmp/rung-4/tmp python3 check_gate.py`. `fixtures/fetch-sqlite.sh` fetches the pinned
 amalgamation into the cache if `~/.local/share/bennett-sqlite/` does not have it.
 
+`./gate.sh --diagnostics-only` runs builds, fixture/source checks, the independent
+predicate and the published reduced-control diagnostics. It excludes the full
+SQLite host/compiler/executor pipeline and clauses (a), (b) and (c). Every
+excluded row remains in the report as `NOT RUN`, with the selection recorded
+in the manifest. This mode cannot return full-rung acceptance even when every
+selected row passes. Use it to inspect prerequisites while the full SQLite
+analysis memory blocker is open. `python3 check_selection.py` verifies that
+this selection cannot call the excluded methods and that the default remains
+the complete gate.
+
 
 All sibling inputs default to [pins.json](pins.json). The selectors
 `--plugin-rev`, `--vm-rev`, `--runtimes-rev`, `--driver-rev`, `--estimate-rev`,
