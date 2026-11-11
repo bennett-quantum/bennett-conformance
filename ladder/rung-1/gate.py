@@ -267,6 +267,7 @@ class Gate(RecordedGate):
             '-bennett-dialect='+self.manifest['dialect'],'-bennett-isa='+self.manifest['isa'],'-bennett-oracle='+entry,
             '-bennett-scalar-shape='+('ARG(64),' if lang=='Julia' else '')+','.join(['IN(8,sext)']*CASES[c])+';tgt=8',
             '-bennett-scalar-stack='+case_budget(c).split(',')[2],
+            '--bennett-layout-data-base=131072','--bennett-layout-text-base=8388608',
             '-bennett-out='+str(d/'out'),'-disable-output',d/'postlink.ll'])
         for file in ('ref.bennett','materialised.bc'):assert (d/'out'/file).is_file(), 'missing scalar artefact: '+file
 
@@ -294,9 +295,9 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
 """.replace('ENTRY',entry).replace('PARAMS',','.join(['i8']*arity))
             .replace('ARGS','(i8)a,(i8)b' if arity==2 else '(i8)a').replace('COUNT',str(256 if arity==2 else 1)))
         layout=json.loads(self.obj(lang,m,c).read_text().split('section layout\n')[1])
-        layout_flags='-Wl,--gc-sections,--build-id=none,-e,_start,--section-start=.text=0x400000'
+        layout_flags='-Wl,--gc-sections,--build-id=none,-e,_start,--section-start=.text=0x800000'
         if layout['globals']:
-            layout_flags+=',--section-start=.rodata=0x1000,--section-start=.data=0x2000'
+            layout_flags+=',--section-start=.rodata=0x20000,--section-start=.data=0x21000'
         linked=d/'comparison-linked.bc'
         bitcode_argv=[f'/usr/lib/llvm-{m}/bin/llvm-link',out/'materialised.bc',rt,ar,
             '--only-needed','-o',linked]

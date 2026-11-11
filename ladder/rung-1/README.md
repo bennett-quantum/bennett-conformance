@@ -152,6 +152,16 @@ Revision regression checks (includes the real, read-only main-health
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s ladder/rung-1/tests -v
 ```
 
+The rung-1 producer requests comparison data base 131072 and text base 8388608
+through `--bennett-layout-data-base` and `--bennett-layout-text-base`. The native
+comparison links `.rodata` at `0x20000`, `.data` at `0x21000` and `.text` at
+`0x800000`, matching the device layout (lookup G1 = 131072, heap base = 135168).
+This keeps the comparison above the host's low-address mapping floor. The
+global-address check and byte-for-byte native comparison remain required.
+Use `--plugin-rev 904e5344371c3ef6423a948e7939492c56a60976` or a descendant
+that implements these published options; the historical default plugin pin
+predates their implementation and reports the existing layout-option blocker.
+
 For full rung reruns on `tobias-ThinkPad-X1-Carbon-Gen-11`, use a 12000-second
 outer hang guard, classified UNKNOWN on exit 124. The last durable rung-1
 receipt, `evidence/20261101T141544.771577Z/report.json` (2026-11-01), records
