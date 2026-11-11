@@ -193,6 +193,12 @@ comparison links `.rodata` at `0x20000`, `.data` at `0x21000` and `.text` at
 `0x800000`, matching the device layout (lookup G1 = 131072, heap base = 135168).
 This keeps the comparison above the host's low-address mapping floor. The
 global-address check and byte-for-byte native comparison remain required.
+Named read-only globals retain their exact symbol-address check. Anonymous
+merged constants must instead have the exact device image at its declared
+address and size, with read-only allocated section contents and a unique
+read-only file-backed ELF LOAD mapping. Named symbols in that section cannot
+use the anonymous fallback. The comparison receipt records this proof and
+the ELF/image hashes; native execution/equality remains mandatory.
 Use `--plugin-rev 904e5344371c3ef6423a948e7939492c56a60976` or a descendant
 that implements these published options; the historical default plugin pin
 predates their implementation and reports the existing layout-option blocker.
