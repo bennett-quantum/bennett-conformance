@@ -29,7 +29,7 @@ def header(arity, lo, hi):
     return {'type':'header', 'format':'bennett.reverse-action-batch/1', 'encoding':'binary',
             'action':'rung1_full', 'adjoint':False, 'object_hash':'a'*64,
             'interface_hash':'b'*64, 'closure_hash':'c'*64,
-            'args':['token:'+BUDGET], 'token_aliases':[0], 'domain_bits':12+8*arity,
+            'args':['token:'+BUDGET], 'token_aliases':None, 'domain_bits':12+8*arity,
             'record_bytes':8 if arity==1 else 10, 'mode':'range', 'lo':str(lo), 'hi':str(hi),
             'rank_order':[*range(2, 2+arity), 0, 1], 'components':components}
 
@@ -89,7 +89,7 @@ class StreamChecks(unittest.TestCase):
         good = header(1,4094,4098)
         mutations = {'object_hash':'d'*64, 'interface_hash':'d'*64, 'closure_hash':None,
             'action':'other', 'adjoint':True, 'encoding':'jsonl', 'mode':'jsonl',
-            'args':['token:1,0,0,0'], 'token_aliases':None, 'lo':'4093', 'hi':'4099',
+            'args':['token:1,0,0,0'], 'token_aliases':[0], 'lo':'4093', 'hi':'4099',
             'domain_bits':21, 'record_bytes':9, 'rank_order':[0,1,2], 'future':0}
         for field,value in mutations.items():
             bad=copy.deepcopy(good); bad[field]=value
@@ -131,12 +131,14 @@ class StreamChecks(unittest.TestCase):
 
 class ProcessChecks(unittest.TestCase):
     fixture = StreamChecks.fixture
-    def execute(self, output, exit_code=0, hang=False, timeout=5, tamper=None):
+    def execute(self, output, exit_code=0, hang=False, timeout=5, tamper=None, forbid_alias=False):
         directory=tempfile.TemporaryDirectory(dir=os.environ['TMPDIR'])
         self.addCleanup(directory.cleanup)
         root=Path(directory.name)
         executor=root/'executor'
         body='import sys,time\n'
+        if forbid_alias:
+            body+="if '--token-aliases' in sys.argv: sys.exit('unsupported --token-aliases')\n"
         body+='time.sleep(30)\n' if hang else f'sys.stdout.buffer.write(bytes.fromhex({output.hex()!r}))\nsys.exit({exit_code})\n'
         executor.write_text('#!'+sys.executable+'\n'+body); executor.chmod(0o755)
         obj=root/'object.bennett'; obj.write_bytes(b'test object')
@@ -154,6 +156,10 @@ class ProcessChecks(unittest.TestCase):
             with self.subTest(kind=kind), self.assertRaises(batch.BatchError):
                 self.execute(head+records+tail,tamper=kind)
             self.assertFalse(self.last_receipt.exists())
+
+    def test_single_token_wrapper_uses_the_common_default_alias_binding(self):
+        _,head,records,tail=self.fixture()
+        self.assertTrue(self.execute(head+records+tail,forbid_alias=True)['complete'])
 
     def test_process_must_succeed_even_with_valid_footer(self):
         _,head,records,tail=self.fixture()
