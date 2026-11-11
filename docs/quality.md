@@ -320,7 +320,7 @@ operation and is never invoked by the gate.
 "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
 "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
 "ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
-"ladder/rung-3/gate.py": [36, 36, 0, 0, 0, 0, 0, 30, 96, 0, 0],
+"ladder/rung-3/gate.py": [37, 37, 0, 0, 0, 0, 0, 30, 100, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 70, 0, 0],
 "ladder/rung-4/gate.py": [82, 82, 0, 0, 0, 0, 0, 48, 218, 2, 0],
 "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],
@@ -475,3 +475,8 @@ The isolated driver probes using `9809c88176c96a047887136562795f4ab259c41b`
 both advance past target admission and exit 1 at the plugin diagnostic
 `§19.2 argv/envp byte storage in R launch (milestone 4) at ptr %1`.
 This is fixture evidence; no full rung-3 run or acceptance claim follows.
+
+Rung 3 builds its selected frozen reference explicitly, records the executable
+hash, and propagates reference-build failures to consumers. Its gate baseline
+includes that input-selection branch and the added build stage; native
+comparison also receives the pinned runtime native-support publication.
