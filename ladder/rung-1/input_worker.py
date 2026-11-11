@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import time
 from gate import inputs, result, restored
+from progress import write_summary
 p=argparse.ArgumentParser(description=__doc__)
 for key in ('executor','object','native','evidence','budget'):p.add_argument('--'+key,required=True)
 p.add_argument('--arity',required=True,type=int)
@@ -31,9 +32,9 @@ with evidence.open('w') as log:
             if result(v)!=expected[index]:summary['mismatches']+=1
             assert result(v)==expected[index],f'native mismatch at {x}: {v}'
             restored(v);summary['cases']+=1;summary['reversed']+=1
-            if summary['cases']%256==0:summary_path.write_text(json.dumps(summary)+'\n')
+            if summary['cases']%256==0:write_summary(summary_path,summary)
     finally:
         pool.shutdown(wait=True,cancel_futures=True)
-summary_path.write_text(json.dumps(summary)+'\n')
+write_summary(summary_path,summary)
 assert summary['cases']==len(expected)==256**a.arity
 print(json.dumps(summary))

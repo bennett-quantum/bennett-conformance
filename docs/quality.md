@@ -317,6 +317,7 @@ operation and is never invoked by the gate.
 "ladder/rung-1/full_domain_worker.py": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 "ladder/rung-1/gate.py": [39, 38, 1, 0, 0, 1, 0, 55, 159, 2, 0],
 "ladder/rung-1/input_worker.py": [1, 1, 0, 0, 0, 0, 0, 6, 0, 0, 0],
+"ladder/rung-1/progress.py": [1, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0],
 "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
 "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
 "ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
@@ -480,3 +481,8 @@ Rung 3 builds its selected frozen reference explicitly, records the executable
 hash, and propagates reference-build failures to consumers. Its gate baseline
 includes that input-selection branch and the added build stage; native
 comparison also receives the pinned runtime native-support publication.
+
+Rung-1 progress publication writes a complete sibling file before atomic rename.
+The new four-line publisher is shared by both workers and included in their
+recorded implementation hashes. Interruption tests kill each actual worker
+during checkpoint writing and require the previous complete record to survive.
