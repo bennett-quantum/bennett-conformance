@@ -19,6 +19,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
 from revision_sources import RevisionSources, add_revision_options, validate_revision_options, apply_recorded_pins
 import batch_reverse
+import native_layout
 from progress import write_summary
 
 HERE=Path(__file__).resolve().parent
@@ -118,6 +119,7 @@ class Gate(RecordedGate):
             'environment':{k:os.environ.get(k) for k in ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
             'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py','progress.py','batch_reverse.py')},
             'gate_sha256':sha(HERE/'gate.py'),'shared_support_sha256':sha(HERE.parent/'common/gate_support.py')}
+        self.manifest['native_layout_sha256']=sha(HERE/'native_layout.py')
         self.paths={};self.entries={};self.children={};self.inapplicable={}
         self.batch_capabilities={};self.batch_lock=threading.Lock()
         self.sources=RevisionSources(self,WORKSPACE)
@@ -320,11 +322,17 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         assert not self.command(f'{lang}/{m}/{c}/native-comparison-undefined',[f'/usr/lib/llvm-{m}/bin/llvm-nm','--undefined-only',d/'comparison']).strip()
         # Lookup's sole read-only table is the scalar object's sole global, G1.
         if c=='r1_lookup':
-            layout=json.loads(self.obj(lang,m,c).read_text().split('section layout\n')[1])
-            addresses={int(line.split()[0],16) for line in symbols.decode().splitlines() if len(line.split())==3 and line.split()[1].lower()=='r'}
-            assert all(g['base'] in addresses for g in layout['globals'].values()), 'native comparison global layout mismatch'
+            self.comparison_layout(lang,m,c,layout,symbols)
         data=self.command(f'{lang}/{m}/{c}/native-comparison-run',[d/'comparison'])
         assert data==(self.folder(lang,m)/(c+'-native.bin')).read_bytes(), 'materialised native differs from O0/O2'
+
+    def comparison_layout(self,lang,m,c,layout,symbols):
+        d=self.folder(lang,m)/c
+        readelf=lambda flag:self.command(f'{lang}/{m}/{c}/native-comparison-elf{flag}',
+            ['readelf','-W',flag,d/'comparison']).decode()
+        audit=native_layout.check_globals(d/'comparison',layout,self.obj(lang,m,c).read_text(),symbols.decode(),readelf)
+        record=json.loads((d/'native-comparison.json').read_text());record['global_layout_audit']=audit
+        write_summary(d/'native-comparison.json',record)
 
     def executor(self,name):
         exe=self.vm_exe if name=='VM' else self.reference_exe

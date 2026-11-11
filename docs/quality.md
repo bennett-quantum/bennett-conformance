@@ -316,8 +316,9 @@ operation and is never invoked by the gate.
 "ladder/rung-1/classify_report.py": [4, 4, 0, 0, 0, 0, 0, 27, 68, 0, 0],
 "ladder/rung-1/batch_reverse.py": [15, 15, 0, 0, 0, 0, 0, 33, 49, 1, 0],
 "ladder/rung-1/full_domain_worker.py": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-"ladder/rung-1/gate.py": [43, 42, 1, 0, 0, 1, 0, 55, 168, 2, 0],
+"ladder/rung-1/gate.py": [44, 43, 1, 0, 0, 1, 0, 55, 163, 2, 0],
 "ladder/rung-1/input_worker.py": [1, 1, 0, 0, 0, 0, 0, 6, 0, 0, 0],
+"ladder/rung-1/native_layout.py": [6, 6, 0, 0, 0, 0, 0, 24, 34, 0, 0],
 "ladder/rung-1/progress.py": [1, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0],
 "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
 "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
@@ -501,3 +502,11 @@ exact shard coverage. Process lifetime and UNKNOWN timeout cleanup have
 separate bounded helpers. The gate baseline includes range scheduling and
 capability dispatch; no domain, native comparison or reversal assertion is
 removed. New-module baseline metrics include its file-hash helper.
+
+Rung-1 constant-layout admission retains the named read-only symbol address
+check. Its anonymous fallback additionally proves the device image bytes and
+size within read-only merged section data, exact file/address correspondence,
+and a unique read-only file-backed LOAD range; a named symbol in that section
+cannot use this fallback. The new helper baseline covers those checks. Real
+LLVM ELF regressions retain named-global failures and reject byte, size,
+address and writable-load mutations.
