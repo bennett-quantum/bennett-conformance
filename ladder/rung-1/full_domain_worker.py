@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 from gate import inputs, domain, check_action
+from progress import write_summary
 p=argparse.ArgumentParser(description=__doc__)
 for key in ('executor','object','native','evidence','budget'):p.add_argument('--'+key,required=True)
 p.add_argument('--arity',required=True,type=int)
@@ -23,6 +24,6 @@ with evidence.open('w') as log:
             v=json.loads(r.stdout)
             check_action(v,x,t,e,native[index])
             summary['cases']+=1;summary['reversed']+=1
-            evidence.with_name(evidence.stem+'-summary.json').write_text(json.dumps(summary)+'\n')
+            write_summary(evidence.with_name(evidence.stem+'-summary.json'),summary)
 assert summary['cases']==domain(a.arity)['cases']
 print(json.dumps(summary))

@@ -113,7 +113,7 @@ class Gate(RecordedGate):
             'pins':dict(PINS),'dialect':'0.2.10','isa':'0.8','budget':BUDGET,
             'domain':{c:domain(n) for c,n in CASES.items()},'case_budgets':{c:case_budget(c) for c in CASES},
             'environment':{k:os.environ.get(k) for k in ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
-            'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py')},
+            'worker_sha256':{f:sha(HERE/f) for f in ('input_worker.py','full_domain_worker.py','progress.py')},
             'gate_sha256':sha(HERE/'gate.py'),'shared_support_sha256':sha(HERE.parent/'common/gate_support.py')}
         self.paths={};self.entries={};self.children={};self.inapplicable={}
         self.sources=RevisionSources(self,WORKSPACE)

@@ -113,6 +113,11 @@ Gate glue checks (never corpus acceptance):
 TMPDIR=/home/tobias/Projects/bennett-workspace/bennett-conformance/.tmp python3 ladder/rung-1/check_gate.py
 ```
 
+Both workers publish progress summaries by atomic replacement within the same
+directory. An interrupted write preserves the last complete checkpoint; that
+partial progress still cannot satisfy a full-domain acceptance row. The report
+hashes the shared progress publisher alongside both worker implementations.
+
 Rung 1 reuses `ladder/common/gate_support.py` for command evidence, failures and
 red dependency propagation. Rung 2 shares the revision-source helper in `revision_sources.py`.
 
