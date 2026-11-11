@@ -24,13 +24,18 @@ class RangeScheduling(unittest.TestCase):
     def prepare(self,case):
         d=self.g.folder('C',18)/case/'out';d.mkdir(parents=True)
         (d/'full-domain.bennett').write_bytes(b'synthetic admitted object')
+        (self.g.folder('C',18)/(case+'-native.bin')).write_bytes(bytes(256**gate.CASES[case]))
         self.g.batch_available=lambda name:True
 
     def record(self,tag,argv,**kwargs):
         argv=list(map(str,argv));self.calls.append((tag,argv,kwargs))
         lo,hi=map(int,argv[argv.index('--range')+1].split('..'))
         path=Path(argv[argv.index('--evidence')+1])
-        path.write_text(json.dumps({'lo':lo,'hi':hi,'cases':hi-lo,'complete':True}))
+        bindings={'executor_sha256':argv[argv.index('--executor-sha256')+1],
+            'object_sha256':argv[argv.index('--object-sha256')+1],
+            'native_sha256':gate.sha(Path(argv[argv.index('--native')+1])),
+            'budget':argv[argv.index('--budget')+1]}
+        path.write_text(json.dumps({'lo':lo,'hi':hi,'cases':hi-lo,'complete':True,**bindings}))
         return b'{}'
 
     def test_binary_and_unary_shards_cover_every_tuple_with_the_same_cap(self):

@@ -387,11 +387,13 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
         total=domain(CASES[c])['cases']
         # 16 workers measured ~714k cases/s. These execution shards leave ample
         # room below 300s; unary shards are smaller for uncached memory helpers.
-        shards=batch_reverse.ranges(total,1 << (16 if CASES[c]==1 else 20))
+        shard_size=1 << (16 if CASES[c]==1 else 20)
+        shards=batch_reverse.ranges(total,shard_size)
         root=self.folder(lang,m)/c
         evidence=root/(name+'-full-D-shards');evidence.mkdir(exist_ok=True)
         obj=self.obj(lang,m,c).with_name('full-domain.bennett')
         executable=self.executor(name);executable_hash=sha(executable);object_hash=sha(obj)
+        bindings=self.batch_bindings(lang,m,c,name)
         def one(bounds):
             lo,hi=bounds;receipt=evidence/f'{lo}-{hi}.json'
             self.command(f'{lang}/{m}/{c}/{name}-full-D-{lo}-{hi}',[
@@ -401,7 +403,8 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
                 '--identity',root/(name+'-full-D-identity.json'),
                 '--executor-sha256',executable_hash,'--object-sha256',object_hash,'--timeout',self.args.timeout])
             return json.loads(receipt.read_text())
-        summary={'cases':0,'faults':0,'reversed':0,'domain':domain(CASES[c]),'complete':False,'transport':batch_reverse.FORMAT,'shards':[]}
+        summary={'cases':0,'faults':0,'reversed':0,'domain':domain(CASES[c]),'complete':False,'transport':batch_reverse.FORMAT,
+                 'shards':[],'bindings':bindings,'jobs':getattr(self.args,'full_d_jobs',16),'shard_cases':shard_size}
         summary_path=root/(name+'-full-D-summary.json')
         write_summary(summary_path,summary)
         pool=ThreadPoolExecutor(max_workers=getattr(self.args,'full_d_jobs',16))
@@ -412,16 +415,22 @@ __attribute__((naked,noreturn)) void _start(void) { __asm__("andq $-16, %rsp; ca
                 write_summary(summary_path,summary)
         finally:
             pool.shutdown(wait=True,cancel_futures=True)
-        batch_reverse.coverage(summary['shards'],total)
+        batch_reverse.coverage(summary['shards'],total,bindings)
         summary['complete']=True
         write_summary(summary_path,summary)
+
+    def batch_bindings(self,lang,m,c,name):
+        return {'executor_sha256':sha(self.executor(name)),
+            'object_sha256':sha(self.obj(lang,m,c).with_name('full-domain.bennett')),
+            'native_sha256':sha(self.folder(lang,m)/(c+'-native.bin')),'budget':case_budget(c)}
 
     def domain_summary(self,lang,m,c,name):
         v=json.loads((self.folder(lang,m)/c/(name+'-full-D-summary.json')).read_text())
         assert v['cases']==domain(CASES[c])['cases'] and v['faults']==0 and v['reversed']==v['cases']
         if v.get('transport')==batch_reverse.FORMAT:
             assert v['complete'] is True
-            batch_reverse.coverage(v['shards'],domain(CASES[c])['cases'])
+            assert v['bindings']==self.batch_bindings(lang,m,c,name)
+            batch_reverse.coverage(v['shards'],domain(CASES[c])['cases'],v['bindings'])
 
     def diagnostic(self,lang,m,c,name):
         # Bounded worker records every exact child command and response, flushing

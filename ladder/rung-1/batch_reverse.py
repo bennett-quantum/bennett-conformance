@@ -121,12 +121,14 @@ def ranges(total, size):
     return [(lo,min(lo+size,total)) for lo in range(0,total,size)]
 
 
-def coverage(receipts, total):
+def coverage(receipts, total, bindings=None):
     cursor = 0
     for receipt in sorted(receipts, key=lambda r:r['lo']):
         require(receipt['complete'] is True and receipt['lo'] == cursor and receipt['hi'] > cursor,
                 'incomplete, overlapping or gapped shard coverage')
         require(receipt['cases'] == receipt['hi']-cursor, 'shard count mismatch')
+        if bindings is not None:
+            require(all(receipt.get(k) == v for k,v in bindings.items()), 'shards use different native/object/tool/invocation bindings')
         cursor = receipt['hi']
     require(cursor == total, 'domain not completely covered by shards')
     return cursor
@@ -175,7 +177,8 @@ def execute_shard(executor, obj, identity, native, arity, budget, lo, hi, eviden
     argv = [str(executor),'reverse-action-batch',str(obj),'rung1_full','--range',f'{lo}..{hi}',
             '--format','binary','--arg','token:'+budget,'--token-aliases','[0]']
     receipt = {'argv':argv, 'lo':lo, 'hi':hi, 'complete':False,
-               'executor_sha256':executor_sha256, 'object_sha256':object_sha256}
+               'executor_sha256':executor_sha256, 'object_sha256':object_sha256,
+               'native_sha256':hashlib.sha256(native).hexdigest(), 'budget':budget}
     write_summary(evidence, receipt)
     started = time.monotonic()
     stderr_path = evidence.with_suffix('.stderr')

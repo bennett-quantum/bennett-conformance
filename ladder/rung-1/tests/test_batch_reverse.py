@@ -121,6 +121,8 @@ class StreamChecks(unittest.TestCase):
                   {'lo':4,'hi':8,'cases':4,'complete':True},
                   {'lo':8,'hi':10,'cases':2,'complete':True}]
         self.assertEqual(batch.coverage(receipts,10),10)
+        receipts[0]['native_sha256']='different'
+        with self.assertRaises(batch.BatchError):batch.coverage(receipts,10,{'native_sha256':'expected'})
         for bad in (receipts[:-1], receipts+[receipts[-1]],
                     [dict(receipts[0],hi=5),*receipts[1:]],
                     [dict(receipts[0],complete=False),*receipts[1:]]):
