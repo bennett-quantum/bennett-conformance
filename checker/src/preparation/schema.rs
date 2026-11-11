@@ -14,15 +14,24 @@ pub(super) fn keys(v: &Value, fields: &[&str], required: &[&str]) -> Result<()> 
     Ok(())
 }
 pub(super) fn uint(v: &Value) -> Result<BigUint> {
-    crate::domain::biguint_of_json(v, "preparation coordinate").map_err(|e| match e {
-        crate::fault::ResolveError::Reject(e) => Error::Rejected(vec![crate::cert::rej(
-            "E_CERT_PREPARATION",
-            "§12.3",
-            "bindings.preparation",
-            e.message,
-        )]),
-        crate::fault::ResolveError::HostLimit(e) => Error::Unavailable(e.quantity),
-    })
+    let value =
+        crate::domain::biguint_of_json(v, "preparation coordinate").map_err(|e| match e {
+            crate::fault::ResolveError::Reject(e) => Error::Rejected(vec![crate::cert::rej(
+                "E_CERT_PREPARATION",
+                "§12.3",
+                "bindings.preparation",
+                e.message,
+            )]),
+            crate::fault::ResolveError::HostLimit(e) => Error::Unavailable(e.quantity),
+        })?;
+    // §12.3 uses §8.3 uint encodings, unlike the general replay domains:
+    // values below 2^53 must be JSON numbers; larger values must be strings.
+    if matches!(v, Value::Str(_)) && value.bits() <= 53 {
+        return Err(invalid(
+            "uint below 2^53 must be encoded as a JSON number (§8.3)",
+        ));
+    }
+    Ok(value)
 }
 pub(super) fn index(v: &Value) -> Result<usize> {
     uint(v)?
@@ -226,5 +235,38 @@ pub(super) fn restoration(v: &Value, claim_index: usize) -> Result<()> {
             Ok(())
         }
         _ => Err(invalid("unknown restoration witness kind")),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn preparation_uint_uses_numbers_below_two_to_53_and_strings_above() {
+        for text in [
+            "0",
+            "9007199254740991",
+            "\"9007199254740992\"",
+            "\"18446744073709551616\"",
+        ] {
+            let value = crate::json::parse(text).unwrap();
+            assert!(uint(&value).is_ok(), "valid uint {text}");
+        }
+        for text in [
+            "\"0\"",
+            "\"9007199254740991\"",
+            "9007199254740992",
+            "-1",
+            "0.5",
+            "true",
+            "\"09007199254740992\"",
+        ] {
+            let value = crate::json::parse(text).unwrap();
+            assert!(
+                matches!(uint(&value), Err(Error::Rejected(_))),
+                "malformed uint {text}"
+            );
+        }
     }
 }

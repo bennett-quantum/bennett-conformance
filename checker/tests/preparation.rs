@@ -319,6 +319,43 @@ fn logical_preparation_reconstructs_the_real_prefix_and_checks_exact_restoration
         "{report:?}"
     );
 }
+#[test]
+fn preparation_claim_index_requires_the_canonical_uint_encoding() {
+    let inputs = logical_fixture();
+    let control = check_certificate(&inputs);
+    assert!(codes(&control).is_empty(), "{control:?}");
+    assert_eq!(
+        control.preparation[0]
+            .get("applicability")
+            .unwrap()
+            .as_str(),
+        Some("established")
+    );
+    let mut cert = json(std::str::from_utf8(&inputs.cert_bytes).unwrap());
+    let Value::Obj(top) = &mut cert else { panic!() };
+    let Value::Obj(bindings) = top.get_mut("bindings").unwrap() else {
+        panic!()
+    };
+    let Value::Obj(preparation) = bindings.get_mut("preparation").unwrap() else {
+        panic!()
+    };
+    let Value::Arr(entries) = preparation.get_mut("entries").unwrap() else {
+        panic!()
+    };
+    set(&mut entries[0], "claim", json(r#""0""#));
+    let mut malformed = inputs.clone();
+    malformed.cert_bytes = jcs(&cert).unwrap();
+    let report = check_certificate(&malformed);
+    assert_eq!(report.overall, "rejected", "{report:?}");
+    assert!(codes(&report).contains(&"E_CERT_PREPARATION"), "{report:?}");
+    assert!(
+        report
+            .preparation
+            .iter()
+            .all(|p| p.get("applicability").unwrap().as_str() != Some("established")),
+        "{report:?}"
+    );
+}
 fn assert_oracle_admitted(inputs: &Inputs) {
     let oracle = crate::lexical_differential::Oracle::new();
     let checked = oracle.run("check", &inputs.object_text);
