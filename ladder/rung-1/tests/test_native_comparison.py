@@ -100,7 +100,7 @@ define i8 @r1_lookup(i8 %x) {
                 self.assertFalse((directory/'native-comparison-run.stdout').exists())
 
     def test_anonymous_fallback_does_not_waive_named_symbols_or_writable_loads(self):
-        for mutation in ('named-symbol','writable-load'):
+        for mutation in ('named-symbol','weak-symbol','writable-load'):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as temp:
                 g,directory,_=self.lookup(Path(temp),23,anonymous=True)
                 command=g.command
@@ -108,9 +108,10 @@ define i8 @r1_lookup(i8 %x) {
                     result=command(tag,argv,**kwargs)
                     if tag.endswith('/native-comparison-link'):
                         binary=directory/'comparison'
-                        if mutation=='named-symbol':
+                        if mutation in ('named-symbol','weak-symbol'):
+                            binding='weak' if mutation=='weak-symbol' else 'local'
                             subprocess.run(['/usr/lib/llvm-23/bin/llvm-objcopy','--add-symbol',
-                                'named_table=.rodata:1,local,object',str(binary)],check=True,capture_output=True)
+                                f'named_table=.rodata:1,{binding},object',str(binary)],check=True,capture_output=True)
                         else:
                             data=bytearray(binary.read_bytes());self.assertEqual(data[4:6],b'\x02\x01')
                             start=struct.unpack_from('<Q',data,32)[0]

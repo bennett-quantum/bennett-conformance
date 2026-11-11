@@ -70,8 +70,9 @@ def anonymous_image(blob, base, size, image, addresses, section_rows, load_rows)
 
 
 def check_globals(binary, layout, object_text, symbols, readelf):
-    addresses = {int(f[0],16) for line in symbols.splitlines()
-                 if len(f := line.split()) == 3 and f[1].lower() == 'r'}
+    entries = [f for line in symbols.splitlines() if len(f := line.split()) == 3]
+    addresses = {int(f[0],16) for f in entries if f[1].lower() == 'r'}
+    named_addresses = {int(f[0],16) for f in entries}
     layout_globals = layout['globals']
     proof = {name:{'method':'named-readonly-symbol', 'base':g['base']}
              for name,g in layout_globals.items() if g['base'] in addresses}
@@ -82,5 +83,5 @@ def check_globals(binary, layout, object_text, symbols, readelf):
         for name,g in missing:
             require(g.get('image') in data, 'global names a missing device image')
             proof[name] = anonymous_image(blob,g['base'],g.get('size'),data[g['image']],
-                                         addresses,section_rows,load_rows)
+                                         named_addresses,section_rows,load_rows)
     return {'globals':proof, 'elf_sha256':hashlib.sha256(binary.read_bytes()).hexdigest()}
