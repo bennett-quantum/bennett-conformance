@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
 from hosted_native import audit_hosted, audit_execution
 from contract import validate_contract
+from process_preparation import audit_preparation, buffered_return_probe
 
 HERE = Path(__file__).resolve().parent
 CONFORMANCE = HERE.parents[1]
@@ -34,6 +35,7 @@ STAGES = ('fixtures', 'plugin build', 'VM build', 'driver build', 'reference bui
           *(workload_stage(w,s) for w in WORKLOADS for s in CORPUS_STAGES),
           'runtime libc/console audit (diagnostic)', 'R-mode probe (diagnostic)',
           'driver probe (diagnostic)',
+          'buffered main return (diagnostic)',
           'reference device/reset control (diagnostic)', 'reference replay API (diagnostic)',
           'VM device/reset control (diagnostic)', 'VM replay API (diagnostic)')
 
@@ -63,6 +65,7 @@ class Gate(RecordedGate):
                            ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
                        'sysroots':{str(m):str(p) for m,p in self.sysroots.items()},
                        'gate_sha256':sha(HERE/'gate.py'),
+                       'process_preparation_sha256':sha(HERE/'process_preparation.py'),
                        'native_audit_sha256':sha(HERE/'native_audit.py'),
                        'hosted_native_sha256':sha(HERE/'hosted_native.py'),
                        'hosted_closure_sha256':sha(HERE/'hosted_closure.py'),
@@ -217,11 +220,17 @@ class Gate(RecordedGate):
     def runtime_link(self,m,workload='hello'):
         runtime,arith=self.runtime_files(m)
         d=self.workdir(m,workload)
-        self.command(f'{m}/{workload}/runtime-link',[f'/usr/lib/llvm-{m}/bin/llvm-link',d/'input.bc',runtime,arith,'--only-needed','-o',d/'linked.bc'])
+        out=d/'process'
+        self.command(f'{m}/{workload}/runtime-link',[self.driver_exe,
+            '--bennett-tier=reversible','--bennett-entry=main','--bennett-emit=process-bitcode',
+            '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],
+            *self.driver_publications(m,runtime,arith),'-bennett-out='+str(out),d/'input.bc'])
+        receipt=audit_preparation(out,d/'input.bc',runtime,arith,m,self.contract)
+        self.manifest.setdefault('process_preparation',{}).setdefault(str(m),{})[workload]=receipt
 
     def postlink(self,m,workload='hello'):
         d=self.workdir(m,workload)
-        self.command(f'{m}/{workload}/postlink',[f'/usr/lib/llvm-{m}/bin/opt','-passes=lto<O3>','-S',d/'linked.bc','-o',d/'postlink.ll'])
+        self.command(f'{m}/{workload}/postlink',[f'/usr/lib/llvm-{m}/bin/opt','-passes=lto<O3>','-S',d/'process/process-prepared.bc','-o',d/'postlink.ll'])
 
     def pipeline(self,m,probe=False,workload='hello'):
         d=self.workdir(m,workload)
@@ -317,7 +326,7 @@ class Gate(RecordedGate):
             self.command(f'{m}/{workload}/{name}-{verb}',[self.executor(name),verb,self.obj(m,workload)])
 
     def argv_replies(self,m,workload='hello'):
-        # Direct opt production has no driver process-build serializer. We are
+        # Process-bitcode preparation has no driver process-build serializer. We are
         # the launch adapter (plugin docs/R_PROCESS_ARGUMENTS.md), requesting the
         # same empty process context as the driver's documented default.
         d=self.workdir(m,workload)
@@ -495,7 +504,7 @@ class Gate(RecordedGate):
             for workload in WORKLOADS:
                 row=lambda name:workload_stage(workload,name)
                 self.stage(m,row('musl C front end'),lambda:self.frontend(m,workload),('fixtures','plugin build'))
-                self.stage(m,row('runtime bitcode link'),lambda:self.runtime_link(m,workload),(row('musl C front end'),'plugin build'))
+                self.stage(m,row('runtime bitcode link'),lambda:self.runtime_link(m,workload),(row('musl C front end'),'plugin build','driver build'))
                 self.stage(m,row('post-link LTO'),lambda:self.postlink(m,workload),(row('runtime bitcode link'),))
                 self.stage(m,row('reversible production'),lambda:self.pipeline(m,workload=workload),(row('post-link LTO'),'plugin build','R contract (prerequisite)'))
                 self.stage(m,row('launch artefacts'),lambda:self.artifacts(m,workload),(row('reversible production'),))
@@ -509,6 +518,7 @@ class Gate(RecordedGate):
             self.stage(m,'runtime libc/console audit (diagnostic)',lambda:self.runtime_audit(m),('plugin build',))
             self.stage(m,'R-mode probe (diagnostic)',lambda:self.pipeline(m,True),('fixtures','plugin build'))
             self.stage(m,'driver probe (diagnostic)',lambda:self.driver_probe(m),('driver build','fixtures','plugin build'))
+            self.stage(m,'buffered main return (diagnostic)',lambda:buffered_return_probe(self,m),('driver build','plugin build','VM build','reference build','R contract (prerequisite)'))
             for name in ('reference','VM'):
                 self.stage(m,name+' device/reset control (diagnostic)',lambda:self.control(m,name),('fixtures',)+(('VM build',) if name=='VM' else ('reference build',)))
                 self.stage(m,name+' replay API (diagnostic)',lambda:self.replay_probe(m,name),(name+' device/reset control (diagnostic)',))

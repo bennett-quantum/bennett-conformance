@@ -329,6 +329,7 @@ The audit functions and mutation regressions were inspected together.
 "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
 "ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
 "ladder/rung-3/gate.py": [39, 39, 0, 0, 0, 0, 0, 36, 112, 0, 0],
+"ladder/rung-3/process_preparation.py": [3, 3, 0, 0, 0, 0, 0, 37, 4, 0, 0],
 "ladder/rung-3/hosted_closure.py": [5, 5, 0, 0, 0, 0, 0, 42, 62, 0, 0],
 "ladder/rung-3/hosted_native.py": [10, 10, 0, 0, 0, 0, 0, 42, 66, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 74, 0, 0],
@@ -525,3 +526,9 @@ one exchange validator and three units of measured branch mass for protocol
 selection and exact exchange checks. Independent empty-vector byte oracles,
 unknown protocol/version/width rejection, and forward/reverse/replay reply
 substitution tests cover the change. No unrelated baseline row is refreshed.
+
+Rung 3 consumes the pinned driver process-preparation and init/fini receipts
+before LTO. The new preparation helper baseline covers input/contract/major and
+artefact hash checks plus the non-corpus buffered-return diagnostic, which runs
+the same gate pipeline through both executors. No acceptance check or budget
+is removed or increased; no unrelated baseline row is refreshed.
