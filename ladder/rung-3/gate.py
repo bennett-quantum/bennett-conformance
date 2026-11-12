@@ -130,28 +130,30 @@ class Gate(RecordedGate):
         assert not head, 'VM detached worktree dirty'
         # symbolic-ref returns 1 for detached HEAD; inspect rev-parse instead.
         assert git(src,'rev-parse','--abbrev-ref','HEAD')=='HEAD', 'VM is not detached'
-        self.command('build/vm-build',['cargo','build','--offline','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
-        self.vm_exe=src/'target/debug/bennett-vm'
+        self.command('build/vm-build',['cargo','build','--offline','--release','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.vm_exe=src/'target/release/bennett-vm'
         self.manifest['vm_sha256']=sha(self.vm_exe)
+        self.manifest['vm']={'path':str(self.vm_exe),'sha256':sha(self.vm_exe),'profile':'release'}
 
     def driver(self):
         src=self.freeze('bennett-driver',self.args.driver_rev)
         self.driver_source=src
-        self.command('build/driver-build',['cargo','build','--offline','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
-        self.driver_exe=src/'target/debug/bennett-driver'
+        self.command('build/driver-build',['cargo','build','--offline','--release','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.driver_exe=src/'target/release/bennett-driver'
         self.manifest['driver_sha256']=sha(self.driver_exe)
+        self.manifest['driver']={'path':str(self.driver_exe),'sha256':sha(self.driver_exe),'profile':'release'}
         executor_revision=self.manifest['pins']['bennett-vm']
         provider=self.freeze('bennett-vm',PINS['bennett-native-provider'])
         # Keep the provider identity distinct from the executor's effective VM pin.
         self.manifest['pins']['bennett-vm']=executor_revision
-        self.command('build/native-provider',['cargo','build','--offline','--lib','-j',self.args.jobs,
+        self.command('build/native-provider',['cargo','build','--offline','--release','--lib','-j',self.args.jobs,
             '--manifest-path',provider/'Cargo.toml','--target-dir',provider/'target'],timeout=600)
-        self.native_provider=provider/'target/debug/libbennett_vm.so'
+        self.native_provider=provider/'target/release/libbennett_vm.so'
         targets=self.freeze('bennett-targets',PINS['bennett-targets'])
         self.native_target=targets/PINS['native_target_path']
         target=json.loads(self.native_target.read_bytes())
         assert self.native_target.read_bytes()==json.dumps(target,sort_keys=True,separators=(',',':')).encode(), 'target is not canonical JCS'
-        self.manifest['native_provider']={'path':str(self.native_provider),'sha256':sha(self.native_provider)}
+        self.manifest['native_provider']={'path':str(self.native_provider),'sha256':sha(self.native_provider),'profile':'release'}
         self.manifest['native_target']={'path':str(self.native_target),'sha256':sha(self.native_target)}
 
     def layout_options(self):

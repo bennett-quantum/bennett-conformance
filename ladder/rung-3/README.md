@@ -85,6 +85,16 @@ review-checkout executable is selected implicitly. A failed reference build
 blocks its admission and diagnostic consumers through a separate build row.
 
 Plugin and driver builds use verified Git archives under `.tmp/rung3-<repo>-<sha>/`.
+VM executor, native provider and driver use `cargo build --offline --release`
+with the same pinned sources and feature selections; the provider also uses
+`--lib`. Their executable/library paths, SHA-256 hashes and `release` profiles
+are recorded in the manifest. Debug was the former gate recipe, not a contract
+requirement: the pinned VM README says “The published specs define the contracts”,
+the pinned driver README's `cargo build --offline -j3` / `target/debug` commands
+are a usage example, and `pins.json` fixes revisions without a Cargo profile.
+Neither selected spec prescribes a debug build. This changes no semantic check,
+resource budget or command timeout. Each recorded command retains its elapsed
+time, including executor admission, forward, reversal and replay.
 Runtime/arith bitcode also comes from archived pinned commits, avoiding concurrent
 publication edits; runtime SHA256SUMS and the plugin's arith SHA pins are checked.
 Every driver invocation explicitly selects the LLVM major and these archived

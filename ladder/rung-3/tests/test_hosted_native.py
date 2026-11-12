@@ -261,7 +261,8 @@ class HostedAudit(unittest.TestCase):
         calls = []
         def command(tag, argv, **kw):
             calls.append(list(map(str,argv)))
-            dest = Path(argv[-1])/'debug'
+            self.assertIn('--release', argv)
+            dest = Path(argv[-1])/'release'
             dest.mkdir(parents=True,exist_ok=True)
             (dest/('libbennett_vm.so' if '--lib' in argv else 'bennett-driver')).write_bytes(b'binary')
         self.g.command = command
