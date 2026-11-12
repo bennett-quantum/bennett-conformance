@@ -712,3 +712,75 @@ prefix, all44rows per major, exact failure/status preservation in the ownership
 classification, complete command receipts and headless/job-local environment.
 Only pins, this append, blocker ownership and the new evidence directory changed
 in this continuation. **Rung acceptance remains BLOCKED.**
+
+## 2026-11-12: isolated hosted native provider consumer
+
+Implementation `8cb2d15` selects the frozen real C launch-provider DSO and
+canonical target from `pins.json`. Producer and comparison use data base 65536
+and text base 4194304. Native O0/O2 comparison now passes on LLVM 18 and 23:
+exact `hello, world\n`, status 0, no signal/provider fault, original input hashes
+unchanged, static component closure and fixed ranges audited independently of
+hosted imports, and fresh namespace/load/binding/entry/unload receipts validated.
+Bitcode replay preserves the original materialisation and the existing linked
+components; no relinked component supplies the baseline.
+
+The complete unchanged hello + formatted-printf gate ran with:
+
+```sh
+unset DISPLAY WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS BROWSER
+export TMPDIR="$PWD/.tmp" CARGO_BUILD_JOBS=5 RUST_TEST_THREADS=5
+ladder/rung-3/gate.sh --jobs 5 --output .tmp/vip/final-runs
+```
+
+Run `20261112T062703.088778Z`, exit **1**, 174 recorded commands, no recorded
+command timeout. The local `report.json` SHA-256 is
+`cd79558a880a7cd084d11630ccc459f9258953fe80198fc6e41441db9e695491`.
+All four gate/audit source fingerprints match the implementation commit.
+Raw command receipts, component/config/runtime artifacts and observations stay
+in the local evidence directory; no host paths or raw logs are copied here.
+
+| LLVM major | Prior recorded run (PASS / FAIL / BLOCKED) | This run (PASS / FAIL / BLOCKED) | Native comparison |
+|---|---|---|---|
+| 18 | 22 / 3 / 20 | 23 / 4 / 18 | PASS (O0 and O2) |
+| 23 | 22 / 3 / 20 | 23 / 4 / 18 | PASS (O0 and O2) |
+
+The prior counts are the `20261111T191456.782662Z` run recorded in the VIP bead;
+they are not a new measurement here. An exploratory run of the new selection
+before the linker-parser fix also completed at 22 / 3 / 20 per major, with native
+audit failure on quoted linker identifiers. That consumer defect is fixed and
+covered by regression tests. The focused existing-artifact audit subsequently
+passed all four major/optimisation combinations before the full run above.
+
+Remaining failures are distinct from provider selection:
+
+* Both executor forward rows now reach the pre-existing consumer requirement for
+  `out/main/argv-replies.json`, which is absent. They fail before any executor
+  forward invocation. The gate produces the ISA artifact directly through the
+  plugin, whereas pinned driver `docs/PROCESS_ARGUMENTS.md` publishes reply
+  generation during its process build. This is remaining conformance/process
+  adapter integration under the rung tracker, not evidence of a missing driver
+  serializer. No replies are fabricated and no host-request check is relaxed.
+* `18/printf_fmt/production`: plugin dialect §5.2 `analysis-resource`, PT4/PT5 at
+  `AV(%25)` in `@tpow`, compiler thread CPU allowance exhausted.
+* `23/printf_fmt/production`: plugin dialect §5.2 `analysis-resource`, PT8/PT9/PT12
+  at `AV(%66)` in `@trans_eval`, compiler thread CPU allowance exhausted.
+  These are the existing `bp-owg` frontier, not host-command timeouts.
+* Both `18/driver-probe` and `23/driver-probe`: the driver reports
+  `DRIVER-PLUGIN-REFUSAL`, §19 inputs/options and §25 fail-loud obligations;
+  its pinned producer exits signal 11 (`SIGSEGV`) in `lowerQuantumMarker`,
+  `src/ProductionMultiGates.inc:73:57`. The implementation owner is the plugin;
+  the driver is reporting the actual producer failure.
+
+The gate command above reproduces these frontiers. Exact per-major argv and
+stderr are in the report's commands with the named tags. Inputs remain pinned
+as listed in `pins.json`; no sibling patch or live-checkout substitution was
+made. Reset, replay and corrupted-tape corpus rows remain blocked by these
+prerequisites. **Rung acceptance is not established; bennett-conformance-7bx
+remains BLOCKED until the complete gate exits 0.**
+
+Validation also ran `python3 -B -m unittest discover -s ladder/rung-3/tests -v`
+(46 PASS), `python3 -B ladder/rung-3/check_gate.py` (12 PASS), and the quality
+ratchet self-test and check (PASS). The audit regressions cover provider/target
+selection, shared layout, closure replay and hostile leaves, original-input
+hashes, component ELF/range/heap checks, separate hosted dependency evidence,
+stale receipts, lifecycle outcomes, and actual stdout comparison.

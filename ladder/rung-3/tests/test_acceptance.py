@@ -518,10 +518,13 @@ class AcceptanceTests(unittest.TestCase):
                 self.g.plugin_build = self.root/'plugin/build'
                 self.g.publications = {'bennett-runtimes':self.root/'publication'}
                 expected = bytes.fromhex(self.g.expected(workload)['stdout_hex'])
+                for name in ('native','native-O0'):
+                    Path(str(d/name)+'.runtime.json').write_text('{"status":"stale"}')
                 calls = []
                 def command(tag, argv, **kw):
                     calls.append(list(map(str,argv)))
                     if '/native-run-' in tag:
+                        self.assertFalse(Path(str(argv[0])+'.runtime.json').exists())
                         Path(str(argv[0])+'.runtime.json').write_text('{}')
                         return expected
                     return b''
@@ -536,6 +539,13 @@ class AcceptanceTests(unittest.TestCase):
                 self.assertEqual((d/'native.stdout').read_bytes(),expected)
                 self.assertIn('-bennett-out='+str(work),calls[0])
                 self.assertIn('--bennett-native-provider='+str(self.g.native_provider),calls[0])
+                def truncated(tag, argv, **kw):
+                    result = command(tag,argv,**kw)
+                    return result[:-1] if '/native-run-' in tag else result
+                self.g.command = truncated
+                with patch.object(gate,'audit_hosted',return_value={}), patch.object(gate,'audit_execution'), \
+                     self.assertRaisesRegex(AssertionError,'native stdout differs'):
+                    self.g.native(m,workload)
 
     def test_saved_and_corrupted_tapes_for_each_workload(self):
         self.g.argv_replies = lambda *a: Path('/argv-replies.json')
