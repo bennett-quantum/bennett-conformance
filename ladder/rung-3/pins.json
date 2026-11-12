@@ -2,7 +2,7 @@
   "dialect": "0.3-r1",
   "isa": "0.9",
   "dialect_spec_path": "spec/Bennett-Dialect-Spec-0.3-draft.md",
-  "bennett-plugin": "512236eef94117aca09c03067fbaaded1fee713a",
+  "bennett-plugin": "aeb688f06407ffda1afdbd203c4712e793ecca9d",
   "bennett-vm": "058dc2229bf7cabb25f10b16d816b6802a92a9fe",
   "bennett-runtimes": "7559e3bb40e824352ba6afaa5ed37e6a9860faf3",
   "bennett-driver": "aeb01e1872df12689890598398e49f72851424c2",

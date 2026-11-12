@@ -885,3 +885,24 @@ A no-op mutation of the exchange validator is rejected by the tests (six
 assertion failures), including real call wiring for forward, both reversal paths
 and replay. These glue checks do not replace corpus evidence. Only test-fixture
 and documentation changes followed the completed full-run source measurement.
+
+## 2026-11-12: plugin pin bump to aeb688f
+
+The plugin pin moves from `512236e` to pushed plugin main `aeb688f`, which
+contains the classical-call marker classifier fix (`d296bbc`, crash introduced
+by `99f0e19`) and the PT9 byval snapshot fix (`034a8da`, bp-owg). Gate run
+`20261112T070137.236334Z` on conformance `335244a` with `--plugin-rev aeb688f`
+(otherwise the pins of this file), exit **1**:
+
+| LLVM major | PASS / FAIL / BLOCKED |
+|---|---|
+| 18 | 32 / 1 / 12 |
+| 23 | 32 / 1 / 12 |
+
+The driver probe now passes on both majors. Every hello row passes. The one
+failure per major is `printf_fmt: reversible production`, exit 124 at the
+gate's per-command host limit: UNKNOWN, not a plugin diagnostic. All three
+analysis runs complete; a profile of the remaining time places it in the
+production link step (function-address resolution), outside analysis. The 12
+BLOCKED rows are its printf_fmt consumers. **Rung acceptance is not
+established; bennett-conformance-7bx remains open.**
