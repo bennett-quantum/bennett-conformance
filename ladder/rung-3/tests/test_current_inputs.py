@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import gate
@@ -78,6 +79,52 @@ class CurrentInputs(unittest.TestCase):
         for major in (18, 23):
             expected = self.g.tmp/('rung3-bennett-runtimes-'+gate.PINS['bennett-runtimes'])/f'dist/llvm{major}/musl-sysroot'
             self.assertEqual(self.g.sysroots[major], expected)
+
+    def test_vm_driver_and_provider_use_release_with_recorded_hashes(self):
+        self.g.tmp = self.root
+        self.g.args.vm_rev = 'frozen-vm'
+        self.g.args.driver_rev = 'frozen-driver'
+        vm = self.g.tmp/'vm-frozen-vm'
+        vm.mkdir(exist_ok=True)
+        (vm/'.git').write_text('detached test worktree')
+        calls = []
+        def command(tag, argv, **kwargs):
+            calls.append(list(map(str, argv)))
+            if tag == 'build/vm-build':
+                exe = vm/'target/release/bennett-vm'
+                exe.parent.mkdir(parents=True, exist_ok=True)
+                exe.write_bytes(b'release vm')
+            return b''
+        self.g.command = command
+        with patch.object(gate, 'git', side_effect=['frozen-vm','frozen-vm','HEAD']):
+            self.g.vm()
+        self.assertEqual(self.g.vm_exe, vm/'target/release/bennett-vm')
+        def freeze(repo, revision):
+            source = self.root/revision
+            source.mkdir(exist_ok=True)
+            if repo == 'bennett-targets':
+                target = source/gate.PINS['native_target_path']
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(b'{}')
+            else:
+                output = source/'target/release'/('bennett-driver' if repo == 'bennett-driver' else 'libbennett_vm.so')
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_bytes(b'release '+repo.encode())
+            return source
+        self.g.freeze = freeze
+        self.g.driver()
+        builds = [c for c in calls if c[0]=='cargo']
+        self.assertEqual(len(builds), 3)
+        for argv in builds:
+            self.assertEqual(argv[:4], ['cargo','build','--offline','--release'])
+            self.assertEqual(argv[argv.index('-j')+1], '2')
+            self.assertNotIn('--features', argv)
+        self.assertIn('--lib', builds[-1])
+        for field in ('vm','driver','native_provider'):
+            record = self.g.manifest[field]
+            self.assertEqual(record['profile'], 'release')
+            self.assertIn('/target/release/', record['path'])
+            self.assertEqual(record['sha256'], gate.sha(Path(record['path'])))
 
 
 if __name__ == '__main__':

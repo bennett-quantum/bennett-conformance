@@ -959,3 +959,96 @@ run then prints only the first printf line: the gate's production route does
 not yet apply the dialect §19.2 process preparation, so returning from `main`
 does not flush stdio. **Rung acceptance is not established;
 bennett-conformance-7bx remains open.**
+
+## 2026-11-12: process preparation and release consumer builds
+
+Commits `99f5ddf`, `e4b65ab`, `f2906d7` use the pinned driver's
+`--bennett-emit=process-bitcode` before LTO and production, retaining init/fini
+and the published argv adapter. The native gateway audit follows the actual
+prepared entry ABI and retains exact source/bitcode replay. README quotes the
+reason verbatim from dialect `9bbf6de` §19.2.
+
+Debug was the former gate recipe (`cargo build --offline`, `target/debug`),
+not a selected contract requirement. The pinned VM README says “The published
+specs define the contracts”; the driver's debug command is a usage example.
+The three tools now use offline release builds, unchanged pins/features, and
+recorded profiles/hashes. No fixture, oracle, check, ISA budget or timeout changed.
+
+Completed run `20261112T104347.247866Z` on `f2906d7`, plugin override `5a9d8a2`,
+other pins unchanged: headless/local TMPDIR, jobs 4, `MemoryMax=16G` user scope.
+Exit **1**; 259 command records plus 24 buffered-probe records. Report SHA-256
+`742bf8a201a82cb79b0cd516a8016e845ab5f69f49ae392ff69be6d59475ea48`.
+Six source fingerprints and three release binary hashes were rechecked.
+Two earlier incomplete starts preceded the release/gateway corrections.
+
+| LLVM major | PASS / FAIL / BLOCKED |
+|---|---|
+| 18 | 33 / 1 / 12 |
+| 23 | 38 / 2 / 6 |
+
+Every hello row passes on both majors, including native O0/O2, both executors,
+both reversal paths, full reset, saved replay and corrupt-tape rejection.
+The new non-corpus diagnostic (46 rather than 45 rows per major) passes with
+`one\ntwo\ntail`, status 0, on both executors/majors. Substituting `4432021`'s
+old link/LTO route made the reference return 0 with only `one\n` on both majors;
+the diagnostic failed. The new unit regression also fails against the old gate.
+No acceptance fixture or additional atexit/`_Exit` lifecycle coverage was added.
+
+Every non-PASS row below has the `printf_fmt:` prefix:
+
+| LLVM | Row | Status | Determining error |
+|---|---|---|---|
+| 18 | reversible production | FAIL | bennett: analysis-resource: §5.2 PT8/PT9/PT12 budget exhausted at AV(%54) in @trans_eval; compiler resource allowance: thread CPU milliseconds at   call void @__bennett_rt_memmove(ptr %54, ptr %58, i64 80) |
+| 18 | launch artefacts | BLOCKED | Not run; requires printf_fmt: reversible production |
+| 18 | native comparison | BLOCKED | Not run; requires printf_fmt: launch artefacts, driver build |
+| 18 | reference admission | BLOCKED | Not run; requires printf_fmt: launch artefacts, reference build |
+| 18 | reference forward = native | BLOCKED | Not run; requires printf_fmt: native comparison, printf_fmt: reference admission |
+| 18, 23 | reference reset | BLOCKED | Not run; requires printf_fmt: reference forward = native |
+| 18, 23 | reference tape replay | BLOCKED | Not run; requires printf_fmt: reference reset |
+| 18, 23 | reference corrupt-tape rejection | BLOCKED | Not run; requires printf_fmt: reference tape replay |
+| 18 | VM admission | BLOCKED | Not run; requires printf_fmt: launch artefacts, VM build |
+| 18 | VM forward = native | BLOCKED | Not run; requires printf_fmt: native comparison, printf_fmt: VM admission |
+| 18, 23 | VM reset | BLOCKED | Not run; requires printf_fmt: VM forward = native |
+| 18, 23 | VM tape replay | BLOCKED | Not run; requires printf_fmt: VM reset |
+| 18, 23 | VM corrupt-tape rejection | BLOCKED | Not run; requires printf_fmt: VM tape replay |
+| 23 | reference forward = native | FAIL | 23/printf_fmt/reference-forward: exit 124; timeout after 300 seconds |
+| 23 | VM forward = native | FAIL | 23/printf_fmt/VM-forward: exit 124; timeout after 300 seconds |
+
+LLVM 23 native O0/O2 prints all five lines (213 bytes); both executors admit/hash
+the 63,464,078-byte object. Forward timeouts are **UNKNOWN** (exit 124 at the
+unchanged 300-second limit). The scope peaked at 16 GiB; sampled counters showed
+no OOM kill. Full printf equality/reset/replay remain unestablished. Bead-worthy
+frontiers: plugin analysis-resource exhaustion on the required LLVM 18 process
+closure, and reference/VM execution cost on LLVM 23. No issue writes were made;
+rung acceptance and bennett-conformance-7bx remain blocked.
+
+Selected command wall times (seconds); the local report retains every command:
+
+| Command | LLVM 18 | LLVM 23 |
+|---|---:|---:|
+| printf process preparation | 1.124 | 0.683 |
+| printf post-link LTO | 0.819 | 0.466 |
+| printf production | 49.716 | 65.519 |
+| printf native O0 execution | BLOCKED | 63.140 |
+| printf native O2 execution | BLOCKED | 70.478 |
+| printf reference check | BLOCKED | 243.025 |
+| printf reference hash | BLOCKED | 251.217 |
+| printf reference forward | BLOCKED | 300.515 |
+| printf VM check | BLOCKED | 120.439 |
+| printf VM hash | BLOCKED | 131.891 |
+| printf VM forward | BLOCKED | 302.082 |
+
+Final checks: rung-3 unit suite **54 PASS**, no skips; `check_gate.py` **12 PASS**;
+quality ratchet self-test/check **PASS**, using headless/local TMPDIR commands.
+Fixture bytes are unchanged from `4432021`. Raw paths, receipts and logs stay local.
+
+## 2026-11-12: native comparison rows unverified for acceptance
+
+A post-landing review found that the native comparison can pass without the
+source-definedness classification dialect §17.7 requires: the gate hands the
+driver only materialised bitcode, and the native audit does not require the
+classifier results. In recorded runs both classifiers report `blocked`
+(UBSan-minimal needs the original C input; ASan waits on an unpublished
+freestanding runtime). Until the gate supplies the classifier input and
+requires the results §17.7 requires, every native comparison PASS in this
+file, hello's included, is unverified for rung acceptance.

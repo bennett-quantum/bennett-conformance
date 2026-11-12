@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
 from hosted_native import audit_hosted, audit_execution
 from contract import validate_contract
+from process_preparation import audit_preparation, buffered_return_probe
 
 HERE = Path(__file__).resolve().parent
 CONFORMANCE = HERE.parents[1]
@@ -34,6 +35,7 @@ STAGES = ('fixtures', 'plugin build', 'VM build', 'driver build', 'reference bui
           *(workload_stage(w,s) for w in WORKLOADS for s in CORPUS_STAGES),
           'runtime libc/console audit (diagnostic)', 'R-mode probe (diagnostic)',
           'driver probe (diagnostic)',
+          'buffered main return (diagnostic)',
           'reference device/reset control (diagnostic)', 'reference replay API (diagnostic)',
           'VM device/reset control (diagnostic)', 'VM replay API (diagnostic)')
 
@@ -63,6 +65,7 @@ class Gate(RecordedGate):
                            ('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','BROWSER','TMPDIR')},
                        'sysroots':{str(m):str(p) for m,p in self.sysroots.items()},
                        'gate_sha256':sha(HERE/'gate.py'),
+                       'process_preparation_sha256':sha(HERE/'process_preparation.py'),
                        'native_audit_sha256':sha(HERE/'native_audit.py'),
                        'hosted_native_sha256':sha(HERE/'hosted_native.py'),
                        'hosted_closure_sha256':sha(HERE/'hosted_closure.py'),
@@ -127,28 +130,30 @@ class Gate(RecordedGate):
         assert not head, 'VM detached worktree dirty'
         # symbolic-ref returns 1 for detached HEAD; inspect rev-parse instead.
         assert git(src,'rev-parse','--abbrev-ref','HEAD')=='HEAD', 'VM is not detached'
-        self.command('build/vm-build',['cargo','build','--offline','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
-        self.vm_exe=src/'target/debug/bennett-vm'
+        self.command('build/vm-build',['cargo','build','--offline','--release','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.vm_exe=src/'target/release/bennett-vm'
         self.manifest['vm_sha256']=sha(self.vm_exe)
+        self.manifest['vm']={'path':str(self.vm_exe),'sha256':sha(self.vm_exe),'profile':'release'}
 
     def driver(self):
         src=self.freeze('bennett-driver',self.args.driver_rev)
         self.driver_source=src
-        self.command('build/driver-build',['cargo','build','--offline','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
-        self.driver_exe=src/'target/debug/bennett-driver'
+        self.command('build/driver-build',['cargo','build','--offline','--release','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.driver_exe=src/'target/release/bennett-driver'
         self.manifest['driver_sha256']=sha(self.driver_exe)
+        self.manifest['driver']={'path':str(self.driver_exe),'sha256':sha(self.driver_exe),'profile':'release'}
         executor_revision=self.manifest['pins']['bennett-vm']
         provider=self.freeze('bennett-vm',PINS['bennett-native-provider'])
         # Keep the provider identity distinct from the executor's effective VM pin.
         self.manifest['pins']['bennett-vm']=executor_revision
-        self.command('build/native-provider',['cargo','build','--offline','--lib','-j',self.args.jobs,
+        self.command('build/native-provider',['cargo','build','--offline','--release','--lib','-j',self.args.jobs,
             '--manifest-path',provider/'Cargo.toml','--target-dir',provider/'target'],timeout=600)
-        self.native_provider=provider/'target/debug/libbennett_vm.so'
+        self.native_provider=provider/'target/release/libbennett_vm.so'
         targets=self.freeze('bennett-targets',PINS['bennett-targets'])
         self.native_target=targets/PINS['native_target_path']
         target=json.loads(self.native_target.read_bytes())
         assert self.native_target.read_bytes()==json.dumps(target,sort_keys=True,separators=(',',':')).encode(), 'target is not canonical JCS'
-        self.manifest['native_provider']={'path':str(self.native_provider),'sha256':sha(self.native_provider)}
+        self.manifest['native_provider']={'path':str(self.native_provider),'sha256':sha(self.native_provider),'profile':'release'}
         self.manifest['native_target']={'path':str(self.native_target),'sha256':sha(self.native_target)}
 
     def layout_options(self):
@@ -217,11 +222,17 @@ class Gate(RecordedGate):
     def runtime_link(self,m,workload='hello'):
         runtime,arith=self.runtime_files(m)
         d=self.workdir(m,workload)
-        self.command(f'{m}/{workload}/runtime-link',[f'/usr/lib/llvm-{m}/bin/llvm-link',d/'input.bc',runtime,arith,'--only-needed','-o',d/'linked.bc'])
+        out=d/'process'
+        self.command(f'{m}/{workload}/runtime-link',[self.driver_exe,
+            '--bennett-tier=reversible','--bennett-entry=main','--bennett-emit=process-bitcode',
+            '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],
+            *self.driver_publications(m,runtime,arith),'-bennett-out='+str(out),d/'input.bc'])
+        receipt=audit_preparation(out,d/'input.bc',runtime,arith,m,self.contract)
+        self.manifest.setdefault('process_preparation',{}).setdefault(str(m),{})[workload]=receipt
 
     def postlink(self,m,workload='hello'):
         d=self.workdir(m,workload)
-        self.command(f'{m}/{workload}/postlink',[f'/usr/lib/llvm-{m}/bin/opt','-passes=lto<O3>','-S',d/'linked.bc','-o',d/'postlink.ll'])
+        self.command(f'{m}/{workload}/postlink',[f'/usr/lib/llvm-{m}/bin/opt','-passes=lto<O3>','-S',d/'process/process-prepared.bc','-o',d/'postlink.ll'])
 
     def pipeline(self,m,probe=False,workload='hello'):
         d=self.workdir(m,workload)
@@ -317,7 +328,7 @@ class Gate(RecordedGate):
             self.command(f'{m}/{workload}/{name}-{verb}',[self.executor(name),verb,self.obj(m,workload)])
 
     def argv_replies(self,m,workload='hello'):
-        # Direct opt production has no driver process-build serializer. We are
+        # Process-bitcode preparation has no driver process-build serializer. We are
         # the launch adapter (plugin docs/R_PROCESS_ARGUMENTS.md), requesting the
         # same empty process context as the driver's documented default.
         d=self.workdir(m,workload)
@@ -495,7 +506,7 @@ class Gate(RecordedGate):
             for workload in WORKLOADS:
                 row=lambda name:workload_stage(workload,name)
                 self.stage(m,row('musl C front end'),lambda:self.frontend(m,workload),('fixtures','plugin build'))
-                self.stage(m,row('runtime bitcode link'),lambda:self.runtime_link(m,workload),(row('musl C front end'),'plugin build'))
+                self.stage(m,row('runtime bitcode link'),lambda:self.runtime_link(m,workload),(row('musl C front end'),'plugin build','driver build'))
                 self.stage(m,row('post-link LTO'),lambda:self.postlink(m,workload),(row('runtime bitcode link'),))
                 self.stage(m,row('reversible production'),lambda:self.pipeline(m,workload=workload),(row('post-link LTO'),'plugin build','R contract (prerequisite)'))
                 self.stage(m,row('launch artefacts'),lambda:self.artifacts(m,workload),(row('reversible production'),))
@@ -509,6 +520,7 @@ class Gate(RecordedGate):
             self.stage(m,'runtime libc/console audit (diagnostic)',lambda:self.runtime_audit(m),('plugin build',))
             self.stage(m,'R-mode probe (diagnostic)',lambda:self.pipeline(m,True),('fixtures','plugin build'))
             self.stage(m,'driver probe (diagnostic)',lambda:self.driver_probe(m),('driver build','fixtures','plugin build'))
+            self.stage(m,'buffered main return (diagnostic)',lambda:buffered_return_probe(self,m),('driver build','plugin build','VM build','reference build','R contract (prerequisite)'))
             for name in ('reference','VM'):
                 self.stage(m,name+' device/reset control (diagnostic)',lambda:self.control(m,name),('fixtures',)+(('VM build',) if name=='VM' else ('reference build',)))
                 self.stage(m,name+' replay API (diagnostic)',lambda:self.replay_probe(m,name),(name+' device/reset control (diagnostic)',))

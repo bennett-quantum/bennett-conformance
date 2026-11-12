@@ -45,7 +45,8 @@ class AcceptanceTests(unittest.TestCase):
         self.assertNotIn('fflush', source)
         self.g.fixtures()
 
-    def test_every_workload_runs_both_executors_and_majors(self):
+    @patch.object(gate, 'buffered_return_probe')
+    def test_every_workload_runs_both_executors_and_majors(self, buffered_probe):
         calls = []
         for method in ('fixtures', 'plugin', 'vm', 'driver', 'reference', 'frontend', 'runtime_link',
                        'postlink', 'pipeline', 'artifacts', 'native', 'admission',
@@ -55,6 +56,8 @@ class AcceptanceTests(unittest.TestCase):
                     calls.append((_method, a, kw)))
         self.g.finish = lambda: 0
         self.assertEqual(self.g.main(), 0)
+        self.assertEqual(buffered_probe.call_args_list,
+                         [unittest.mock.call(self.g, 18), unittest.mock.call(self.g, 23)])
         for m in (18, 23):
             self.assertEqual(set(self.g.rows[m]), set(gate.STAGES))
             for workload in ('hello', 'printf_fmt'):

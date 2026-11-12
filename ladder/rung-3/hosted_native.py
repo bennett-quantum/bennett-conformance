@@ -73,19 +73,34 @@ def audit_sources(gate, major, device, runtime, arith, record, manifest):
     return report
 
 
+def gateway_entry(gate, major, inputs):
+    device = Path(inputs['materialised']['path'])
+    ir = gate.command(str(device.parent.relative_to(gate.run))+'/audit-entry-signature',
+                      [f'/usr/lib/llvm-{major}/bin/llvm-dis', device, '-o', '-']).decode()
+    signature = re.search(r'^define\b[^\n]*\bi32 @main\(([^)]*)\)', ir, re.M)
+    require(signature is not None, 'missing materialised i32 main definition')
+    types = tuple(p.strip().split()[0] for p in signature[1].split(',') if p.strip())
+    require(types in ((), ('i32','ptr'), ('i32','ptr','ptr')), 'unsupported materialised main signature')
+    count = len(types)
+    declaration = 'void' if not count else ','.join(('int','char **','char **')[:count])
+    arguments = ','.join(('argc','argv','envp')[:count])
+    return declaration, arguments
+
+
 def audit_gateway(gate, major, inputs, report, manifest):
     out = Path(inputs['comparison']['path']).parent
     aliases = [s['native_symbol'] for s in report['symbols']
                if s.get('llvm_name') == 'main' and s['kind'] == 'function']
     require(len(aliases) == 1, 'ambiguous native entry')
-    replacements = {'/* DRIVER_ENTRY_DECL */':'extern int driver_entry(void) __asm__('+json.dumps(aliases[0])+');',
+    declaration, arguments = gateway_entry(gate, major, inputs)
+    replacements = {'/* DRIVER_ENTRY_DECL */':'extern int driver_entry('+declaration+') __asm__('+json.dumps(aliases[0])+');',
         '/* DRIVER_MAIN_STUB */':'', 'DRIVER_BINDING_SYMBOL':report['binding_symbol'],
-        '/* DRIVER_INPUTS */':'(void)argc;(void)argv;(void)envp;',
-        '/* DRIVER_ENTRY_CALL */':'driver_entry()', '/* DRIVER_FINISH */':'extern void exit(int); exit(result);'}
+        '/* DRIVER_INPUTS */':'__bennett_rt_native_inputs(argc,argv,envp);' if arguments else '(void)argc;(void)argv;(void)envp;',
+        '/* DRIVER_ENTRY_CALL */':'driver_entry('+arguments+')', '/* DRIVER_FINISH */':'extern void exit(int); exit(result);'}
     expected = (gate.driver_source/'src/native_component.c').read_text()
     for key, value in replacements.items():
         expected = expected.replace(key,value)
-    require((out/'native-component.c').read_text() == expected, 'gateway differs from pinned main(void) adapter')
+    require((out/'native-component.c').read_text() == expected, 'gateway differs from pinned main adapter')
     for name in ('native_provider_api.h','native_bootstrap.c'):
         require((out/name.replace('_','-')).read_bytes() == (gate.driver_source/'src'/name).read_bytes(),
                 'hosted support differs from pinned driver')

@@ -85,6 +85,16 @@ review-checkout executable is selected implicitly. A failed reference build
 blocks its admission and diagnostic consumers through a separate build row.
 
 Plugin and driver builds use verified Git archives under `.tmp/rung3-<repo>-<sha>/`.
+VM executor, native provider and driver use `cargo build --offline --release`
+with the same pinned sources and feature selections; the provider also uses
+`--lib`. Their executable/library paths, SHA-256 hashes and `release` profiles
+are recorded in the manifest. Debug was the former gate recipe, not a contract
+requirement: the pinned VM README says “The published specs define the contracts”,
+the pinned driver README's `cargo build --offline -j3` / `target/debug` commands
+are a usage example, and `pins.json` fixes revisions without a Cargo profile.
+Neither selected spec prescribes a debug build. This changes no semantic check,
+resource budget or command timeout. Each recorded command retains its elapsed
+time, including executor admission, forward, reversal and replay.
 Runtime/arith bitcode also comes from archived pinned commits, avoiding concurrent
 publication edits; runtime SHA256SUMS and the plugin's arith SHA pins are checked.
 Every driver invocation explicitly selects the LLVM major and these archived
@@ -100,6 +110,16 @@ revisions, binary/library hashes, tool versions and commands are recorded.
 
 ## Required pipeline
 
+The reason for consuming process preparation is dialect 0.3-r1 §19.2
+(`9bbf6de`, `spec/Bennett-Dialect-Spec-0.3-draft.md`):
+
+> **Process context.** Before entering `<sym>`, the driver/runtimes preparation MUST establish a static single-thread musl process context with the supplied argc/argv/envp bytes, a null-terminated argv and envp, `environ`, program name, initial fenv and the libc/stdio state needed by the linked program; comparison-only Linux `_start` is permitted, but Linux ELF crt/TLS/auxv entry is not required in device tiers.
+>
+> For a C `main` entry, the runtimes entry wrapper MUST treat normal return as `exit(status)`, running registered exit handlers and flushing stdio exactly once under §14.7 before the launch stub catches the exit pseudo-exception; explicit `exit` follows that same path, and `_Exit` bypasses handlers/flush as §14.7 specifies.
+
+The same section says the CC launch stub “fetches the argv and envp bytes with
+`hostcall bennett.argv`”. The published adapter protocol below supplies them.
+
 1. Check fixtures and build the frozen plugin (both majors), VM, driver and reference.
 2. Compile each ordinary corpus source with `clang -O2 -flto -emit-llvm`, target
    `x86_64-unknown-linux-musl`, explicit `--sysroot`, `-nostdinc`, and only the musl
@@ -107,8 +127,14 @@ revisions, binary/library hashes, tool versions and commands are recorded.
    the frozen runtime publication's `dist/llvm<M>/musl-sysroot/{include,lib}`; this filename/layout
    is configurable via `--sysroot18/23`, not specified by the dialect. There is no
    fallback to host stdio.h or the legality checker's small seeds.
-3. Link program + same-major runtimes + arith using llvm-link --only-needed,
-   then `opt -passes=lto<O3>` (§19.1). Invoke the production Bennett pass in
+3. Run the frozen driver on that bitcode with
+   `--bennett-tier=reversible --bennett-entry=main --bennett-emit=process-bitcode`,
+   explicit dialect/ISA identities and matching-major plugin/runtime/arith paths.
+   This performs the runtime/library link, process-entry preparation and static
+   init/fini binding. Verify the prepared manifest's inputs, contract, major,
+   runtime/arith and preparation artefact hashes, including init/fini binding.
+   Feed **`process/process-prepared.bc`** to `opt -passes=lto<O3>` (§19.1).
+   Invoke the production Bennett pass in
    `--bennett-tier=reversible --bennett-entry=main` mode (§19.2). Require all
    launch/build/certificate/coverage/blocker artefacts, verify bitcode, reject
    nonempty blockers, and require an R body with `effect console.write`, a
@@ -157,6 +183,9 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
   library, layout, gateway and host-import transformations with a closed input
   vocabulary. The complete bitcode chain, including the pinned memory checker, is
   replayed in scratch storage and both checked/final output hashes are verified.
+  The gateway's exact declaration, argument forwarding and native input registration
+  are checked against the materialised `main` signature, including the driver's
+  three-parameter prepared entry; source equality and bitcode replay remain required.
   No component is relinked as a new baseline and no ELF check targets a launcher
   script. Hosted launcher/bootstrap/provider imports are audited separately through
   their dependency inventories, hashes and actual loaded namespace closure.
@@ -168,7 +197,15 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
   The source definedness and materialised fault obligations remain separate;
   runtime checker coverage does not claim source UB erased by optimisation.
   `native_audit.py` retains the legacy static adapter audit and its regressions.
-* Direct `opt` production does not run the driver's process-build serializer.
+* The production link uses the pinned driver's published
+  `--bennett-emit=process-bitcode` preparation boundary. Its
+  `docs/design/process-preparation-boundary.md` describes the driver-owned
+  wrapper, published runtime preparation/exit helpers and definition audit.
+  The gate consumes that prepared module, including bound init/fini arrays;
+  it does not synthesize a replacement wrapper or copy driver implementation.
+  LTO and plugin production then run explicitly as above. The preparation and
+  init/fini receipts and their hashes are retained in the run manifest.
+* Process-bitcode emission followed by direct `opt` production does not run the driver's process-build serializer.
   The gate acts as the launch adapter described by the pinned plugin's
   `docs/R_PROCESS_ARGUMENTS.md` and requests empty argv/envp, matching the pinned
   driver's default in `docs/PROCESS_ARGUMENTS.md`. It derives the protocol from
@@ -204,6 +241,14 @@ corpus** and cannot satisfy a required row. The runtime export audit checks
 printf/puts/write/exit and __bennett_dev_console_write as publication coverage,
 not a claim each symbol must survive hello.c optimisation. R uses ISA effects
 and tapes (§11.2); L's __bennett_dev_console_* state (§11.3) is separately owed.
+
+The `buffered main return (diagnostic)` self-test compiles ordinary C that calls
+`fputs` for `one\n`, `two\n` and `tail`, then returns 0 without flushing. It uses
+the same process-preparation, LTO, production, artefact and argv-adapter methods
+as the corpus, then requires both executors to complete with status 0 and exact
+`one\ntwo\ntail` console/tape bytes. It adds no acceptance fixture or oracle and
+cannot satisfy either corpus workload. The old unprepared link route leaves
+`two\ntail` buffered and fails this diagnostic.
 
 Each run creates `.tmp/rung-3/<UTC timestamp>/` with `report.json`, `table.md`,
 per-command stdout/stderr, inputs and generated artefacts. `report.json` records

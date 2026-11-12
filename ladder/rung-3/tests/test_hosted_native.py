@@ -210,10 +210,14 @@ class HostedAudit(unittest.TestCase):
                      '(void)argc;(void)argv;(void)envp;\ndriver_entry()\nextern void exit(int); exit(result);')
         (out/'native-component.c').write_text(generated)
         (out/'native-component.bc').write_bytes(b'gateway')
-        inputs = dict(comparison=dict(path=str(out/'comparison.bc')))
+        inputs = dict(comparison=dict(path=str(out/'comparison.bc')),
+                      materialised=dict(path=str(out/'device.bc')))
         report = dict(symbols=[dict(kind='function',llvm_name='main',native_symbol='native_main')],binding_symbol='bind_main')
         manifest = dict(commands=[dict(argv=[self.g.clang(18),str(out/'native-component.c'),'-o',str(out/'native-component.bc')])])
+        parameters = ''
         def command(tag,argv):
+            if Path(argv[0]).name == 'llvm-dis':
+                return ('define i32 @main('+parameters+') { ret i32 0 }\n').encode()
             Path(argv[-1]).write_bytes(b'gateway')
         self.g.command = command
         audit.audit_gateway(self.g,18,inputs,report,manifest)
@@ -224,6 +228,30 @@ class HostedAudit(unittest.TestCase):
         (out/'native-component.bc').write_bytes(b'wrong gateway')
         with self.assertRaisesRegex(gate.GateError,'gateway bitcode'):
             audit.audit_gateway(self.g,18,inputs,report,manifest)
+        parameters = 'i32 %argc, ptr %argv, ptr %envp'
+        prepared = ('extern int driver_entry(int,char **,char **) __asm__("native_main");\n\nbind_main\n'
+                    '__bennett_rt_native_inputs(argc,argv,envp);\ndriver_entry(argc,argv,envp)\n'
+                    'extern void exit(int); exit(result);')
+        (out/'native-component.bc').write_bytes(b'gateway')
+        (out/'native-component.c').write_text(prepared)
+        audit.audit_gateway(self.g,18,inputs,report,manifest)
+        for bad in (generated, prepared.replace('driver_entry(argc,argv,envp)', 'driver_entry(argc,envp,argv)'),
+                    prepared.replace('__bennett_rt_native_inputs(argc,argv,envp);','')):
+            (out/'native-component.c').write_text(bad)
+            with self.assertRaisesRegex(gate.GateError,'gateway differs'):
+                audit.audit_gateway(self.g,18,inputs,report,manifest)
+
+    def test_gateway_signature_comes_from_materialised_entry(self):
+        inputs = {'materialised':{'path':str(self.g.workdir(18)/'out/device.bc')}}
+        for signature, expected in (
+                ('', ('void','')), ('i32 %argc, ptr %argv', ('int,char **','argc,argv')),
+                ('i32 %argc, ptr %argv, ptr %envp', ('int,char **,char **','argc,argv,envp'))):
+            self.g.command = lambda *a: ('define i32 @main('+signature+') { unreachable }').encode()
+            self.assertEqual(audit.gateway_entry(self.g,18,inputs), expected)
+        for signature in ('i64 %argc, ptr %argv', 'i32 %argc', 'i32 %argc, ptr %argv, ...'):
+            self.g.command = lambda *a: ('define i32 @main('+signature+') { unreachable }').encode()
+            with self.assertRaisesRegex(gate.GateError,'signature'):
+                audit.gateway_entry(self.g,18,inputs)
 
     def test_original_hashes_are_rechecked_after_execution(self):
         config, receipt = self.execution()
@@ -261,7 +289,8 @@ class HostedAudit(unittest.TestCase):
         calls = []
         def command(tag, argv, **kw):
             calls.append(list(map(str,argv)))
-            dest = Path(argv[-1])/'debug'
+            self.assertIn('--release', argv)
+            dest = Path(argv[-1])/'release'
             dest.mkdir(parents=True,exist_ok=True)
             (dest/('libbennett_vm.so' if '--lib' in argv else 'bennett-driver')).write_bytes(b'binary')
         self.g.command = command
