@@ -24,6 +24,8 @@ class AcceptanceTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.root = Path(self.directory.name)
         self.g = gate.Gate(argparse.Namespace(output=str(self.root), timeout=5))
+        self.g.native_provider = self.root/'provider.so'
+        self.g.native_target = self.root/'target.json'
 
     def test_literal_formatted_oracle(self):
         expected = json.loads((HERE/'fixtures/printf_fmt.expect.json').read_text())
@@ -503,27 +505,47 @@ class AcceptanceTests(unittest.TestCase):
     def test_native_reads_explicit_adapter_work_manifest(self):
         for m in (18, 23):
             for workload in ('hello', 'printf_fmt'):
-                paths, record, manifest, output = self.receipt(m, workload)
-                out = paths[0].parent
-                (out/'native-comparison.json').write_text(json.dumps(record))
+                d = self.g.workdir(m,workload)
+                out = d/'out'; out.mkdir()
                 work = out/'native-work'; work.mkdir()
-                (work/'manifest.json').write_text(json.dumps(manifest))
-                self.g.runtime_files = lambda m: tuple(paths[1:])
+                (work/'manifest.json').write_text('{}')
+                record = {'profile':'bennett-driver-isolated-provider-1','bitcode_link_argv':[],'inputs':{}}
+                variants = [dict(record,variant=level,status='linked') for level in ('O2','O0')]
+                (out/'native-comparison.json').write_text(json.dumps(variants[0]))
+                (work/'native-comparisons.json').write_text(json.dumps(variants))
+                self.g.runtime_files = lambda m: (self.root/'runtime.bc',self.root/'arith.bc')
                 self.g.driver_exe = self.root/'driver'
                 self.g.plugin_build = self.root/'plugin/build'
+                self.g.publications = {'bennett-runtimes':self.root/'publication'}
                 expected = bytes.fromhex(self.g.expected(workload)['stdout_hex'])
+                for name in ('native','native-O0'):
+                    Path(str(d/name)+'.runtime.json').write_text('{"status":"stale"}')
                 calls = []
                 def command(tag, argv, **kw):
                     calls.append(list(map(str,argv)))
-                    return expected if tag.endswith('/native-run') else b''
+                    if '/native-run-' in tag:
+                        self.assertFalse(Path(str(argv[0])+'.runtime.json').exists())
+                        Path(str(argv[0])+'.runtime.json').write_text('{}')
+                        return expected
+                    return b''
                 self.g.command = command
-                self.g.native(m, workload)
-                self.assertIn('-bennett-out='+str(work), calls[0])
-                self.assertIn('--bennett-native-check='+str(self.root/'publication/scripts/native-check'), calls[0])
-                self.assertEqual(output.with_name('native.stdout').read_bytes(), expected)
-                self.g.command = lambda tag, argv, **kw: expected[:-1] if tag.endswith('/native-run') else b''
-                with self.assertRaisesRegex(AssertionError, 'native stdout differs'):
-                    self.g.native(m, workload)
+                with patch.object(gate,'audit_hosted',return_value={}) as audit, \
+                     patch.object(gate,'audit_execution') as execution:
+                    self.g.native(m,workload)
+                    self.assertEqual(audit.call_count,2)
+                    self.assertEqual(execution.call_count,2)
+                    self.assertEqual(audit.call_args.args[-1],d/'native-O0')
+                self.assertEqual(len(calls),3)
+                self.assertEqual((d/'native.stdout').read_bytes(),expected)
+                self.assertIn('-bennett-out='+str(work),calls[0])
+                self.assertIn('--bennett-native-provider='+str(self.g.native_provider),calls[0])
+                def truncated(tag, argv, **kw):
+                    result = command(tag,argv,**kw)
+                    return result[:-1] if '/native-run-' in tag else result
+                self.g.command = truncated
+                with patch.object(gate,'audit_hosted',return_value={}), patch.object(gate,'audit_execution'), \
+                     self.assertRaisesRegex(AssertionError,'native stdout differs'):
+                    self.g.native(m,workload)
 
     def test_saved_and_corrupted_tapes_for_each_workload(self):
         self.g.argv_replies = lambda *a: Path('/argv-replies.json')

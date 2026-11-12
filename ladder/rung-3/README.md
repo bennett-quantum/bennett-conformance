@@ -41,7 +41,8 @@ env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
 `gate.sh --help` describes overrides. The wrapper and Python entry point preserve a supplied repository-local
 TMPDIR, default to this repository's `.tmp`, and unset desktop variables. Each corpus
 command has a host timeout of at most 300 seconds; plugin/VM/driver/reference build limits
-are 1800/600/600/600 seconds. No network, push, display or LLVM view pass is used.
+are 1800/600/600/600 seconds. No network, push, display or LLVM view pass is used. Builds accept at most five
+jobs; LLVM majors execute sequentially so heavy corpus commands do not overlap.
 Dependencies: LLVM 18 and 23 at `/usr/lib/llvm-<M>/bin`, CMake, Git, Python 3.12+,
 Rust/Cargo with cached dependencies, a C++ compiler, and readelf. No service starts.
 
@@ -59,10 +60,10 @@ Defaults are immutable commits in [pins.json](pins.json), not moving HEADs:
 
 | Input | Commit | Reason |
 |---|---|---|
-| Dialect 0.3-r1 | `ba4e3243056100db1eb347e5ee0a8ab4bea1e429` | Pushed dialect main; publishes the accepted classical R profile and its ISA 0.9 compatibility identity. |
-| Plugin | `6f1d93c9f7bc93cbbef0b9adb101b69695336095` | Pushed producer main; emits ISA 0.9 throughout the selected R-contract object. |
-| VM | `290c41bc9bc658b4b19c85c3e3f113895e8f82da` | Pushed executor main at the ladder launch; adopts the 0.9 headers and explicit ABI family providers, retaining region lifetime support. |
-| Driver | `a907ff5712f302c47574c4fb8eb746d7a210404c` | Pushed driver main; accepts the R contract and requires an explicit native-support publication. |
+| Dialect 0.3-r1 | `9bbf6dee3ab6ce94030e01a1af98df28fe19e683` | Pushed dialect main; publishes the accepted classical R profile and its ISA 0.9 compatibility identity. |
+| Plugin | `512236eef94117aca09c03067fbaaded1fee713a` | Pushed producer main; emits ISA 0.9 throughout the selected R-contract object. |
+| VM | `058dc2229bf7cabb25f10b16d816b6802a92a9fe` | Pushed executor main at the ladder launch; adopts the 0.9 headers and explicit ABI family providers, retaining region lifetime support. |
+| Driver | `aeb01e1872df12689890598398e49f72851424c2` | Published isolated hosted provider startup and normalised exit cleanup. |
 | Runtimes | `7559e3bb40e824352ba6afaa5ed37e6a9860faf3` | Pushed runtime main; supplies the frozen musl headers, runtime, native-support bitcode and native-check adapter. |
 | Arith | `5e9b4509f3ee3f95ac9f7d22b43359e72cf9fdab` | Exact arithmetic publication declared and hash-pinned by the selected plugin. Current arith main `2670e894c77745275f9bffb92aa80e7c7c805c27` has different bitcode; substituting it would fail the required producer digest check. |
 | ISA 0.9 / reference source | `aaa8f1887ef68541ba9ddb07dfbb223b93fe7b1e` | Pushed ISA main with the 0.9 headers and K86–K92 reference checks; builds the reference actually used by this rung. |
@@ -113,9 +114,10 @@ revisions, binary/library hashes, tool versions and commands are recorded.
    nonempty blockers, and require an R body with `effect console.write`, a
    declared console model and the argv CC launch stub.
 4. Build the **materialised** native comparison (§17.7) using the frozen driver
-   integration described below, same LLVM major, runtimes and arith. Require a
-   static link with no host libc/libm, no dynamic dependencies or undefined
-   symbols, stdout exactly the workload's literal oracle and status 0. The unmaterialised C
+   integration described below, same LLVM major, runtimes and arith. Require both
+   O0/O2 components to link statically with no host libc/libm, dynamic dependencies
+   or undefined symbols. Execute their isolated hosted launchers and require stdout
+   exactly equal to the workload's literal oracle, status 0 and no fault. The unmaterialised C
    source compiled against host libc is never a baseline for this gate.
 5. Both executors must admit/hash the actual produced object, run main through
    its launch, report exit status 0, and match native console and tape bytes.
@@ -135,41 +137,37 @@ The published specs fix semantics, not all command/file spellings. The gate
 uses rung-2's launch artefact layout and these explicit **adapter conventions**;
 missing adapters are tracked as integration blockers, not invented ISA defects:
 
-* The native stage requests the frozen driver with `--bennett-materialised`,
-  `--bennett-llvm-major`, `--bennett-plugin`, `--bennett-runtimes`, `--bennett-arith`,
-  `--bennett-sysroot`, the frozen runtime `--bennett-native-check`,
-  and the same-major frozen runtime `--bennett-native-support`,
-  `--bennett-comparison-record` and
-  `--bennett-comparison-output`, explicit `-bennett-out=out/native-work`, and the
-  selected versions/R mode/entry. `out/native-comparison.json` must contain
-  `llvm_major`, `materialised_sha256`, `runtimes_sha256`, `arith_sha256` and
-  `link_argv`. A direct link must use those three exact files. A multi-stage
-  link supplies `bitcode_link_argv`, `linked_sha256` of the **final**
-  `comparison.bc` after support/layout adaptation and cleanup, and ordered
-  successful `commands` (`argv`, `success`) in `out/native-work/manifest.json`.
-  That manifest also records `native_check_adapter` and `checked_materialised`
-  artifacts (`path`, `sha256`).
-  [native_audit.py](native_audit.py) audits and **replays** the bitcode chain
-  from those hash-checked leaves, rather than trusting a merged filename. It
-  accepts same-major llvm-link merges, runtime memcpy/memmove/memset extraction,
-  assembly of the published layout constant, and strip-dead-prototypes/verify.
-  The mandatory `native-check MAJOR INPUT OUTPUT` stage must use the pinned
-  runtime adapter, whose complete source publication is verified when frozen.
-  Replay runs that adapter, verifies its recorded output hash and unchanged
-  input, and requires the checked output to feed the final closure. The final
-  closure hash and all three original input hashes are checked after replay.
-  Native support must be hashed and come from the pinned runtime publication;
-  sysroot native support must match that publication byte for byte. Other
-  leaves/transforms fail loudly. Final clang can consume the reproduced merged
-  bitcode with the driver's linker script, `_start`, map and no-undefined/fatal
-  warnings options. Scripts cannot introduce file/library inputs; comma/response
-  and library-search injection is forbidden. `-O2 -nostdlib -nostdinc -static`
-  and the exact output path are required, followed by actual ELF dynamic-library,
-  interpreter and undefined-symbol audits. No host libc/libm is accepted at any
-  merge or link stage. The driver still receives the explicit musl sysroot for
-  preparation; a final bitcode-only clang command need not repeat header options.
-  This integration remains unmeasured for the musl corpus because the frozen
-  prerequisite pins are red; passing synthetic adapter tests is not acceptance.
+* The native stage selects the frozen driver's published isolated hosted profile
+  with explicit `--bennett-native-provider` and `--bennett-native-target`, plus
+  matching-major plugin/runtime/arithmetic/checker/support/sysroot paths. The real
+  C launch-provider DSO is built offline from VM publication
+  `55cdc8c04b776684a44bec2b0058f309ed5a7d36`; the canonical JCS ideal target is
+  `targets/ideal-all-to-all.json` from target publication
+  `dd036711936c496f53f6f1a9bebeb686335bf7cc`. Both identities are in `pins.json`;
+  executable/target hashes are recorded in the run manifest. The provider remains
+  distinct from the VM executor pin. No host libc substitutes for the component.
+* Producer, probe and comparison receive the same explicit data base **65536** and
+  text base **4194304**, declared in `pins.json`. Existing ISA objects are never
+  relocated. The original materialised module and producer launch/build identities
+  remain the comparison subject, including original device-global IDs.
+* [hosted_native.py](hosted_native.py) audits each existing O0/O2 **component** ELF,
+  its exact static link/codegen argv, fixed global addresses/extents/alignment, heap
+  boundary, input hashes, checker coverage and pinned runtime/arithmetic closure.
+  [hosted_closure.py](hosted_closure.py) validates ordered prepare/check/finalise,
+  library, layout, gateway and host-import transformations with a closed input
+  vocabulary. The complete bitcode chain, including the pinned memory checker, is
+  replayed in scratch storage and both checked/final output hashes are verified.
+  No component is relinked as a new baseline and no ELF check targets a launcher
+  script. Hosted launcher/bootstrap/provider imports are audited separately through
+  their dependency inventories, hashes and actual loaded namespace closure.
+* For each O0/O2 execution the gate removes any previous runtime receipt, then
+  requires a fresh completed receipt, real isolated namespace, successful ISA load,
+  one binding call, one entry call and successful unload. It checks actual process
+  status/stdout against the literal oracle and rejects signal/provider faults.
+  It rechecks original inputs and both dependency closures after execution.
+  The source definedness and materialised fault obligations remain separate;
+  runtime checker coverage does not claim source UB erased by optimisation.
+  `native_audit.py` retains the legacy static adapter audit and its regressions.
 * The driver must supply `out/main/argv-replies.json` in the executors' existing
   `--replies` array format (`service`, `payload`, `reply`), with exactly one
   `bennett.argv` reply containing the selected argv/envp. The gate sends the same

@@ -12,7 +12,10 @@ import gate
 
 class GateChecks(unittest.TestCase):
     def new(self, tmp):
-        return gate.Gate(argparse.Namespace(output=tmp, timeout=300))
+        g = gate.Gate(argparse.Namespace(output=tmp, timeout=300))
+        g.native_provider = Path(tmp)/'provider.so'
+        g.native_target = Path(tmp)/'target.json'
+        return g
 
     def test_plain_fixture_and_valid_clause_tags(self):
         g = self.new(self.tmp)
@@ -180,7 +183,7 @@ class GateChecks(unittest.TestCase):
               str(out/'device.bc'),str(rt),str(ar),'/usr/lib/libc.a','-o',str(d/'native')]
         (out/'native-comparison.json').write_text(json.dumps({'llvm_major':18,
             'materialised_sha256':gate.sha(out/'device.bc'),'link_argv':argv}))
-        with self.assertRaisesRegex(gate.GateError,'unapproved comparison input'):
+        with self.assertRaisesRegex(AssertionError,'unapproved comparison input'):
             g.native(18)
 
     def test_command_evidence_records_nonzero_exit_and_timeout(self):

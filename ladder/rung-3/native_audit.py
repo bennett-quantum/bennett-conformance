@@ -23,21 +23,27 @@ def generated_path(value, out):
     return path
 
 
-def audit_script(path, out):
+def audit_script(path, out, extra_calls=(), identifiers=()):
     path = generated_path(path, out)
     text = path.read_text()
     code = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
     # A quoted filename is also an input selector in ld. Only ASSERT's final
     # diagnostic operand may be quoted; never erase arbitrary quoted tokens.
     for quoted in re.finditer(r'"[^"\n]*"', code):
-        require(re.search(r'\bASSERT\((?:[^()"]|\([^()"]*\))*,\s*$', code[:quoted.start()]),
+        prefix = code[:quoted.start()]
+        identifier = quoted.group()[1:-1] in identifiers and re.search(
+            r'(?:\b(?:DEFINED|ASSERT)\(\s*|\*\((?:"[^"\n]*"\s*)*)$', prefix)
+        require(identifier or re.search(r'\bASSERT\((?:[^()"]|\([^()"]*\))*,\s*$', prefix),
                 'linker script contains a quoted input')
+        if identifier:
+            code = code[:quoted.start()] + '_' * len(quoted.group()) + code[quoted.end():]
     code = re.sub(r'"[^"\n]*"', '', code)
     require(not re.search(r'\b(INPUT|GROUP|AS_NEEDED|INCLUDE|STARTUP|SEARCH_DIR|OUTPUT)\b', code, re.I),
             'linker script may not import files: '+str(path))
     require('/' not in code.replace('/DISCARD/', ''), 'linker script contains a file path')
     calls = re.findall(r'([\w.]+)\s*\(', code)
-    require(all(call in ('SECTIONS', 'ASSERT', 'ALIGN', 'KEEP', 'PROVIDE') for call in calls),
+    allowed = {'SECTIONS', 'ASSERT', 'ALIGN', 'KEEP', 'PROVIDE'} | set(extra_calls)
+    require(all(call in allowed for call in calls),
             'linker script has an opaque file selector or expression')
     require('SECTIONS' in code, 'linker script lacks SECTIONS')
 

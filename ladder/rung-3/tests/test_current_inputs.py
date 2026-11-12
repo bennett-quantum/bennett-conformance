@@ -52,6 +52,8 @@ class CurrentInputs(unittest.TestCase):
         self.assertEqual(self.g.manifest['reference']['sha256'], gate.sha(executable))
 
     def test_native_comparison_receives_the_pinned_same_major_support(self):
+        self.g.native_provider = self.root/'provider.so'
+        self.g.native_target = self.root/'target.json'
         self.g.plugin_build = self.root/'plugin/build'
         self.g.driver_exe = self.root/'driver'
         self.g.publications = {'bennett-runtimes': self.root/'published-runtime'}
@@ -67,6 +69,10 @@ class CurrentInputs(unittest.TestCase):
                     self.g.native(major, workload)
                 support = self.g.publications['bennett-runtimes']/f'dist/llvm{major}/musl-sysroot/lib/native-support.bc'
                 self.assertIn('--bennett-native-support='+str(support), calls[0])
+                self.assertIn('--bennett-native-provider='+str(self.g.native_provider), calls[0])
+                self.assertIn('--bennett-native-target='+str(self.g.native_target), calls[0])
+                for option in self.g.layout_options():
+                    self.assertIn(option, calls[0])
 
     def test_default_sysroot_is_from_the_frozen_runtime_publication(self):
         for major in (18, 23):

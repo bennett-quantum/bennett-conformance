@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """North Star §8 rung 3; incomplete prerequisites are red, never expected passes."""
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import io
 import json
@@ -13,7 +12,7 @@ import tarfile
 import tomllib
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'common'))
 from gate_support import GateError, RecordedGate, git, sha
-from native_audit import audit_comparison
+from hosted_native import audit_hosted, audit_execution
 from contract import validate_contract
 
 HERE = Path(__file__).resolve().parent
@@ -65,6 +64,8 @@ class Gate(RecordedGate):
                        'sysroots':{str(m):str(p) for m,p in self.sysroots.items()},
                        'gate_sha256':sha(HERE/'gate.py'),
                        'native_audit_sha256':sha(HERE/'native_audit.py'),
+                       'hosted_native_sha256':sha(HERE/'hosted_native.py'),
+                       'hosted_closure_sha256':sha(HERE/'hosted_closure.py'),
                        'shared_support_sha256':sha(HERE.parent/'common/gate_support.py'),
                        'blockers_sha256':sha(HERE/'blockers.json')}
 
@@ -126,15 +127,33 @@ class Gate(RecordedGate):
         assert not head, 'VM detached worktree dirty'
         # symbolic-ref returns 1 for detached HEAD; inspect rev-parse instead.
         assert git(src,'rev-parse','--abbrev-ref','HEAD')=='HEAD', 'VM is not detached'
-        self.command('build/vm-build',['cargo','build','--offline','--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.command('build/vm-build',['cargo','build','--offline','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
         self.vm_exe=src/'target/debug/bennett-vm'
         self.manifest['vm_sha256']=sha(self.vm_exe)
 
     def driver(self):
         src=self.freeze('bennett-driver',self.args.driver_rev)
-        self.command('build/driver-build',['cargo','build','--offline','--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
+        self.driver_source=src
+        self.command('build/driver-build',['cargo','build','--offline','-j',self.args.jobs,'--manifest-path',src/'Cargo.toml','--target-dir',src/'target'],timeout=600)
         self.driver_exe=src/'target/debug/bennett-driver'
         self.manifest['driver_sha256']=sha(self.driver_exe)
+        executor_revision=self.manifest['pins']['bennett-vm']
+        provider=self.freeze('bennett-vm',PINS['bennett-native-provider'])
+        # Keep the provider identity distinct from the executor's effective VM pin.
+        self.manifest['pins']['bennett-vm']=executor_revision
+        self.command('build/native-provider',['cargo','build','--offline','--lib','-j',self.args.jobs,
+            '--manifest-path',provider/'Cargo.toml','--target-dir',provider/'target'],timeout=600)
+        self.native_provider=provider/'target/debug/libbennett_vm.so'
+        targets=self.freeze('bennett-targets',PINS['bennett-targets'])
+        self.native_target=targets/PINS['native_target_path']
+        target=json.loads(self.native_target.read_bytes())
+        assert self.native_target.read_bytes()==json.dumps(target,sort_keys=True,separators=(',',':')).encode(), 'target is not canonical JCS'
+        self.manifest['native_provider']={'path':str(self.native_provider),'sha256':sha(self.native_provider)}
+        self.manifest['native_target']={'path':str(self.native_target),'sha256':sha(self.native_target)}
+
+    def layout_options(self):
+        return ['--bennett-layout-data-base='+str(PINS['layout_data_base']),
+                '--bennett-layout-text-base='+str(PINS['layout_text_base'])]
 
     def reference(self):
         override=getattr(self.args,'reference',None)
@@ -210,6 +229,7 @@ class Gate(RecordedGate):
         self.command(f'{m}/{workload}/'+('mode-probe' if probe else 'production'),[f'/usr/lib/llvm-{m}/bin/opt',
             '-load-pass-plugin='+str(self.plugin_build/f'libbennett-plugin-{m}.so'),'-passes=bennett',
             '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],'--bennett-tier=reversible','--bennett-entry=main',
+            *self.layout_options(),
             '-bennett-budget-default='+BUDGET+',65536','-bennett-out='+str(d/('probe-out' if probe else 'out')),
             '-disable-output',source])
         if probe:
@@ -236,6 +256,7 @@ class Gate(RecordedGate):
         runtime,arith=self.runtime_files(m)
         self.command(f'{m}/driver-probe',[self.driver_exe,'--bennett-tier=reversible','--bennett-entry=main',
             *self.driver_publications(m,runtime,arith),
+            *self.layout_options(),
             '-bennett-dialect='+self.contract[0],'-bennett-isa='+self.contract[1],'-bennett-out='+str(out),HERE/'fixtures/effect-console-r.ll'])
         assert (out/'launches.json').is_file(), 'driver returned success without pipeline outputs'
 
@@ -257,22 +278,29 @@ class Gate(RecordedGate):
             '--bennett-sysroot='+str(self.sysroots[m]),
             '--bennett-native-check='+str(self.publications['bennett-runtimes']/'scripts/native-check'),
             '--bennett-native-support='+str(self.publications['bennett-runtimes']/f'dist/llvm{m}/musl-sysroot/lib/native-support.bc'),
+            '--bennett-native-provider='+str(self.native_provider),
+            '--bennett-native-target='+str(self.native_target),*self.layout_options(),
             '--bennett-comparison-record='+str(out/'native-comparison.json'),
             '--bennett-comparison-output='+str(d/'native')])
         if not (out/'native-comparison.json').is_file():
             raise GateError('missing native comparison link record from driver')
         record=json.loads((out/'native-comparison.json').read_text())
         manifest=json.loads((work/'manifest.json').read_text()) if 'bitcode_link_argv' in record else {}
-        argv=audit_comparison(self,m,out/'device.bc',runtime,arith,record,manifest,d/'native')
-        self.command(f'{m}/{workload}/native-link',argv)
-        dynamic=self.command(f'{m}/{workload}/native-dynamic',['readelf','-d',d/'native'])
-        assert b'NEEDED' not in dynamic, 'comparison unexpectedly imports a shared library'
-        headers=self.command(f'{m}/{workload}/native-headers',['readelf','-l',d/'native'])
-        assert b'INTERP' not in headers, 'comparison unexpectedly has a dynamic interpreter'
-        undefined=self.command(f'{m}/{workload}/native-undefined',[f'/usr/lib/llvm-{m}/bin/llvm-nm','--undefined-only',d/'native'])
-        assert not undefined.strip(), 'native comparison unresolved imports'
-        output=self.command(f'{m}/{workload}/native-run',[d/'native'])
-        assert output==bytes.fromhex(self.expected(workload)['stdout_hex']), 'native stdout differs from corpus: '+workload
+        assert record.get('profile')=='bennett-driver-isolated-provider-1', 'unapproved comparison input/profile'
+        variants=json.loads((work/'native-comparisons.json').read_text())
+        assert sorted(v['variant'] for v in variants if v['status']=='linked')==['O0','O2'], 'missing/duplicate comparison variant'
+        assert record==next(v for v in variants if v['variant']=='O2'), 'primary comparison record mismatch'
+        seen=set()
+        for variant in variants:
+            if variant['variant'] not in ('O0','O2'):
+                continue
+            executable=d/('native' if variant['variant']=='O2' else 'native-O0')
+            config=audit_hosted(self,m,out/'device.bc',runtime,arith,variant,manifest,executable)
+            receipt=Path(str(executable)+'.runtime.json')
+            receipt.unlink(missing_ok=True)
+            output=self.command(f'{m}/{workload}/native-run-'+variant['variant'],[executable])
+            audit_execution(config,json.loads(receipt.read_text()),seen,self.expected(workload)['exit_status'],variant['inputs'].values())
+            assert output==bytes.fromhex(self.expected(workload)['stdout_hex']), 'native stdout differs from corpus: '+workload
         (d/'native.stdout').write_bytes(output)
 
     def executor(self,name):
@@ -442,8 +470,8 @@ class Gate(RecordedGate):
             for name in ('reference','VM'):
                 self.stage(m,name+' device/reset control (diagnostic)',lambda:self.control(m,name),('fixtures',)+(('VM build',) if name=='VM' else ('reference build',)))
                 self.stage(m,name+' replay API (diagnostic)',lambda:self.replay_probe(m,name),(name+' device/reset control (diagnostic)',))
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            list(pool.map(major,(18,23)))
+        for m in (18,23):
+            major(m)
         return self.finish()
 
 
@@ -467,6 +495,8 @@ def main():
     args=p.parse_args()
     if args.timeout<=0 or args.timeout>300:
         p.error('corpus timeout must be in 1..300 seconds')
+    if not 1<=args.jobs<=5:
+        p.error('build jobs must be in 1..5')
     return Gate(args).main()
 
 if __name__=='__main__':
