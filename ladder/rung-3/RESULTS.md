@@ -906,3 +906,30 @@ analysis runs complete; a profile of the remaining time places it in the
 production link step (function-address resolution), outside analysis. The 12
 BLOCKED rows are its printf_fmt consumers. **Rung acceptance is not
 established; bennett-conformance-7bx remains open.**
+
+## 2026-11-12: plugin pin bump to b120196
+
+Plugin `b120196` resolves production function and global addresses in one pass
+over the object text instead of one regular-expression rewrite per symbol, and
+reserves the coverage array. Before it, the LLVM 23 printf production of the
+previous plugin completed only after 9 min 42 s outside the gate. Gate run
+`20261112T072302.672674Z` on conformance `d40f4ef` with `--plugin-rev b120196`,
+exit **1**:
+
+| LLVM major | PASS / FAIL / BLOCKED |
+|---|---|
+| 18 | 34 / 3 / 8 |
+| 23 | 32 / 1 / 12 |
+
+* `18/printf_fmt` production now completes (55 s) and its launch artefacts
+  pass. Native comparison, reference admission and VM admission then fail on
+  the same object defect: ISA §3.3, `trunc.i80` applied to an `i64` operand
+  (a cast that does not narrow) in a long-double formatting function. The
+  producer owns this; the executors are right to reject it.
+* `23/printf_fmt` production stops with plugin §5.2 `analysis-resource`: the
+  third analysis exhausts the compiler thread-CPU allowance (PT8/PT9/PT12 at
+  `@memcpy`, round 18 of 33). With the gate's layout-base flags the analysis
+  does several times more work than without them; LLVM 18 completes it
+  within the allowance.
+
+**Rung acceptance is not established; bennett-conformance-7bx remains open.**
