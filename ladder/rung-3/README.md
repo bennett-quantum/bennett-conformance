@@ -168,10 +168,22 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
   The source definedness and materialised fault obligations remain separate;
   runtime checker coverage does not claim source UB erased by optimisation.
   `native_audit.py` retains the legacy static adapter audit and its regressions.
-* The driver must supply `out/main/argv-replies.json` in the executors' existing
-  `--replies` array format (`service`, `payload`, `reply`), with exactly one
-  `bennett.argv` reply containing the selected argv/envp. The gate sends the same
-  file during forward, reverse and replay. No console reply can be inserted.
+* Direct `opt` production does not run the driver's process-build serializer.
+  The gate acts as the launch adapter described by the pinned plugin's
+  `docs/R_PROCESS_ARGUMENTS.md` and requests empty argv/envp, matching the pinned
+  driver's default in `docs/PROCESS_ARGUMENTS.md`. It derives the protocol from
+  `build.json.entry_initialisation.arguments`, checks the object's declared
+  service/version and pointer width, and writes consumer `argv-replies.json`
+  in the executors' published `--replies` format (`service`, `payload`, `reply`).
+  A `bennett-argv-bytes-1` build receives the complete little-endian empty-vector
+  payload twice, for the 24-byte header and full allocation requests, using
+  `bennett.argv.bytes` v1. Other current builds retain one zeroed legacy
+  `bennett.argv` v0.2.10 header (i32 argc and two target-width null pointers).
+  Unknown protocols/versions fail. Reply, build and object hashes plus the
+  selected process context are recorded; forward, reverse and replay use the
+  same bytes and must report exactly those exchanges. No console/libc reply
+  can be inserted. The driver still publishes reply generation for its own
+  process-build route; no driver serializer defect is implied here.
 * The proposed saved-tape CLI is `--replay-tape <JSON array>`. A mismatched tape
   must fail with a replay mismatch/divergence diagnostic or a structured FAILED
   result with `replay_mismatch`. Equivalent real adapters can replace this glue;

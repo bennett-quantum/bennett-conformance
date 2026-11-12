@@ -328,7 +328,7 @@ The audit functions and mutation regressions were inspected together.
 "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
 "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
 "ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
-"ladder/rung-3/gate.py": [38, 38, 0, 0, 0, 0, 0, 36, 109, 0, 0],
+"ladder/rung-3/gate.py": [39, 39, 0, 0, 0, 0, 0, 36, 112, 0, 0],
 "ladder/rung-3/hosted_closure.py": [5, 5, 0, 0, 0, 0, 0, 42, 62, 0, 0],
 "ladder/rung-3/hosted_native.py": [10, 10, 0, 0, 0, 0, 0, 42, 66, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 74, 0, 0],
@@ -517,3 +517,11 @@ and a unique read-only file-backed LOAD range; a named symbol in that section
 cannot use this fallback. The new helper baseline covers those checks. Real
 LLVM ELF regressions retain named-global failures and reject byte, size,
 address and writable-load mutations.
+
+Rung 3 now supplies its direct-production launch replies as the consumer adapter
+specified by the pinned producer, selecting the legacy header or byte-import
+protocol from the emitted build and service identities. Its gate baseline adds
+one exchange validator and three units of measured branch mass for protocol
+selection and exact exchange checks. Independent empty-vector byte oracles,
+unknown protocol/version/width rejection, and forward/reverse/replay reply
+substitution tests cover the change. No unrelated baseline row is refreshed.

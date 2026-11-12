@@ -317,18 +317,56 @@ class Gate(RecordedGate):
             self.command(f'{m}/{workload}/{name}-{verb}',[self.executor(name),verb,self.obj(m,workload)])
 
     def argv_replies(self,m,workload='hello'):
-        # Gate adapter file from the driver: exact public executor --replies format.
-        path=self.workdir(m,workload)/'out/main/argv-replies.json'
-        replies=json.loads(path.read_text())
-        assert len(replies)==1 and replies[0]['service']=='bennett.argv', 'need exactly one argv/envp reply'
-        assert all(k in replies[0] for k in ('payload','reply')), 'incomplete argv/envp reply'
+        # Direct opt production has no driver process-build serializer. We are
+        # the launch adapter (plugin docs/R_PROCESS_ARGUMENTS.md), requesting the
+        # same empty process context as the driver's documented default.
+        d=self.workdir(m,workload)
+        build_path=d/'out/main/build.json'
+        build=json.loads(build_path.read_text())
+        width=build['layout']['ptr_width']
+        assert width in (32,64), 'unsupported argv pointer width'
+        text=self.obj(m,workload).read_text()
+        assert 'ptr_width='+str(width) in text.splitlines()[0].split(), 'argv pointer width differs from object'
+        devices=json.loads(text.split('\nsection devices\n',1)[1].split('\n\n',1)[0])
+        protocol=build['entry_initialisation'].get('arguments')
+        if protocol=='bennett-argv-bytes-1':
+            service,version='bennett.argv.bytes','1'
+            # Published v1 header: argc/reserved/envc/size, then both empty
+            # target-width vectors, each containing its null sentinel.
+            size=24+2*(width//8)
+            reply=bytes(16)+size.to_bytes(8,'little')+bytes(2*(width//8))
+            capacities=(24,size)
+        else:
+            assert protocol is None, 'unpublished argv argument protocol: '+str(protocol)
+            service,version='bennett.argv','0.2.10'
+            # Published legacy header: i32 argc and two target-width pointers.
+            # Empty context uses no native addresses or backing string regions.
+            reply=bytes(4+2*(width//8))
+            capacities=(len(reply),)
+        assert devices.get('services')=={service:{'version':version}}, 'unpublished argv service/version'
+        replies=[{'service':service,'payload':bytes(n).hex(),'reply':reply.hex()} for n in capacities]
+        path=d/'argv-replies.json'
+        path.write_text(json.dumps(replies,indent=2)+'\n')
+        self.manifest.setdefault('process_arguments',{}).setdefault(str(m),{})[workload]={
+            'adapter':'consumer-empty-process-context-1','argv':[],'envp':[],
+            'service':service,'version':version,'build_sha256':sha(build_path),
+            'object_sha256':sha(self.obj(m,workload)),'replies_sha256':sha(path)}
         return path
+
+    @staticmethod
+    def check_argv_exchanges(value,replies):
+        expected=json.loads(replies.read_text())
+        actual=value['host_requests']
+        assert len(actual)==len(expected), 'argv exchange count differs from supplied replies'
+        for request,reply in zip(actual,expected):
+            assert all(request.get(k)==v for k,v in reply.items()), 'argv exchange differs from supplied reply'
+            assert request['capacity']==len(bytes.fromhex(reply['payload'])), 'argv request capacity differs'
 
     @staticmethod
     def successful(value):
         assert value['fault'] is None and not value['faults'], 'faulted execution'
-        # §19.2 requires exactly the argv request at launch; reject unmodelled console/libc calls.
-        assert all(x.get('service')=='bennett.argv' for x in value['host_requests']), 'unmodelled host effect'
+        # §19.2 allows only the published argv launch service, never console/libc.
+        assert all(x.get('service') in ('bennett.argv','bennett.argv.bytes') for x in value['host_requests']), 'unmodelled host effect'
         assert value['results']==[{'type':'i32','value':'0'}], 'expected exit status i32 0'
 
     @staticmethod
@@ -346,6 +384,7 @@ class Gate(RecordedGate):
             argv+=['--reverse']
         value=json.loads(self.command(tag,argv))
         self.successful(value)
+        self.check_argv_exchanges(value,replies)
         assert value['status']==('REVERSED' if reverse else 'COMPLETED')
         assert value['run_state']=='CLOSED', 'launch not closed'
         native=(self.workdir(m,workload)/'native.stdout').read_bytes()
@@ -355,6 +394,7 @@ class Gate(RecordedGate):
             self.restored(value)
             r=json.loads(self.command(tag+'-history',[self.executor(name),'reverse',self.obj(m,workload),'main','--budget',BUDGET,'--replies',replies]))
             self.successful(r); self.restored(r)
+            self.check_argv_exchanges(r,replies)
             assert r['tape']==value['tape'], 'one-shot and retained-history tapes differ'
         else:
             assert bytes.fromhex(value['console_hex'])==native, 'console differs from native'
@@ -375,11 +415,13 @@ class Gate(RecordedGate):
         value=self.forward_results[(m,name,workload)]
         tape=self.workdir(m,workload)/(name+'-saved-tape.json')
         tape.write_text(json.dumps(value['tape'],indent=2)+'\n')
+        replies=self.argv_replies(m,workload)
         base=[self.executor(name),'run-program',self.obj(m,workload),'main','--budget',BUDGET,'--entropy','',
-              '--replies',self.argv_replies(m,workload)]
+              '--replies',replies]
         if not tampered:
             r=json.loads(self.command(f'{m}/{workload}/{name}-replay',base+['--replay-tape',tape]))
             self.successful(r)
+            self.check_argv_exchanges(r,replies)
             for field in ('status','results','console_hex','tape','effect_tape_length','run_state'):
                 assert r[field]==value[field], 'replay differs in '+field
             return
