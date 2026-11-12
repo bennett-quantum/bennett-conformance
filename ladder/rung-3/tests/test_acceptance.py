@@ -210,15 +210,18 @@ class AcceptanceTests(unittest.TestCase):
         self.assertEqual(self.g.rows[23]['probe']['beads'], ['bennett-conformance-igc'])
 
     def test_missing_buffered_tail_fails_every_executor(self):
+        replies = self.root/'argv-replies.json'
+        reply = dict(service='bennett.argv',payload='00'*20,reply='00'*20)
+        replies.write_text(json.dumps([reply]))
         for major in (18, 23):
             for workload in ('hello', 'printf_fmt'):
                 expected = bytes.fromhex(self.g.expected(workload)['stdout_hex'])
                 d = self.g.workdir(major, workload)
                 (d/'native.stdout').write_bytes(expected)
-                self.g.argv_replies = lambda *a: Path('/argv-replies.json')
+                self.g.argv_replies = lambda *a: replies
                 self.g.executor = lambda name: Path('/executor')
                 for executor in ('reference', 'VM'):
-                    value = {'fault':None, 'faults':[], 'host_requests':[],
+                    value = {'fault':None, 'faults':[], 'host_requests':[dict(reply,address=4096,capacity=20)],
                         'results':[{'type':'i32','value':'0'}], 'status':'COMPLETED',
                         'run_state':'CLOSED', 'console_hex':expected.hex(), 'effect_tape_length':1,
                         'tape':[{'dev':'console','op':'write','args':[4096,len(expected)],'bytes':expected.hex()}]}

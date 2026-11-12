@@ -784,3 +784,104 @@ ratchet self-test and check (PASS). The audit regressions cover provider/target
 selection, shared layout, closure replay and hostile leaves, original-input
 hashes, component ELF/range/heap checks, separate hosted dependency evidence,
 stale receipts, lifecycle outcomes, and actual stdout comparison.
+
+## 2026-11-12: published argv launch replies in the consumer
+
+Implementation `56efc02` fixes the missing-replies boundary without weakening any
+acceptance criterion or changing an implementation pin, fixture or budget. Contract ownership
+was established from the frozen publications before implementation:
+
+* Dialect `9bbf6dee` §19.2 requires the CC argv/envp launch service.
+* Plugin `512236ee`, `docs/R_PROCESS_ARGUMENTS.md`, publishes the launch-adapter
+  obligation and `bennett.argv.bytes` v1. The build marker
+  `entry_initialisation.arguments = "bennett-argv-bytes-1"` selects two requests
+  carrying the same complete payload; pointer-unused entries retain the legacy
+  `bennett.argv` header. Its `tests/r_process_arguments.py` and
+  `tests/reversible.py` publish executable examples of these reply formats.
+* Driver `aeb01e18`, `docs/PROCESS_ARGUMENTS.md`, publishes reply-file generation
+  during its process build and empty argv/envp by default. Its
+  `tests/process_arguments_codec.py` confirms both empty-context encodings.
+  Direct `opt` production does not invoke that serializer. The consumer is the
+  launch adapter on this route; no missing driver/plugin publication is inferred.
+
+The gate now selects the protocol from the actual build record, verifies the
+object's service/version and pointer width, and generates consumer
+`argv-replies.json`. Forward, both reversal paths and saved replay must report
+exactly the selected request capacities, payloads and replies. No console/libc
+host reply is permitted. Build/object/reply hashes and the empty process context
+are recorded in the manifest. Unknown protocols or versions fail at this row.
+
+Both actual hello objects select legacy `bennett.argv` v0.2.10 with a zeroed
+20-byte header (argc 0 and two null pointers). The reply file SHA-256 is
+`e10c9501b9b550b5d4ad16d676dd16b536ef8333ea2828b2c13e8d44ba95ae2d`
+on both majors. Empty byte-import contexts at 32/64 bits are covered by glue
+regressions; this run does not claim a byte-import corpus execution.
+
+The full unchanged hello + formatted-printf gate built its own pinned components
+and ran with:
+
+```sh
+env -u DISPLAY -u WAYLAND_DISPLAY -u DBUS_SESSION_BUS_ADDRESS -u BROWSER \
+  TMPDIR="$PWD/.tmp" CARGO_BUILD_JOBS=4 RUST_TEST_THREADS=4 \
+  ladder/rung-3/gate.sh --jobs 4 --output .tmp/argv/runs
+```
+
+Run `20261112T063949.118296Z`, exit **1**, **195 recorded commands**, no recorded
+command timeout. The local `report.json` SHA-256 is
+`1fbbe52bc90e7518e91e585fc418da6cb78ef436ec6ceb363465a6b7bd685979`.
+All four gate/audit source fingerprints match the implementation. Raw receipts
+and exact per-command argv remain in the local run directory; no raw logs or
+host paths are copied into this append.
+
+| LLVM major | Prior recorded run (PASS / FAIL / BLOCKED) | This run (PASS / FAIL / BLOCKED) |
+|---|---|---|
+| 18 | 23 / 4 / 18 | 31 / 2 / 12 |
+| 23 | 23 / 4 / 18 | 31 / 2 / 12 |
+
+The prior counts were independently read from the previous section's
+`20261112T062703.088778Z` report, whose SHA-256 matches its recorded digest;
+they are not a second baseline execution here. Both runs have 45 rows per major.
+
+Every hello row now passes on both majors. The isolated hosted native comparison
+passes O0/O2. Reference and VM forward runs complete with i32 status 0, exact
+`hello, world\n`, no faults and exactly the supplied argv exchange. Their ordered
+console tapes contain two writes (12 bytes and LF). Both `run-program --reverse`
+and retained-history `reverse` report REVERSED, full-state and memory equality,
+equal entry/final memory digests, no first difference, empty console and zero
+live effect-tape length. Saved-tape replay with empty entropy reproduces the
+status, result, console, tape and length. All four corrupted-tape commands exit
+1 with a §7.3/§10 replay-mismatch diagnostic at the first console effect.
+
+The remaining failures were left unchanged in ownership and scope:
+
+| LLVM | Row / command tag | Owner | Determining observation |
+|---|---|---|---|
+| 18 | printf_fmt: reversible production / `18/printf_fmt/production` | plugin, `bp-owg` | §5.2 PT8/PT9/PT12 budget exhausted at `AV(%58)` in `@trans_eval`; thread CPU milliseconds, `llvm.lifetime.end.p0(i64 80, ptr nonnull %58)` |
+| 23 | printf_fmt: reversible production / `23/printf_fmt/production` | plugin, `bp-owg` | §5.2 PT8/PT9/PT12 budget exhausted at `AV(%3)` in `@texp`; thread CPU milliseconds, `llvm.lifetime.start.p0(ptr nonnull %3)` |
+| 18, 23 | driver probe (diagnostic) / `18/driver-probe`, `23/driver-probe` | plugin | Driver exits 1 with `DRIVER-PLUGIN-REFUSAL`, §19 inputs/options and §25 fail-loud obligations; producer signal 11 (SIGSEGV), `lowerQuantumMarker`, `src/ProductionMultiGates.inc:73:57`. |
+
+The probe remains `UNFILED` in the unchanged historical classifier; its measured
+implementation owner is the plugin, as shown by both backtraces. It is independent
+of the hello corpus chain. Every BLOCKED row inherits `bp-owg`: formatted launch
+artefacts and native comparison, plus each executor's admission, forward, reset,
+saved replay and corrupt-tape rejection (12 per major). No new cross-repo argv
+contract gap was found, no upstream implementation was substituted, and neither
+other failure was worked around. **Rung acceptance remains BLOCKED;
+bennett-conformance-7bx stays BLOCKED until the complete gate exits 0.**
+
+Verification in the same headless, repository-local temporary environment:
+
+* `python3 -B -m unittest discover -s ladder/rung-3/tests`: **50 PASS**, no skips,
+  including real LLVM18/23 native receipt integration. An initial run found one
+  older stdout fixture still using a nonexistent reply path; supplying its real
+  synthetic argv exchange preserved the buffered-tail assertion and made it pass.
+* `python3 -B ladder/rung-3/check_gate.py`: **12 PASS**.
+* `python3 -B scripts/quality_ratchet.py --self-test` and
+  `python3 -B scripts/quality_ratchet.py`: **PASS**. Only the owned gate baseline
+  row changed, with its measured explanation in `docs/quality.md`.
+
+The new protocol tests failed against the original missing-file implementation.
+A no-op mutation of the exchange validator is rejected by the tests (six
+assertion failures), including real call wiring for forward, both reversal paths
+and replay. These glue checks do not replace corpus evidence. Only test-fixture
+and documentation changes followed the completed full-run source measurement.
