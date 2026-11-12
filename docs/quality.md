@@ -331,7 +331,7 @@ The audit functions and mutation regressions were inspected together.
 "ladder/rung-3/gate.py": [39, 39, 0, 0, 0, 0, 0, 36, 112, 0, 0],
 "ladder/rung-3/process_preparation.py": [3, 3, 0, 0, 0, 0, 0, 37, 4, 0, 0],
 "ladder/rung-3/hosted_closure.py": [5, 5, 0, 0, 0, 0, 0, 42, 62, 0, 0],
-"ladder/rung-3/hosted_native.py": [10, 10, 0, 0, 0, 0, 0, 42, 66, 0, 0],
+"ladder/rung-3/hosted_native.py": [11, 11, 0, 0, 0, 0, 0, 42, 69, 0, 0],
 "ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 74, 0, 0],
 "ladder/rung-4/gate.py": [83, 83, 0, 0, 0, 0, 0, 48, 222, 2, 0],
 "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],
@@ -532,3 +532,11 @@ before LTO. The new preparation helper baseline covers input/contract/major and
 artefact hash checks plus the non-corpus buffered-return diagnostic, which runs
 the same gate pipeline through both executors. No acceptance check or budget
 is removed or increased; no unrelated baseline row is refreshed.
+
+The rung-3 native gateway audit derives the C main signature from the original
+materialised bitcode, then requires the exact pinned declaration, input
+registration and ordered argument forwarding. Its owned baseline adds three
+units of branch mass for signature validation and the zero-argument path;
+source equality, bitcode replay and every closure/lifecycle check remain.
+Regressions reject a legacy gateway on a prepared entry, swapped argv/envp and
+missing native-input registration, while retaining all three published main ABIs.

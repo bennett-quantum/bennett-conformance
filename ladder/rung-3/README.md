@@ -183,6 +183,9 @@ missing adapters are tracked as integration blockers, not invented ISA defects:
   library, layout, gateway and host-import transformations with a closed input
   vocabulary. The complete bitcode chain, including the pinned memory checker, is
   replayed in scratch storage and both checked/final output hashes are verified.
+  The gateway's exact declaration, argument forwarding and native input registration
+  are checked against the materialised `main` signature, including the driver's
+  three-parameter prepared entry; source equality and bitcode replay remain required.
   No component is relinked as a new baseline and no ELF check targets a launcher
   script. Hosted launcher/bootstrap/provider imports are audited separately through
   their dependency inventories, hashes and actual loaded namespace closure.
