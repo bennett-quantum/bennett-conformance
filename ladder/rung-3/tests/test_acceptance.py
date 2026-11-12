@@ -548,13 +548,16 @@ class AcceptanceTests(unittest.TestCase):
                     self.g.native(m,workload)
 
     def test_saved_and_corrupted_tapes_for_each_workload(self):
-        self.g.argv_replies = lambda *a: Path('/argv-replies.json')
+        replies = self.root/'argv-replies.json'
+        reply = dict(service='bennett.argv',payload='00'*20,reply='00'*20)
+        replies.write_text(json.dumps([reply]))
+        self.g.argv_replies = lambda *a: replies
         self.g.executor = lambda *a: Path('/executor')
         for major in (18, 23):
             for executor in ('reference', 'VM'):
                 for workload in ('hello', 'printf_fmt'):
                     expected = bytes.fromhex(self.g.expected(workload)['stdout_hex'])
-                    value = {'fault':None, 'faults':[], 'host_requests':[],
+                    value = {'fault':None, 'faults':[], 'host_requests':[dict(reply,address=4096,capacity=20)],
                         'results':[{'type':'i32','value':'0'}], 'status':'COMPLETED',
                         'run_state':'CLOSED', 'console_hex':expected.hex(), 'effect_tape_length':2,
                         'tape':[{'dev':'console','op':'write','args':[4096,0],'bytes':''},

@@ -214,12 +214,15 @@ class GateChecks(unittest.TestCase):
 
     def test_replay_consumes_saved_tape_and_detects_tampering(self):
         g = self.new(self.tmp)
-        value={'status':'COMPLETED','fault':None,'faults':[], 'host_requests':[],
+        reply = dict(service='bennett.argv',payload='00'*20,reply='00'*20)
+        replies = Path(self.tmp)/'argv-replies.json'
+        replies.write_text(json.dumps([reply]))
+        value={'status':'COMPLETED','fault':None,'faults':[], 'host_requests':[dict(reply,address=4096,capacity=20)],
                'results':[{'type':'i32','value':'0'}], 'console_hex':b'hello, world\n'.hex(),
                'tape':[{'dev':'console','op':'write','args':[4096,13], 'bytes':b'hello, world\n'.hex()}],
                'effect_tape_length':1, 'run_state':'CLOSED'}
         g.forward_results={(18,'reference','hello'):value}
-        g.argv_replies=lambda m,workload:Path('/argv-replies.json')
+        g.argv_replies=lambda m,workload:replies
         calls=[]
         g.executor=lambda name:Path('/executor')
         def command(tag, argv, **kw):
