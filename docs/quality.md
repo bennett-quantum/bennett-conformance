@@ -231,6 +231,11 @@ with no external grade, complexity ceiling or coverage threshold. Baseline
 updates require a reviewed explanation; `--record` is an explicit maintenance
 operation and is never invoked by the gate.
 
+The isolated native consumer adds closure replay, fixed-range and separate hosted
+namespace/lifecycle audits. Its new modules and the expanded gate/linker parser
+are measured explicitly below; all unrelated baseline rows remain unchanged.
+The audit functions and mutation regressions were inspected together.
+
 <!-- quality-baseline -->
 ```json
 {"fields": ["functions", "length_le_50", "length_51_100", "length_101_300", "length_gt_300", "over_50", "over_100", "max_lines", "cognitive_mass", "trivial_wrappers", "process_identifiers"],
@@ -323,8 +328,10 @@ operation and is never invoked by the gate.
 "ladder/rung-1/revision_sources.py": [11, 11, 0, 0, 0, 0, 0, 28, 52, 0, 0],
 "ladder/rung-2/gate.py": [23, 23, 0, 0, 0, 0, 0, 31, 80, 0, 0],
 "ladder/rung-3/contract.py": [2, 2, 0, 0, 0, 0, 0, 22, 23, 0, 0],
-"ladder/rung-3/gate.py": [37, 37, 0, 0, 0, 0, 0, 30, 100, 0, 0],
-"ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 70, 0, 0],
+"ladder/rung-3/gate.py": [38, 38, 0, 0, 0, 0, 0, 36, 109, 0, 0],
+"ladder/rung-3/hosted_closure.py": [5, 5, 0, 0, 0, 0, 0, 42, 62, 0, 0],
+"ladder/rung-3/hosted_native.py": [10, 10, 0, 0, 0, 0, 0, 42, 66, 0, 0],
+"ladder/rung-3/native_audit.py": [12, 12, 0, 0, 0, 0, 0, 43, 74, 0, 0],
 "ladder/rung-4/gate.py": [83, 83, 0, 0, 0, 0, 0, 48, 222, 2, 0],
 "ladder/rung-4/revision_sources.py": [6, 6, 0, 0, 0, 0, 0, 28, 37, 0, 0],
 "scripts/quality_ratchet.py": [10, 10, 0, 0, 0, 0, 0, 37, 101, 0, 0],
