@@ -61,7 +61,7 @@ Defaults are immutable commits in [pins.json](pins.json), not moving HEADs:
 | Input | Commit | Reason |
 |---|---|---|
 | Dialect 0.3-r1 | `9bbf6dee3ab6ce94030e01a1af98df28fe19e683` | Pushed dialect main; publishes the accepted classical R profile and its ISA 0.9 compatibility identity. |
-| Plugin | `b1201960ac978988a83b4e917c98663d5b50574c` | Pushed producer main; includes the marker-classifier crash fix (d296bbc), the PT9 byval snapshot fix (bp-owg) and single-pass production address relocation (job/r3link). |
+| Plugin | `5a9d8a2f597a84ad66d2575b3850cf86329d0d9c` | Pushed producer main; adds widening-cast lowering for wide exit values (job/r3trunc) and reduced analysis work (job/r3cpu) to the earlier crash, byval and relocation fixes. |
 | VM | `058dc2229bf7cabb25f10b16d816b6802a92a9fe` | Pushed executor main at the ladder launch; adopts the 0.9 headers and explicit ABI family providers, retaining region lifetime support. |
 | Driver | `aeb01e1872df12689890598398e49f72851424c2` | Published isolated hosted provider startup and normalised exit cleanup. |
 | Runtimes | `7559e3bb40e824352ba6afaa5ed37e6a9860faf3` | Pushed runtime main; supplies the frozen musl headers, runtime, native-support bitcode and native-check adapter. |

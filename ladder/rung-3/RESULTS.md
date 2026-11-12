@@ -933,3 +933,29 @@ exit **1**:
   within the allowance.
 
 **Rung acceptance is not established; bennett-conformance-7bx remains open.**
+
+## 2026-11-12: plugin pin bump to 5a9d8a2
+
+Plugin `5a9d8a2` lowers the synthesised zero of a wide process-exit result with
+`zext` where it widens (ISA §3.3) and does less analysis work for the same
+results, so printf_fmt production completes within the existing thread-CPU
+allowance on both majors. Gate run `20261112T092903.370535Z` on conformance
+`4432021` with `--plugin-rev 5a9d8a2`, exit **1**, on a host shared with other
+heavy jobs:
+
+| LLVM major | PASS / FAIL / BLOCKED |
+|---|---|
+| 18 | 34 / 3 / 8 |
+| 23 | 35 / 2 / 8 |
+
+printf_fmt production and launch artefacts now pass on both majors (58 s and
+136 s). Every remaining failure is an executor command reaching the gate's
+existing 300-second per-command limit on the printf object (63 MB, 2.6 million
+lines): the native run (both majors), VM admission (both majors) and reference
+admission (LLVM 18; LLVM 23 completed in 292 s). These are UNKNOWN, not
+verdicts. Profiles of both executors' admission put the time in a linear search
+for blocks by name. A separate diagnostic run showed that the reference forward
+run then prints only the first printf line: the gate's production route does
+not yet apply the dialect §19.2 process preparation, so returning from `main`
+does not flush stdio. **Rung acceptance is not established;
+bennett-conformance-7bx remains open.**
